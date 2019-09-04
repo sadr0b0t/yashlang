@@ -1,0 +1,62 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "su.sadrobot.yashlang"
+        minSdkVersion 17
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    // ViewPager, RecyclerView
+    implementation 'androidx.viewpager:viewpager:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+
+
+    // TabLayout
+    implementation 'com.google.android.material:material:1.0.0'
+    // tab widget in NewPipe added in this way
+    // android.support.design.widget.
+    // implementation "com.android.support:design:${supportLibVersion}"
+
+    // ROOM
+    // https://developer.android.com/jetpack/androidx/releases/room
+    def room_version = "2.1.0"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    // optional - RxJava support for Room
+    //implementation "androidx.room:room-rxjava2:$room_version"
+    // optional - Guava support for Room, including Optional and ListenableFuture
+    //implementation "androidx.room:room-guava:$room_version"
+    // Test helpers
+    //testImplementation "androidx.room:room-testing:$room_version"
+
+    // NewPipe: youtube parser
+    // https://github.com/TeamNewPipe/NewPipeExtractor
+    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.16.2"
+    implementation 'androidx.paging:paging-runtime:2.1.0'
+
+    // google Exoplayer
+    // https://github.com/google/ExoPlayer
+    // https://exoplayer.dev/
+    // https://androidwave.com/play-youtube-video-in-exoplayer/
+    implementation 'com.google.android.exoplayer:exoplayer:2.7.3'
+}

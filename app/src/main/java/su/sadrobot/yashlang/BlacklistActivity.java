@@ -1,0 +1,189 @@
+package su.sadrobot.yashlang;
+
+/*
+ * Created by Anton Moiseev (sadr0b0t) in 2019.
+ *
+ * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
+ * BlacklistActivity.java is part of YaShlang.
+ *
+ * YaShlang is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * YaShlang is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.paging.DataSource;
+import androidx.paging.LivePagedListBuilder;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import su.sadrobot.yashlang.model.VideoDatabase;
+import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.view.OnListItemClickListener;
+import su.sadrobot.yashlang.view.OnListItemSwitchListener;
+import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
+
+/**
+ *
+ */
+public class BlacklistActivity extends AppCompatActivity {
+
+    private RecyclerView videoList;
+    private View emptyView;
+
+    private Handler handler = new Handler();
+
+    private LiveData<PagedList<VideoItem>> videoItemsLiveData;
+    private VideoDatabase videodb;
+
+    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+        // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
+        // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
+        // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
+        private void checkIfEmpty() {
+            final boolean listIsEmpty = videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0;
+            emptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
+            videoList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
+        }
+
+        @Override
+        public void onChanged() {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+    };
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_blacklist);
+
+        emptyView = findViewById(R.id.empty_view);
+        videoList = findViewById(R.id.video_list);
+
+        // set a LinearLayoutManager with default vertical orientation
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        videoList.setLayoutManager(linearLayoutManager);
+
+        // подключимся к базе один раз при создании активити,
+        // закрывать подключение в onDestroy
+        videodb = VideoDatabase.getDb(BlacklistActivity.this);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        setupVideoListAdapter();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (videodb != null) {
+            videodb.close();
+        }
+    }
+
+    private void setupVideoListAdapter() {
+        if (videoItemsLiveData != null) {
+            videoItemsLiveData.removeObservers(this);
+        }
+        if (videoList.getAdapter() != null) {
+            videoList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
+        }
+
+        final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(this,
+                new OnListItemClickListener<VideoItem>() {
+                    @Override
+                    public void onItemClick(View view, int position, VideoItem item) {
+                        final Intent intent = new Intent(BlacklistActivity.this, WatchVideoActivity.class);
+                        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, item.getId());
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(View view, int position, VideoItem item) {
+                        Toast.makeText(BlacklistActivity.this, position + ":" +
+                                        item.getId() + ":" + item.getThumbUrl(),
+                                Toast.LENGTH_LONG).show();
+                        return false;
+                    }
+                },
+                new OnListItemSwitchListener<VideoItem>() {
+                    @Override
+                    public void onItemCheckedChanged(final CompoundButton buttonView, final int position, final VideoItem item, final boolean isChecked) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                videodb.videoItemDao().setBlacklisted(item.getId(), !isChecked);
+
+                                // здесь тоже нужно обновить вручную, т.к. у нас в адаптере
+                                // хранятся уже загруженные из базы объекты и просто так
+                                // они сами себя не засинкают
+                                item.setBlacklisted(!isChecked);
+                            }
+                        }).start();
+
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //videoList.getAdapter().notifyDataSetChanged();
+                            }
+                        });
+
+                    }
+                });
+        // если список пустой, показываем специальный экранчик с сообщением
+        adapter.registerAdapterDataObserver(emptyListObserver);
+
+        // Initial page size to fetch can also be configured here too
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+
+        final DataSource.Factory factory =
+                videodb.videoItemDao().getBlacklistDs();
+
+        videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
+
+        videoItemsLiveData.observe(this, new Observer<PagedList<VideoItem>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<VideoItem> videos) {
+                adapter.submitList(videos);
+            }
+        });
+
+        videoList.setAdapter(adapter);
+    }
+}
