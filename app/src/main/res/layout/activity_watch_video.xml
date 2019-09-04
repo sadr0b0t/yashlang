@@ -12,13 +12,13 @@
         android:id="@+id/go_away_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Go back" />
+        android:text="@string/go_back" />
 
     <Button
         android:id="@+id/prev_video_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="prev" />
+        android:text="@string/prev_video" />
 
     <LinearLayout
         android:id="@+id/video_info_view"

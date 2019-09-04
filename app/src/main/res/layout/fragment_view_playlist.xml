@@ -32,13 +32,13 @@
         android:id="@+id/delete_playlist_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Delete" />
+        android:text="@string/delete" />
 
     <Button
         android:id="@+id/disable_playlist_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Disable" />
+        android:text="@string/disable" />
 
     <Button
         android:id="@+id/enable_playlist_btn"

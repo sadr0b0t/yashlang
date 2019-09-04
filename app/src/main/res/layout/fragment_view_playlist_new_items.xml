@@ -57,7 +57,7 @@
         android:id="@+id/add_new_items_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add"
+        android:text="@string/add"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -77,7 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="No new items in this playlist so far" />
+            android:text="@string/no_new_items_in_playlist" />
 
         <ProgressBar
             android:id="@+id/check_progress"
@@ -92,7 +92,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:text="CHECK FOR NEW ITEMS" />
+            android:text="@string/check_for_new_items" />
 
         <TextView
             android:id="@+id/check_error_txt"

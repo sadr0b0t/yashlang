@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autoLink="web"
-        android:hint="channel or playlist name"
+        android:hint="@string/channel_or_playlist_name"
         android:inputType="textUri"
         android:text=""/>
 

@@ -12,25 +12,25 @@
         android:id="@+id/config_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Configure" />
+        android:text="@string/configure" />
 
     <Button
         android:id="@+id/search_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search" />
+        android:text="@string/search" />
 
     <Button
         android:id="@+id/history_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="History" />
+        android:text="@string/history" />
 
     <Button
         android:id="@+id/starred_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Faves" />
+        android:text="@string/faves" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/video_recommend_list"

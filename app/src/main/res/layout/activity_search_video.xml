@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autoLink="web"
-        android:hint="search video"
+        android:hint="@string/search_video"
         android:inputType="text"/>
 
     <androidx.recyclerview.widget.RecyclerView

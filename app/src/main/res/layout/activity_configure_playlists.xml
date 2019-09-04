@@ -11,12 +11,12 @@
         android:id="@+id/add_src_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add playlist" />
+        android:text="@string/add_playlist" />
     <Button
         android:id="@+id/goto_blacklist_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Blacklist" />
+        android:text="@string/blacklist" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/video_src_list"

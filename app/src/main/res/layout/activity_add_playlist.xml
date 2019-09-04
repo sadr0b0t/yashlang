@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="web"
-            android:hint="channel or playlist url"
+            android:hint="@string/channel_or_playlist_url"
             android:inputType="textUri"
             android:text="" />
 
@@ -27,7 +27,7 @@
             android:id="@+id/playlist_search_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Search" />
+            android:text="@string/search" />
 
 
         <LinearLayout
@@ -41,14 +41,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Add new playlist" />
+                android:text="@string/add_new_playlist" />
 
             <Button
                 android:id="@+id/playlist_search2_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:text="SEARCH" />
+                android:text="@string/search" />
         </LinearLayout>
 
         <LinearLayout
@@ -78,21 +78,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Failed to load list" />
+                android:text="@string/failed_to_load_list" />
 
             <Button
                 android:id="@+id/playlist_reload_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:text="RELOAD" />
+                android:text="@string/reload" />
 
             <Button
                 android:id="@+id/playlist_search3_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:text="SEARCH" />
+                android:text="@string/search" />
 
             <TextView
                 android:id="@+id/playlist_load_error_txt"
@@ -134,7 +134,7 @@
                 android:id="@+id/playlist_add_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Add" />
+                android:text="@string/add" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/video_list"
@@ -153,7 +153,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Adding playlist..." />
+            android:text="@string/adding_playlist" />
 
         <TextView
             android:id="@+id/playlist_add_pl_url_txt"
@@ -224,14 +224,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:text="RETRY" />
+                android:text="@string/retry" />
 
             <Button
                 android:id="@+id/playlist_add_cancel_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:text="CANCEL" />
+                android:text="@string/cancel" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

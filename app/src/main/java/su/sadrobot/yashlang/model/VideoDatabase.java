@@ -27,7 +27,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 
-@Database(entities = {VideoItem.class, PlaylistInfo.class}, exportSchema = false, version = 0)
+@Database(entities = {VideoItem.class, PlaylistInfo.class}, exportSchema = false, version = 16)
 public abstract class VideoDatabase extends RoomDatabase {
     public abstract VideoItemDao videoItemDao();
     public abstract PlaylistInfoDao playlistInfoDao();
