@@ -24,4 +24,5 @@
     <string name="no_new_items_in_playlist">No new items in this playlist so far</string>
     <string name="check_for_new_items">Check for new items</string>
     <string name="channel_or_playlist_url">channel or playlist url</string>
+    <string name="filter">filter</string>
 </resources>

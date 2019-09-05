@@ -68,10 +68,7 @@ import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- */
+
 public class WatchVideoActivity extends AppCompatActivity {
     // https://github.com/google/ExoPlayer
     // https://exoplayer.dev/
@@ -182,12 +179,15 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoPlayerView.requestFocus();
         videoPlayerView.setPlayer(exoPlayer);
 
-        // Будем прятать элементы управления в полноэкранном режиме при клике по плееру
+        // Мы можем запретить прятать элементы управления по клику на области рядом с видео, но
+        // мы не можем запретить показывать их по клику на этой же области, поэтому пусть
+        // пока и прятать будет можно.
+        // Хотелось изначально: будем прятать элементы управления в полноэкранном режиме при клике по плееру
         // и всегда показывать в режиме с уменьшенным экраном видео с кнопками управления
         // и списком рекомендаций.
         // (Если оставить флаг true, кнопки управления с полосой прокрутки можно будет дополнительно
-        // прятать кликом слева или справа от видео даже в режиме неполного экрана)
-        videoPlayerView.setControllerHideOnTouch(false);
+        // прятать кликом слева или справа от видео)
+        //videoPlayerView.setControllerHideOnTouch(false);
 
         // https://stackoverflow.com/questions/52365953/exoplayer-playerview-onclicklistener-not-working
         videoPlayerView.getVideoSurfaceView().setOnClickListener(new View.OnClickListener() {
@@ -284,6 +284,18 @@ public class WatchVideoActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // В onResume, т.к. после сворачивания и разворачивания приложения (или после выключения и
+        // включения экрана) панель навигации появляется опять.
+        // Чтобы в полном экране спрятать виртуальную панельку навигации не достаточно флагов в styles.xml
+        // https://stackoverflow.com/questions/14178237/setsystemuivisibilitysystem-ui-flag-layout-hide-navigation-does-not-work
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         //
         setupVideoListAdapter();

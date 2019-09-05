@@ -24,4 +24,5 @@
     <string name="no_new_items_in_playlist">Для этого списка пока нет новых элементов</string>
     <string name="check_for_new_items">Проверить, есть что нового</string>
     <string name="channel_or_playlist_url">адрес url плейлиста или канала</string>
+    <string name="filter">фильтр</string>
 </resources>

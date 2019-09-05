@@ -13,7 +13,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="su.sadrobot.yashlang.Glagna"
+            android:name=".Glagna"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
@@ -23,60 +23,51 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name="su.sadrobot.yashlang.WatchVideoActivity"
+            android:name=".WatchVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"></activity>
-
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />
         <activity
-            android:name="su.sadrobot.yashlang.AddPlaylistActivity"
+            android:name=".AddPlaylistActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme"></activity>
-
+            android:theme="@style/AppTheme" />
         <activity
-            android:name="su.sadrobot.yashlang.SearchOnlinePlaylistActivity"
+            android:name=".SearchOnlinePlaylistActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme"></activity>
-
+            android:theme="@style/AppTheme" />
         <activity
-            android:name="su.sadrobot.yashlang.ViewPlaylistActivity"
+            android:name=".ViewPlaylistActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme"></activity>
-
+            android:theme="@style/AppTheme" />
         <activity
-            android:name="su.sadrobot.yashlang.ConfigurePlaylistsActivity"
+            android:name=".ConfigurePlaylistsActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme"></activity>
-
+            android:theme="@style/AppTheme" />
         <activity
-            android:name="su.sadrobot.yashlang.SearchVideoActivity"
+            android:name=".SearchVideoActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme"></activity>
-
+            android:theme="@style/AppTheme" />
         <activity
-            android:name="su.sadrobot.yashlang.HistoryActivity"
+            android:name=".HistoryActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme"></activity>
-
+            android:theme="@style/AppTheme" />
         <activity
-            android:name="su.sadrobot.yashlang.StarredActivity"
+            android:name=".StarredActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme"></activity>
-
+            android:theme="@style/AppTheme" />
         <activity
-            android:name="su.sadrobot.yashlang.BlacklistActivity"
+            android:name=".BlacklistActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme"></activity>
-
+            android:theme="@style/AppTheme" />
     </application>
+
 </manifest>
