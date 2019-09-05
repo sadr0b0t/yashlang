@@ -9,12 +9,6 @@
     tools:context=".WatchVideoActivity">
 
     <Button
-        android:id="@+id/go_away_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/go_back" />
-
-    <Button
         android:id="@+id/prev_video_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

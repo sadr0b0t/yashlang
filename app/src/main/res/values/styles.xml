@@ -16,4 +16,14 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
+
+    <style name="WatchVideoTheme" parent="@style/Theme.AppCompat">
+        <!-- Заголовок окна: его по умолчанию и так нет -->
+        <!-- <item name="android:windowNoTitle">true</item> -->
+        <!-- Панель действий: не понятно, на что влияет это параметр, эта палька в таком
+         варианте вылезает в любом случае, пока ее не спрячешь из кода -->
+        <!-- <item name="android:windowActionBar">false</item> -->
+        <!-- Верхняя панель устройства (время, заряд и т.п.) -->
+        <item name="android:windowFullscreen">true</item>
+    </style>
 </resources>

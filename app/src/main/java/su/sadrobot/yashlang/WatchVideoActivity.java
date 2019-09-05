@@ -23,6 +23,7 @@ package su.sadrobot.yashlang;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -103,9 +104,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
     private PlayerView videoPlayerView;
     private View videoInfoView;
-    private TextView videoInfoTxt;
     private Switch starredSwitch;
-    private Button goAwayBtn;
     private Button prevVideoBtn;
     private RecyclerView videoList;
 
@@ -130,11 +129,8 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         videoPlayerView = findViewById(R.id.video_player_view);
         videoInfoView = findViewById(R.id.video_info_view);
-        videoInfoTxt = findViewById(R.id.video_info_txt);
         starredSwitch = findViewById(R.id.starred_switch);
-        goAwayBtn = findViewById(R.id.go_away_btn);
         prevVideoBtn = findViewById(R.id.prev_video_btn);
-        videoInfoTxt = findViewById(R.id.video_info_txt);
         videoList = findViewById(R.id.video_recommend_list);
 
         // Ручные настройки анимации вместо параметра
@@ -144,14 +140,10 @@ public class WatchVideoActivity extends AppCompatActivity {
 //        lt.disableTransitionType(LayoutTransition.DISAPPEARING);
 //        contentView.setLayoutTransition(lt);
 
-        prevVideoBtn.setEnabled(false);
+        // кнопка "Назад" на акшенбаре
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        goAwayBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WatchVideoActivity.this.finish();
-            }
-        });
+        prevVideoBtn.setEnabled(false);
 
         prevVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -290,12 +282,16 @@ public class WatchVideoActivity extends AppCompatActivity {
         // Чтобы в полном экране спрятать виртуальную панельку навигации не достаточно флагов в styles.xml
         // https://stackoverflow.com/questions/14178237/setsystemuivisibilitysystem-ui-flag-layout-hide-navigation-does-not-work
         getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                        // с этим флагом акшенбар начнет сверху перектрывать содержимое экрана
+                        //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
+                        //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                        // без этого флага навигация будет опять появляться по первому клику
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        );
 
         //
         setupVideoListAdapter();
@@ -313,22 +309,30 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoPlayerView.getPlayer().release();
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
     private void toggleFullscreen() {
         stateFullscreen = !stateFullscreen;
         if (stateFullscreen) {
-            goAwayBtn.setVisibility(View.GONE);
             prevVideoBtn.setVisibility(View.GONE);
             videoInfoView.setVisibility(View.GONE);
             videoList.setVisibility(View.GONE);
+
+            getSupportActionBar().hide();
 
             videoPlayerView.hideController();
             // продолжить играть, если была пауза
             videoPlayerView.getPlayer().setPlayWhenReady(true);
         } else {
-            goAwayBtn.setVisibility(View.VISIBLE);
             prevVideoBtn.setVisibility(View.VISIBLE);
             videoInfoView.setVisibility(View.VISIBLE);
             videoList.setVisibility(View.VISIBLE);
+
+            getSupportActionBar().show();
 
             videoPlayerView.showController();
         }
@@ -341,7 +345,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         final VideoItem _currentVideo = currentVideo;
         final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
         // для текущего кэша, да
-        if(currentVideo != null) {
+        if (currentVideo != null) {
             currentVideo.setPausedAt(_currentPos);
         }
         new Thread(new Runnable() {
@@ -366,7 +370,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
 
             // показать информацию о ролике
-            videoInfoTxt.setText(videoItem.getName());
+            getSupportActionBar().setTitle(videoItem.getName());
 
             // передобавлять слушателя здесь, чтобы лишний раз не перезаписывать
             // звездочку в базе
@@ -459,7 +463,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         // https://github.com/google/ExoPlayer/issues/2197
         // в этом месте нормлаьный duration еще не доступен, поэтому его не проверяем
         //if(seekTo > 0 && seekTo < videoPlayerView.getPlayer().getDuration()) {
-        if(seekTo > 0) {
+        if (seekTo > 0) {
             // на 5 секунд раньше
             videoPlayerView.getPlayer().seekTo(seekTo - 5000 > 0 ? seekTo - 5000 : 0);
         }
