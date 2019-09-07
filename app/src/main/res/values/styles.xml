@@ -17,11 +17,17 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
-    <style name="WatchVideoTheme" parent="@style/Theme.AppCompat">
+    <!-- Важно наследоваться от NoActionBar, если мы хотим использовать кастомный тулбар Toolbar
+     в активити, одного windowActionBar=false не будет достаточно, все равно всё нахерблин вылетает
+     на setSupportActionBar, чего бы там ни писали в документации -->
+    <style name="WatchVideoTheme" parent="@style/Theme.AppCompat.NoActionBar">
         <!-- Заголовок окна: его по умолчанию и так нет -->
         <!-- <item name="android:windowNoTitle">true</item> -->
-        <!-- Панель действий: не понятно, на что влияет это параметр, эта палька в таком
-         варианте вылезает в любом случае, пока ее не спрячешь из кода -->
+        <!-- Панель действий: не понятно, на что влияет это параметр, эта панелька в варианте
+         windowActionBar=false вылезает в любом случае, пока ее не спрячешь из кода;
+         Для использования Toolbar этот параметр тоже фиолетовый: если не наследоваться от NoActionBar,
+          активити все равно вылетает с true и false (в ошибках просьба выставить windowActionBar=false),
+          если наследоваться от NoActionBar, то этот параметр тем более игнорируется -->
         <!-- <item name="android:windowActionBar">false</item> -->
         <!-- Верхняя панель устройства (время, заряд и т.п.) -->
         <item name="android:windowFullscreen">true</item>

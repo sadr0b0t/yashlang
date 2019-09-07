@@ -5,7 +5,7 @@
     android:orientation="horizontal"
     android:gravity="center">
 
-    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    <ImageView
         android:id="@+id/playlist_thumb_img"
         android:layout_width="120dp"
         android:layout_height="120dp"

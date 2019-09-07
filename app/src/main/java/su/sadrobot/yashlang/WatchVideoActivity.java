@@ -23,16 +23,17 @@ package su.sadrobot.yashlang;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.paging.DataSource;
@@ -77,21 +78,6 @@ public class WatchVideoActivity extends AppCompatActivity {
     // https://exoplayer.dev/ui-components.html
     // https://androidwave.com/play-youtube-video-in-exoplayer/
 
-
-    // https://github.com/PierfrancescoSoffritti/android-youtube-player
-    // How to hide "more videos" row when video paused?
-    // https://github.com/PierfrancescoSoffritti/android-youtube-player/issues/226
-    // https://github.com/PierfrancescoSoffritti/android-youtube-player/blob/master/core-sample-app/src/main/java/com/pierfrancescosoffritti/androidyoutubeplayer/core/sampleapp/examples/iFramePlayerOptionsExample/IFramePlayerOptionsExampleActivity.java
-    //
-    // https://stackoverflow.com/questions/15833889/options-for-replacing-the-deprecated-gallery
-    // https://gist.github.com/devunwired/8cbe094bb7a783e37ad1
-    // https://github.com/falnatsheh/EcoGallery
-    // https://commonsware.com/blog/2012/08/20/multiple-view-viewpager-options.html
-    // https://developer.android.com/reference/android/support/v7/widget/RecyclerView.html
-    // https://androidclarified.com/viewpager-example-sliding-images/
-    // https://www.journaldev.com/10096/android-viewpager-example-tutorial
-
-
     /**
      * Загрузить информацию о видео по ID из базы
      */
@@ -103,10 +89,11 @@ public class WatchVideoActivity extends AppCompatActivity {
 
 
     private PlayerView videoPlayerView;
-    private View videoInfoView;
-    private Switch starredSwitch;
     private Button prevVideoBtn;
     private RecyclerView videoList;
+
+    private Toolbar toolbar;
+    private CheckBox starredCheck;
 
     private DefaultDataSourceFactory videoDataSourceFactory;
 
@@ -128,10 +115,10 @@ public class WatchVideoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_watch_video);
 
         videoPlayerView = findViewById(R.id.video_player_view);
-        videoInfoView = findViewById(R.id.video_info_view);
-        starredSwitch = findViewById(R.id.starred_switch);
         prevVideoBtn = findViewById(R.id.prev_video_btn);
         videoList = findViewById(R.id.video_recommend_list);
+
+        toolbar = findViewById(R.id.toolbar);
 
         // Ручные настройки анимации вместо параметра
         //     android:animateLayoutChanges="true"
@@ -140,8 +127,14 @@ public class WatchVideoActivity extends AppCompatActivity {
 //        lt.disableTransitionType(LayoutTransition.DISAPPEARING);
 //        contentView.setLayoutTransition(lt);
 
+        // https://developer.android.com/training/appbar
+        // https://www.vogella.com/tutorials/AndroidActionBar/article.html#custom-views-in-the-action-bar
+        setSupportActionBar(toolbar);
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayShowCustomEnabled(true);
+        //getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        //getSupportActionBar().setCustomView(R.layout.actionbar_watch_video);
 
         prevVideoBtn.setEnabled(false);
 
@@ -281,10 +274,11 @@ public class WatchVideoActivity extends AppCompatActivity {
         // включения экрана) панель навигации появляется опять.
         // Чтобы в полном экране спрятать виртуальную панельку навигации не достаточно флагов в styles.xml
         // https://stackoverflow.com/questions/14178237/setsystemuivisibilitysystem-ui-flag-layout-hide-navigation-does-not-work
+        // https://www.vogella.com/tutorials/AndroidActionBar/article.html
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        // с этим флагом акшенбар начнет сверху перектрывать содержимое экрана
+                        // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
                         //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
                         //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -310,6 +304,97 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        // https://developer.android.com/training/appbar/action-views.html
+
+        toolbar.inflateMenu(R.menu.watch_video_actions);
+        starredCheck = (CheckBox) toolbar.getMenu().findItem(R.id.action_star).getActionView();
+        starredCheck.setButtonDrawable(android.R.drawable.btn_star);
+
+        // При загрузке аквити у нас получается так, что currentVideo появляется раньше в onCreate,
+        // чем создается меню здесь, поэтому там клик-лисенер для starredCheck не назначается,
+        // нужно назначить его здесь.
+        if(currentVideo != null) {
+            starredCheck.setChecked(currentVideo.isStarred());
+            // еще так же делаем в playVideoItem
+            starredCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+                    final VideoItem _currentVideo = currentVideo;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (_currentVideo != null) {
+                                videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
+                                // обновим кэш
+                                _currentVideo.setStarred(isChecked);
+                            }
+                        }
+                    }).start();
+                }
+            });
+        }
+
+        toolbar.setOnMenuItemClickListener(
+                new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        return onOptionsItemSelected(item);
+                    }
+                });
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_blacklist:
+                if(currentVideo != null && currentVideo.getId() != -1) {
+                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+                    final VideoItem _currentVideo = currentVideo;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (_currentVideo != null) {
+                                videodb.videoItemDao().setBlacklisted(currentVideo.getId(), true);
+                                // обновим кэш
+                                _currentVideo.setBlacklisted(true);
+                                // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
+                                // удалить из истории, начать проигрывать какое-то другое видео
+                                // (какое? первое из рекомендаций? Что если список рекомендаций пуст?),
+                                // удалить его из списка рекомендаций (с текущим датасорсом из ROOM
+                                // это произойдет автоматом) и т.п.
+                            }
+                        }
+                    }).start();
+                }
+                break;
+            case R.id.action_star:
+                if(currentVideo != null && currentVideo.getId() != -1) {
+                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+                    final VideoItem _currentVideo = currentVideo;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (_currentVideo != null) {
+                                videodb.videoItemDao().setStarred(_currentVideo.getId(), !_currentVideo.isStarred());
+                                // обновим кэш
+                                _currentVideo.setStarred(!_currentVideo.isStarred());
+                            }
+                        }
+                    }).start();
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onSupportNavigateUp() {
         finish();
         return true;
@@ -319,7 +404,6 @@ public class WatchVideoActivity extends AppCompatActivity {
         stateFullscreen = !stateFullscreen;
         if (stateFullscreen) {
             prevVideoBtn.setVisibility(View.GONE);
-            videoInfoView.setVisibility(View.GONE);
             videoList.setVisibility(View.GONE);
 
             getSupportActionBar().hide();
@@ -329,7 +413,6 @@ public class WatchVideoActivity extends AppCompatActivity {
             videoPlayerView.getPlayer().setPlayWhenReady(true);
         } else {
             prevVideoBtn.setVisibility(View.VISIBLE);
-            videoInfoView.setVisibility(View.VISIBLE);
             videoList.setVisibility(View.VISIBLE);
 
             getSupportActionBar().show();
@@ -371,37 +454,44 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             // показать информацию о ролике
             getSupportActionBar().setTitle(videoItem.getName());
+            getSupportActionBar().setSubtitle(videoItem.getUploader());
 
-            // передобавлять слушателя здесь, чтобы лишний раз не перезаписывать
-            // звездочку в базе
-            starredSwitch.setOnCheckedChangeListener(null);
-            starredSwitch.setChecked(videoItem.isStarred());
-            starredSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
-                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
-                    final VideoItem _currentVideo = currentVideo;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (_currentVideo != null) {
-                                videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
-                                // обновим кэш
-                                _currentVideo.setStarred(isChecked);
+            // передобавлять слушателя здесь, чтобы лишний раз не перезаписывать звездочку в базе
+            // (starredCheck у нас появляется в onCreateOptionsMenu, поэтому он может быть null,
+            // если вызываем playVideoItem из onCreate'а)
+            if(starredCheck != null) {
+                starredCheck.setOnCheckedChangeListener(null);
+                starredCheck.setChecked(videoItem.isStarred());
+                starredCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+                        // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+                        // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+                        final VideoItem _currentVideo = currentVideo;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (_currentVideo != null) {
+                                    videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
+                                    // обновим кэш
+                                    _currentVideo.setStarred(isChecked);
+                                }
                             }
-                        }
-                    }).start();
-                }
-            });
+                        }).start();
+                    }
+                });
+            }
 
             // теперь то, что в фоне
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        // посчитать просмотр
-                        videodb.videoItemDao().countView(videoItem.getId());
+
+                        // посчитать просмотр (для ролика, загруженного из базы)
+                        if (videoItem.getId() != -1) {
+                            videodb.videoItemDao().countView(videoItem.getId());
+                        }
 
                         // загрузить поток видео
                         final String vidStreamUrl = ContentLoader.getInstance().extractYtStreamUrl(videoItem.getYtId());
