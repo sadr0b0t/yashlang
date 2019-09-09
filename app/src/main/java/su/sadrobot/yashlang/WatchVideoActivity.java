@@ -112,7 +112,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     private VideoItem currentVideo;
     // для функции перехода на следующее видео
     private int currentVideoPosition = -1;
-    private Map<VideoItem, Integer> posMap = new HashMap<VideoItem, Integer>();
+    private Map<Long, Integer> posMap = new HashMap<Long, Integer>();
 
     private Stack<VideoItem> playbackHistory = new Stack<VideoItem>();
 
@@ -200,7 +200,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     item = null;
                 }
                 if (item != null) {
-                    posMap.put(item, nextVideoPosition);
+                    posMap.put(item.getId(), nextVideoPosition);
                     currentVideoPosition = nextVideoPosition;
                     playVideoItem(item);
                 }
@@ -402,7 +402,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     item = null;
                 }
                 if (item != null) {
-                    posMap.put(item, nextVideoPosition);
+                    posMap.put(item.getId(), nextVideoPosition);
                     currentVideoPosition = nextVideoPosition;
                     playVideoItem(item);
                 }
@@ -801,7 +801,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
                     public void onItemClick(final View view, final int position, final VideoItem item) {
-                        posMap.put(item, position);
+                        posMap.put(item.getId(), position);
                         playVideoItem(item);
                     }
 
@@ -831,7 +831,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 this, new OnListItemClickListener<VideoItem>() {
             @Override
             public void onItemClick(final View view, final int position, final VideoItem item) {
-                posMap.put(item, position);
+                posMap.put(item.getId(), position);
                 playVideoItem(item);
             }
 
