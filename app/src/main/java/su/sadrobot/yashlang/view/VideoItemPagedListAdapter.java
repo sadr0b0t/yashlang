@@ -206,4 +206,10 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             }
         });
     }
+
+    // сделаем метод публичным
+    @Override
+    public VideoItem getItem(int position) {
+        return super.getItem(position);
+    }
 }

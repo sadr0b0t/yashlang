@@ -42,6 +42,7 @@ import androidx.lifecycle.Observer;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
+import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -67,12 +68,16 @@ import com.google.android.exoplayer2.util.Util;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
+import su.sadrobot.yashlang.view.VideoItemArrayAdapter;
 import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 
 
@@ -105,6 +110,10 @@ public class WatchVideoActivity extends AppCompatActivity {
     private DefaultDataSourceFactory videoDataSourceFactory;
 
     private VideoItem currentVideo;
+    // для функции перехода на следующее видео
+    private int currentVideoPosition = -1;
+    private Map<VideoItem, Integer> posMap = new HashMap<VideoItem, Integer>();
+
     private Stack<VideoItem> playbackHistory = new Stack<VideoItem>();
 
     private boolean stateFullscreen = false;
@@ -157,7 +166,6 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         prevVideoBtn.setEnabled(false);
         prevVideoBtn.setVisibility(View.INVISIBLE);
-        nextVideoBtn.setEnabled(false);
 
         prevVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,6 +181,32 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
             }
         });
+
+        nextVideoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // переходим на следующее видео по списку рекомендаций
+                final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
+                                0 : currentVideoPosition + 1;
+                final VideoItem item;
+                if(videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
+                    // (вообще, если используем VideoItemPagedListAdapter, то в этой игре с индексами
+                    // мало толка, т.к. адаптер с рекомендациями меняется случайным образом каждый
+                    // раз при записи в базу, в т.ч. при загрузке нового видео)
+                    item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                } else if(videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                    item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                } else {
+                    item = null;
+                }
+                if (item != null) {
+                    posMap.put(item, nextVideoPosition);
+                    currentVideoPosition = nextVideoPosition;
+                    playVideoItem(item);
+                }
+            }
+        });
+
 
         // Плеер
         final DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
@@ -334,19 +368,43 @@ public class WatchVideoActivity extends AppCompatActivity {
         prevVideoBtn.setEnabled(playbackHistory.size() > 1);
         prevVideoBtn.setVisibility(playbackHistory.size() > 1 ? View.VISIBLE : View.INVISIBLE);
 
-        nextVideoBtn.setEnabled(false);
-
         prevVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (playbackHistory.size() > 1) {
                     playbackHistory.pop();
+                    // здесь снимаем ролик с вершины, но он там снова сразу окажется в playVideoItem
                     playVideoItem(playbackHistory.pop());
 
                     if (playbackHistory.size() <= 1) {
                         prevVideoBtn.setEnabled(false);
                         prevVideoBtn.setVisibility(View.INVISIBLE);
                     }
+                }
+            }
+        });
+
+        nextVideoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // переходим на следующее видео по списку рекомендаций
+                final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
+                        0 : currentVideoPosition + 1;
+                final VideoItem item;
+                if(videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
+                    // (вообще, если используем VideoItemPagedListAdapter, то в этой игре с индексами
+                    // мало толка, т.к. адаптер с рекомендациями меняется случайным образом каждый
+                    // раз при записи в базу, в т.ч. при загрузке нового видео)
+                    item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                } else if(videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                    item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                } else {
+                    item = null;
+                }
+                if (item != null) {
+                    posMap.put(item, nextVideoPosition);
+                    currentVideoPosition = nextVideoPosition;
+                    playVideoItem(item);
                 }
             }
         });
@@ -408,7 +466,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         setFullscreen(stateFullscreen);
 
         // показать информацию о ролике
-        if(currentVideo != null) {
+        if (currentVideo != null) {
             getSupportActionBar().setTitle(currentVideo.getName());
             getSupportActionBar().setSubtitle(currentVideo.getUploader());
         }
@@ -446,7 +504,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         );
 
         //
-        setupVideoListAdapter();
+        setupVideoListArrayAdapter();
     }
 
 
@@ -472,7 +530,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         // При загрузке аквити у нас получается так, что currentVideo появляется раньше в onCreate,
         // чем создается меню здесь, поэтому там клик-лисенер для starredCheck не назначается,
         // нужно назначить его здесь.
-        if(currentVideo != null) {
+        if (currentVideo != null) {
             starredCheck.setChecked(currentVideo.isStarred());
             // еще так же делаем в playVideoItem
             starredCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -510,7 +568,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_blacklist:
-                if(currentVideo != null && currentVideo.getId() != -1) {
+                if (currentVideo != null && currentVideo.getId() != -1) {
                     // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
                     // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
                     final VideoItem _currentVideo = currentVideo;
@@ -532,7 +590,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.action_star:
-                if(currentVideo != null && currentVideo.getId() != -1) {
+                if (currentVideo != null && currentVideo.getId() != -1) {
                     // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
                     // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
                     final VideoItem _currentVideo = currentVideo;
@@ -613,6 +671,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     private void playVideoItem(final VideoItem videoItem) {
         saveVideoCurrPos();
         this.currentVideo = videoItem;
+        this.currentVideoPosition = posMap.containsKey(videoItem) ? posMap.get(videoItem) : -1;
         if (videoItem != null) {
             if (playbackHistory.size() == 0 || !videoItem.getYtId().equals(playbackHistory.peek())) {
                 playbackHistory.push(videoItem);
@@ -629,7 +688,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             // передобавлять слушателя здесь, чтобы лишний раз не перезаписывать звездочку в базе
             // (starredCheck у нас появляется в onCreateOptionsMenu, поэтому он может быть null,
             // если вызываем playVideoItem из onCreate'а)
-            if(starredCheck != null) {
+            if (starredCheck != null) {
                 starredCheck.setOnCheckedChangeListener(null);
                 starredCheck.setChecked(videoItem.isStarred());
                 starredCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -730,8 +789,37 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoPlayerView.getPlayer().setPlayWhenReady(true);
     }
 
+    private void setupVideoListArrayAdapter() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<VideoItem> videoItems = videodb.videoItemDao().recommendVideos(200);
+                final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
+                        WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
+                    @Override
+                    public void onItemClick(final View view, final int position, final VideoItem item) {
+                        posMap.put(item, position);
+                        playVideoItem(item);
+                    }
 
-    private void setupVideoListAdapter() {
+                    @Override
+                    public boolean onItemLongClick(View view, int position, VideoItem item) {
+                        return false;
+                    }
+                }, null, VideoItemArrayAdapter.ORIENTATION_HORIZONTAL);
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        videoList.setAdapter(adapter);
+                    }
+                });
+            }
+        }).start();
+    }
+
+
+    private void setupVideoListPagedListAdapter() {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -740,14 +828,12 @@ public class WatchVideoActivity extends AppCompatActivity {
                 this, new OnListItemClickListener<VideoItem>() {
             @Override
             public void onItemClick(final View view, final int position, final VideoItem item) {
+                posMap.put(item, position);
                 playVideoItem(item);
             }
 
             @Override
             public boolean onItemLongClick(View view, int position, VideoItem item) {
-                Toast.makeText(WatchVideoActivity.this, position + ":" +
-                                item.getId() + ":" + item.getThumbUrl(),
-                        Toast.LENGTH_LONG).show();
                 return false;
             }
         }, null, VideoItemPagedListAdapter.ORIENTATION_HORIZONTAL);

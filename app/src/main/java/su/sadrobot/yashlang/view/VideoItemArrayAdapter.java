@@ -20,9 +20,15 @@ package su.sadrobot.yashlang.view;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,46 +37,146 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import su.sadrobot.yashlang.R;
+import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.VideoItem;
 
-public class VideoItemArrayAdapter extends RecyclerView.Adapter {
+public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAdapter.VideoItemViewHolder> {
 
 
+    public static int ORIENTATION_VERTICAL = 0;
+    public static int ORIENTATION_HORIZONTAL = 1;
+
+    private Activity context;
     private List<VideoItem> videoItems;
     private OnListItemClickListener<VideoItem> onItemClickListener;
+    private OnListItemSwitchListener<VideoItem> onItemSwitchListener;
+    private int orientation = ORIENTATION_VERTICAL;
 
-    public class VideoItemViewHolder extends RecyclerView.ViewHolder {
+    public static class VideoItemViewHolder extends RecyclerView.ViewHolder {
         TextView name;
+        ImageView thumb;
+        Switch onoff;
 
         public VideoItemViewHolder(final View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.video_name_txt);
+            thumb = itemView.findViewById(R.id.video_thumb_img);
+            onoff = itemView.findViewById(R.id.video_onoff_switch);
         }
     }
 
-    public VideoItemArrayAdapter(final List<VideoItem> videoItems,
-                                 final OnListItemClickListener<VideoItem> onItemClickListener) {
+    public VideoItemArrayAdapter(final Activity context,
+                                 final List<VideoItem> videoItems,
+                                 final OnListItemClickListener<VideoItem> onItemClickListener,
+                                 final OnListItemSwitchListener<VideoItem> onItemSwitchListener) {
+        this.context = context;
         this.videoItems = videoItems;
         this.onItemClickListener = onItemClickListener;
+        this.onItemSwitchListener = onItemSwitchListener;
+    }
+
+    public VideoItemArrayAdapter(final Activity context,
+                                 final List<VideoItem> videoItems,
+                                 final OnListItemClickListener<VideoItem> onItemClickListener,
+                                 final OnListItemSwitchListener<VideoItem> onItemSwitchListener,
+                                 final int orientation) {
+        this.context = context;
+        this.videoItems = videoItems;
+        this.onItemClickListener = onItemClickListener;
+        this.onItemSwitchListener = onItemSwitchListener;
+        this.orientation = orientation;
     }
 
     @Override
     public VideoItemViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
-        final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.video_list_item_vert, parent, false);
+        final View v;
+        if (orientation == ORIENTATION_VERTICAL) {
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.video_list_item_vert, parent, false);
+        } else {
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.video_list_item_hor, parent, false);
+        }
         return new VideoItemViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
-        ((VideoItemViewHolder)holder).name.setText(
-                videoItems.get(position).getName() + ":" + videoItems.get(position).getYtId());
+    public void onBindViewHolder(@NonNull final VideoItemViewHolder holder, final int position) {
+        final VideoItem item = getItem(position);
+        if (item == null) {
+            // [DONE]TO-DO: Для Союзмультфильма срабатывает:
+            // null item at position: 200
+            // null item at position: 201
+            // null item at position: 202
+            // null item at position: 203
+            // null item at position: 204
+            // null item at position: 205
+            // null item at position: 220
+            // null item at position: 700
+            // null item at position: 701
+            // DONE: на этих позиция мультики: Охота, Контакт, Конфлик, Когда-то давно и т.п.
+            // т.е. в конечном итоге они в список попали, значит, это такая особенность
+            // сгенерированного датасорса - время от времени генерировать события для позиций,
+            // для которых getItem вернет null (возможно, при быстрой прокрутке)
+            // ИТОГО РЕШЕНИЕ: игнорируем такие ситуации
+            //System.out.println("##### VideoItemPagedListAdapter: null item at position: " + position);
+            return;
+        }
 
+        if (holder.name != null) {
+            holder.name.setText(item.getName());
+            //holder.name.setEnabled(!item.isBlacklisted());
+        }
+
+        if (holder.thumb != null) {
+            if (item.getThumbBitmap() != null) {
+                holder.thumb.setImageBitmap(item.getThumbBitmap());
+            } else {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final Bitmap thumb =
+                                VideoThumbManager.getInstance().loadVideoThumb(context, item);
+                        item.setThumbBitmap(thumb);
+                        context.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                VideoItemArrayAdapter.this.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }).start();
+            }
+        }
+
+        if (holder.onoff != null) {
+            // обнулить слушателя событий выключателя:
+            // вот это важно здесь здесь, иначе не оберешься трудноуловимых глюков
+            // в списках с прокруткой
+            holder.onoff.setOnCheckedChangeListener(null);
+            if (onItemSwitchListener == null) {
+                // вот так - не передали слушателя вкл/выкл - прячем кнопку
+                // немного не феншуй, зато пока не будем городить отдельный флаг
+                holder.onoff.setVisibility(View.GONE);
+            } else {
+                holder.onoff.setVisibility(View.VISIBLE);
+
+                holder.onoff.setChecked(!item.isBlacklisted());
+                holder.onoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (onItemSwitchListener != null) {
+                            onItemSwitchListener.onItemCheckedChanged(buttonView, position, item, isChecked);
+                        }
+                    }
+                });
+
+            }
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                if(onItemClickListener != null) {
-                    onItemClickListener.onItemClick(view, position, videoItems.get(position));
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(view, position, item);
                 }
             }
         });
@@ -78,8 +184,8 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter {
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(final View view) {
-                if(onItemClickListener != null) {
-                    return onItemClickListener.onItemLongClick(view, position, videoItems.get(position));
+                if (onItemClickListener != null) {
+                    return onItemClickListener.onItemLongClick(view, position, item);
                 } else {
                     return false;
                 }
@@ -90,5 +196,9 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemCount() {
         return videoItems.size();
+    }
+
+    public VideoItem getItem(int position) {
+        return videoItems.get(position);
     }
 }
