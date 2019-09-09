@@ -201,7 +201,6 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
                 if (item != null) {
                     posMap.put(item.getId(), nextVideoPosition);
-                    currentVideoPosition = nextVideoPosition;
                     playVideoItem(item);
                 }
             }
@@ -403,7 +402,6 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
                 if (item != null) {
                     posMap.put(item.getId(), nextVideoPosition);
-                    currentVideoPosition = nextVideoPosition;
                     playVideoItem(item);
                 }
             }
@@ -671,7 +669,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     private void playVideoItem(final VideoItem videoItem) {
         saveVideoCurrPos();
         currentVideo = videoItem;
-        currentVideoPosition = posMap.containsKey(videoItem) ? posMap.get(videoItem) : -1;
+        currentVideoPosition = posMap.containsKey(videoItem.getId()) ? posMap.get(videoItem.getId()) : -1;
         if(currentVideoPosition != -1) {
             videoList.scrollToPosition(currentVideoPosition);
         }
