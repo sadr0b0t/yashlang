@@ -670,8 +670,11 @@ public class WatchVideoActivity extends AppCompatActivity {
 
     private void playVideoItem(final VideoItem videoItem) {
         saveVideoCurrPos();
-        this.currentVideo = videoItem;
-        this.currentVideoPosition = posMap.containsKey(videoItem) ? posMap.get(videoItem) : -1;
+        currentVideo = videoItem;
+        currentVideoPosition = posMap.containsKey(videoItem) ? posMap.get(videoItem) : -1;
+        if(currentVideoPosition != -1) {
+            videoList.scrollToPosition(currentVideoPosition);
+        }
         if (videoItem != null) {
             if (playbackHistory.size() == 0 || !videoItem.getYtId().equals(playbackHistory.peek())) {
                 playbackHistory.push(videoItem);
