@@ -25,4 +25,5 @@
     <string name="check_for_new_items">Check for new items</string>
     <string name="channel_or_playlist_url">channel or playlist url</string>
     <string name="filter">filter</string>
+    <string name="add_to_blacklist">Block</string>
 </resources>

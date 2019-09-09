@@ -20,18 +20,21 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.Adapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
@@ -43,6 +46,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -54,6 +58,7 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -89,7 +94,9 @@ public class WatchVideoActivity extends AppCompatActivity {
 
 
     private PlayerView videoPlayerView;
-    private Button prevVideoBtn;
+    private PlayerControlView videoPlayerControlView;
+    private ImageButton prevVideoBtn;
+    private ImageButton nextVideoBtn;
     private RecyclerView videoList;
 
     private Toolbar toolbar;
@@ -115,28 +122,42 @@ public class WatchVideoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_watch_video);
 
         videoPlayerView = findViewById(R.id.video_player_view);
+        videoPlayerControlView = findViewById(R.id.video_player_control_view);
         prevVideoBtn = findViewById(R.id.prev_video_btn);
+        nextVideoBtn = findViewById(R.id.next_video_btn);
         videoList = findViewById(R.id.video_recommend_list);
 
         toolbar = findViewById(R.id.toolbar);
-
-        // Ручные настройки анимации вместо параметра
-        //     android:animateLayoutChanges="true"
-        // https://stackoverflow.com/questions/19943466/android-animatelayoutchanges-true-what-can-i-do-if-the-fade-out-effect-is-un
-//        final LayoutTransition lt = new LayoutTransition();
-//        lt.disableTransitionType(LayoutTransition.DISAPPEARING);
-//        contentView.setLayoutTransition(lt);
 
         // https://developer.android.com/training/appbar
         // https://www.vogella.com/tutorials/AndroidActionBar/article.html#custom-views-in-the-action-bar
         setSupportActionBar(toolbar);
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //getSupportActionBar().setDisplayShowCustomEnabled(true);
-        //getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        //getSupportActionBar().setCustomView(R.layout.actionbar_watch_video);
+
+        getSupportActionBar().addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
+            @Override
+            public void onMenuVisibilityChanged(boolean isVisible) {
+                // Прячем панель навигации, т.к. при выборе меню на акшенбаре она появляется опять.
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
+                                // (но только если мы не используем Toolbar, а мы используем)
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                                // без этого флага навигация будет опять появляться по первому клику
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                );
+            }
+        });
+
 
         prevVideoBtn.setEnabled(false);
+        prevVideoBtn.setVisibility(View.INVISIBLE);
+        nextVideoBtn.setEnabled(false);
 
         prevVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,6 +168,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
                     if (playbackHistory.size() <= 1) {
                         prevVideoBtn.setEnabled(false);
+                        prevVideoBtn.setVisibility(View.INVISIBLE);
                     }
                 }
             }
@@ -160,20 +182,20 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         videoDataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "yashlang"), bandwidthMeter);
 
-        videoPlayerView.setUseController(true);
         videoPlayerView.requestFocus();
         videoPlayerView.setPlayer(exoPlayer);
 
-        // Мы можем запретить прятать элементы управления по клику на области рядом с видео, но
-        // мы не можем запретить показывать их по клику на этой же области, поэтому пусть
-        // пока и прятать будет можно.
-        // Хотелось изначально: будем прятать элементы управления в полноэкранном режиме при клике по плееру
+        // контроллер отдельно, чтобы красиво добавить справа и слева от плеера кнопки назад и вперед
+        videoPlayerView.setUseController(false);
+        videoPlayerControlView.setPlayer(exoPlayer);
+
+        // не прятать кнопки управления автоматом
+        //videoPlayerView.setControllerShowTimeoutMs(0);
+        videoPlayerControlView.setShowTimeoutMs(0);
+
+        // Будем прятать элементы управления в полноэкранном режиме при клике по плееру
         // и всегда показывать в режиме с уменьшенным экраном видео с кнопками управления
         // и списком рекомендаций.
-        // (Если оставить флаг true, кнопки управления с полосой прокрутки можно будет дополнительно
-        // прятать кликом слева или справа от видео)
-        //videoPlayerView.setControllerHideOnTouch(false);
-
         // https://stackoverflow.com/questions/52365953/exoplayer-playerview-onclicklistener-not-working
         videoPlayerView.getVideoSurfaceView().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,7 +204,8 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         });
 
-        videoPlayerView.setControlDispatcher(new DefaultControlDispatcher() {
+        //videoPlayerView.setControlDispatcher(new DefaultControlDispatcher() {
+        videoPlayerControlView.setControlDispatcher(new DefaultControlDispatcher() {
             @Override
             public boolean dispatchSetPlayWhenReady(final Player player, final boolean playWhenReady) {
                 // https://stackoverflow.com/questions/47731779/detect-pause-resume-in-exoplayer
@@ -259,6 +282,139 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Экран повернули - нужно загрузить новый лэйаут. Придется заново выставить
+        // ссылки на элементы интерфейса, но постараемся по максимуму перетащить
+        // их состояния и содержимое без перезагрузки.
+
+        // Плеер можно перекинуть прямо во время проигрывания
+        final Player exoPlayer = videoPlayerView.getPlayer();
+        // Адаптер с рекомендациями тоже получится перекинуть
+        final RecyclerView.Adapter videoListAdapter = videoList.getAdapter();
+
+        // Новый лэйаут
+        setContentView(R.layout.activity_watch_video);
+
+
+        videoPlayerView = findViewById(R.id.video_player_view);
+        videoPlayerControlView = findViewById(R.id.video_player_control_view);
+        prevVideoBtn = findViewById(R.id.prev_video_btn);
+        nextVideoBtn = findViewById(R.id.next_video_btn);
+        videoList = findViewById(R.id.video_recommend_list);
+
+        toolbar = findViewById(R.id.toolbar);
+
+        // https://developer.android.com/training/appbar
+        // https://www.vogella.com/tutorials/AndroidActionBar/article.html#custom-views-in-the-action-bar
+        setSupportActionBar(toolbar);
+        // кнопка "Назад" на акшенбаре
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        getSupportActionBar().addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
+            @Override
+            public void onMenuVisibilityChanged(boolean isVisible) {
+                // Прячем панель навигации, т.к. при выборе меню на акшенбаре она появляется опять.
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
+                                // (но только если мы не используем Toolbar, а мы используем)
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                                // без этого флага навигация будет опять появляться по первому клику
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                );
+            }
+        });
+
+        prevVideoBtn.setEnabled(playbackHistory.size() > 1);
+        prevVideoBtn.setVisibility(playbackHistory.size() > 1 ? View.VISIBLE : View.INVISIBLE);
+
+        nextVideoBtn.setEnabled(false);
+
+        prevVideoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (playbackHistory.size() > 1) {
+                    playbackHistory.pop();
+                    playVideoItem(playbackHistory.pop());
+
+                    if (playbackHistory.size() <= 1) {
+                        prevVideoBtn.setEnabled(false);
+                        prevVideoBtn.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+        });
+
+        // Плеер
+        videoPlayerView.requestFocus();
+        videoPlayerView.setPlayer(exoPlayer);
+
+        // контроллер отдельно, чтобы красиво добавить справа и слева от плеера кнопки назад и вперед
+        videoPlayerView.setUseController(false);
+        videoPlayerControlView.setPlayer(exoPlayer);
+
+        // не прятать кнопки управления автоматом
+        //videoPlayerView.setControllerShowTimeoutMs(0);
+        videoPlayerControlView.setShowTimeoutMs(0);
+
+        // Будем прятать элементы управления в полноэкранном режиме при клике по плееру
+        // и всегда показывать в режиме с уменьшенным экраном видео с кнопками управления
+        // и списком рекомендаций.
+        // https://stackoverflow.com/questions/52365953/exoplayer-playerview-onclicklistener-not-working
+        videoPlayerView.getVideoSurfaceView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleFullscreen();
+            }
+        });
+
+        //videoPlayerView.setControlDispatcher(new DefaultControlDispatcher() {
+        videoPlayerControlView.setControlDispatcher(new DefaultControlDispatcher() {
+            @Override
+            public boolean dispatchSetPlayWhenReady(final Player player, final boolean playWhenReady) {
+                // https://stackoverflow.com/questions/47731779/detect-pause-resume-in-exoplayer
+                // определить, что пользователь кникнул на паузу
+                if (playWhenReady) {
+                    // Play button clicked
+                } else {
+                    //System.out.println("#### PAUSED AT " + player.getCurrentPosition());
+                    // Paused button clicked
+                    saveVideoCurrPos();
+                }
+                return super.dispatchSetPlayWhenReady(player, playWhenReady);
+            }
+
+            @Override
+            public boolean dispatchSeekTo(final Player player, final int windowIndex, final long positionMs) {
+                saveVideoCurrPos();
+                return super.dispatchSeekTo(player, windowIndex, positionMs);
+            }
+        });
+
+        // Рекомендации
+        // set a LinearLayoutManager with default vertical orientation
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
+                getApplicationContext(), RecyclerView.HORIZONTAL, false);
+        videoList.setLayoutManager(linearLayoutManager);
+        videoList.setAdapter(videoListAdapter);
+
+        // Режим полного или неполного экрана
+        setFullscreen(stateFullscreen);
+
+        // показать информацию о ролике
+        if(currentVideo != null) {
+            getSupportActionBar().setTitle(currentVideo.getName());
+            getSupportActionBar().setSubtitle(currentVideo.getUploader());
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
 
@@ -271,7 +427,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         super.onResume();
 
         // В onResume, т.к. после сворачивания и разворачивания приложения (или после выключения и
-        // включения экрана) панель навигации появляется опять.
+        // включения экрана) панель навигации появляется опять (еще она появляется при выборе меню
+        // на акшенбаре).
         // Чтобы в полном экране спрятать виртуальную панельку навигации не достаточно флагов в styles.xml
         // https://stackoverflow.com/questions/14178237/setsystemuivisibilitysystem-ui-flag-layout-hide-navigation-does-not-work
         // https://www.vogella.com/tutorials/AndroidActionBar/article.html
@@ -279,6 +436,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
+                        // (но только если мы не используем Toolbar, а мы используем)
                         //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
                         //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -391,6 +549,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
                 break;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -401,23 +560,33 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
     private void toggleFullscreen() {
-        stateFullscreen = !stateFullscreen;
+        setFullscreen(!stateFullscreen);
+    }
+
+    private void setFullscreen(boolean fullscreen) {
+        stateFullscreen = fullscreen;
         if (stateFullscreen) {
             prevVideoBtn.setVisibility(View.GONE);
+            nextVideoBtn.setVisibility(View.GONE);
             videoList.setVisibility(View.GONE);
 
             getSupportActionBar().hide();
 
-            videoPlayerView.hideController();
+            //videoPlayerView.hideController();
+            videoPlayerControlView.hide();
             // продолжить играть, если была пауза
             videoPlayerView.getPlayer().setPlayWhenReady(true);
         } else {
-            prevVideoBtn.setVisibility(View.VISIBLE);
+            //prevVideoBtn.setVisibility(View.VISIBLE);
+            prevVideoBtn.setVisibility(playbackHistory.size() > 1 ? View.VISIBLE : View.INVISIBLE);
+            nextVideoBtn.setVisibility(View.VISIBLE);
+
             videoList.setVisibility(View.VISIBLE);
 
             getSupportActionBar().show();
 
-            videoPlayerView.showController();
+            //videoPlayerView.showController();
+            videoPlayerControlView.show();
         }
     }
 
@@ -450,6 +619,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
             if (playbackHistory.size() > 1) {
                 prevVideoBtn.setEnabled(true);
+                prevVideoBtn.setVisibility(View.VISIBLE);
             }
 
             // показать информацию о ролике

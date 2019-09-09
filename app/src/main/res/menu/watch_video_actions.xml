@@ -8,5 +8,5 @@
         android:title="Star"/>
     <item
         android:id="@+id/action_blacklist"
-        android:title="Block" />
+        android:title="@string/add_to_blacklist"/>
 </menu>

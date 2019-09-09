@@ -25,4 +25,5 @@
     <string name="check_for_new_items">Проверить, есть что нового</string>
     <string name="channel_or_playlist_url">адрес url плейлиста или канала</string>
     <string name="filter">фильтр</string>
+    <string name="add_to_blacklist">Блокировать</string>
 </resources>
