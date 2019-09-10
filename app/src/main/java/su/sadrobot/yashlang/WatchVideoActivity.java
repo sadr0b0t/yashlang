@@ -47,17 +47,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -172,7 +177,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (playbackHistory.size() > 1) {
                     playbackHistory.pop();
-                    playVideoItem(playbackHistory.pop());
+                    playVideoItem(playbackHistory.pop(), false);
 
                     if (playbackHistory.size() <= 1) {
                         prevVideoBtn.setEnabled(false);
@@ -201,7 +206,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
                 if (item != null) {
                     posMap.put(item.getId(), nextVideoPosition);
-                    playVideoItem(item);
+                    playVideoItem(item, false);
                 }
             }
         });
@@ -260,6 +265,82 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         });
 
+        exoPlayer.addListener(new Player.EventListener() {
+            @Override
+            public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+
+            }
+
+            @Override
+            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+            }
+
+            @Override
+            public void onLoadingChanged(boolean isLoading) {
+
+            }
+
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                if(playbackState == Player.STATE_ENDED) {
+                    // ролик завершился - переходим к следующему
+                    // TODO: сделайть экран с таймаутом секунд на 10, прогрессбаром и кнопкой
+                    // перейти сейчас, отменить, играть заново текущий.
+
+                    // переходим на следующее видео по списку рекомендаций
+                    final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
+                            0 : currentVideoPosition + 1;
+                    final VideoItem item;
+                    if(videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
+                        // (вообще, если используем VideoItemPagedListAdapter, то в этой игре с индексами
+                        // мало толка, т.к. адаптер с рекомендациями меняется случайным образом каждый
+                        // раз при записи в базу, в т.ч. при загрузке нового видео)
+                        item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                    } else if(videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                        item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                    } else {
+                        item = null;
+                    }
+                    if (item != null) {
+                        posMap.put(item.getId(), nextVideoPosition);
+                        // перез загрузкой нового видео обнулим текущую позицию
+                        playVideoItem(item, true);
+                    }
+                }
+            }
+
+            @Override
+            public void onRepeatModeChanged(int repeatMode) {
+
+            }
+
+            @Override
+            public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
+            }
+
+            @Override
+            public void onPlayerError(ExoPlaybackException error) {
+
+            }
+
+            @Override
+            public void onPositionDiscontinuity(int reason) {
+
+            }
+
+            @Override
+            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+            }
+
+            @Override
+            public void onSeekProcessed() {
+
+            }
+        });
+
         // Рекомендации
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
@@ -284,7 +365,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            playVideoItem(videoItem);
+                            playVideoItem(videoItem, false);
                         }
                     });
                 }
@@ -306,7 +387,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            playVideoItem(videoItem);
+                            playVideoItem(videoItem, false);
                         }
                     });
                 }
@@ -373,7 +454,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 if (playbackHistory.size() > 1) {
                     playbackHistory.pop();
                     // здесь снимаем ролик с вершины, но он там снова сразу окажется в playVideoItem
-                    playVideoItem(playbackHistory.pop());
+                    playVideoItem(playbackHistory.pop(), false);
 
                     if (playbackHistory.size() <= 1) {
                         prevVideoBtn.setEnabled(false);
@@ -402,7 +483,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
                 if (item != null) {
                     posMap.put(item.getId(), nextVideoPosition);
-                    playVideoItem(item);
+                    playVideoItem(item, false);
                 }
             }
         });
@@ -646,7 +727,9 @@ public class WatchVideoActivity extends AppCompatActivity {
         }
     }
 
-    // Сохраним текущую позицию видео в базу
+    /**
+     * Сохраним текущую позицию видео в базу
+     */
     private void saveVideoCurrPos() {
         // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
         // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
@@ -666,8 +749,33 @@ public class WatchVideoActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void playVideoItem(final VideoItem videoItem) {
-        saveVideoCurrPos();
+    /**
+     * Обнулить текущую позицию видео в базе
+     */
+    private void resetVideoCurrPos() {
+        // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+        // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+        final VideoItem _currentVideo = currentVideo;
+        // для текущего кэша, да
+        if (currentVideo != null) {
+            currentVideo.setPausedAt(0);
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (_currentVideo != null) {
+                    videodb.videoItemDao().setPausedAt(_currentVideo.getId(), 0);
+                }
+            }
+        }).start();
+    }
+
+    private void playVideoItem(final VideoItem videoItem, boolean resetCurrPos) {
+        if(resetCurrPos) {
+            resetVideoCurrPos();
+        } else {
+            saveVideoCurrPos();
+        }
         currentVideo = videoItem;
         currentVideoPosition = posMap.containsKey(videoItem.getId()) ? posMap.get(videoItem.getId()) : -1;
         if(currentVideoPosition != -1) {
@@ -770,7 +878,15 @@ public class WatchVideoActivity extends AppCompatActivity {
         }
 
         // Поставим на паузу старое видео, пока готовим новое
-        videoPlayerView.getPlayer().setPlayWhenReady(false);
+        if(videoPlayerView.getPlayer().getPlaybackState() != Player.STATE_ENDED) {
+            // Если ставить на паузу здесь после того, как плеер встал на паузу сам, закончив
+            // играть видео, получим здесь второе событие STATE_ENDED, поэтому нам нужна здесь
+            // специальная проверка.
+            // При этом значение getPlayWhenReady() останется true, поэтому проверяем именно состояние.
+            // https://github.com/google/ExoPlayer/issues/2272
+            videoPlayerView.getPlayer().setPlayWhenReady(false);
+        }
+
         // Prepare the player with the source.
         ((SimpleExoPlayer) videoPlayerView.getPlayer()).prepare(videoSource);
 
@@ -800,7 +916,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(final View view, final int position, final VideoItem item) {
                         posMap.put(item.getId(), position);
-                        playVideoItem(item);
+                        playVideoItem(item, false);
                     }
 
                     @Override
@@ -830,7 +946,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             @Override
             public void onItemClick(final View view, final int position, final VideoItem item) {
                 posMap.put(item.getId(), position);
-                playVideoItem(item);
+                playVideoItem(item, false);
             }
 
             @Override
