@@ -787,7 +787,9 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
             if (playbackHistory.size() > 1) {
                 prevVideoBtn.setEnabled(true);
-                prevVideoBtn.setVisibility(View.VISIBLE);
+                if(!stateFullscreen) {
+                    prevVideoBtn.setVisibility(View.VISIBLE);
+                }
             }
 
             // показать информацию о ролике
