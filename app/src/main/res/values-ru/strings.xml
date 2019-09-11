@@ -26,4 +26,6 @@
     <string name="channel_or_playlist_url">адрес url плейлиста или канала</string>
     <string name="filter">фильтр</string>
     <string name="add_to_blacklist">Блокировать</string>
+    <string name="copy_playlist_url">Копировать адрес плейлиста</string>
+    <string name="copy_video_url">Копировать адрес видео</string>
 </resources>

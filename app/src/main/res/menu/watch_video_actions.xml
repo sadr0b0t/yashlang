@@ -7,6 +7,12 @@
         app:actionViewClass="android.widget.CheckBox"
         android:title="Star"/>
     <item
+        android:id="@+id/action_copy_video_url"
+        android:title="@string/copy_video_url"/>
+    <item
+        android:id="@+id/action_copy_playlist_url"
+        android:title="@string/copy_playlist_url"/>
+    <item
         android:id="@+id/action_blacklist"
         android:title="@string/add_to_blacklist"/>
 </menu>

@@ -26,4 +26,6 @@
     <string name="channel_or_playlist_url">channel or playlist url</string>
     <string name="filter">filter</string>
     <string name="add_to_blacklist">Block</string>
+    <string name="copy_video_url">Copy video url</string>
+    <string name="copy_playlist_url">Copy playlist url</string>
 </resources>

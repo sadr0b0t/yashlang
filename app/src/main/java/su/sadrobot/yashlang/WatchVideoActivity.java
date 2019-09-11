@@ -20,6 +20,9 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -79,6 +82,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
+import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
@@ -654,16 +658,14 @@ public class WatchVideoActivity extends AppCompatActivity {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            if (_currentVideo != null) {
-                                videodb.videoItemDao().setBlacklisted(currentVideo.getId(), true);
-                                // обновим кэш
-                                _currentVideo.setBlacklisted(true);
-                                // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
-                                // удалить из истории, начать проигрывать какое-то другое видео
-                                // (какое? первое из рекомендаций? Что если список рекомендаций пуст?),
-                                // удалить его из списка рекомендаций (с текущим датасорсом из ROOM
-                                // это произойдет автоматом) и т.п.
-                            }
+                            videodb.videoItemDao().setBlacklisted(currentVideo.getId(), true);
+                            // обновим кэш
+                            _currentVideo.setBlacklisted(true);
+                            // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
+                            // удалить из истории, начать проигрывать какое-то другое видео
+                            // (какое? первое из рекомендаций? Что если список рекомендаций пуст?),
+                            // удалить его из списка рекомендаций (с текущим датасорсом из ROOM
+                            // это произойдет автоматом) и т.п.
                         }
                     }).start();
                 }
@@ -676,10 +678,33 @@ public class WatchVideoActivity extends AppCompatActivity {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            if (_currentVideo != null) {
-                                videodb.videoItemDao().setStarred(_currentVideo.getId(), !_currentVideo.isStarred());
-                                // обновим кэш
-                                _currentVideo.setStarred(!_currentVideo.isStarred());
+                            videodb.videoItemDao().setStarred(_currentVideo.getId(), !_currentVideo.isStarred());
+                            // обновим кэш
+                            _currentVideo.setStarred(!_currentVideo.isStarred());
+                        }
+                    }).start();
+                }
+                break;
+            case R.id.action_copy_video_url:
+                if (currentVideo != null) {
+                    final String vidUrl= "https://www.youtube.com/watch?v=%s".replace("%s", currentVideo.getYtId());
+
+                    final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    final ClipData clip = ClipData.newPlainText(currentVideo.getYtId(), vidUrl);
+                    clipboard.setPrimaryClip(clip);
+                }
+                break;
+            case R.id.action_copy_playlist_url:
+                if (currentVideo != null && currentVideo.getPlaylistId() != -1) {
+                    final VideoItem _currentVideo = currentVideo;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(_currentVideo.getPlaylistId());
+                            if(plInfo != null) {
+                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
+                                clipboard.setPrimaryClip(clip);
                             }
                         }
                     }).start();
