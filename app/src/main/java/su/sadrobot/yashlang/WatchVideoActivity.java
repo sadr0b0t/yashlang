@@ -702,9 +702,14 @@ public class WatchVideoActivity extends AppCompatActivity {
                         public void run() {
                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(_currentVideo.getPlaylistId());
                             if(plInfo != null) {
-                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
-                                clipboard.setPrimaryClip(clip);
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                        final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
+                                        clipboard.setPrimaryClip(clip);
+                                    }
+                                });
                             }
                         }
                     }).start();
