@@ -136,6 +136,13 @@ public class ContentLoader {
         }
     }
 
+    /**
+     * Ищем каналы и плейлисты по имени. В выдачу сначала добавляем каналы, потом плейлисты.
+     * @param sstr
+     * @return
+     * @throws ExtractionException
+     * @throws IOException
+     */
     public List<PlaylistInfo> searchPlaylists(final String sstr) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeChannelExtractorTest.java
@@ -146,9 +153,6 @@ public class ContentLoader {
         final List<InfoItem> pageItems = new ArrayList<InfoItem>();
 
         NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
-
-
-//        final SearchExtractor extractor = YouTube.getSearchExtractor(sstr);
 
         // с YouTube работает только 1й элемент (см YoutubeSearchQueryHandlerFactory.getUrl)
         final List<String> contentFilters = new ArrayList<String>();
@@ -167,44 +171,6 @@ public class ContentLoader {
         pageItems.addAll(extractor.getInitialPage().getItems());
 
 
-        for (final InfoItem infoItem : pageItems) {
-            if (infoItem.getInfoType() == InfoItem.InfoType.CHANNEL ||
-                    infoItem.getInfoType() == InfoItem.InfoType.PLAYLIST) {
-                final String plName = infoItem.getName();
-                final String plUrl = infoItem.getUrl();
-                final String plThumbUrl = infoItem.getThumbnailUrl();
-                final PlaylistInfo.PlaylistType plType;
-                if (infoItem.getInfoType() == InfoItem.InfoType.CHANNEL) {
-                    plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
-                } else {// if(infoItem.getInfoType() == InfoItem.InfoType.PLAYLIST) {
-                    plType = PlaylistInfo.PlaylistType.YT_PLAYLIST;
-                }
-
-                final PlaylistInfo pl = new PlaylistInfo(plName, plUrl, plThumbUrl, plType);
-                playlists.add(pl);
-            }
-        }
-
-        return playlists;
-    }
-
-    public List<PlaylistInfo> searchPlaylists1(final String sstr) throws ExtractionException, IOException {
-
-        NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
-
-        final List<String> contentFilters = new ArrayList<String>();
-        // с YouTube работает только 1й элемент (см YoutubeSearchQueryHandlerFactory.getUrl)
-        contentFilters.add(YoutubeSearchQueryHandlerFactory.CHANNELS);
-        //contentFilters.add(YoutubeSearchQueryHandlerFactory.PLAYLISTS);
-
-        final SearchExtractor extractor = YouTube.getSearchExtractor(
-                sstr, contentFilters, "", new Localization("GB", "en"));
-
-//        final SearchExtractor extractor = YouTube.getSearchExtractor(sstr);
-
-        extractor.fetchPage();
-        final List<PlaylistInfo> playlists = new ArrayList<PlaylistInfo>();
-        final List<InfoItem> pageItems = extractor.getInitialPage().getItems();
         for (final InfoItem infoItem : pageItems) {
             if (infoItem.getInfoType() == InfoItem.InfoType.CHANNEL ||
                     infoItem.getInfoType() == InfoItem.InfoType.PLAYLIST) {

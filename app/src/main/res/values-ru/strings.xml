@@ -1,5 +1,13 @@
 <resources>
-    <string name="app_name">YaShlang</string>
+    <string name="yashlang">YaShlang</string>
+    <string name="yashlang_search">YaShlang: искать видео</string>
+    <string name="yashlang_history">YaShlang: история</string>
+    <string name="yashlang_starred">YaShlang: любимые</string>
+    <string name="yashlang_playlists">YaShlang: каналы и плейлисты</string>
+    <string name="yashlang_view_playlist">YaShlang: канал или плейлист</string>
+    <string name="yashlang_add_playlist">YaShlang: добавить канал или плейлист</string>
+    <string name="yashlang_search_playlist">YaShlang: искать канал или плейлист</string>
+    <string name="yashlang_blacklist">YaShlang: черный список</string>
     <string name="search">Искать</string>
     <string name="add_new_playlist">Добавить новый плейлист</string>
     <string name="failed_to_load_list">Ошибка добавления списка</string>

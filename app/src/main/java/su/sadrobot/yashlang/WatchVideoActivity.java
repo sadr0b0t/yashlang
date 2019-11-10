@@ -397,6 +397,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
             }).start();
         }
+
+        //
+        setupVideoListArrayAdapter();
+        //setupVideoListPagedListAdapter();
     }
 
     @Override
@@ -585,9 +589,6 @@ public class WatchVideoActivity extends AppCompatActivity {
                         // без этого флага навигация будет опять появляться по первому клику
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         );
-
-        //
-        setupVideoListArrayAdapter();
     }
 
 

@@ -28,6 +28,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -62,7 +63,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
     //   информация о плейлисте список видео, статусы загрузки и т.п.
     private View playlistView;
     private EditText playlistUrlInput;
-    private Button searchPlaylistBtn;
+    private ImageButton searchPlaylistBtn;
 
     // Начальный экран с пустым списком
     private View playlistEmptyInitialView;
@@ -365,7 +366,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
 
         // значения по умолчанию
         playlistNameTxt.setText("");
-        playlistThumbImg.setImageResource(R.drawable.bug1);
+        playlistThumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
         playlistLoadErrorTxt.setText("");
 
         //

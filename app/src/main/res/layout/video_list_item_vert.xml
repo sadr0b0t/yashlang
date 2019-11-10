@@ -11,7 +11,7 @@
         android:layout_height="120dp"
         android:layout_margin="5dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/bug1" />
+        android:src="@drawable/ic_yashlang_thumb" />
 
     <TextView
         android:id="@+id/video_name_txt"

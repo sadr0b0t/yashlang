@@ -24,7 +24,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -49,10 +49,10 @@ import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 public class Glagna extends AppCompatActivity {
 
     private RecyclerView videoList;
-    private Button configBtn;
-    private Button searchBtn;
-    private Button historyBtn;
-    private Button starredBtn;
+    private ImageButton configBtn;
+    private ImageButton searchBtn;
+    private ImageButton historyBtn;
+    private ImageButton starredBtn;
 
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
@@ -74,7 +74,7 @@ public class Glagna extends AppCompatActivity {
                 getApplicationContext(), 2, GridLayoutManager.HORIZONTAL, false);
         videoList.setLayoutManager(gridLayoutManager);
 
-        configBtn = (Button) findViewById(R.id.config_btn);
+        configBtn = findViewById(R.id.config_btn);
         configBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,7 +83,7 @@ public class Glagna extends AppCompatActivity {
         });
 
 
-        searchBtn = (Button) findViewById(R.id.search_btn);
+        searchBtn = findViewById(R.id.search_btn);
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,7 +91,7 @@ public class Glagna extends AppCompatActivity {
             }
         });
 
-        historyBtn = (Button) findViewById(R.id.history_btn);
+        historyBtn = findViewById(R.id.history_btn);
         historyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,7 +99,7 @@ public class Glagna extends AppCompatActivity {
             }
         });
 
-        starredBtn = (Button) findViewById(R.id.starred_btn);
+        starredBtn = findViewById(R.id.starred_btn);
         starredBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

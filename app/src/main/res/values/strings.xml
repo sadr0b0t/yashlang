@@ -1,5 +1,13 @@
 <resources>
-    <string name="app_name">YaShlang</string>
+    <string name="yashlang">YaShlang</string>
+    <string name="yashlang_search">YaShlang: history</string>
+    <string name="yashlang_history">YaShlang: history</string>
+    <string name="yashlang_starred">YaShlang: faves</string>
+    <string name="yashlang_playlists">YaShlang: channels and playlists</string>
+    <string name="yashlang_view_playlist">YaShlang: channel or playlist</string>
+    <string name="yashlang_add_playlist">YaShlang: add channel or playlist</string>
+    <string name="yashlang_search_playlist">YaShlang: search channel or playlist</string>
+    <string name="yashlang_blacklist">YaShlang: blacklist</string>
     <string name="search">Search</string>
     <string name="add_new_playlist">Add new playlist</string>
     <string name="failed_to_load_list">Failed to load list</string>

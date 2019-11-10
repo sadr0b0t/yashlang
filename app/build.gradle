@@ -6,8 +6,8 @@ android {
         applicationId "su.sadrobot.yashlang"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 2
-        versionName "0.0.1-draft8"
+        versionCode 3
+        versionName "0.0.1-draft9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

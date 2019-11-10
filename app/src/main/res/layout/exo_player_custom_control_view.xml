@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:background="@android:color/transparent"
-        app:srcCompat="@android:drawable/ic_media_play" />
+        android:src="@android:drawable/ic_media_play" />
 
     <ImageButton
         android:id="@id/exo_pause"
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:background="@android:color/transparent"
-        app:srcCompat="@android:drawable/ic_media_pause" />
+        android:src="@android:drawable/ic_media_pause" />
 
     <TextView
         android:id="@id/exo_position"

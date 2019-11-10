@@ -7,29 +7,45 @@
     tools:context=".Glagna">
 
 
-    <Button
-        android:id="@+id/config_btn"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/configure" />
+        android:gravity="right"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/search_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/search" />
+        <ImageButton
+            android:id="@+id/starred_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:src="@android:drawable/btn_star_big_on"
+            android:text="@string/faves" />
 
-    <Button
-        android:id="@+id/history_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/history" />
+        <ImageButton
+            android:id="@+id/history_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:src="@android:drawable/ic_menu_recent_history"
+            android:text="@string/history" />
 
-    <Button
-        android:id="@+id/starred_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/faves" />
+        <ImageButton
+            android:id="@+id/search_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:src="@android:drawable/ic_menu_search"
+            android:text="@string/search" />
+
+        <ImageButton
+            android:id="@+id/config_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:src="@android:drawable/ic_menu_preferences"
+            android:text="@string/configure" />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/video_recommend_list"

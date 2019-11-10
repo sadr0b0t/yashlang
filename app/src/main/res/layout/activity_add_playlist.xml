@@ -13,21 +13,26 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/playlist_url_input"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal">
+        <EditText
+            android:id="@+id/playlist_url_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:autoLink="web"
             android:hint="@string/channel_or_playlist_url"
             android:inputType="textUri"
             android:text="" />
 
-        <Button
+        <ImageButton
             android:id="@+id/playlist_search_btn"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/search" />
-
+            android:src="@android:drawable/ic_menu_search" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/playlist_empty_initial_view"
@@ -120,7 +125,7 @@
                     android:layout_height="80dp"
                     android:layout_margin="2dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/bug1" />
+                    android:src="@drawable/ic_yashlang_thumb" />
 
                 <TextView
                     android:id="@+id/playlist_name_txt"
@@ -171,7 +176,7 @@
                 android:layout_height="80dp"
                 android:layout_margin="2dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/bug1" />
+                android:src="@drawable/ic_yashlang_thumb" />
 
             <TextView
                 android:id="@+id/playlist_add_pl_name_txt"

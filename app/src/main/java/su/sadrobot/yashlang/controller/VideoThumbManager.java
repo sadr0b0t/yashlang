@@ -110,7 +110,7 @@ public class VideoThumbManager {
             thumb = loadBitmap(vid.getThumbUrl());
         } catch (IOException e) {
             //thumb = defaultThumb; // default thumb
-            thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.bug1);
+            thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
         }
         return thumb;
     }
@@ -126,7 +126,7 @@ public class VideoThumbManager {
             thumb = loadBitmap(thumbUrl);
         } catch (IOException e) {
             //thumb = defaultThumb; // default thumb
-            thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.bug1);
+            thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
         }
         return thumb;
     }
@@ -137,7 +137,7 @@ public class VideoThumbManager {
             thumb = loadBitmap(thumbUrl);
         } catch (IOException e) {
             //thumb = defaultThumb; // default thumb
-            thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.bug1);
+            thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
         }
         return thumb;
     }
