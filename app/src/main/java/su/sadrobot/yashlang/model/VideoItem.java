@@ -197,6 +197,11 @@ public class VideoItem {
     @Ignore
     private Bitmap thumbBitmap;
 
+    // кэш - объект плейлист, для тех случаев, когда не хочется постоянно обращаться
+    // в базу в фоновом потоке
+    @Ignore
+    private PlaylistInfo playlistInfo;
+
     public VideoItem(long playlistId, String ytId, String name, String uploader,
                      long viewCount, long viewCountExt, long duration, String thumbUrl,
                      boolean enabled, boolean blacklisted) {
@@ -380,5 +385,13 @@ public class VideoItem {
 
     public void setThumbBitmap(Bitmap thumbBitmap) {
         this.thumbBitmap = thumbBitmap;
+    }
+
+    public PlaylistInfo getPlaylistInfo() {
+        return playlistInfo;
+    }
+
+    public void setPlaylistInfo(PlaylistInfo playlistInfo) {
+        this.playlistInfo = playlistInfo;
     }
 }

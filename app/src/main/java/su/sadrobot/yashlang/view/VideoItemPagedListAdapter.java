@@ -21,6 +21,9 @@ package su.sadrobot.yashlang.view;
  */
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +39,10 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import su.sadrobot.yashlang.R;
+import su.sadrobot.yashlang.WatchVideoActivity;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.model.PlaylistInfo;
+import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
 
 public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, VideoItemPagedListAdapter.VideoItemViewHolder> {
@@ -56,12 +62,16 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
 
     public static class VideoItemViewHolder extends RecyclerView.ViewHolder {
         TextView name;
+        TextView playlist;
+        TextView duration;
         ImageView thumb;
         Switch onoff;
 
         public VideoItemViewHolder(final View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.video_name_txt);
+            playlist = itemView.findViewById(R.id.video_pl_txt);
+            duration = itemView.findViewById(R.id.video_duration_txt);
             thumb = itemView.findViewById(R.id.video_thumb_img);
             onoff = itemView.findViewById(R.id.video_onoff_switch);
         }
@@ -138,6 +148,40 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
         if (holder.name != null) {
             holder.name.setText(item.getName());
             //holder.name.setEnabled(!item.isBlacklisted());
+        }
+
+        if (holder.playlist != null) {
+            if(item.getPlaylistInfo() != null) {
+                holder.playlist.setText(item.getPlaylistInfo().getName());
+            } else {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final VideoDatabase videodb = VideoDatabase.getDb(context);
+                        final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(item.getPlaylistId());
+                        videodb.close();
+                        item.setPlaylistInfo(plInfo);
+                        if (plInfo != null) {
+                            context.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    VideoItemPagedListAdapter.this.notifyDataSetChanged();
+                                }
+                            });
+                        }
+                    }
+                }).start();
+            }
+        }
+
+        if(holder.duration != null) {
+            long sec = item.getDuration();
+            final String durStr = sec > 0 ?
+                    (sec / 3600) > 0 ?
+                        String.format("%d:%02d:%02d", sec / 3600, (sec % 3600) / 60, (sec % 60)) :
+                        String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60))
+                    : "[dur undef]";
+            holder.duration.setText(durStr);
         }
 
         if (holder.thumb != null) {

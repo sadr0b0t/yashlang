@@ -2,25 +2,58 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center">
+    android:gravity="top|left"
+    android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/video_thumb_img"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="196dp"
+        android:layout_height="110dp"
         android:layout_margin="5dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_yashlang_thumb" />
 
-    <TextView
-        android:id="@+id/video_name_txt"
+    <LinearLayout
         android:layout_width="0dip"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:layout_margin="5dp"
-        android:textColor="#000"
-        android:textSize="25sp" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/video_name_txt"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            android:gravity="center_vertical"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="#000000"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/video_pl_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/video_duration_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginBottom="5dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+    </LinearLayout>
 
     <Switch
         android:id="@+id/video_onoff_switch"

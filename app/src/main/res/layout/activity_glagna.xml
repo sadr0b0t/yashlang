@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#000000"
     tools:context=".Glagna">
 
 
@@ -51,7 +52,7 @@
         android:id="@+id/video_recommend_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="10dp"
         android:minHeight="90dip" />
 
 </LinearLayout>
