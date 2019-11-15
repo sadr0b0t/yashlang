@@ -20,6 +20,8 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -82,7 +84,6 @@ public class ViewPlaylistFragment extends Fragment {
     private long playlistId = -1;
 
 
-
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,20 +122,32 @@ public class ViewPlaylistFragment extends Fragment {
         deletePlaylistBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(playlistId);
-                        videodb.playlistInfoDao().delete(plInfo);
+                new AlertDialog.Builder(ViewPlaylistFragment.this.getContext())
+                        .setTitle(getString(R.string.delete_playlist_title))
+                        .setMessage(getString(R.string.delete_playlist_message))
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                ViewPlaylistFragment.this.getActivity().finish();
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(playlistId);
+                                        videodb.playlistInfoDao().delete(plInfo);
+
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                ViewPlaylistFragment.this.getActivity().finish();
+                                            }
+                                        });
+                                    }
+                                }).start();
+
                             }
-                        });
-                    }
-                }).start();
+                        })
+                        .setNegativeButton(android.R.string.no, null).show();
             }
         });
 

@@ -39,4 +39,6 @@
     <string name="tab_item_playlist">ПЛЕЙЛИСТ</string>
     <string name="tab_item_new">НОВОЕ</string>
     <string name="err_playlist_not_defined">ошибка: плейлист не определен</string>
+    <string name="delete_playlist_title">Правда удалить плейлист?</string>
+    <string name="delete_playlist_message">Ролики из этого списка так же исчезнут из списка любимых и истории</string>
 </resources>

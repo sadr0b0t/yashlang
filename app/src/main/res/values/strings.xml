@@ -39,4 +39,6 @@
     <string name="tab_item_playlist">PAYLIST</string>
     <string name="tab_item_new">NEW</string>
     <string name="err_playlist_not_defined">error: playlist not defined</string>
+    <string name="delete_playlist_title">Really delete playlist?</string>
+    <string name="delete_playlist_message">Items from this playlist will also go away from starred list and history</string>
 </resources>
