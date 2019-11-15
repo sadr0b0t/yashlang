@@ -714,6 +714,9 @@ public class WatchVideoActivity extends AppCompatActivity {
                             }
                         }
                     }).start();
+                } else if(currentVideo != null && currentVideo.getPlaylistId() == -1) {
+                    Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
+                            Toast.LENGTH_LONG).show();
                 }
                 break;
         }

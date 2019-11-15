@@ -69,6 +69,9 @@ public class Glagna extends AppCompatActivity {
         videoList = findViewById(R.id.video_recommend_list);
 
         // Рекомендации
+        // TODO: центрировать элементы сетки по вертикали - получается не так тривиально
+        // https://stackoverflow.com/questions/30007956/how-to-center-items-of-a-recyclerview/34735650
+        // по ссылки хаки или предложение испольовать https://github.com/google/flexbox-layout
         // set a LinearLayoutManager with default vertical orientation
         final GridLayoutManager gridLayoutManager = new GridLayoutManager(
                 getApplicationContext(), 2, GridLayoutManager.HORIZONTAL, false);

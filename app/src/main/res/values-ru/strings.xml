@@ -36,4 +36,7 @@
     <string name="add_to_blacklist">Блокировать</string>
     <string name="copy_playlist_url">Копировать адрес плейлиста</string>
     <string name="copy_video_url">Копировать адрес видео</string>
+    <string name="tab_item_playlist">ПЛЕЙЛИСТ</string>
+    <string name="tab_item_new">НОВОЕ</string>
+    <string name="err_playlist_not_defined">ошибка: плейлист не определен</string>
 </resources>

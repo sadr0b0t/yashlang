@@ -79,9 +79,9 @@ public class ViewPlaylistActivity extends AppCompatActivity {
             @Override
             public CharSequence getPageTitle(int position) {
                 if (position == 0) {
-                    return "PLAYLIST";
+                    return getString(R.string.tab_item_playlist);
                 } else {
-                    return "NEW";
+                    return getString(R.string.tab_item_new);
                 }
             }
         });

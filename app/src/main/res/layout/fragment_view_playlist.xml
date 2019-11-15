@@ -44,7 +44,7 @@
         android:id="@+id/enable_playlist_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Enable"
+        android:text="@string/enable"
         android:visibility="gone" />
 
     <EditText
