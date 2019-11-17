@@ -42,12 +42,12 @@
             android:name=".ViewPlaylistActivity"
             android:configChanges="orientation"
             android:label="@string/yashlang_view_playlist"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/CustomToolbarTheme" />
         <activity
             android:name=".ConfigurePlaylistsActivity"
             android:configChanges="orientation"
             android:label="@string/yashlang_playlists"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/CustomToolbarTheme" />
         <activity
             android:name=".SearchVideoActivity"
             android:configChanges="orientation"

@@ -17,6 +17,11 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <style name="CustomToolbarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <!-- Важно наследоваться от NoActionBar, если мы хотим использовать кастомный тулбар Toolbar
      в активити, одного windowActionBar=false не будет достаточно, все равно всё нахерблин вылетает
      на setSupportActionBar, чего бы там ни писали в документации -->

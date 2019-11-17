@@ -13,9 +13,8 @@
     <string name="failed_to_load_list">Failed to load list</string>
     <string name="reload">Reload</string>
     <string name="add">Add</string>
-    <string name="adding_playlist">Adding playlist...</string>
+    <string name="adding_playlist">Adding playlist</string>
     <string name="retry">Retry</string>
-    <string name="cancel">Cancel</string>
     <string name="nothing_blacklisted">Nothing blacklisted</string>
     <string name="add_playlist">Add playlist</string>
     <string name="blacklist">Blacklist</string>
@@ -41,4 +40,5 @@
     <string name="err_playlist_not_defined">error: playlist not defined</string>
     <string name="delete_playlist_title">Really delete playlist?</string>
     <string name="delete_playlist_message">Items from this playlist will also go away from starred list and history</string>
+    <string name="adding_playlist_new_items">Adding new items to playlist</string>
 </resources>

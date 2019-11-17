@@ -20,32 +20,32 @@
             android:scaleType="fitCenter"
             android:src="@drawable/ic_yashlang_thumb" />
 
-        <TextView
-            android:id="@+id/playlist_name_txt"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="" />
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/playlist_name_txt"
+                android:layout_width="match_parent"
+                android:layout_height="0dip"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/playlist_url_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="12sp" />
+        </LinearLayout>
     </LinearLayout>
-
-
-    <Button
-        android:id="@+id/delete_playlist_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/delete" />
-
-    <Button
-        android:id="@+id/disable_playlist_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/disable" />
-
-    <Button
-        android:id="@+id/enable_playlist_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/enable"
-        android:visibility="gone" />
 
     <EditText
         android:id="@+id/filter_playlist_input"

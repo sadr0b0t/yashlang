@@ -184,6 +184,9 @@ public class AddPlaylistActivity extends AppCompatActivity {
         playlistAddRetryBtn = findViewById(R.id.playlist_add_retry_btn);
         playlistAddCancelBtn = findViewById(R.id.playlist_add_cancel_btn);
 
+        // кнопка "Назад" на акшенбаре
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         if(ConfigOptions.DEVEL_MODE_ON) {
             playlistUrlInput.setText("https://youtube.com/channel/UCrlFHstLFNA_HsIV7AveNzA");
         }
@@ -272,6 +275,12 @@ public class AddPlaylistActivity extends AppCompatActivity {
             playlistUrlInput.setText(playlistUrl);
             updateVideoListBg(playlistUrl);
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     private void addLoadedPlaylistBg() {
@@ -482,7 +491,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
 
                     @Override
                     public void onLoadAfterError(final Exception e) {
-                        // TODO: здесь можно показывать снизу отдельную панельку с ошибкой подкгузки
+                        // TODO: здесь можно показывать снизу отдельную панельку с ошибкой подгрузки
                         // в список новых элементов при промотке вниз уже после того,
                         // как список загрузился
                     }

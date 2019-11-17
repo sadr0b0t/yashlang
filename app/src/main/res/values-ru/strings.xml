@@ -13,9 +13,8 @@
     <string name="failed_to_load_list">Ошибка добавления списка</string>
     <string name="reload">Загрузить заново</string>
     <string name="add">Добавить</string>
-    <string name="adding_playlist">Добавляем плейлист...</string>
+    <string name="adding_playlist">Добавляем плейлист</string>
     <string name="retry">Попробовать еще раз</string>
-    <string name="cancel">Отмена</string>
     <string name="nothing_blacklisted">Черный список пуст</string>
     <string name="add_playlist">Добавить плейлист</string>
     <string name="blacklist">Черный список</string>
@@ -40,5 +39,6 @@
     <string name="tab_item_new">НОВОЕ</string>
     <string name="err_playlist_not_defined">ошибка: плейлист не определен</string>
     <string name="delete_playlist_title">Правда удалить плейлист?</string>
-    <string name="delete_playlist_message">Ролики из этого списка так же исчезнут из списка любимых и истории</string>
+    <string name="delete_playlist_message">Ролики из этого списка также исчезнут из списка любимых и истории</string>
+    <string name="adding_playlist_new_items">Добавляем в плейлист новые элементы</string>
 </resources>

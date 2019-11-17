@@ -23,12 +23,16 @@ package su.sadrobot.yashlang;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,7 +56,7 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
 
     private RecyclerView playlistList;
     private Button addSrcBtn;
-    private Button gotoBlacklistBtn;
+    private Toolbar toolbar;
 
     private Handler handler = new Handler();
 
@@ -63,7 +67,13 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_configure_playlists);
 
         playlistList = findViewById(R.id.video_src_list);
+        toolbar = findViewById(R.id.toolbar);
 
+        // https://developer.android.com/training/appbar
+        // https://www.vogella.com/tutorials/AndroidActionBar/article.html#custom-views-in-the-action-bar
+        setSupportActionBar(toolbar);
+        // кнопка "Назад" на акшенбаре
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         // set a LinearLayoutManager with default vertical orientation
@@ -76,14 +86,6 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(ConfigurePlaylistsActivity.this, AddPlaylistActivity.class));
-            }
-        });
-
-        gotoBlacklistBtn = findViewById(R.id.goto_blacklist_btn);
-        gotoBlacklistBtn.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(ConfigurePlaylistsActivity.this, BlacklistActivity.class));
             }
         });
     }
@@ -171,5 +173,40 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
 
             }
         }).start();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        // https://developer.android.com/training/appbar/action-views.html
+
+        toolbar.inflateMenu(R.menu.configure_playlists_actions);
+
+        toolbar.setOnMenuItemClickListener(
+                new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        return onOptionsItemSelected(item);
+                    }
+                });
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_goto_blacklist:
+                startActivity(new Intent(ConfigurePlaylistsActivity.this, BlacklistActivity.class));
+                break;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 }

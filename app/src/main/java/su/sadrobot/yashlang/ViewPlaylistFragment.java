@@ -70,9 +70,7 @@ public class ViewPlaylistFragment extends Fragment {
 
     private ImageView playlistThumbImg;
     private TextView playlistNameTxt;
-    private Button deletePlaylistBtn;
-    private Button disablePlaylistBtn;
-    private Button enablePlaylistBtn;
+    private TextView playlistUrlTxt;
     private EditText filterPlaylistInput;
     private RecyclerView videoList;
 
@@ -109,92 +107,13 @@ public class ViewPlaylistFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         playlistThumbImg = view.findViewById(R.id.playlist_thumb_img);
         playlistNameTxt = view.findViewById(R.id.playlist_name_txt);
-        deletePlaylistBtn = view.findViewById(R.id.delete_playlist_btn);
-        disablePlaylistBtn = view.findViewById(R.id.disable_playlist_btn);
-        enablePlaylistBtn = view.findViewById(R.id.enable_playlist_btn);
+        playlistUrlTxt = view.findViewById(R.id.playlist_url_txt);
         filterPlaylistInput = view.findViewById(R.id.filter_playlist_input);
         videoList = view.findViewById(R.id.video_list);
 
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         videoList.setLayoutManager(linearLayoutManager);
-
-        deletePlaylistBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AlertDialog.Builder(ViewPlaylistFragment.this.getContext())
-                        .setTitle(getString(R.string.delete_playlist_title))
-                        .setMessage(getString(R.string.delete_playlist_message))
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(playlistId);
-                                        videodb.playlistInfoDao().delete(plInfo);
-
-                                        handler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                ViewPlaylistFragment.this.getActivity().finish();
-                                            }
-                                        });
-                                    }
-                                }).start();
-
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, null).show();
-            }
-        });
-
-        disablePlaylistBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(playlistId);
-                        videodb.playlistInfoDao().setEnabled(plInfo.getId(), false);
-                        videodb.videoItemDao().setPlaylistEnabled(plInfo.getId(), false);
-                    }
-                }).start();
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        disablePlaylistBtn.setVisibility(View.GONE);
-                        enablePlaylistBtn.setVisibility(View.VISIBLE);
-                    }
-                });
-            }
-        });
-
-        enablePlaylistBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(playlistId);
-                        // TODO: run in transaction?
-                        videodb.playlistInfoDao().setEnabled(plInfo.getId(), true);
-                        videodb.videoItemDao().setPlaylistEnabled(plInfo.getId(), true);
-                    }
-                }).start();
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        disablePlaylistBtn.setVisibility(View.VISIBLE);
-                        enablePlaylistBtn.setVisibility(View.GONE);
-                    }
-                });
-            }
-        });
 
         filterPlaylistInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -227,33 +146,6 @@ public class ViewPlaylistFragment extends Fragment {
         updateVideoListBg();
     }
 
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // состояние кнопок можно обновить и в onResume
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(playlistId);
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (plInfo.isEnabled()) {
-                            disablePlaylistBtn.setVisibility(View.VISIBLE);
-                            enablePlaylistBtn.setVisibility(View.GONE);
-                        } else {
-                            disablePlaylistBtn.setVisibility(View.GONE);
-                            enablePlaylistBtn.setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
-            }
-        }).start();
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -284,6 +176,7 @@ public class ViewPlaylistFragment extends Fragment {
                     @Override
                     public void run() {
                         playlistNameTxt.setText(plInfo.getName() + " (" + plVideosCount + ")");
+                        playlistUrlTxt.setText(plInfo.getUrl());
                     }
                 });
 

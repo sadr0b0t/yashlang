@@ -6,20 +6,21 @@
     android:orientation="vertical"
     tools:context=".ConfigurePlaylistsActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="?attr/actionBarTheme" />
+
     <Button
         android:id="@+id/add_src_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/add_playlist" />
-    <Button
-        android:id="@+id/goto_blacklist_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/blacklist" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/video_src_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
 </LinearLayout>

@@ -68,6 +68,9 @@ public class SearchOnlinePlaylistActivity extends AppCompatActivity {
         playlistSearchInput = findViewById(R.id.playlist_search_input);
         playlistList = findViewById(R.id.playlist_list);
 
+        // кнопка "Назад" на акшенбаре
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         if(ConfigOptions.DEVEL_MODE_ON) {
             playlistSearchInput.setText("Союзмультфильм");
         }
@@ -100,6 +103,12 @@ public class SearchOnlinePlaylistActivity extends AppCompatActivity {
                 updateSearchSuggestionsBg(s.toString());
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     /**

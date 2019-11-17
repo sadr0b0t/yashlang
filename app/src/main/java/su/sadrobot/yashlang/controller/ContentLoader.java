@@ -338,9 +338,12 @@ public class ContentLoader {
                     final List<VideoItem> videoItems = new ArrayList<VideoItem>();
 
                     // теперь загружаем все ролики - здесь 1я страница
+                    // Пропустить несколько первых роликов - для ConfigOptions.DEVEL_MODE_ON
+                    int skipItems = 25;
                     for (StreamInfoItem item : pageItems) {
-                        if (ConfigOptions.DEVEL_MODE_ON && videoItemCount < 5) {
-                            // пропустим 5 первых, чтобы потестить loadNewPlaylistItems
+                        if (ConfigOptions.DEVEL_MODE_ON && skipItems > 0) {
+                            // пропустим несколько первых, чтобы потестить loadNewPlaylistItems
+                            skipItems--;
                         } else {
                             videoItems.add(extractVideoItem(item, _plId, true, fakeTimestamp));
                             fakeTimestamp--;
@@ -391,7 +394,6 @@ public class ContentLoader {
                             }
                             // сохраняем страницу в базу
                             videodb.videoItemDao().insertAll(videoItems.toArray(new VideoItem[videoItems.size()]));
-
                             taskController.setStatusMsg("Loading page-" + page_n + "...ok");
                         } else {
                             // страница так и не загрузилась, обрываем транзакцию с ошибкой

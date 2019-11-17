@@ -61,6 +61,9 @@ public class StarredActivity extends AppCompatActivity {
 
         videoList = findViewById(R.id.video_list);
 
+        // кнопка "Назад" на акшенбаре
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         videoList.setLayoutManager(linearLayoutManager);
@@ -85,6 +88,12 @@ public class StarredActivity extends AppCompatActivity {
         if (videodb != null) {
             videodb.close();
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     private void setupVideoListAdapter() {

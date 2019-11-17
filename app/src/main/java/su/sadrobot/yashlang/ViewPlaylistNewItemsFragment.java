@@ -70,17 +70,32 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
 
     private ImageView playlistThumbImg;
     private TextView playlistNameTxt;
+    private TextView playlistUrlTxt;
 
-    private Button addNewItemsBtn;
-    private TextView playlistAddStatusTxt;
-    private TextView playlistAddErrorTxt;
-    private ProgressBar playlistAddProgress;
-    private RecyclerView videoList;
+    // Элементы списка
+    private View playlistItemsView;
 
     private View emptyView;
     private Button checkNewItemsBtn;
     private TextView checkErrorTxt;
     private ProgressBar checkProgress;
+
+    private View newItemsView;
+    private Button addNewItemsBtn;
+    private RecyclerView videoList;
+
+    // Добавление элементов
+    private View newItemsAddProgressView;
+    private TextView newItemsAddStatusTxt;
+    private ProgressBar newItemsAddProgress;
+
+    private View newItemsAddErrorView;
+    private TextView newItemsAddErrorTxt;
+    private Button newItemsAddRetryBtn;
+    private Button newItemsAddCancelBtn;
+
+    private View newItemsAddDoneView;
+    private Button newItemsAddDoneBtn;
 
     private Handler handler = new Handler();
 
@@ -104,9 +119,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
             //
             final boolean listIsEmpty = videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0;
             emptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
-
-            videoList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
-            addNewItemsBtn.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
+            newItemsView.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
         }
 
         @Override
@@ -151,84 +164,72 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         playlistThumbImg = view.findViewById(R.id.playlist_thumb_img);
         playlistNameTxt = view.findViewById(R.id.playlist_name_txt);
-        addNewItemsBtn = view.findViewById(R.id.add_new_items_btn);
-        playlistAddStatusTxt = view.findViewById(R.id.playlist_add_status_txt);
-        playlistAddErrorTxt = view.findViewById(R.id.playlist_add_error_txt);
-        playlistAddProgress = view.findViewById(R.id.playlist_add_progress);
-        videoList = view.findViewById(R.id.video_list);
+        playlistUrlTxt = view.findViewById(R.id.playlist_url_txt);
+
+        // Cписок элементов
+        playlistItemsView = view.findViewById(R.id.playlist_items_view);
+
         emptyView = view.findViewById(R.id.empty_view);
         checkNewItemsBtn = view.findViewById(R.id.check_new_items_btn);
         checkErrorTxt = view.findViewById(R.id.check_error_txt);
         checkProgress = view.findViewById(R.id.check_progress);
+
+        newItemsView = view.findViewById(R.id.playlist_new_items_view);
+        addNewItemsBtn = view.findViewById(R.id.add_new_items_btn);
+        videoList = view.findViewById(R.id.video_list);
+
+        // Операции и прогресс добавления
+        newItemsAddProgressView = view.findViewById(R.id.playlist_new_items_add_progress_view);
+        newItemsAddStatusTxt = view.findViewById(R.id.playlist_new_items_add_status_txt);
+        newItemsAddProgress = view.findViewById(R.id.playlist_new_items_add_progress);
+
+        newItemsAddErrorView = view.findViewById(R.id.playlist_new_items_add_error_view);
+        newItemsAddErrorTxt = view.findViewById(R.id.playlist_new_items_add_error_txt);
+        newItemsAddRetryBtn = view.findViewById(R.id.playlist_new_items_add_retry_btn);
+        newItemsAddCancelBtn = view.findViewById(R.id.playlist_new_items_add_cancel_btn);
+
+        newItemsAddDoneView = view.findViewById(R.id.playlist_new_items_add_done_view);
+        newItemsAddDoneBtn = view.findViewById(R.id.playlist_new_items_add_done_btn);
 
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         videoList.setLayoutManager(linearLayoutManager);
 
 
-        addNewItemsBtn.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String playlistUrl = plInfo.getUrl();
-                // канал или плейлист
-                final ContentLoader.TaskController taskController = new ContentLoader.TaskController();
-                taskController.setTaskListener(new ContentLoader.TaskListener() {
-                    @Override
-                    public void onStart() {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                playlistAddProgress.setVisibility(View.VISIBLE);
-                                playlistAddErrorTxt.setVisibility(View.GONE);
-                                playlistAddStatusTxt.setText(taskController.getStatusMsg());
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        playlistUpdateListener.onPlaylistUpdated();
-
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateVideoListBg(playlistId);
-
-                                playlistAddProgress.setVisibility(View.GONE);
-                                playlistAddStatusTxt.setText(taskController.getStatusMsg());
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onStatusChange(final String status, final Exception e) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                playlistAddStatusTxt.setText(status);
-                                if (e != null) {
-                                    playlistAddErrorTxt.setVisibility(View.VISIBLE);
-                                    playlistAddErrorTxt.setText(e.getMessage());
-                                }
-                            }
-                        });
-                    }
-                });
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ContentLoader.getInstance().addYtPlaylistNewItems(
-                                ViewPlaylistNewItemsFragment.this.getContext(), playlistId, playlistUrl, taskController);
-                    }
-                }).start();
-            }
-        });
-
         checkNewItemsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 updateVideoListBg(playlistId);
+            }
+        });
+
+        addNewItemsBtn.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addNewItems();
+            }
+        });
+
+        newItemsAddRetryBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addNewItems();
+            }
+        });
+
+        newItemsAddCancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playlistItemsView.setVisibility(View.VISIBLE);
+                newItemsAddProgressView.setVisibility(View.GONE);
+            }
+        });
+
+        newItemsAddDoneBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playlistItemsView.setVisibility(View.VISIBLE);
+                newItemsAddProgressView.setVisibility(View.GONE);
             }
         });
 
@@ -271,6 +272,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                     @Override
                     public void run() {
                         playlistNameTxt.setText(plInfo.getName());
+                        playlistUrlTxt.setText(plInfo.getUrl());
 
                         setupVideoListAdapter(plId, plInfo.getUrl());
                     }
@@ -361,5 +363,75 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         });
 
         videoList.setAdapter(adapter);
+    }
+
+    private void addNewItems() {
+        final String playlistUrl = plInfo.getUrl();
+        // канал или плейлист
+        final ContentLoader.TaskController taskController = new ContentLoader.TaskController();
+        taskController.setTaskListener(new ContentLoader.TaskListener() {
+            @Override
+            public void onStart() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        playlistItemsView.setVisibility(View.GONE);
+                        newItemsAddProgressView.setVisibility(View.VISIBLE);
+
+                        newItemsAddProgress.setVisibility(View.VISIBLE);
+                        newItemsAddErrorView.setVisibility(View.GONE);
+                        newItemsAddDoneView.setVisibility(View.GONE);
+
+                        newItemsAddStatusTxt.setText(taskController.getStatusMsg());
+                    }
+                });
+            }
+
+            @Override
+            public void onFinish() {
+                playlistUpdateListener.onPlaylistUpdated();
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(taskController.getException() == null) {
+                            updateVideoListBg(playlistId);
+
+                            newItemsAddProgress.setVisibility(View.GONE);
+                            newItemsAddErrorView.setVisibility(View.GONE);
+                            newItemsAddDoneView.setVisibility(View.VISIBLE);
+
+                            newItemsAddStatusTxt.setText(taskController.getStatusMsg());
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onStatusChange(final String status, final Exception e) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        newItemsAddStatusTxt.setText(status);
+                        if (e != null) {
+                            newItemsAddProgress.setVisibility(View.GONE);
+                            newItemsAddErrorView.setVisibility(View.VISIBLE);
+                            newItemsAddDoneView.setVisibility(View.GONE);
+
+                            newItemsAddErrorTxt.setText(e.getMessage());
+                        }
+                    }
+                });
+            }
+        });
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ContentLoader.getInstance().addYtPlaylistNewItems(
+                        ViewPlaylistNewItemsFragment.this.getContext(),
+                        playlistId, playlistUrl, taskController);
+            }
+        }).start();
     }
 }

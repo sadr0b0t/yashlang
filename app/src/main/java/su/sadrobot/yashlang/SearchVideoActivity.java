@@ -68,6 +68,9 @@ public class SearchVideoActivity extends AppCompatActivity {
         searchVideoInput = findViewById(R.id.search_video_input);
         videoList = findViewById(R.id.video_list);
 
+        // кнопка "Назад" на акшенбаре
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         videoList.setLayoutManager(linearLayoutManager);
@@ -116,6 +119,12 @@ public class SearchVideoActivity extends AppCompatActivity {
         if(videodb != null) {
             videodb.close();
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     private void setupVideoListAdapter(final String sstr) {

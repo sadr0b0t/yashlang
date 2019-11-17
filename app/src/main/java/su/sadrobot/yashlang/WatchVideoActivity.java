@@ -560,6 +560,52 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        // https://developer.android.com/training/appbar/action-views.html
+
+        toolbar.inflateMenu(R.menu.watch_video_actions);
+        starredCheck = (CheckBox) toolbar.getMenu().findItem(R.id.action_star).getActionView();
+        starredCheck.setButtonDrawable(android.R.drawable.btn_star);
+
+        // Текущее значение и клик-листенер для starredCheck задается внутри playVideoItem.
+        // Но при загрузке аквити у нас получается так, что currentVideo появляется раньше в onCreate,
+        // чем создается меню здесь, поэтому playVideoItem вызывается раньше, чем появляется starredCheck,
+        // поэтому там клик-лисенер для starredCheck не назначается, нужно назначить его здесь.
+        if (currentVideo != null) {
+            // еще так же делаем в playVideoItem
+            starredCheck.setChecked(currentVideo.isStarred());
+            starredCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+                    final VideoItem _currentVideo = currentVideo;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (_currentVideo != null) {
+                                videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
+                                // обновим кэш
+                                _currentVideo.setStarred(isChecked);
+                            }
+                        }
+                    }).start();
+                }
+            });
+        }
+
+        toolbar.setOnMenuItemClickListener(
+                new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        return onOptionsItemSelected(item);
+                    }
+                });
+
+        return true;
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
 
@@ -604,88 +650,8 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        // https://developer.android.com/training/appbar/action-views.html
-
-        toolbar.inflateMenu(R.menu.watch_video_actions);
-        starredCheck = (CheckBox) toolbar.getMenu().findItem(R.id.action_star).getActionView();
-        starredCheck.setButtonDrawable(android.R.drawable.btn_star);
-
-        // При загрузке аквити у нас получается так, что currentVideo появляется раньше в onCreate,
-        // чем создается меню здесь, поэтому там клик-лисенер для starredCheck не назначается,
-        // нужно назначить его здесь.
-        if (currentVideo != null) {
-            starredCheck.setChecked(currentVideo.isStarred());
-            // еще так же делаем в playVideoItem
-            starredCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
-                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
-                    final VideoItem _currentVideo = currentVideo;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (_currentVideo != null) {
-                                videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
-                                // обновим кэш
-                                _currentVideo.setStarred(isChecked);
-                            }
-                        }
-                    }).start();
-                }
-            });
-        }
-
-        toolbar.setOnMenuItemClickListener(
-                new Toolbar.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        return onOptionsItemSelected(item);
-                    }
-                });
-
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_blacklist:
-                if (currentVideo != null && currentVideo.getId() != -1) {
-                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
-                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
-                    final VideoItem _currentVideo = currentVideo;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            videodb.videoItemDao().setBlacklisted(currentVideo.getId(), true);
-                            // обновим кэш
-                            _currentVideo.setBlacklisted(true);
-                            // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
-                            // удалить из истории, начать проигрывать какое-то другое видео
-                            // (какое? первое из рекомендаций? Что если список рекомендаций пуст?),
-                            // удалить его из списка рекомендаций (с текущим датасорсом из ROOM
-                            // это произойдет автоматом) и т.п.
-                        }
-                    }).start();
-                }
-                break;
-            case R.id.action_star:
-                if (currentVideo != null && currentVideo.getId() != -1) {
-                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
-                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
-                    final VideoItem _currentVideo = currentVideo;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            videodb.videoItemDao().setStarred(_currentVideo.getId(), !_currentVideo.isStarred());
-                            // обновим кэш
-                            _currentVideo.setStarred(!_currentVideo.isStarred());
-                        }
-                    }).start();
-                }
-                break;
             case R.id.action_copy_video_url:
                 if (currentVideo != null) {
                     final String vidUrl= "https://www.youtube.com/watch?v=%s".replace("%s", currentVideo.getYtId());
@@ -717,6 +683,26 @@ public class WatchVideoActivity extends AppCompatActivity {
                 } else if(currentVideo != null && currentVideo.getPlaylistId() == -1) {
                     Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
                             Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.action_blacklist:
+                if (currentVideo != null && currentVideo.getId() != -1) {
+                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+                    final VideoItem _currentVideo = currentVideo;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            videodb.videoItemDao().setBlacklisted(currentVideo.getId(), true);
+                            // обновим кэш
+                            _currentVideo.setBlacklisted(true);
+                            // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
+                            // удалить из истории, начать проигрывать какое-то другое видео
+                            // (какое? первое из рекомендаций? Что если список рекомендаций пуст?),
+                            // удалить его из списка рекомендаций (с текущим датасорсом из ROOM
+                            // это произойдет автоматом) и т.п.
+                        }
+                    }).start();
                 }
                 break;
         }
