@@ -188,7 +188,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(ConfigOptions.DEVEL_MODE_ON) {
-            playlistUrlInput.setText("https://youtube.com/channel/UCrlFHstLFNA_HsIV7AveNzA");
+            playlistUrlInput.setText("https://youtube.com/user/ClassicCartoonsMedia");
         }
 
         // set a LinearLayoutManager with default vertical orientation
@@ -287,7 +287,8 @@ public class AddPlaylistActivity extends AppCompatActivity {
         // разрешено добавлять только после того, как о плейлисте загружена предварительная
         // информация, т.е. объект loadedPlaylist будет не null
         //final String playlistUrl = playlistUrlInput.getText().toString();
-        playlistAddPlUrlTxt.setText(loadedPlaylist.getUrl());
+        playlistAddPlUrlTxt.setText(loadedPlaylist.getUrl().replaceFirst(
+                "https://", "").replaceFirst("www.", ""));
         playlistAddPlNameTxt.setText(loadedPlaylist.getName());
         playlistAddPlThumbImg.setImageBitmap(loadedPlaylist.getThumbBitmap());
 

@@ -71,6 +71,8 @@ public class ViewPlaylistFragment extends Fragment {
     private ImageView playlistThumbImg;
     private TextView playlistNameTxt;
     private TextView playlistUrlTxt;
+    private TextView playlistSizeTxt;
+
     private EditText filterPlaylistInput;
     private RecyclerView videoList;
 
@@ -108,6 +110,7 @@ public class ViewPlaylistFragment extends Fragment {
         playlistThumbImg = view.findViewById(R.id.playlist_thumb_img);
         playlistNameTxt = view.findViewById(R.id.playlist_name_txt);
         playlistUrlTxt = view.findViewById(R.id.playlist_url_txt);
+        playlistSizeTxt = view.findViewById(R.id.playlist_size_txt);
         filterPlaylistInput = view.findViewById(R.id.filter_playlist_input);
         videoList = view.findViewById(R.id.video_list);
 
@@ -175,8 +178,10 @@ public class ViewPlaylistFragment extends Fragment {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        playlistNameTxt.setText(plInfo.getName() + " (" + plVideosCount + ")");
-                        playlistUrlTxt.setText(plInfo.getUrl());
+                        playlistNameTxt.setText(plInfo.getName());
+                        playlistUrlTxt.setText(plInfo.getUrl().replaceFirst(
+                                "https://", "").replaceFirst("www.", ""));
+                        playlistSizeTxt.setText(" (" + plVideosCount + ")");
                     }
                 });
 

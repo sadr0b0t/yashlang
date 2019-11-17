@@ -47,15 +47,17 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter {
     private OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener;
 
     public class PlaylistInfoViewHolder extends RecyclerView.ViewHolder {
-        TextView name;
-        ImageView thumb;
-        Switch onoff;
+        TextView nameTxt;
+        TextView urlTxt;
+        ImageView thumbImg;
+        Switch onoffSwitch;
 
         public PlaylistInfoViewHolder(final View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.playlist_name_txt);
-            thumb = itemView.findViewById(R.id.playlist_thumb_img);
-            onoff = itemView.findViewById(R.id.playlist_onoff_switch);
+            nameTxt = itemView.findViewById(R.id.playlist_name_txt);
+            urlTxt = itemView.findViewById(R.id.playlist_url_txt);
+            thumbImg = itemView.findViewById(R.id.playlist_thumb_img);
+            onoffSwitch = itemView.findViewById(R.id.playlist_onoff_switch);
         }
     }
 
@@ -79,13 +81,15 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter {
         final PlaylistInfo item = playlistInfos.get(position);
         final PlaylistInfoViewHolder _holder = (PlaylistInfoViewHolder)holder;
 
-        _holder.name.setText(item.getName());
+        _holder.nameTxt.setText(item.getName());
+        _holder.urlTxt.setText(item.getUrl().replaceFirst(
+                "https://", "").replaceFirst("www.",""));
         //_holder.name.setEnabled(item.isEnabled());
 
 
-        if (_holder.thumb != null) {
+        if (_holder.thumbImg != null) {
             if(item.getThumbBitmap() != null) {
-                _holder.thumb.setImageBitmap(item.getThumbBitmap());
+                _holder.thumbImg.setImageBitmap(item.getThumbBitmap());
             } else {
                 new Thread(new Runnable() {
                     @Override
@@ -104,20 +108,20 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter {
             }
         }
 
-        if(_holder.onoff != null) {
+        if(_holder.onoffSwitch != null) {
             // обнулить слушателя событий выключателя:
             // вот это важно здесь здесь, иначе не оберешься трудноуловимых глюков
             // в списках с прокруткой
-            _holder.onoff.setOnCheckedChangeListener(null);
-            if(_holder.onoff != null && onItemSwitchListener == null) {
+            _holder.onoffSwitch.setOnCheckedChangeListener(null);
+            if(_holder.onoffSwitch != null && onItemSwitchListener == null) {
                 // вот так - не передали слушателя вкл/выкл - прячем кнопку
                 // немного не феншуй, зато пока не будем городить отдельный флаг
-                _holder.onoff.setVisibility(View.GONE);
+                _holder.onoffSwitch.setVisibility(View.GONE);
             } else {
-                _holder.onoff.setVisibility(View.VISIBLE);
+                _holder.onoffSwitch.setVisibility(View.VISIBLE);
 
-                _holder.onoff.setChecked(item.isEnabled());
-                _holder.onoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                _holder.onoffSwitch.setChecked(item.isEnabled());
+                _holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if(onItemSwitchListener != null) {

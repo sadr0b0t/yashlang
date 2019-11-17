@@ -272,7 +272,8 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                     @Override
                     public void run() {
                         playlistNameTxt.setText(plInfo.getName());
-                        playlistUrlTxt.setText(plInfo.getUrl());
+                        playlistUrlTxt.setText(plInfo.getUrl().replaceFirst(
+                                "https://", "").replaceFirst("www.", ""));
 
                         setupVideoListAdapter(plId, plInfo.getUrl());
                     }
