@@ -41,4 +41,8 @@
     <string name="delete_playlist_title">Правда удалить плейлист?</string>
     <string name="delete_playlist_message">Ролики из этого списка также исчезнут из списка любимых и истории</string>
     <string name="adding_playlist_new_items">Добавляем в плейлист новые элементы</string>
+    <string name="copy_playlist_name">Копировать имя плейлиста</string>
+    <string name="copy_video_name">Копировать имя видео</string>
+    <string name="video_is_blacklisted">Видео блокировано. Перейдите в Настройки > Черный список, чтобы отменить.</string>
+    <string name="copied">скопировано</string>
 </resources>

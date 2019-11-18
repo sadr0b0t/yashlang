@@ -20,6 +20,8 @@ package su.sadrobot.yashlang.util;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import su.sadrobot.yashlang.model.VideoItem;
+
 public class PlaylistUrlUtil {
     public static String getYtPlaylistUid(final String url) {
         // https://www.youtube.com/playlist?list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388
@@ -61,5 +63,18 @@ public class PlaylistUrlUtil {
     public static boolean isYtUser(final String url) {
         // TODO: this parser is too dummy
         return url.contains("youtube.com/user/");
+    }
+
+    /**
+     * Удалить "https://" и "www." из адреса для краткости и красоты
+     * @param url
+     * @return
+     */
+    public static String cleanupUrl(final String url) {
+        return url.replaceFirst("https://", "").replaceFirst("www.", "");
+    }
+
+    public static String getVideoUrl(final VideoItem videoItem) {
+        return "https://www.youtube.com/watch?v=%s".replace("%s", videoItem.getYtId());
     }
 }

@@ -20,6 +20,9 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,7 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,15 +39,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.schabi.newpipe.extractor.exceptions.ExtractionException;
-
-import java.io.IOException;
 import java.util.List;
 
-import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
-import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.OnListItemSwitchListener;
 import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
@@ -112,27 +110,45 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
                                     }
 
                                     @Override
-                                    public boolean onItemLongClick(final View view, final int position, final PlaylistInfo item) {
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                try {
-                                                    final List<VideoItem> videos = ContentLoader.getInstance().loadYtPlaylistNewItems(ConfigurePlaylistsActivity.this, item);
-                                                    for (VideoItem vid : videos) {
-                                                        System.out.println(vid.getYtId() + " " + vid.getName());
-                                                    }
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                } catch (ExtractionException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }).start();
+                                    public boolean onItemLongClick(final View view, final int position, final PlaylistInfo plInfo) {
 
-                                        Toast.makeText(ConfigurePlaylistsActivity.this,
-                                                "LONG CLLICK: " + position + " : " +
-                                                        item.getId() + " : " + item.getUrl() + " : " + item.getType(),
-                                                Toast.LENGTH_SHORT).show();
+                                        // параметр Gravity.CENTER не работает (и появился еще только в API 19+),
+                                        // работает только вариант Gravity.RIGHT
+                                        //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
+                                        final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this,
+                                                view.findViewById(R.id.playlist_name_txt));
+                                        popup.getMenuInflater().inflate(R.menu.playlist_actions, popup.getMenu());
+                                        popup.setOnMenuItemClickListener(
+                                                new PopupMenu.OnMenuItemClickListener() {
+                                                    @Override
+                                                    public boolean onMenuItemClick(final MenuItem item) {
+                                                        switch (item.getItemId()) {
+                                                            case R.id.action_copy_playlist_name: {
+                                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                                final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
+                                                                clipboard.setPrimaryClip(clip);
+
+                                                                Toast.makeText(ConfigurePlaylistsActivity.this,
+                                                                        getString(R.string.copied) + ": " + plInfo.getName(),
+                                                                        Toast.LENGTH_LONG).show();
+                                                                break;
+                                                            }
+                                                            case R.id.action_copy_playlist_url: {
+                                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                                final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
+                                                                clipboard.setPrimaryClip(clip);
+
+                                                                Toast.makeText(ConfigurePlaylistsActivity.this,
+                                                                        getString(R.string.copied) + ": " + plInfo.getUrl(),
+                                                                        Toast.LENGTH_LONG).show();
+                                                                break;
+                                                            }
+                                                        }
+                                                        return true;
+                                                    }
+                                                }
+                                        );
+                                        popup.show();
                                         return true;
                                     }
                                 },

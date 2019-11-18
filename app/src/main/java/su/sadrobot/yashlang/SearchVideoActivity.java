@@ -20,14 +20,19 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,8 +46,10 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 
@@ -134,18 +141,123 @@ public class SearchVideoActivity extends AppCompatActivity {
 
         final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(this, new OnListItemClickListener<VideoItem>() {
             @Override
-            public void onItemClick(View view, int position, VideoItem item) {
+            public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                 final Intent intent = new Intent(SearchVideoActivity.this, WatchVideoActivity.class);
-                intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, item.getId());
+                intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
                 startActivity(intent);
             }
 
             @Override
-            public boolean onItemLongClick(View view, int position, VideoItem item) {
-                Toast.makeText(SearchVideoActivity.this,position + ":" +
-                                item.getId() + ":" + item.getThumbUrl(),
-                        Toast.LENGTH_LONG).show();
-                return false;
+            public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
+                final PopupMenu popup = new PopupMenu(SearchVideoActivity.this,
+                        view.findViewById(R.id.video_name_txt));
+                popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
+                popup.setOnMenuItemClickListener(
+                        new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                switch (item.getItemId()) {
+                                    case R.id.action_copy_video_name: {
+                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                        final ClipData clip = ClipData.newPlainText(videoItem.getName(), videoItem.getName());
+                                        clipboard.setPrimaryClip(clip);
+
+                                        Toast.makeText(SearchVideoActivity.this,
+                                                getString(R.string.copied) + ": " + videoItem.getName(),
+                                                Toast.LENGTH_LONG).show();
+                                        break;
+                                    }
+                                    case R.id.action_copy_video_url: {
+                                        final String vidUrl = PlaylistUrlUtil.getVideoUrl(videoItem);
+                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                        final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
+                                        clipboard.setPrimaryClip(clip);
+
+                                        Toast.makeText(SearchVideoActivity.this,
+                                                getString(R.string.copied) + ": " + vidUrl,
+                                                Toast.LENGTH_LONG).show();
+                                        break;
+                                    }
+                                    case R.id.action_copy_playlist_name:
+                                        if (videoItem != null && videoItem.getPlaylistId() != -1) {
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                    if(plInfo != null) {
+                                                        handler.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                                final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
+                                                                clipboard.setPrimaryClip(clip);
+
+                                                                Toast.makeText(SearchVideoActivity.this,
+                                                                        getString(R.string.copied) + ": " + plInfo.getName(),
+                                                                        Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }).start();
+                                        } else if(videoItem != null && videoItem.getPlaylistId() == -1) {
+                                            Toast.makeText(SearchVideoActivity.this, getString(R.string.err_playlist_not_defined),
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                        break;
+                                    case R.id.action_copy_playlist_url:
+                                        if (videoItem != null && videoItem.getPlaylistId() != -1) {
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                    if(plInfo != null) {
+                                                        handler.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                                final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
+                                                                clipboard.setPrimaryClip(clip);
+
+                                                                Toast.makeText(SearchVideoActivity.this,
+                                                                        getString(R.string.copied) + ": " + plInfo.getUrl(),
+                                                                        Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }).start();
+                                        } else if(videoItem != null && videoItem.getPlaylistId() == -1) {
+                                            Toast.makeText(SearchVideoActivity.this, getString(R.string.err_playlist_not_defined),
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                        break;
+                                    case R.id.action_blacklist:
+                                        if (videoItem != null && videoItem.getId() != -1) {
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
+                                                    // обновим кэш
+                                                    videoItem.setBlacklisted(true);
+                                                    handler.post(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            Toast.makeText(SearchVideoActivity.this, getString(R.string.video_is_blacklisted),
+                                                                    Toast.LENGTH_LONG).show();
+                                                        }
+                                                    });
+                                                }
+                                            }).start();
+                                        }
+                                        break;
+                                }
+                                return true;
+                            }
+                        }
+                );
+                popup.show();
+                return true;
             }
         }, null);
 

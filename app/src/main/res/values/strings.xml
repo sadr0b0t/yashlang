@@ -41,4 +41,8 @@
     <string name="delete_playlist_title">Really delete playlist?</string>
     <string name="delete_playlist_message">Items from this playlist will also go away from starred list and history</string>
     <string name="adding_playlist_new_items">Adding new items to playlist</string>
+    <string name="copy_playlist_name">Copy playlist name</string>
+    <string name="copy_video_name">Copy video name</string>
+    <string name="video_is_blacklisted">Video is blocked. Go to Settings > Blacklist to undo.</string>
+    <string name="copied">copied</string>
 </resources>

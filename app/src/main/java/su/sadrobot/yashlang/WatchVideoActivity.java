@@ -30,10 +30,10 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -45,13 +45,11 @@ import androidx.lifecycle.Observer;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
-import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -85,6 +83,7 @@ import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemArrayAdapter;
 import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
@@ -652,13 +651,55 @@ public class WatchVideoActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_copy_video_name:
+                if (currentVideo != null) {
+                    final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    final ClipData clip = ClipData.newPlainText(currentVideo.getName(), currentVideo.getName());
+                    clipboard.setPrimaryClip(clip);
+
+                    Toast.makeText(WatchVideoActivity.this,
+                            getString(R.string.copied) + ": " + currentVideo.getName(),
+                            Toast.LENGTH_LONG).show();
+                }
+                break;
             case R.id.action_copy_video_url:
                 if (currentVideo != null) {
-                    final String vidUrl= "https://www.youtube.com/watch?v=%s".replace("%s", currentVideo.getYtId());
-
+                    final String vidUrl = PlaylistUrlUtil.getVideoUrl(currentVideo);
                     final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                    final ClipData clip = ClipData.newPlainText(currentVideo.getYtId(), vidUrl);
+                    final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
                     clipboard.setPrimaryClip(clip);
+
+                    Toast.makeText(WatchVideoActivity.this,
+                            getString(R.string.copied) + ": " + vidUrl,
+                            Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.action_copy_playlist_name:
+                if (currentVideo != null && currentVideo.getPlaylistId() != -1) {
+                    final VideoItem _currentVideo = currentVideo;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(_currentVideo.getPlaylistId());
+                            if(plInfo != null) {
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                        final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
+                                        clipboard.setPrimaryClip(clip);
+
+                                        Toast.makeText(WatchVideoActivity.this,
+                                                getString(R.string.copied) + ": " + plInfo.getName(),
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
+                        }
+                    }).start();
+                } else if(currentVideo != null && currentVideo.getPlaylistId() == -1) {
+                    Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
+                            Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.action_copy_playlist_url:
@@ -675,6 +716,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                                         final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                                         final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
                                         clipboard.setPrimaryClip(clip);
+
+                                        Toast.makeText(WatchVideoActivity.this,
+                                                getString(R.string.copied) + ": " + plInfo.getUrl(),
+                                                Toast.LENGTH_LONG).show();
                                     }
                                 });
                             }
@@ -696,6 +741,14 @@ public class WatchVideoActivity extends AppCompatActivity {
                             videodb.videoItemDao().setBlacklisted(currentVideo.getId(), true);
                             // обновим кэш
                             _currentVideo.setBlacklisted(true);
+
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.video_is_blacklisted),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            });
                             // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
                             // удалить из истории, начать проигрывать какое-то другое видео
                             // (какое? первое из рекомендаций? Что если список рекомендаций пуст?),
@@ -928,6 +981,9 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoPlayerView.getPlayer().setPlayWhenReady(true);
     }
 
+    /**
+     * Рекомандации внизу под основным видео
+     */
     private void setupVideoListArrayAdapter() {
         new Thread(new Runnable() {
             @Override
@@ -936,14 +992,141 @@ public class WatchVideoActivity extends AppCompatActivity {
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
-                    public void onItemClick(final View view, final int position, final VideoItem item) {
-                        posMap.put(item.getId(), position);
-                        playVideoItem(item, false);
+                    public void onItemClick(final View view, final int position, final VideoItem videoItem) {
+                        posMap.put(videoItem.getId(), position);
+                        playVideoItem(videoItem, false);
                     }
 
                     @Override
-                    public boolean onItemLongClick(View view, int position, VideoItem item) {
-                        return false;
+                    public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
+                        final PopupMenu popup = new PopupMenu(WatchVideoActivity.this, view);
+                        popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
+                        popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                            @Override
+                            public void onDismiss(PopupMenu menu) {
+                                // Прячем панель навигации, т.к. при выборе меню она появляется опять.
+                                getWindow().getDecorView().setSystemUiVisibility(
+                                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
+                                                // (но только если мы не используем Toolbar, а мы используем)
+                                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
+                                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                                                // без этого флага навигация будет опять появляться по первому клику
+                                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                );
+                            }
+                        });
+                        popup.setOnMenuItemClickListener(
+                                new PopupMenu.OnMenuItemClickListener() {
+                                    @Override
+                                    public boolean onMenuItemClick(final MenuItem item) {
+                                        switch (item.getItemId()) {
+                                            case R.id.action_copy_video_name: {
+                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                final ClipData clip = ClipData.newPlainText(videoItem.getName(), videoItem.getName());
+                                                clipboard.setPrimaryClip(clip);
+
+                                                Toast.makeText(WatchVideoActivity.this,
+                                                        getString(R.string.copied) + ": " + videoItem.getName(),
+                                                        Toast.LENGTH_LONG).show();
+                                                break;
+                                            }
+                                            case R.id.action_copy_video_url: {
+                                                final String vidUrl = PlaylistUrlUtil.getVideoUrl(videoItem);
+                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
+                                                clipboard.setPrimaryClip(clip);
+
+                                                Toast.makeText(WatchVideoActivity.this,
+                                                        getString(R.string.copied) + ": " + vidUrl,
+                                                        Toast.LENGTH_LONG).show();
+                                                break;
+                                            }
+                                            case R.id.action_copy_playlist_name:
+                                                if (videoItem != null && videoItem.getPlaylistId() != -1) {
+                                                    new Thread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                            if(plInfo != null) {
+                                                                handler.post(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                                        final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
+                                                                        clipboard.setPrimaryClip(clip);
+
+                                                                        Toast.makeText(WatchVideoActivity.this,
+                                                                                getString(R.string.copied) + ": " + plInfo.getName(),
+                                                                                Toast.LENGTH_LONG).show();
+                                                                    }
+                                                                });
+                                                            }
+                                                        }
+                                                    }).start();
+                                                } else if(videoItem != null && videoItem.getPlaylistId() == -1) {
+                                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
+                                                            Toast.LENGTH_LONG).show();
+                                                }
+                                                break;
+                                            case R.id.action_copy_playlist_url:
+                                                if (videoItem != null && videoItem.getPlaylistId() != -1) {
+                                                    new Thread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                            if(plInfo != null) {
+                                                                handler.post(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                                        final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
+                                                                        clipboard.setPrimaryClip(clip);
+
+                                                                        Toast.makeText(WatchVideoActivity.this,
+                                                                                getString(R.string.copied) + ": " + plInfo.getUrl(),
+                                                                                Toast.LENGTH_LONG).show();
+                                                                    }
+                                                                });
+                                                            }
+                                                        }
+                                                    }).start();
+                                                } else if(videoItem != null && videoItem.getPlaylistId() == -1) {
+                                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
+                                                            Toast.LENGTH_LONG).show();
+                                                }
+                                                break;
+                                            case R.id.action_blacklist:
+                                                if (videoItem != null && videoItem.getId() != -1) {
+                                                    new Thread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
+                                                            // обновим кэш
+                                                            videoItem.setBlacklisted(true);
+                                                            handler.post(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.video_is_blacklisted),
+                                                                            Toast.LENGTH_LONG).show();
+                                                                }
+                                                            });
+                                                            // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
+                                                            // например, удалить из текущего списка рекомендаций
+                                                        }
+                                                    }).start();
+                                                }
+                                                break;
+                                        }
+                                        return true;
+                                    }
+                                }
+                        );
+                        popup.show();
+                        return true;
                     }
                 }, null, VideoItemArrayAdapter.ORIENTATION_HORIZONTAL);
 

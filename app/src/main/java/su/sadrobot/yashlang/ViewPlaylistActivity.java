@@ -29,8 +29,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -45,7 +43,6 @@ import com.google.android.material.tabs.TabLayout;
 
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
-import su.sadrobot.yashlang.model.VideoItem;
 
 /**
  *
@@ -216,11 +213,26 @@ public class ViewPlaylistActivity extends AppCompatActivity {
                     }).start();
                 }
                 break;
+            case R.id.action_copy_playlist_name:
+                if (plInfo != null) {
+                    final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
+                    clipboard.setPrimaryClip(clip);
+
+                    Toast.makeText(ViewPlaylistActivity.this,
+                            getString(R.string.copied) + ": " + plInfo.getName(),
+                            Toast.LENGTH_LONG).show();
+                }
+                break;
             case R.id.action_copy_playlist_url:
                 if (plInfo != null) {
                     final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                     final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
                     clipboard.setPrimaryClip(clip);
+
+                    Toast.makeText(ViewPlaylistActivity.this,
+                            getString(R.string.copied) + ": " + plInfo.getUrl(),
+                            Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.action_delete_playlist:

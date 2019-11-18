@@ -20,16 +20,21 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +53,7 @@ import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.DataSourceListener;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemOnlineDataSourceFactory;
@@ -287,8 +293,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
         // разрешено добавлять только после того, как о плейлисте загружена предварительная
         // информация, т.е. объект loadedPlaylist будет не null
         //final String playlistUrl = playlistUrlInput.getText().toString();
-        playlistAddPlUrlTxt.setText(loadedPlaylist.getUrl().replaceFirst(
-                "https://", "").replaceFirst("www.", ""));
+        playlistAddPlUrlTxt.setText(PlaylistUrlUtil.cleanupUrl(loadedPlaylist.getUrl()));
         playlistAddPlNameTxt.setText(loadedPlaylist.getName());
         playlistAddPlThumbImg.setImageBitmap(loadedPlaylist.getThumbBitmap());
 
@@ -451,18 +456,53 @@ public class AddPlaylistActivity extends AppCompatActivity {
         final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(this,
                 new OnListItemClickListener<VideoItem>() {
                     @Override
-                    public void onItemClick(View view, int position, VideoItem item) {
+                    public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                         final Intent intent = new Intent(AddPlaylistActivity.this, WatchVideoActivity.class);
-                        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_YTID, item.getYtId());
+                        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_YTID, videoItem.getYtId());
                         startActivity(intent);
                     }
 
                     @Override
-                    public boolean onItemLongClick(View view, int position, VideoItem item) {
-                        Toast.makeText(AddPlaylistActivity.this, position + ":" +
-                                        item.getId() + ":" + item.getThumbUrl(),
-                                Toast.LENGTH_LONG).show();
-                        return false;
+                    public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
+                        final PopupMenu popup = new PopupMenu(AddPlaylistActivity.this,
+                                view.findViewById(R.id.video_name_txt));
+                        popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
+                        popup.getMenu().removeItem(R.id.action_copy_playlist_name);
+                        popup.getMenu().removeItem(R.id.action_copy_playlist_url);
+                        popup.getMenu().removeItem(R.id.action_blacklist);
+                        popup.setOnMenuItemClickListener(
+                                new PopupMenu.OnMenuItemClickListener() {
+                                    @Override
+                                    public boolean onMenuItemClick(final MenuItem item) {
+                                        switch (item.getItemId()) {
+                                            case R.id.action_copy_video_name: {
+                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                final ClipData clip = ClipData.newPlainText(videoItem.getName(), videoItem.getName());
+                                                clipboard.setPrimaryClip(clip);
+
+                                                Toast.makeText(AddPlaylistActivity.this,
+                                                        getString(R.string.copied) + ": " + videoItem.getName(),
+                                                        Toast.LENGTH_LONG).show();
+                                                break;
+                                            }
+                                            case R.id.action_copy_video_url: {
+                                                final String vidUrl = PlaylistUrlUtil.getVideoUrl(videoItem);
+                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
+                                                clipboard.setPrimaryClip(clip);
+
+                                                Toast.makeText(AddPlaylistActivity.this,
+                                                        getString(R.string.copied) + ": " + vidUrl,
+                                                        Toast.LENGTH_LONG).show();
+                                                break;
+                                            }
+                                        }
+                                        return true;
+                                    }
+                                }
+                        );
+                        popup.show();
+                        return true;
                     }
                 }, null);
         // если список пустой, показываем специальный экранчик с кнопкой
