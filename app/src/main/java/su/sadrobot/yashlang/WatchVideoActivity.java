@@ -20,9 +20,11 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -195,14 +197,14 @@ public class WatchVideoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // переходим на следующее видео по списку рекомендаций
                 final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
-                                0 : currentVideoPosition + 1;
+                        0 : currentVideoPosition + 1;
                 final VideoItem item;
-                if(videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
+                if (videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
                     // (вообще, если используем VideoItemPagedListAdapter, то в этой игре с индексами
                     // мало толка, т.к. адаптер с рекомендациями меняется случайным образом каждый
                     // раз при записи в базу, в т.ч. при загрузке нового видео)
                     item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
-                } else if(videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                } else if (videoList.getAdapter() instanceof VideoItemArrayAdapter) {
                     item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
                 } else {
                     item = null;
@@ -286,7 +288,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                if(playbackState == Player.STATE_ENDED) {
+                if (playbackState == Player.STATE_ENDED) {
                     // ролик завершился - переходим к следующему
                     // TODO: сделайть экран с таймаутом секунд на 10, прогрессбаром и кнопкой
                     // перейти сейчас, отменить, играть заново текущий.
@@ -295,12 +297,12 @@ public class WatchVideoActivity extends AppCompatActivity {
                     final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
                             0 : currentVideoPosition + 1;
                     final VideoItem item;
-                    if(videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
+                    if (videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
                         // (вообще, если используем VideoItemPagedListAdapter, то в этой игре с индексами
                         // мало толка, т.к. адаптер с рекомендациями меняется случайным образом каждый
                         // раз при записи в базу, в т.ч. при загрузке нового видео)
                         item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
-                    } else if(videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                    } else if (videoList.getAdapter() instanceof VideoItemArrayAdapter) {
                         item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
                     } else {
                         item = null;
@@ -478,12 +480,12 @@ public class WatchVideoActivity extends AppCompatActivity {
                 final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
                         0 : currentVideoPosition + 1;
                 final VideoItem item;
-                if(videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
+                if (videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
                     // (вообще, если используем VideoItemPagedListAdapter, то в этой игре с индексами
                     // мало толка, т.к. адаптер с рекомендациями меняется случайным образом каждый
                     // раз при записи в базу, в т.ч. при загрузке нового видео)
                     item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
-                } else if(videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                } else if (videoList.getAdapter() instanceof VideoItemArrayAdapter) {
                     item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
                 } else {
                     item = null;
@@ -681,7 +683,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(_currentVideo.getPlaylistId());
-                            if(plInfo != null) {
+                            if (plInfo != null) {
                                 handler.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -697,7 +699,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                             }
                         }
                     }).start();
-                } else if(currentVideo != null && currentVideo.getPlaylistId() == -1) {
+                } else if (currentVideo != null && currentVideo.getPlaylistId() == -1) {
                     Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
                             Toast.LENGTH_LONG).show();
                 }
@@ -709,7 +711,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(_currentVideo.getPlaylistId());
-                            if(plInfo != null) {
+                            if (plInfo != null) {
                                 handler.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -725,7 +727,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                             }
                         }
                     }).start();
-                } else if(currentVideo != null && currentVideo.getPlaylistId() == -1) {
+                } else if (currentVideo != null && currentVideo.getPlaylistId() == -1) {
                     Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
                             Toast.LENGTH_LONG).show();
                 }
@@ -735,27 +737,37 @@ public class WatchVideoActivity extends AppCompatActivity {
                     // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
                     // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
                     final VideoItem _currentVideo = currentVideo;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            videodb.videoItemDao().setBlacklisted(currentVideo.getId(), true);
-                            // обновим кэш
-                            _currentVideo.setBlacklisted(true);
+                    new AlertDialog.Builder(WatchVideoActivity.this)
+                            .setTitle(getString(R.string.blacklist_video_title))
+                            .setMessage(getString(R.string.blacklist_video_message))
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.video_is_blacklisted),
-                                            Toast.LENGTH_LONG).show();
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            videodb.videoItemDao().setBlacklisted(_currentVideo.getId(), true);
+                                            // обновим кэш
+                                            _currentVideo.setBlacklisted(true);
+                                            handler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.video_is_blacklisted),
+                                                            Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                            // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
+                                            // удалить из истории, начать проигрывать какое-то другое видео
+                                            // (какое? первое из рекомендаций? Что если список рекомендаций пуст?),
+                                            // удалить его из списка рекомендаций (с текущим датасорсом из ROOM
+                                            // это произойдет автоматом) и т.п.
+                                        }
+                                    }).start();
+
                                 }
-                            });
-                            // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
-                            // удалить из истории, начать проигрывать какое-то другое видео
-                            // (какое? первое из рекомендаций? Что если список рекомендаций пуст?),
-                            // удалить его из списка рекомендаций (с текущим датасорсом из ROOM
-                            // это произойдет автоматом) и т.п.
-                        }
-                    }).start();
+                            })
+                            .setNegativeButton(android.R.string.no, null).show();
                 }
                 break;
         }
@@ -844,14 +856,14 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
     private void playVideoItem(final VideoItem videoItem, boolean resetCurrPos) {
-        if(resetCurrPos) {
+        if (resetCurrPos) {
             resetVideoCurrPos();
         } else {
             saveVideoCurrPos();
         }
         currentVideo = videoItem;
         currentVideoPosition = posMap.containsKey(videoItem.getId()) ? posMap.get(videoItem.getId()) : -1;
-        if(currentVideoPosition != -1) {
+        if (currentVideoPosition != -1) {
             videoList.scrollToPosition(currentVideoPosition);
         }
         if (videoItem != null) {
@@ -860,7 +872,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
             if (playbackHistory.size() > 1) {
                 prevVideoBtn.setEnabled(true);
-                if(!stateFullscreen) {
+                if (!stateFullscreen) {
                     prevVideoBtn.setVisibility(View.VISIBLE);
                 }
             }
@@ -953,7 +965,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         }
 
         // Поставим на паузу старое видео, пока готовим новое
-        if(videoPlayerView.getPlayer().getPlaybackState() != Player.STATE_ENDED) {
+        if (videoPlayerView.getPlayer().getPlaybackState() != Player.STATE_ENDED) {
             // Если ставить на паузу здесь после того, как плеер встал на паузу сам, закончив
             // играть видео, получим здесь второе событие STATE_ENDED, поэтому нам нужна здесь
             // специальная проверка.
@@ -1051,7 +1063,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                                                         @Override
                                                         public void run() {
                                                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                            if(plInfo != null) {
+                                                            if (plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
                                                                     public void run() {
@@ -1067,7 +1079,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                                                             }
                                                         }
                                                     }).start();
-                                                } else if(videoItem != null && videoItem.getPlaylistId() == -1) {
+                                                } else if (videoItem != null && videoItem.getPlaylistId() == -1) {
                                                     Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
                                                             Toast.LENGTH_LONG).show();
                                                 }
@@ -1078,7 +1090,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                                                         @Override
                                                         public void run() {
                                                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                            if(plInfo != null) {
+                                                            if (plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
                                                                     public void run() {
@@ -1094,30 +1106,41 @@ public class WatchVideoActivity extends AppCompatActivity {
                                                             }
                                                         }
                                                     }).start();
-                                                } else if(videoItem != null && videoItem.getPlaylistId() == -1) {
+                                                } else if (videoItem != null && videoItem.getPlaylistId() == -1) {
                                                     Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
                                                             Toast.LENGTH_LONG).show();
                                                 }
                                                 break;
                                             case R.id.action_blacklist:
                                                 if (videoItem != null && videoItem.getId() != -1) {
-                                                    new Thread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
-                                                            // обновим кэш
-                                                            videoItem.setBlacklisted(true);
-                                                            handler.post(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.video_is_blacklisted),
-                                                                            Toast.LENGTH_LONG).show();
+                                                    new AlertDialog.Builder(WatchVideoActivity.this)
+                                                            .setTitle(getString(R.string.blacklist_video_title))
+                                                            .setMessage(getString(R.string.blacklist_video_message))
+                                                            .setIcon(android.R.drawable.ic_dialog_alert)
+                                                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                                                public void onClick(DialogInterface dialog, int whichButton) {
+                                                                    new Thread(new Runnable() {
+                                                                        @Override
+                                                                        public void run() {
+                                                                            videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
+                                                                            // обновим кэш
+                                                                            videoItem.setBlacklisted(true);
+                                                                            handler.post(new Runnable() {
+                                                                                @Override
+                                                                                public void run() {
+                                                                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.video_is_blacklisted),
+                                                                                            Toast.LENGTH_LONG).show();
+                                                                                }
+                                                                            });
+                                                                            // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
+                                                                            // например, удалить из текущего списка рекомендаций
+                                                                        }
+                                                                    }).start();
+
                                                                 }
-                                                            });
-                                                            // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
-                                                            // например, удалить из текущего списка рекомендаций
-                                                        }
-                                                    }).start();
+                                                            })
+                                                            .setNegativeButton(android.R.string.no, null).show();
                                                 }
                                                 break;
                                         }

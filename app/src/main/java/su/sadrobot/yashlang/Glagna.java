@@ -20,9 +20,11 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -241,24 +243,33 @@ public class Glagna extends AppCompatActivity {
                                         break;
                                     case R.id.action_blacklist:
                                         if (videoItem != null && videoItem.getId() != -1) {
-                                            new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
-                                                    // обновим кэш
-                                                    videoItem.setBlacklisted(true);
-                                                    handler.post(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            Toast.makeText(Glagna.this, getString(R.string.video_is_blacklisted),
-                                                                    Toast.LENGTH_LONG).show();
+                                            new AlertDialog.Builder(Glagna.this)
+                                                    .setTitle(getString(R.string.blacklist_video_title))
+                                                    .setMessage(getString(R.string.blacklist_video_message))
+                                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                                            new Thread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
+                                                                    // обновим кэш
+                                                                    videoItem.setBlacklisted(true);
+                                                                    handler.post(new Runnable() {
+                                                                        @Override
+                                                                        public void run() {
+                                                                            Toast.makeText(Glagna.this, getString(R.string.video_is_blacklisted),
+                                                                                    Toast.LENGTH_LONG).show();
+                                                                        }
+                                                                    });
+                                                                    // (на этом экране список рекомендаций обновится автоматом)
+                                                                }
+                                                            }).start();
+
                                                         }
-                                                    });
-                                                    // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
-                                                    // например, удалить из текущего списка рекомендаций
-                                                    // (на этом экране список рекомендаций обновится автоматом)
-                                                }
-                                            }).start();
+                                                    })
+                                                    .setNegativeButton(android.R.string.no, null).show();
                                         }
                                         break;
                                 }

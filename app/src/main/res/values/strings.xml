@@ -45,4 +45,6 @@
     <string name="copy_video_name">Copy video name</string>
     <string name="video_is_blacklisted">Video is blocked. Go to Settings > Blacklist to undo.</string>
     <string name="copied">copied</string>
+    <string name="blacklist_video_title">Block this video?</string>
+    <string name="blacklist_video_message">The video will be added to blacklist. Go to Settings > Blacklist to undo.</string>
 </resources>

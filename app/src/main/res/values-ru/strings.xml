@@ -45,4 +45,6 @@
     <string name="copy_video_name">Копировать имя видео</string>
     <string name="video_is_blacklisted">Видео блокировано. Перейдите в Настройки > Черный список, чтобы отменить.</string>
     <string name="copied">скопировано</string>
+    <string name="blacklist_video_title">Блокировать видео?</string>
+    <string name="blacklist_video_message">Видео будет добавлено в черный список. Перейдите в Настройки > Черный список, чтобы отменить.</string>
 </resources>
