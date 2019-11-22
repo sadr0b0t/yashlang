@@ -239,11 +239,48 @@ public class WatchVideoActivity extends AppCompatActivity {
         // Будем прятать элементы управления в полноэкранном режиме при клике по плееру
         // и всегда показывать в режиме с уменьшенным экраном видео с кнопками управления
         // и списком рекомендаций.
-        // https://stackoverflow.com/questions/52365953/exoplayer-playerview-onclicklistener-not-working
+        // (вообще, вот так тоже работает: videoPlayerView.setOnClickListener и на клик реагирует
+        // не только область видео, но и вся область вокруг)
         videoPlayerView.getVideoSurfaceView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Прячем панель навигации, т.к. в некоторых ситуациях она все равно может появиться
+                // (например, если должго задать кнопку выключения телефона и вызвать экран выключения),
+                // хотя мы ее и так где только не выключаем и прячем.
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
+                                // (но только если мы не используем Toolbar, а мы используем)
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                                // без этого флага навигация будет опять появляться по первому клику
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                );
+
                 toggleFullscreen();
+            }
+        });
+
+        // клик по видео (см выше) пусть убирает меню и переключает фулскрин,
+        // клик по области за пределами видео пусть просто убирает меню без переключения фулскрина
+        findViewById(R.id.watch_content_view).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
+                                // (но только если мы не используем Toolbar, а мы используем)
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                                // без этого флага навигация будет опять появляться по первому клику
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                );
             }
         });
 
@@ -512,11 +549,48 @@ public class WatchVideoActivity extends AppCompatActivity {
         // Будем прятать элементы управления в полноэкранном режиме при клике по плееру
         // и всегда показывать в режиме с уменьшенным экраном видео с кнопками управления
         // и списком рекомендаций.
-        // https://stackoverflow.com/questions/52365953/exoplayer-playerview-onclicklistener-not-working
+        // (вообще, вот так тоже работает: videoPlayerView.setOnClickListener и на клик реагирует
+        // не только область видео, но и вся область вокруг)
         videoPlayerView.getVideoSurfaceView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Прячем панель навигации, т.к. в некоторых ситуациях она все равно может появиться
+                // (например, если должго задать кнопку выключения телефона и вызвать экран выключения),
+                // хотя мы ее и так где только не выключаем и прячем.
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
+                                // (но только если мы не используем Toolbar, а мы используем)
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                                // без этого флага навигация будет опять появляться по первому клику
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                );
+
                 toggleFullscreen();
+            }
+        });
+
+        // клик по видео (см выше) пусть убирает меню и переключает фулскрин,
+        // клик по области за пределами видео пусть просто убирает меню без переключения фулскрина
+        findViewById(R.id.watch_content_view).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
+                                // (но только если мы не используем Toolbar, а мы используем)
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
+                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                                // без этого флага навигация будет опять появляться по первому клику
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                );
             }
         });
 
