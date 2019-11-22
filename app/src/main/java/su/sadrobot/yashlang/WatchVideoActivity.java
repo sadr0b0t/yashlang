@@ -770,6 +770,59 @@ public class WatchVideoActivity extends AppCompatActivity {
                             .setNegativeButton(android.R.string.no, null).show();
                 }
                 break;
+            case R.id.action_reload:
+                if (currentVideo != null && currentVideo.getId() != -1) {
+                    // загрузить поток видео заново (иногда после разрыва соединения
+                    // видео может перестать загружаться и появление соединения процесс
+                    // не возобновляет)
+
+                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+                    final VideoItem _currentVideo = currentVideo;
+                    final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
+                    // для текущего кэша, да
+                    if (currentVideo != null) {
+                        currentVideo.setPausedAt(_currentPos);
+                    }
+                    // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
+                    // видео заново - обе операции в фоновом потоке
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // если за время запуска потока видео успели переключить, всё отменяем
+                            if (_currentVideo != null && _currentVideo == currentVideo) {
+                                if(_currentPos > 0) {
+                                    // сохраним текущую позицию только в том случае, если она больше нуля
+                                    // (может быть ситуация, когда мы переключились на видео с ранее
+                                    // сохраненной позицией, а оно не загрузилось, тогда бы у нас
+                                    // сбросилась старая сохраненная позиция, а это не хорошо)
+                                    videodb.videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
+                                }
+
+                                try {
+                                    final String vidStreamUrl = ContentLoader.getInstance().extractYtStreamUrl(currentVideo.getYtId());
+                                    if (vidStreamUrl != null) {
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                playVideoStream(vidStreamUrl, currentVideo.getPausedAt());
+                                            }
+                                        });
+                                    } else {
+                                        // TODO: здесь может быть NULL для некоторых роликов
+                                        // (например, см ролик "Топ мультиков Союзмультфильм")
+                                        // Автоматически блеклистить?
+                                        // Но если блеклистим автоматом, то нужно решить, что показывать
+                                        // вместо этого видео
+                                    }
+                                } catch (ExtractionException | IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }}).start();
+                }
+                break;
+
         }
 
         return super.onOptionsItemSelected(item);
