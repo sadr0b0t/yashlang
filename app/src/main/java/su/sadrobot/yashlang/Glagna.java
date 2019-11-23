@@ -78,9 +78,6 @@ public class Glagna extends AppCompatActivity {
         videoList = findViewById(R.id.video_recommend_list);
 
         // Рекомендации
-        // TODO: центрировать элементы сетки по вертикали - получается не так тривиально
-        // https://stackoverflow.com/questions/30007956/how-to-center-items-of-a-recyclerview/34735650
-        // по ссылке хаки или предложение испольовать https://github.com/google/flexbox-layout
         final GridLayoutManager gridLayoutManager = new GridLayoutManager(
                 getApplicationContext(), 2, GridLayoutManager.HORIZONTAL, false);
         videoList.setLayoutManager(gridLayoutManager);
@@ -159,7 +156,9 @@ public class Glagna extends AppCompatActivity {
 
             @Override
             public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
-                final PopupMenu popup = new PopupMenu(Glagna.this, view);
+                final View anchor = view.findViewById(R.id.video_thumb_img);
+
+                final PopupMenu popup = new PopupMenu(Glagna.this, anchor);
                 popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
                 popup.setOnMenuItemClickListener(
                         new PopupMenu.OnMenuItemClickListener() {

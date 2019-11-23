@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
     android:orientation="vertical">
 
     <ImageView
@@ -12,14 +13,15 @@
         android:layout_marginBottom="0dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_yashlang_thumb" />
+
     <TextView
         android:id="@+id/video_name_txt"
         android:layout_width="196dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="2dp"
-        android:textColor="#f4f4f4"
-        android:textSize="12sp"
-        android:textAlignment="center"
         android:maxLines="2"
-        android:ellipsize="end"/>
+        android:ellipsize="end"
+        android:textAlignment="center"
+        android:textColor="#f4f4f4"
+        android:textSize="12sp" />
 </LinearLayout>
