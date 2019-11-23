@@ -61,19 +61,19 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
 
 
     public static class VideoItemViewHolder extends RecyclerView.ViewHolder {
-        TextView name;
-        TextView playlist;
-        TextView duration;
-        ImageView thumb;
-        Switch onoff;
+        TextView nameTxt;
+        TextView playlistTxt;
+        TextView durationTxt;
+        ImageView thumbImg;
+        Switch onoffSwitch;
 
         public VideoItemViewHolder(final View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.video_name_txt);
-            playlist = itemView.findViewById(R.id.video_pl_txt);
-            duration = itemView.findViewById(R.id.video_duration_txt);
-            thumb = itemView.findViewById(R.id.video_thumb_img);
-            onoff = itemView.findViewById(R.id.video_onoff_switch);
+            nameTxt = itemView.findViewById(R.id.video_name_txt);
+            playlistTxt = itemView.findViewById(R.id.video_pl_txt);
+            durationTxt = itemView.findViewById(R.id.video_duration_txt);
+            thumbImg = itemView.findViewById(R.id.video_thumb_img);
+            onoffSwitch = itemView.findViewById(R.id.video_onoff_switch);
         }
     }
 
@@ -145,14 +145,14 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             return;
         }
 
-        if (holder.name != null) {
-            holder.name.setText(item.getName());
+        if (holder.nameTxt != null) {
+            holder.nameTxt.setText(item.getName());
             //holder.name.setEnabled(!item.isBlacklisted());
         }
 
-        if (holder.playlist != null) {
+        if (holder.playlistTxt != null) {
             if(item.getPlaylistInfo() != null) {
-                holder.playlist.setText(item.getPlaylistInfo().getName());
+                holder.playlistTxt.setText(item.getPlaylistInfo().getName());
             } else {
                 new Thread(new Runnable() {
                     @Override
@@ -174,19 +174,19 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             }
         }
 
-        if(holder.duration != null) {
+        if(holder.durationTxt != null) {
             long sec = item.getDuration();
             final String durStr = sec > 0 ?
                     (sec / 3600) > 0 ?
                         String.format("%d:%02d:%02d", sec / 3600, (sec % 3600) / 60, (sec % 60)) :
                         String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60))
                     : "[dur undef]";
-            holder.duration.setText(durStr);
+            holder.durationTxt.setText(durStr);
         }
 
-        if (holder.thumb != null) {
+        if (holder.thumbImg != null) {
             if (item.getThumbBitmap() != null) {
-                holder.thumb.setImageBitmap(item.getThumbBitmap());
+                holder.thumbImg.setImageBitmap(item.getThumbBitmap());
             } else {
                 new Thread(new Runnable() {
                     @Override
@@ -205,20 +205,20 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             }
         }
 
-        if (holder.onoff != null) {
+        if (holder.onoffSwitch != null) {
             // обнулить слушателя событий выключателя:
             // вот это важно здесь здесь, иначе не оберешься трудноуловимых глюков
             // в списках с прокруткой
-            holder.onoff.setOnCheckedChangeListener(null);
+            holder.onoffSwitch.setOnCheckedChangeListener(null);
             if (onItemSwitchListener == null) {
                 // вот так - не передали слушателя вкл/выкл - прячем кнопку
                 // немного не феншуй, зато пока не будем городить отдельный флаг
-                holder.onoff.setVisibility(View.GONE);
+                holder.onoffSwitch.setVisibility(View.GONE);
             } else {
-                holder.onoff.setVisibility(View.VISIBLE);
+                holder.onoffSwitch.setVisibility(View.VISIBLE);
 
-                holder.onoff.setChecked(!item.isBlacklisted());
-                holder.onoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                holder.onoffSwitch.setChecked(!item.isBlacklisted());
+                holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (onItemSwitchListener != null) {
