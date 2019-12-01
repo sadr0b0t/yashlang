@@ -134,7 +134,7 @@
                     android:layout_margin="5dp"
                     android:gravity="center_vertical"
                     android:ellipsize="end"
-                    android:maxLines="3"
+                    android:maxLines="2"
                     android:textSize="22sp" />
             </LinearLayout>
 

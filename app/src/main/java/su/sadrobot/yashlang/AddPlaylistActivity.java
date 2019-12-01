@@ -94,9 +94,9 @@ public class AddPlaylistActivity extends AppCompatActivity {
     //
     // Панель - прогресс добавления плейлиста
     private View playlistAddProgressView;
-    private TextView playlistAddPlUrlTxt;
     private ImageView playlistAddPlThumbImg;
     private TextView playlistAddPlNameTxt;
+    private TextView playlistAddPlUrlTxt;
     private TextView playlistAddStatusTxt;
     private ProgressBar playlistAddProgress;
 
@@ -179,9 +179,9 @@ public class AddPlaylistActivity extends AppCompatActivity {
         videoList = findViewById(R.id.video_list);
 
         playlistAddProgressView = findViewById(R.id.playlist_add_progress_view);
-        playlistAddPlUrlTxt = findViewById(R.id.playlist_add_pl_url_txt);
         playlistAddPlThumbImg = findViewById(R.id.playlist_add_pl_thumb_img);
         playlistAddPlNameTxt = findViewById(R.id.playlist_add_pl_name_txt);
+        playlistAddPlUrlTxt = findViewById(R.id.playlist_add_pl_url_txt);
         playlistAddStatusTxt = findViewById(R.id.playlist_add_status_txt);
         playlistAddProgress = findViewById(R.id.playlist_add_progress);
 
@@ -293,9 +293,9 @@ public class AddPlaylistActivity extends AppCompatActivity {
         // разрешено добавлять только после того, как о плейлисте загружена предварительная
         // информация, т.е. объект loadedPlaylist будет не null
         //final String playlistUrl = playlistUrlInput.getText().toString();
-        playlistAddPlUrlTxt.setText(PlaylistUrlUtil.cleanupUrl(loadedPlaylist.getUrl()));
-        playlistAddPlNameTxt.setText(loadedPlaylist.getName());
         playlistAddPlThumbImg.setImageBitmap(loadedPlaylist.getThumbBitmap());
+        playlistAddPlNameTxt.setText(loadedPlaylist.getName());
+        playlistAddPlUrlTxt.setText(PlaylistUrlUtil.cleanupUrl(loadedPlaylist.getUrl()));
 
         // обнулить состояние виджетов
         playlistAddStatusTxt.setText("");
