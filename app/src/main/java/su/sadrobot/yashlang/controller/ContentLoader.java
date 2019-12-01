@@ -197,12 +197,19 @@ public class ContentLoader {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeChannelExtractorTest.java
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubePlaylistExtractorTest.java
 
+        final PlaylistInfo.PlaylistType plType;
+
         // Выкачать список всех видео в канале
         NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
         final ListExtractor<StreamInfoItem> extractor;
-        if (PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {
+        if (PlaylistUrlUtil.isYtChannel(plUrl) ){
+            plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
+            extractor = YouTube.getChannelExtractor(plUrl);
+        } else if(PlaylistUrlUtil.isYtUser(plUrl)) {
+            plType = PlaylistInfo.PlaylistType.YT_USER;
             extractor = YouTube.getChannelExtractor(plUrl);
         } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
+            plType = PlaylistInfo.PlaylistType.YT_PLAYLIST;
             extractor = YouTube.getPlaylistExtractor(plUrl);
         } else {
             throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
@@ -214,13 +221,10 @@ public class ContentLoader {
         // заберем со траницы то, что нам нужно
         final String plName = extractor.getName();
         final String plThumbUrl;
-        final PlaylistInfo.PlaylistType plType;
 
         if (extractor instanceof ChannelExtractor) {
-            plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
             plThumbUrl = ((ChannelExtractor) extractor).getAvatarUrl();
         } else if (extractor instanceof PlaylistExtractor) {
-            plType = PlaylistInfo.PlaylistType.YT_PLAYLIST;
             plThumbUrl = ((PlaylistExtractor) extractor).getThumbnailUrl();
         } else {
             // мы сюда никогда не попадем, но ладно
@@ -274,12 +278,20 @@ public class ContentLoader {
                     //final String plUrl = "https://www.youtube.com/playlist?list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388";
                     //final String plUrl = "https://www.youtube.com/watch?v=5NXpdxG4j5k&list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388";
 
+
+                    final PlaylistInfo.PlaylistType plType;
+
                     NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
                     final ListExtractor<StreamInfoItem> extractor;
                     try {
-                        if (PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {
+                        if (PlaylistUrlUtil.isYtChannel(plUrl) ){
+                            plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
+                            extractor = YouTube.getChannelExtractor(plUrl);
+                        } else if(PlaylistUrlUtil.isYtUser(plUrl)) {
+                            plType = PlaylistInfo.PlaylistType.YT_USER;
                             extractor = YouTube.getChannelExtractor(plUrl);
                         } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
+                            plType = PlaylistInfo.PlaylistType.YT_PLAYLIST;
                             extractor = YouTube.getPlaylistExtractor(plUrl);
                         } else {
                             throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
@@ -317,8 +329,7 @@ public class ContentLoader {
 
                     // создадим запись в таблице плейлистов, чтобы был id
                     final long _plId = videodb.playlistInfoDao().insert(
-                            new PlaylistInfo(plName, plUrl, plThumbUrl,
-                                    PlaylistInfo.PlaylistType.YT_CHANNEL));
+                            new PlaylistInfo(plName, plUrl, plThumbUrl, plType));
 
                     // качаем список видео страница за страницей
                     // начинаем с первой страницы

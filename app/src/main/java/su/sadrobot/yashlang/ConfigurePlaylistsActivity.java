@@ -53,7 +53,7 @@ import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
 public class ConfigurePlaylistsActivity extends AppCompatActivity {
 
     private RecyclerView playlistList;
-    private Button addSrcBtn;
+    private Button addPlaylistBtn;
     private Toolbar toolbar;
 
     private Handler handler = new Handler();
@@ -64,7 +64,7 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_configure_playlists);
 
-        playlistList = findViewById(R.id.video_src_list);
+        playlistList = findViewById(R.id.playlist_list);
         toolbar = findViewById(R.id.toolbar);
 
         // https://developer.android.com/training/appbar
@@ -75,12 +75,12 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
 
 
         // set a LinearLayoutManager with default vertical orientation
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         playlistList.setLayoutManager(linearLayoutManager);
 
 
-        addSrcBtn = findViewById(R.id.add_src_btn);
-        addSrcBtn.setOnClickListener(new Button.OnClickListener() {
+        addPlaylistBtn = findViewById(R.id.add_playlist_btn);
+        addPlaylistBtn.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(ConfigurePlaylistsActivity.this, AddPlaylistActivity.class));
@@ -213,6 +213,9 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_goto_blacklist:
                 startActivity(new Intent(ConfigurePlaylistsActivity.this, BlacklistActivity.class));
+                break;
+            case R.id.action_add_recommended:
+                startActivity(new Intent(ConfigurePlaylistsActivity.this, AddRecommendedPlaylistsActivity.class));
                 break;
 
         }

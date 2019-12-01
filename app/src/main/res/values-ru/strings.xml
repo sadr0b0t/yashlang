@@ -47,4 +47,9 @@
     <string name="copied">скопировано</string>
     <string name="blacklist_video_title">Блокировать видео?</string>
     <string name="blacklist_video_message">Видео будет добавлено в черный список. Перейдите в Настройки > Черный список, чтобы отменить.</string>
+    <string name="yashlang_add_recommended_playlists">YaShang: добавить рекомендованные каналы и плейлисты</string>
+    <string name="add_recommended_playlists">Добавить рекомендованные</string>
+    <string name="skip">Пропустить</string>
+    <string name="playlist_add_status_already_added">Плейлист уже добавлен, пропускаем</string>
+    <string name="add_playlists">Добавить плейлисты</string>
 </resources>

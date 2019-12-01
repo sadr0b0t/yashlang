@@ -47,4 +47,9 @@
     <string name="copied">copied</string>
     <string name="blacklist_video_title">Block this video?</string>
     <string name="blacklist_video_message">The video will be added to blacklist. Go to Settings > Blacklist to undo.</string>
+    <string name="yashlang_add_recommended_playlists">YaShlang: add recommended channels and playlists</string>
+    <string name="add_recommended_playlists">Add recommended</string>
+    <string name="skip">Skip</string>
+    <string name="playlist_add_status_already_added">Playlist already added, skipping</string>
+    <string name="add_playlists">Add playlists</string>
 </resources>

@@ -41,6 +41,9 @@ public interface PlaylistInfoDao {
     @Query("UPDATE playlist_info SET enabled = :enabled WHERE _id = :id")
     void setEnabled(long id, boolean enabled);
 
+    @Query("SELECT * FROM playlist_info WHERE url LIKE :url LIMIT 1")
+    PlaylistInfo findByUrl(String url);
+
     @Insert
     long insert(PlaylistInfo playlist);
 

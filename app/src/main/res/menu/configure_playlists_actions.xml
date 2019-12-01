@@ -4,4 +4,7 @@
     <item
         android:id="@+id/action_goto_blacklist"
         android:title="@string/blacklist"/>
+    <item
+        android:id="@+id/action_add_recommended"
+        android:title="@string/add_recommended_playlists"/>
 </menu>
