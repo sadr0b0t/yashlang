@@ -52,4 +52,7 @@
     <string name="skip">Skip</string>
     <string name="playlist_add_status_already_added">Playlist already added, skipping</string>
     <string name="add_playlists">Add playlists</string>
+    <string name="playlist_is_empty">You have no videos in collection. Add or enable channels or playlist.</string>
+    <string name="configure_playlists">Configure channels and playlists</string>
+    <string name="playlist_list_is_empty">You have no playlists or channels. Add channel or playlist.</string>
 </resources>

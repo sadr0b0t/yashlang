@@ -52,4 +52,7 @@
     <string name="skip">Пропустить</string>
     <string name="playlist_add_status_already_added">Плейлист уже добавлен, пропускаем</string>
     <string name="add_playlists">Добавить плейлисты</string>
+    <string name="playlist_is_empty">В коллекции нет видеороликов. Добавьте или включите каналы и плейлисты.</string>
+    <string name="configure_playlists">Настроить каналы и плейлисты</string>
+    <string name="playlist_list_is_empty">Список каналов и плейлистов пуст. Добавьте канал или плейлист.</string>
 </resources>

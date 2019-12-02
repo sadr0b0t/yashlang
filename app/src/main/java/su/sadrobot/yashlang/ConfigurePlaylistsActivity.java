@@ -52,11 +52,43 @@ import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
  */
 public class ConfigurePlaylistsActivity extends AppCompatActivity {
 
-    private RecyclerView playlistList;
-    private Button addPlaylistBtn;
     private Toolbar toolbar;
+    private Button addPlaylistBtn;
+
+    // Экран с пустым списком
+    private View playlistListEmptyView;
+    private Button addRecommendedBtn;
+
+    //
+    private RecyclerView playlistList;
 
     private Handler handler = new Handler();
+
+    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+        // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
+        // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
+        // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
+        private void checkIfEmpty() {
+            final boolean listIsEmpty = playlistList.getAdapter() == null || playlistList.getAdapter().getItemCount() == 0;
+            playlistListEmptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
+            playlistList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
+        }
+
+        @Override
+        public void onChanged() {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +96,14 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_configure_playlists);
 
-        playlistList = findViewById(R.id.playlist_list);
         toolbar = findViewById(R.id.toolbar);
+        addPlaylistBtn = findViewById(R.id.add_playlist_btn);
+
+        playlistListEmptyView = findViewById(R.id.playlist_list_empty_view);
+        addRecommendedBtn = findViewById(R.id.add_recommended_btn);
+
+
+        playlistList = findViewById(R.id.playlist_list);
 
         // https://developer.android.com/training/appbar
         // https://www.vogella.com/tutorials/AndroidActionBar/article.html#custom-views-in-the-action-bar
@@ -78,12 +116,17 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         playlistList.setLayoutManager(linearLayoutManager);
 
-
-        addPlaylistBtn = findViewById(R.id.add_playlist_btn);
         addPlaylistBtn.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(ConfigurePlaylistsActivity.this, AddPlaylistActivity.class));
+            }
+        });
+
+        addRecommendedBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ConfigurePlaylistsActivity.this, AddRecommendedPlaylistsActivity.class));
             }
         });
     }
@@ -92,6 +135,48 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        setupPlaylistListAdapter();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        // https://developer.android.com/training/appbar/action-views.html
+
+        toolbar.inflateMenu(R.menu.configure_playlists_actions);
+
+        toolbar.setOnMenuItemClickListener(
+                new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        return onOptionsItemSelected(item);
+                    }
+                });
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_goto_blacklist:
+                startActivity(new Intent(ConfigurePlaylistsActivity.this, BlacklistActivity.class));
+                break;
+            case R.id.action_add_recommended:
+                startActivity(new Intent(ConfigurePlaylistsActivity.this, AddRecommendedPlaylistsActivity.class));
+                break;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
+    void setupPlaylistListAdapter() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -100,6 +185,10 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
+                        if (playlistList.getAdapter() != null) {
+                            playlistList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
+                        }
+
                         playlistList.setAdapter(new PlaylistInfoArrayAdapter(ConfigurePlaylistsActivity.this, items,
                                 new OnListItemClickListener<PlaylistInfo>() {
                                     @Override
@@ -174,7 +263,8 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
                                                 // хранятся уже загруженные из базы объекты и просто так
                                                 // они сами себя не засинкают
                                                 item.setEnabled(isChecked);
-                                            }}).start();
+                                            }
+                                        }).start();
 
                                         handler.post(new Runnable() {
                                             @Override
@@ -184,48 +274,12 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
                                         });
                                     }
                                 }));
+                        // если список пустой, показываем специальный экранчик с кнопками
+                        playlistList.getAdapter().registerAdapterDataObserver(emptyListObserver);
                     }
                 });
 
             }
         }).start();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        // https://developer.android.com/training/appbar/action-views.html
-
-        toolbar.inflateMenu(R.menu.configure_playlists_actions);
-
-        toolbar.setOnMenuItemClickListener(
-                new Toolbar.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        return onOptionsItemSelected(item);
-                    }
-                });
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_goto_blacklist:
-                startActivity(new Intent(ConfigurePlaylistsActivity.this, BlacklistActivity.class));
-                break;
-            case R.id.action_add_recommended:
-                startActivity(new Intent(ConfigurePlaylistsActivity.this, AddRecommendedPlaylistsActivity.class));
-                break;
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
     }
 }

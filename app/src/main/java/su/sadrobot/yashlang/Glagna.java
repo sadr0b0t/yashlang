@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.Toast;
@@ -57,23 +58,65 @@ import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
  */
 public class Glagna extends AppCompatActivity {
 
-    private RecyclerView videoList;
+
     private ImageButton configBtn;
     private ImageButton searchBtn;
     private ImageButton historyBtn;
     private ImageButton starredBtn;
 
+    // Экран с пустым списком
+    private View playlistEmptyView;
+    private Button configurePlaylistsBtn;
+    private Button addRecommendedBtn;
+
+    //
+    private RecyclerView videoList;
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
     private VideoDatabase videodb;
 
     private final Handler handler = new Handler();
 
+    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+        // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
+        // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
+        // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
+        private void checkIfEmpty() {
+            final boolean listIsEmpty = videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0;
+            playlistEmptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
+            videoList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
+        }
+
+        @Override
+        public void onChanged() {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_glagna);
+
+        starredBtn = findViewById(R.id.starred_btn);
+        historyBtn = findViewById(R.id.history_btn);
+        configBtn = findViewById(R.id.config_btn);
+        searchBtn = findViewById(R.id.search_btn);
+
+        playlistEmptyView = findViewById(R.id.playlist_empty_view);
+        configurePlaylistsBtn = findViewById(R.id.configure_playlists_btn);
+        addRecommendedBtn = findViewById(R.id.add_recommended_btn);
 
         videoList = findViewById(R.id.video_recommend_list);
 
@@ -82,24 +125,14 @@ public class Glagna extends AppCompatActivity {
                 getApplicationContext(), 2, GridLayoutManager.HORIZONTAL, false);
         videoList.setLayoutManager(gridLayoutManager);
 
-        configBtn = findViewById(R.id.config_btn);
-        configBtn.setOnClickListener(new View.OnClickListener() {
+        //
+        starredBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Glagna.this, ConfigurePlaylistsActivity.class));
+                startActivity(new Intent(Glagna.this, StarredActivity.class));
             }
         });
 
-
-        searchBtn = findViewById(R.id.search_btn);
-        searchBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(Glagna.this, SearchVideoActivity.class));
-            }
-        });
-
-        historyBtn = findViewById(R.id.history_btn);
         historyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,11 +140,30 @@ public class Glagna extends AppCompatActivity {
             }
         });
 
-        starredBtn = findViewById(R.id.starred_btn);
-        starredBtn.setOnClickListener(new View.OnClickListener() {
+        searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Glagna.this, StarredActivity.class));
+                startActivity(new Intent(Glagna.this, SearchVideoActivity.class));
+            }
+        });
+        configBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Glagna.this, ConfigurePlaylistsActivity.class));
+            }
+        });
+
+        //
+        configurePlaylistsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Glagna.this, ConfigurePlaylistsActivity.class));
+            }
+        });
+        addRecommendedBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Glagna.this, AddRecommendedPlaylistsActivity.class));
             }
         });
 
@@ -143,6 +195,10 @@ public class Glagna extends AppCompatActivity {
     private void setupVideoListAdapter() {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
+        }
+
+        if (videoList.getAdapter() != null) {
+            videoList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
         }
 
         final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(
@@ -280,6 +336,9 @@ public class Glagna extends AppCompatActivity {
                 return true;
             }
         }, null, VideoItemPagedListAdapter.ORIENTATION_HORIZONTAL);
+
+        // если список пустой, показываем специальный экранчик с кнопками
+        adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();

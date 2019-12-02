@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#000000"
+    android:orientation="vertical"
     tools:context=".Glagna">
 
     <LinearLayout
@@ -17,8 +17,8 @@
             android:id="@+id/starred_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="20dp"
             android:src="@android:drawable/btn_star_big_on"
             android:text="@string/faves" />
@@ -27,8 +27,8 @@
             android:id="@+id/history_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="20dp"
             android:src="@android:drawable/ic_menu_recent_history"
             android:text="@string/history" />
@@ -37,8 +37,8 @@
             android:id="@+id/search_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="20dp"
             android:src="@android:drawable/ic_menu_search"
             android:text="@string/search" />
@@ -47,16 +47,45 @@
             android:id="@+id/config_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="20dp"
             android:src="@android:drawable/ic_menu_preferences"
             android:text="@string/configure" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/playlist_empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/playlist_is_empty" />
+
+        <Button
+            android:id="@+id/configure_playlists_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="@string/configure_playlists" />
+
+        <Button
+            android:id="@+id/add_recommended_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="@string/add_recommended_playlists" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/video_recommend_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="5dp" />
 </LinearLayout>
