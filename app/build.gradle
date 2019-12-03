@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
+
     defaultConfig {
         applicationId "su.sadrobot.yashlang"
         minSdkVersion 17
@@ -10,6 +11,14 @@ android {
         versionName "0.0.1-draft9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    // для exoplayer 2.10.8 (> 2.7.3)
+    // https://exoplayer.dev/hello-world.html
+    // https://github.com/google/ExoPlayer/issues/5276
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -56,6 +65,5 @@ dependencies {
     // google Exoplayer
     // https://github.com/google/ExoPlayer
     // https://exoplayer.dev/
-    // https://androidwave.com/play-youtube-video-in-exoplayer/
-    implementation 'com.google.android.exoplayer:exoplayer:2.7.3'
+    implementation 'com.google.android.exoplayer:exoplayer:2.10.8'
 }

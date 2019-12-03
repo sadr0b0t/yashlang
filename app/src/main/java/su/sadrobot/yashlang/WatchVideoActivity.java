@@ -57,9 +57,8 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
@@ -117,7 +116,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private CheckBox starredCheck;
 
-    private DefaultDataSourceFactory videoDataSourceFactory;
+    private com.google.android.exoplayer2.upstream.DataSource.Factory videoDataSourceFactory;
 
     private VideoItem currentVideo;
     // для функции перехода на следующее видео
@@ -223,7 +222,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         final TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
         final SimpleExoPlayer exoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
 
-        videoDataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "yashlang"), bandwidthMeter);
+        videoDataSourceFactory = new DefaultDataSourceFactory(this,
+                Util.getUserAgent(this, "yashlang"), bandwidthMeter);
 
         videoPlayerView.requestFocus();
         videoPlayerView.setPlayer(exoPlayer);
@@ -1072,7 +1072,6 @@ public class WatchVideoActivity extends AppCompatActivity {
     private void playVideoStream(final String streamUrl, final long seekTo) {
         // https://exoplayer.dev/
         // https://github.com/google/ExoPlayer
-        // https://androidwave.com/play-youtube-video-in-exoplayer/
 
         // датасорсы к видео в плеере NewPipe:
         // - про продолжение с установленной позиции в коде не вижу или не нашел
@@ -1081,15 +1080,9 @@ public class WatchVideoActivity extends AppCompatActivity {
         // https://github.com/TeamNewPipe/NewPipe/blob/master/app/src/main/java/org/schabi/newpipe/player/helper/PlayerDataSource.java
         // https://github.com/TeamNewPipe/NewPipe/blob/master/app/src/main/java/org/schabi/newpipe/player/resolver/PlaybackResolver.java
 
-        Uri mp4VideoUri = Uri.parse(streamUrl);
-        MediaSource videoSource;
-        if (streamUrl.toUpperCase().contains("M3U8")) {
-            videoSource = new HlsMediaSource(mp4VideoUri, videoDataSourceFactory, null, null);
-        } else {
-            mp4VideoUri = Uri.parse(streamUrl);
-            videoSource = new ExtractorMediaSource(mp4VideoUri, videoDataSourceFactory, new DefaultExtractorsFactory(),
-                    null, null);
-        }
+        final Uri mp4VideoUri = Uri.parse(streamUrl);
+        final MediaSource videoSource = new ProgressiveMediaSource.Factory(videoDataSourceFactory)
+                .createMediaSource(mp4VideoUri);
 
         // Поставим на паузу старое видео, пока готовим новое
         if (videoPlayerView.getPlayer().getPlaybackState() != Player.STATE_ENDED) {
