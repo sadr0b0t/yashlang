@@ -59,7 +59,7 @@ dependencies {
 
     // NewPipe: youtube parser
     // https://github.com/TeamNewPipe/NewPipeExtractor
-    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.16.2"
+    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.17.4"
     implementation 'androidx.paging:paging-runtime:2.1.0'
 
     // google Exoplayer
