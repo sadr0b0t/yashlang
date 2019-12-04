@@ -179,7 +179,11 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
             new PlaylistInfo("Обучающие Видео",
                     "https://www.youtube.com/channel/UCZeBpzAG7iQKVcS60x2Q0sQ",
                     "https://yt3.ggpht.com/a/AGF-l79kBZBW4cY6OXj737Ef5LioChPz88HwcJRWeg=s100-c-k-c0xffffffff-no-rj-mo",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL)
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+            new PlaylistInfo("Киножурнал Фитиль (официальный канал)",
+                    "https://www.youtube.com/user/FitilOfficial",
+                    "https://yt3.ggpht.com/a/AGF-l7-f8u9owggUKS6VVXyGEmtLNvIsT-6cvti4eg=s100-c-k-c0xffffffff-no-rj-mo",
+                    PlaylistInfo.PlaylistType.YT_USER)
     };
 
 
