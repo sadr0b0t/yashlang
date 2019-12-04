@@ -920,13 +920,13 @@ public class WatchVideoActivity extends AppCompatActivity {
         final VideoItem _currentVideo = currentVideo;
         final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
         // для текущего кэша, да
-        if (currentVideo != null) {
+        if (currentVideo != null && !stateVideoLoadError) {
             currentVideo.setPausedAt(_currentPos);
         }
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if (_currentVideo != null) {
+                if (_currentVideo != null && !stateVideoLoadError) {
                     videodb.videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
                 }
             }
@@ -954,12 +954,17 @@ public class WatchVideoActivity extends AppCompatActivity {
         }).start();
     }
 
+    // начать проигрывание нового ролика - показать информацию о видео, решить вопросы
+    // с сохранением позиций предыдущего видео, стеком истории проигрывания и т.п.
     private void playVideoItem(final VideoItem videoItem, boolean resetCurrPos) {
+        // сбросим или сохраним текущую позицию предыдущего видео
         if (resetCurrPos) {
             resetVideoCurrPos();
         } else {
             saveVideoCurrPos();
         }
+
+        // загружаем новое видео
         currentVideo = videoItem;
         currentVideoPosition = posMap.containsKey(videoItem.getId()) ? posMap.get(videoItem.getId()) : -1;
         if (currentVideoPosition != -1) {
@@ -1021,6 +1026,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         }
     }
 
+    // загрузка контента видео - выбранного ролика, здесь касается только области проигрывания,
+    // т.е. виджет плеера.
     private void loadVideoItem(final VideoItem videoItem) {
         try {
             // загрузить поток видео
@@ -1060,6 +1067,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         }
     }
 
+    // собственно, запустить на проигрывание видеопоток по известному адресу
     private void playVideoStream(final String streamUrl, final long seekTo) {
         if (streamUrl == null) {
             // остановить проигрывание текущего ролика, если был загружен
@@ -1110,7 +1118,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
     /**
-     * Загрузить заново виде-поток для текущего ролика
+     * Загрузить заново видеопоток для текущего ролика
      */
     private void actionReload() {
         if (currentVideo != null && currentVideo.getId() != -1) {
@@ -1123,7 +1131,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             final VideoItem _currentVideo = currentVideo;
             final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
             // для текущего кэша, да
-            if (currentVideo != null) {
+            if (currentVideo != null && !stateVideoLoadError) {
                 currentVideo.setPausedAt(_currentPos);
             }
             // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
@@ -1133,8 +1141,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                 public void run() {
                     // если за время запуска потока видео успели переключить, всё отменяем
                     if (_currentVideo != null && _currentVideo == currentVideo) {
-                        if (_currentPos > 0) {
-                            // сохраним текущую позицию только в том случае, если она больше нуля
+                        if (!stateVideoLoadError) {
+                            // сохраним текущую позицию только в том случае, если ролик был загружен
                             // (может быть ситуация, когда мы переключились на видео с ранее
                             // сохраненной позицией, а оно не загрузилось, тогда бы у нас
                             // сбросилась старая сохраненная позиция, а это не хорошо)
