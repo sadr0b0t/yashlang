@@ -32,10 +32,12 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -60,7 +62,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -111,6 +112,11 @@ public class WatchVideoActivity extends AppCompatActivity {
     private PlayerControlView videoPlayerControlView;
     private ImageButton prevVideoBtn;
     private ImageButton nextVideoBtn;
+
+    private View videoPlayerErrorView;
+    private TextView videoLoadErrorTxt;
+    private Button reloadOnErrorBtn;
+
     private RecyclerView videoList;
 
     private Toolbar toolbar;
@@ -126,6 +132,9 @@ public class WatchVideoActivity extends AppCompatActivity {
     private Stack<VideoItem> playbackHistory = new Stack<VideoItem>();
 
     private boolean stateFullscreen = false;
+
+    private boolean stateVideoLoadError = false;
+    private String videoLoadErrorMsg = "";
 
     // рекомендации
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
@@ -143,6 +152,11 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoPlayerControlView = findViewById(R.id.video_player_control_view);
         prevVideoBtn = findViewById(R.id.prev_video_btn);
         nextVideoBtn = findViewById(R.id.next_video_btn);
+
+        videoPlayerErrorView = findViewById(R.id.video_player_error_view);
+        videoLoadErrorTxt = findViewById(R.id.video_load_error_txt);
+        reloadOnErrorBtn = findViewById(R.id.reload_btn);
+
         videoList = findViewById(R.id.video_recommend_list);
 
         toolbar = findViewById(R.id.toolbar);
@@ -157,21 +171,11 @@ public class WatchVideoActivity extends AppCompatActivity {
             @Override
             public void onMenuVisibilityChanged(boolean isVisible) {
                 // Прячем панель навигации, т.к. при выборе меню на акшенбаре она появляется опять.
-                getWindow().getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
-                                // (но только если мы не используем Toolbar, а мы используем)
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
-                                // без этого флага навигация будет опять появляться по первому клику
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                );
+                hideNavigationBar();
             }
         });
 
+        ///
 
         prevVideoBtn.setEnabled(false);
         prevVideoBtn.setVisibility(View.INVISIBLE);
@@ -247,18 +251,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 // Прячем панель навигации, т.к. в некоторых ситуациях она все равно может появиться
                 // (например, если должго задать кнопку выключения телефона и вызвать экран выключения),
                 // хотя мы ее и так где только не выключаем и прячем.
-                getWindow().getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
-                                // (но только если мы не используем Toolbar, а мы используем)
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
-                                // без этого флага навигация будет опять появляться по первому клику
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                );
+                hideNavigationBar();
 
                 toggleFullscreen();
             }
@@ -269,18 +262,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         findViewById(R.id.watch_content_view).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getWindow().getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
-                                // (но только если мы не используем Toolbar, а мы используем)
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
-                                // без этого флага навигация будет опять появляться по первому клику
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                );
+                hideNavigationBar();
             }
         });
 
@@ -383,6 +365,21 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         });
 
+        // Панель ошибки загрузки видео
+        videoPlayerErrorView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideNavigationBar();
+            }
+        });
+
+        reloadOnErrorBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionReload();
+            }
+        });
+
         // Рекомендации
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
@@ -457,11 +454,15 @@ public class WatchVideoActivity extends AppCompatActivity {
         // Новый лэйаут
         setContentView(R.layout.activity_watch_video);
 
-
         videoPlayerView = findViewById(R.id.video_player_view);
         videoPlayerControlView = findViewById(R.id.video_player_control_view);
         prevVideoBtn = findViewById(R.id.prev_video_btn);
         nextVideoBtn = findViewById(R.id.next_video_btn);
+
+        videoPlayerErrorView = findViewById(R.id.video_player_error_view);
+        videoLoadErrorTxt = findViewById(R.id.video_load_error_txt);
+        reloadOnErrorBtn = findViewById(R.id.reload_btn);
+
         videoList = findViewById(R.id.video_recommend_list);
 
         toolbar = findViewById(R.id.toolbar);
@@ -476,18 +477,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             @Override
             public void onMenuVisibilityChanged(boolean isVisible) {
                 // Прячем панель навигации, т.к. при выборе меню на акшенбаре она появляется опять.
-                getWindow().getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
-                                // (но только если мы не используем Toolbar, а мы используем)
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
-                                // без этого флага навигация будет опять появляться по первому клику
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                );
+                hideNavigationBar();
             }
         });
 
@@ -557,18 +547,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 // Прячем панель навигации, т.к. в некоторых ситуациях она все равно может появиться
                 // (например, если должго задать кнопку выключения телефона и вызвать экран выключения),
                 // хотя мы ее и так где только не выключаем и прячем.
-                getWindow().getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
-                                // (но только если мы не используем Toolbar, а мы используем)
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
-                                // без этого флага навигация будет опять появляться по первому клику
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                );
+                hideNavigationBar();
 
                 toggleFullscreen();
             }
@@ -579,18 +558,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         findViewById(R.id.watch_content_view).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getWindow().getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
-                                // (но только если мы не используем Toolbar, а мы используем)
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
-                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
-                                // без этого флага навигация будет опять появляться по первому клику
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                );
+                hideNavigationBar();
             }
         });
 
@@ -617,6 +585,21 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         });
 
+        // Панель ошибки загрузки видео
+        videoPlayerErrorView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideNavigationBar();
+            }
+        });
+
+        reloadOnErrorBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionReload();
+            }
+        });
+
         // Рекомендации
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
@@ -632,6 +615,9 @@ public class WatchVideoActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(currentVideo.getName());
             getSupportActionBar().setSubtitle(currentVideo.getUploader());
         }
+
+        // видео загружено или ошибка
+        setLoadError(stateVideoLoadError, videoLoadErrorMsg);
     }
 
     @Override
@@ -695,21 +681,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         // В onResume, т.к. после сворачивания и разворачивания приложения (или после выключения и
         // включения экрана) панель навигации появляется опять (еще она появляется при выборе меню
         // на акшенбаре).
-        // Чтобы в полном экране спрятать виртуальную панельку навигации не достаточно флагов в styles.xml
-        // https://stackoverflow.com/questions/14178237/setsystemuivisibilitysystem-ui-flag-layout-hide-navigation-does-not-work
-        // https://www.vogella.com/tutorials/AndroidActionBar/article.html
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
-                        // (но только если мы не используем Toolbar, а мы используем)
-                        //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
-                        //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        //| View.SYSTEM_UI_FLAG_FULLSCREEN
-                        // без этого флага навигация будет опять появляться по первому клику
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        );
+        hideNavigationBar();
     }
 
 
@@ -717,11 +689,11 @@ public class WatchVideoActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        videoPlayerView.getPlayer().release();
+
         if (videodb != null) {
             videodb.close();
         }
-
-        videoPlayerView.getPlayer().release();
     }
 
     @Override
@@ -845,56 +817,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.action_reload:
-                if (currentVideo != null && currentVideo.getId() != -1) {
-                    // загрузить поток видео заново (иногда после разрыва соединения
-                    // видео может перестать загружаться и появление соединения процесс
-                    // не возобновляет)
-
-                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
-                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
-                    final VideoItem _currentVideo = currentVideo;
-                    final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
-                    // для текущего кэша, да
-                    if (currentVideo != null) {
-                        currentVideo.setPausedAt(_currentPos);
-                    }
-                    // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
-                    // видео заново - обе операции в фоновом потоке
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // если за время запуска потока видео успели переключить, всё отменяем
-                            if (_currentVideo != null && _currentVideo == currentVideo) {
-                                if(_currentPos > 0) {
-                                    // сохраним текущую позицию только в том случае, если она больше нуля
-                                    // (может быть ситуация, когда мы переключились на видео с ранее
-                                    // сохраненной позицией, а оно не загрузилось, тогда бы у нас
-                                    // сбросилась старая сохраненная позиция, а это не хорошо)
-                                    videodb.videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
-                                }
-
-                                try {
-                                    final String vidStreamUrl = ContentLoader.getInstance().extractYtStreamUrl(currentVideo.getYtId());
-                                    if (vidStreamUrl != null) {
-                                        handler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                playVideoStream(vidStreamUrl, currentVideo.getPausedAt());
-                                            }
-                                        });
-                                    } else {
-                                        // TODO: здесь может быть NULL для некоторых роликов
-                                        // (например, см ролик "Топ мультиков Союзмультфильм")
-                                        // Автоматически блеклистить?
-                                        // Но если блеклистим автоматом, то нужно решить, что показывать
-                                        // вместо этого видео
-                                    }
-                                } catch (ExtractionException | IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }}).start();
-                }
+                actionReload();
                 break;
 
         }
@@ -908,11 +831,36 @@ public class WatchVideoActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Избавиться от панели навигации, которая где только не вылезает и потом не прячется сама:
+     * - после сворачивания и разворачивания приложения
+     * - после выключения и включения экрана
+     * - еще она появляется при выборе меню на акшенбаре
+     * - если вызвать экран выключения телефона (долгим кликом на кнопку питания)
+     */
+    private void hideNavigationBar() {
+        // Чтобы в полном экране спрятать виртуальную панельку навигации не достаточно флагов в styles.xml
+        // https://stackoverflow.com/questions/14178237/setsystemuivisibilitysystem-ui-flag-layout-hide-navigation-does-not-work
+        // https://www.vogella.com/tutorials/AndroidActionBar/article.html
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
+                        // (но только если мы не используем Toolbar, а мы используем)
+                        //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
+                        //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                        // без этого флага навигация будет опять появляться по первому клику
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        );
+    }
+
     private void toggleFullscreen() {
         setFullscreen(!stateFullscreen);
     }
 
-    private void setFullscreen(boolean fullscreen) {
+    private void setFullscreen(final boolean fullscreen) {
         stateFullscreen = fullscreen;
         if (stateFullscreen) {
             prevVideoBtn.setVisibility(View.GONE);
@@ -936,6 +884,30 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             //videoPlayerView.showController();
             videoPlayerControlView.show();
+        }
+    }
+
+    private void setLoadError(final boolean loadError, final String errorMsg) {
+        stateVideoLoadError = loadError;
+        videoLoadErrorMsg = loadError ? errorMsg : "";
+
+        if(stateVideoLoadError) {
+            setFullscreen(false);
+
+            videoPlayerView.setVisibility(View.GONE);
+            videoPlayerControlView.setVisibility(View.GONE);
+
+            videoPlayerErrorView.setVisibility(View.VISIBLE);
+
+            videoLoadErrorTxt.setText(videoLoadErrorMsg);
+        } else {
+            videoPlayerView.setVisibility(View.VISIBLE);
+            if(!stateFullscreen) {
+                videoPlayerControlView.setVisibility(View.VISIBLE);
+            }
+            videoPlayerErrorView.setVisibility(View.GONE);
+
+            videoLoadErrorTxt.setText("");
         }
     }
 
@@ -1038,79 +1010,142 @@ public class WatchVideoActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-
-                        // посчитать просмотр (для ролика, загруженного из базы)
-                        if (videoItem.getId() != -1) {
-                            videodb.videoItemDao().countView(videoItem.getId());
-                        }
-
-                        // загрузить поток видео
-                        final String vidStreamUrl = ContentLoader.getInstance().extractYtStreamUrl(videoItem.getYtId());
-                        if (vidStreamUrl != null) {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    playVideoStream(vidStreamUrl, videoItem.getPausedAt());
-                                }
-                            });
-                        } else {
-                            // TODO: здесь может быть NULL для некоторых роликов
-                            // (например, см ролик "Топ мультиков Союзмультфильм")
-                            // Автоматически блеклистить?
-                            // Но если блеклистим автоматом, то нужно решить, что показывать
-                            // вместо этого видео
-                        }
-                    } catch (ExtractionException | IOException e) {
-                        e.printStackTrace();
+                    // посчитать просмотр (для ролика, загруженного из базы)
+                    if (videoItem.getId() != -1) {
+                        videodb.videoItemDao().countView(videoItem.getId());
                     }
+
+                    loadVideoItem(videoItem);
                 }
             }).start();
         }
     }
 
+    private void loadVideoItem(final VideoItem videoItem) {
+        try {
+            // загрузить поток видео
+            final String vidStreamUrl = ContentLoader.getInstance().extractYtStreamUrl(videoItem.getYtId());
+            if (vidStreamUrl != null) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        setLoadError(false, null);
+
+                        playVideoStream(vidStreamUrl, videoItem.getPausedAt());
+                    }
+                });
+            } else {
+                // здесь может быть NULL для некоторых роликов:
+                // - из-за глюков экстрактора
+                // - у некоторых специальных роликов изначально не определена продолжительность и
+                // нет ссылки на поток видео (например, см ролик "Топ мультиков Союзмультфильм")
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        setLoadError(true, getString(R.string.err_video_stream_url_null));
+
+                        playVideoStream(null, 0);
+                    }
+                });
+            }
+        } catch (final ExtractionException | IOException e) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    setLoadError(true, e.getMessage());
+
+                    playVideoStream(null, 0);
+                }
+            });
+        }
+    }
+
     private void playVideoStream(final String streamUrl, final long seekTo) {
-        // https://exoplayer.dev/
-        // https://github.com/google/ExoPlayer
+        if (streamUrl == null) {
+            // остановить проигрывание текущего ролика, если был загружен
+            videoPlayerView.getPlayer().stop(true);
+        } else {
+            // https://exoplayer.dev/
+            // https://github.com/google/ExoPlayer
 
-        // датасорсы к видео в плеере NewPipe:
-        // - про продолжение с установленной позиции в коде не вижу или не нашел
-        // - (как играть видео конкретно с ютюба не вижу тоже, там ацкий ООП)
-        // - короче, толку от них ноль, пусть будут пока ссылки для справки
-        // https://github.com/TeamNewPipe/NewPipe/blob/master/app/src/main/java/org/schabi/newpipe/player/helper/PlayerDataSource.java
-        // https://github.com/TeamNewPipe/NewPipe/blob/master/app/src/main/java/org/schabi/newpipe/player/resolver/PlaybackResolver.java
+            // датасорсы к видео в плеере NewPipe:
+            // - про продолжение с установленной позиции в коде не вижу или не нашел
+            // - (как играть видео конкретно с ютюба не вижу тоже, там ацкий ООП)
+            // - короче, толку от них ноль, пусть будут пока ссылки для справки
+            // https://github.com/TeamNewPipe/NewPipe/blob/master/app/src/main/java/org/schabi/newpipe/player/helper/PlayerDataSource.java
+            // https://github.com/TeamNewPipe/NewPipe/blob/master/app/src/main/java/org/schabi/newpipe/player/resolver/PlaybackResolver.java
 
-        final Uri mp4VideoUri = Uri.parse(streamUrl);
-        final MediaSource videoSource = new ProgressiveMediaSource.Factory(videoDataSourceFactory)
-                .createMediaSource(mp4VideoUri);
+            final Uri mp4VideoUri = Uri.parse(streamUrl);
+            final MediaSource videoSource = new ProgressiveMediaSource.Factory(videoDataSourceFactory)
+                    .createMediaSource(mp4VideoUri);
 
-        // Поставим на паузу старое видео, пока готовим новое
-        if (videoPlayerView.getPlayer().getPlaybackState() != Player.STATE_ENDED) {
-            // Если ставить на паузу здесь после того, как плеер встал на паузу сам, закончив
-            // играть видео, получим здесь второе событие STATE_ENDED, поэтому нам нужна здесь
-            // специальная проверка.
-            // При этом значение getPlayWhenReady() останется true, поэтому проверяем именно состояние.
-            // https://github.com/google/ExoPlayer/issues/2272
-            videoPlayerView.getPlayer().setPlayWhenReady(false);
+            // Поставим на паузу старое видео, пока готовим новое
+            if (videoPlayerView.getPlayer().getPlaybackState() != Player.STATE_ENDED) {
+                // Если ставить на паузу здесь после того, как плеер встал на паузу сам, закончив
+                // играть видео, получим здесь второе событие STATE_ENDED, поэтому нам нужна здесь
+                // специальная проверка.
+                // При этом значение getPlayWhenReady() останется true, поэтому проверяем именно состояние.
+                // https://github.com/google/ExoPlayer/issues/2272
+                videoPlayerView.getPlayer().setPlayWhenReady(false);
+            }
+
+            // Prepare the player with the source.
+            ((SimpleExoPlayer) videoPlayerView.getPlayer()).prepare(videoSource);
+
+            // Укажем текущую позицию сразу при загрузке видео
+            // (в коментах что-то пишут что-то про датасорсы, которые поддерживают или не поддерживают
+            // переходы seek при загрузке, похоже, что это фигня - просто делаем seek сразу после загрузки)
+            // Exoplayer plays new Playlist from the beginning instead of provided position
+            // https://github.com/google/ExoPlayer/issues/4375
+            // How to load stream in the desired position? #2197
+            // https://github.com/google/ExoPlayer/issues/2197
+            // в этом месте нормлаьный duration еще не доступен, поэтому его не проверяем
+            //if(seekTo > 0 && seekTo < videoPlayerView.getPlayer().getDuration()) {
+            if (seekTo > 0) {
+                // на 5 секунд раньше
+                videoPlayerView.getPlayer().seekTo(seekTo - 5000 > 0 ? seekTo - 5000 : 0);
+            }
+            videoPlayerView.getPlayer().setPlayWhenReady(true);
         }
+    }
 
-        // Prepare the player with the source.
-        ((SimpleExoPlayer) videoPlayerView.getPlayer()).prepare(videoSource);
+    /**
+     * Загрузить заново виде-поток для текущего ролика
+     */
+    private void actionReload() {
+        if (currentVideo != null && currentVideo.getId() != -1) {
+            // загрузить поток видео заново (иногда после разрыва соединения
+            // видео может перестать загружаться и появление соединения процесс
+            // не возобновляет)
 
-        // Укажем текущую позицию сразу при загрузке видео
-        // (в коментах что-то пишут что-то про датасорсы, которые поддерживают или не поддерживают
-        // переходы seek при загрузке, похоже, что это фигня - просто делаем seek сразу после загрузки)
-        // Exoplayer plays new Playlist from the beginning instead of provided position
-        // https://github.com/google/ExoPlayer/issues/4375
-        // How to load stream in the desired position? #2197
-        // https://github.com/google/ExoPlayer/issues/2197
-        // в этом месте нормлаьный duration еще не доступен, поэтому его не проверяем
-        //if(seekTo > 0 && seekTo < videoPlayerView.getPlayer().getDuration()) {
-        if (seekTo > 0) {
-            // на 5 секунд раньше
-            videoPlayerView.getPlayer().seekTo(seekTo - 5000 > 0 ? seekTo - 5000 : 0);
+            // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+            // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+            final VideoItem _currentVideo = currentVideo;
+            final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
+            // для текущего кэша, да
+            if (currentVideo != null) {
+                currentVideo.setPausedAt(_currentPos);
+            }
+            // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
+            // видео заново - обе операции в фоновом потоке
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // если за время запуска потока видео успели переключить, всё отменяем
+                    if (_currentVideo != null && _currentVideo == currentVideo) {
+                        if (_currentPos > 0) {
+                            // сохраним текущую позицию только в том случае, если она больше нуля
+                            // (может быть ситуация, когда мы переключились на видео с ранее
+                            // сохраненной позицией, а оно не загрузилось, тогда бы у нас
+                            // сбросилась старая сохраненная позиция, а это не хорошо)
+                            videodb.videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
+                        }
+
+                        loadVideoItem(currentVideo);
+                    }
+                }
+            }).start();
         }
-        videoPlayerView.getPlayer().setPlayWhenReady(true);
     }
 
     /**
@@ -1137,18 +1172,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                             @Override
                             public void onDismiss(PopupMenu menu) {
                                 // Прячем панель навигации, т.к. при выборе меню она появляется опять.
-                                getWindow().getDecorView().setSystemUiVisibility(
-                                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                                // с этим флагом акшенбар начнет сверху перекрывать содержимое экрана
-                                                // (но только если мы не используем Toolbar, а мы используем)
-                                                //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                                // с этими флагами весь экран перекорежит и на эмуляторе и на телефоне
-                                                //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                                //| View.SYSTEM_UI_FLAG_FULLSCREEN
-                                                // без этого флага навигация будет опять появляться по первому клику
-                                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                                );
+                                hideNavigationBar();
                             }
                         });
                         popup.setOnMenuItemClickListener(

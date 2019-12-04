@@ -55,4 +55,6 @@
     <string name="playlist_is_empty">You have no videos in collection. Add or enable channels or playlist.</string>
     <string name="configure_playlists">Configure channels and playlists</string>
     <string name="playlist_list_is_empty">You have no playlists or channels. Add channel or playlist.</string>
+    <string name="failed_to_load_video">Problem loading video :(</string>
+    <string name="err_video_stream_url_null">Could not extract video stream URL</string>
 </resources>
