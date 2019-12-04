@@ -74,7 +74,15 @@ public class PlaylistUrlUtil {
         return url.replaceFirst("https://", "").replaceFirst("www.", "");
     }
 
+    public static String getYtId(final String ytUrl) {
+        return ytUrl.replace("https://www.youtube.com/watch?v=", "");
+    }
+
     public static String getVideoUrl(final VideoItem videoItem) {
         return "https://www.youtube.com/watch?v=%s".replace("%s", videoItem.getYtId());
+    }
+
+    public static String getVideoUrl(final String ytId) {
+        return "https://www.youtube.com/watch?v=%s".replace("%s", ytId);
     }
 }

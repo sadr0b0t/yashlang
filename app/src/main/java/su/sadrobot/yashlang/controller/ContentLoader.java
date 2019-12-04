@@ -501,7 +501,7 @@ public class ContentLoader {
 
                     boolean foundOld = false;
                     for (StreamInfoItem item : pageItems) {
-                        final String ytId = item.getUrl().replace("https://www.youtube.com/watch?v=", "");
+                        final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
                         if (videodb.videoItemDao().getByYtId(plId, ytId) == null) {
                             videoItems.add(extractVideoItem(item, plId, plEnabled, fakeTimestamp));
                             fakeTimestamp--;
@@ -545,7 +545,7 @@ public class ContentLoader {
                             // загрузили страницу - проверяем ролики
                             pageItems.addAll(nextPage.getItems());
                             for (StreamInfoItem item : pageItems) {
-                                final String ytId = item.getUrl().replace("https://www.youtube.com/watch?v=", "");
+                                final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
                                 if (videodb.videoItemDao().getByYtId(plId, ytId) == null) {
                                     videoItems.add(extractVideoItem(item, plId, plEnabled, fakeTimestamp));
                                     fakeTimestamp--;
@@ -624,7 +624,7 @@ public class ContentLoader {
         boolean foundOld = false;
         VideoDatabase videodb = VideoDatabase.getDb(context);
         for (StreamInfoItem item : pageItems) {
-            final String ytId = item.getUrl().replace("https://www.youtube.com/watch?v=", "");
+            final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
             if (videodb.videoItemDao().getByYtId(playlist.getId(), ytId) == null) {
                 videoItems.add(extractVideoItem(item, playlist.getId(), playlist.isEnabled(), 0));
             } else {
@@ -662,7 +662,7 @@ public class ContentLoader {
                 pageItems.addAll(nextPage.getItems());
                 videodb = VideoDatabase.getDb(context);
                 for (StreamInfoItem item : pageItems) {
-                    final String ytId = item.getUrl().replace("https://www.youtube.com/watch?v=", "");
+                    final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
                     if (videodb.videoItemDao().getByYtId(playlist.getId(), ytId) == null) {
                         videoItems.add(extractVideoItem(item, playlist.getId(), playlist.isEnabled(), 0));
                     } else {
@@ -688,7 +688,7 @@ public class ContentLoader {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
         NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
         final YoutubeStreamExtractor extractor = (YoutubeStreamExtractor) YouTube
-                .getStreamExtractor("https://www.youtube.com/watch?v=%s".replace("%s", ytId));
+                .getStreamExtractor(PlaylistUrlUtil.getVideoUrl(ytId));
         extractor.fetchPage();
         return extractVideoItem(extractor);
     }
@@ -697,7 +697,7 @@ public class ContentLoader {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
         NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
         final YoutubeStreamExtractor extractor = (YoutubeStreamExtractor) YouTube
-                .getStreamExtractor("https://www.youtube.com/watch?v=%s".replace("%s", ytId));
+                .getStreamExtractor(PlaylistUrlUtil.getVideoUrl(ytId));
         extractor.fetchPage();
         final String streamUrl = extractor.getVideoStreams().size() > 0 ? extractor.getVideoStreams().get(0).getUrl() : null;
 //        for (final VideoStream stream : extractor.getVideoStreams()) {
@@ -707,7 +707,7 @@ public class ContentLoader {
     }
 
     private VideoItem extractVideoItem(final YoutubeStreamExtractor item) throws ParsingException {
-        final String ytId = item.getUrl().replace("https://www.youtube.com/watch?v=", "");
+        final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
         final String name = item.getName();
         final String uploader = item.getUploaderName();
         //final String date = item.getUploadDate();
@@ -733,7 +733,7 @@ public class ContentLoader {
     private VideoItem extractVideoItem(final StreamInfoItem item, final long playlistId,
                                        final boolean enabled, final long fakeTimestamp) {
         //final long _playlistId = playlistId;
-        final String ytId = item.getUrl().replace("https://www.youtube.com/watch?v=", "");
+        final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
         final String name = item.getName();
         final String uploader = item.getUploaderName();
         //final String date = item.getUploadDate();
