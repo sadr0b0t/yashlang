@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -40,6 +41,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.paging.DataSource;
@@ -60,6 +62,8 @@ import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
  */
 public class SearchVideoActivity extends AppCompatActivity {
 
+    private Toolbar toolbar;
+
     private EditText searchVideoInput;
     private RecyclerView videoList;
 
@@ -74,9 +78,14 @@ public class SearchVideoActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_search_video);
 
+        toolbar = findViewById(R.id.toolbar);
+
         searchVideoInput = findViewById(R.id.search_video_input);
         videoList = findViewById(R.id.video_list);
 
+        // https://developer.android.com/training/appbar
+        // https://www.vogella.com/tutorials/AndroidActionBar/article.html#custom-views-in-the-action-bar
+        setSupportActionBar(toolbar);
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -119,6 +128,40 @@ public class SearchVideoActivity extends AppCompatActivity {
         setupVideoListAdapter(null);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        // https://developer.android.com/training/appbar/action-views.html
+
+        toolbar.inflateMenu(R.menu.search_video_actions);
+
+        toolbar.setOnMenuItemClickListener(
+                new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        return onOptionsItemSelected(item);
+                    }
+                });
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_play_results:
+                if(videoList.getAdapter().getItemCount() > 0) {
+                    final Intent intent = new Intent(SearchVideoActivity.this, WatchVideoActivity.class);
+                    intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID,
+                            ((VideoItemPagedListAdapter)videoList.getAdapter()).getItem(0).getId());
+                    intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, searchVideoInput.getText().toString());
+                    startActivity(intent);
+                }
+                break;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
 
     @Override

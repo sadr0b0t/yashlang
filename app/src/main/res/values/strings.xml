@@ -57,4 +57,5 @@
     <string name="playlist_list_is_empty">You have no playlists or channels. Add channel or playlist.</string>
     <string name="failed_to_load_video">Problem loading video :(</string>
     <string name="err_video_stream_url_null">Could not extract video stream URL</string>
+    <string name="play_results">Play results</string>
 </resources>

@@ -57,7 +57,7 @@
             android:name=".SearchVideoActivity"
             android:configChanges="orientation"
             android:label="@string/yashlang_search"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/CustomToolbarTheme" />
         <activity
             android:name=".HistoryActivity"
             android:configChanges="orientation"

@@ -57,4 +57,5 @@
     <string name="playlist_list_is_empty">Список каналов и плейлистов пуст. Добавьте канал или плейлист.</string>
     <string name="failed_to_load_video">Видео не загрузилось :(</string>
     <string name="err_video_stream_url_null">Не получилось найти адрес потока видео</string>
+    <string name="play_results">Играть всё в плеере</string>
 </resources>

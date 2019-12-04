@@ -102,10 +102,16 @@ public class WatchVideoActivity extends AppCompatActivity {
      * Загрузить информацию о видео по ID из базы
      */
     public static final String PARAM_VIDEO_ID = "PARAM_VIDEO_ID";
+
     /**
      * Загрузить информацию о видео онлайн
      */
     public static final String PARAM_VIDEO_YTID = "PARAM_VIDEO_YTID";
+
+    /**
+     * Список рекомендаций - результат поиска по запросу
+     */
+    public static final String PARAM_SEARCH_STR = "PARAM_SEARCH_STR";
 
 
     private PlayerView videoPlayerView;
@@ -203,11 +209,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                         0 : currentVideoPosition + 1;
                 final VideoItem item;
                 if (videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
-                    // (вообще, если используем VideoItemPagedListAdapter, то в этой игре с индексами
-                    // мало толка, т.к. адаптер с рекомендациями меняется случайным образом каждый
-                    // раз при записи в базу, в т.ч. при загрузке нового видео)
+                    // здесь не случайные рекомендации, а, например, список выдачи по поисковому запросу
                     item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
                 } else if (videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                    // здесь скорее всего случайные рекомендации
                     item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
                 } else {
                     item = null;
@@ -317,18 +322,17 @@ public class WatchVideoActivity extends AppCompatActivity {
                             0 : currentVideoPosition + 1;
                     final VideoItem item;
                     if (videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
-                        // (вообще, если используем VideoItemPagedListAdapter, то в этой игре с индексами
-                        // мало толка, т.к. адаптер с рекомендациями меняется случайным образом каждый
-                        // раз при записи в базу, в т.ч. при загрузке нового видео)
+                        // здесь не случайные рекомендации, а, например, список выдачи по поисковому запросу
                         item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
                     } else if (videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                        // здесь скорее всего случайные рекомендации
                         item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
                     } else {
                         item = null;
                     }
                     if (item != null) {
                         posMap.put(item.getId(), nextVideoPosition);
-                        // перез загрузкой нового видео обнулим текущую позицию
+                        // перед загрузкой нового видео обнулим текущую позицию
                         playVideoItem(item, true);
                     }
                 }
@@ -434,8 +438,12 @@ public class WatchVideoActivity extends AppCompatActivity {
         }
 
         //
-        setupVideoListArrayAdapter();
-        //setupVideoListPagedListAdapter();
+        final String searchStr = super.getIntent().getStringExtra(PARAM_SEARCH_STR);
+        if(searchStr == null) {
+            setupVideoListArrayAdapter();
+        } else {
+            setupVideoListPagedListAdapter(searchStr);
+        }
     }
 
     @Override
@@ -508,11 +516,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                         0 : currentVideoPosition + 1;
                 final VideoItem item;
                 if (videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
-                    // (вообще, если используем VideoItemPagedListAdapter, то в этой игре с индексами
-                    // мало толка, т.к. адаптер с рекомендациями меняется случайным образом каждый
-                    // раз при записи в базу, в т.ч. при загрузке нового видео)
+                    // здесь не случайные рекомендации, а, например, список выдачи по поисковому запросу
                     item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
                 } else if (videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                    // здесь скорее всего случайные рекомендации
                     item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
                 } else {
                     item = null;
@@ -1157,7 +1164,10 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
     /**
-     * Рекомандации внизу под основным видео
+     * Случайные рекомандации внизу под основным видео. ArrayAdapter, а не PagedListAdapter
+     * потому, что в случае с PagedListAdapter выдача рекомендаций будет автоматом обновляться
+     * при каждой записи в базу (например, при переключении видео с сохранением текущей позиции
+     * или при клике на кнопку со звездочкой)
      */
     private void setupVideoListArrayAdapter() {
         new Thread(new Runnable() {
@@ -1316,7 +1326,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
 
-    private void setupVideoListPagedListAdapter() {
+    private void setupVideoListPagedListAdapter(final String searchStr) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -1339,7 +1349,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
         final DataSource.Factory factory =
-                videodb.videoItemDao().recommendVideosDs();
+                videodb.videoItemDao().searchEnabledVideosDs(searchStr);
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
