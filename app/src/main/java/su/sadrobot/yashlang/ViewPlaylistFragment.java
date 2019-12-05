@@ -219,6 +219,7 @@ public class ViewPlaylistFragment extends Fragment {
                     public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                         final Intent intent = new Intent(ViewPlaylistFragment.this.getContext(), WatchVideoActivity.class);
                         intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
+                        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, playlistId);
                         startActivity(intent);
                     }
 
