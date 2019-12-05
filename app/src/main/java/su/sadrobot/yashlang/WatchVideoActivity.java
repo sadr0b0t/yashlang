@@ -395,15 +395,39 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         });
 
+
+        // подключимся к базе один раз при создании активити,
+        // закрывать подключение в onDestroy
+        videodb = VideoDatabase.getDb(WatchVideoActivity.this);
+
         // Рекомендации
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
                 getApplicationContext(), RecyclerView.HORIZONTAL, false);
         videoList.setLayoutManager(linearLayoutManager);
 
-        // подключимся к базе один раз при создании активити,
-        // закрывать подключение в onDestroy
-        videodb = VideoDatabase.getDb(WatchVideoActivity.this);
+
+        final boolean recommendationsOff = super.getIntent().getBooleanExtra(PARAM_RECOMMENDATIONS_OFF, false);
+        if(recommendationsOff) {
+            videoList.setVisibility(View.GONE);
+        } else {
+            final String searchStr = super.getIntent().getStringExtra(PARAM_SEARCH_STR);
+            final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, -1);
+            if (searchStr != null) {
+                // будем считать, что в случае с передачей поисковой строки нам передают для
+                // проигрывания первый элемент из поисковой выдачи, поэтому, чтобы кнопка
+                // "следующее видео" не повторяла первый ролик два раза, начнем считать индекс
+                // текущего ролика сразу с 0-ля (т.е. первый элемент списка рекомендаций)
+                // (но, чтобы это сработало, нужно еще ниже положить:
+                // posMap.put(videoItem.getId(), currentVideoPosition))
+                currentVideoPosition = 0;
+                setupVideoListPagedListAdapter(searchStr);
+            } else if (playlistId != -1) {
+                setupVideoListPagedListAdapter(playlistId);
+            } else {
+                setupVideoListArrayAdapter();
+            }
+        }
 
         // загружаем видео
         // если передан параметр videoId, то загружаем видео по id из базы, если videoId
@@ -415,6 +439,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     final VideoItem videoItem = videodb.videoItemDao().getById(videoId);
+                    posMap.put(videoItem.getId(), currentVideoPosition);
 
                     handler.post(new Runnable() {
                         @Override
@@ -446,22 +471,6 @@ public class WatchVideoActivity extends AppCompatActivity {
                     });
                 }
             }).start();
-        }
-
-        //
-        final boolean recommendationsOff = super.getIntent().getBooleanExtra(PARAM_RECOMMENDATIONS_OFF, false);
-        if(recommendationsOff) {
-            videoList.setVisibility(View.GONE);
-        } else {
-            final String searchStr = super.getIntent().getStringExtra(PARAM_SEARCH_STR);
-            final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, -1);
-            if (searchStr != null) {
-                setupVideoListPagedListAdapter(searchStr);
-            } else if (playlistId != -1) {
-                setupVideoListPagedListAdapter(playlistId);
-            } else {
-                setupVideoListArrayAdapter();
-            }
         }
     }
 
@@ -997,9 +1006,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             videoList.scrollToPosition(currentVideoPosition);
         }
         if (videoItem != null) {
-            if (playbackHistory.size() == 0 || !videoItem.getYtId().equals(playbackHistory.peek())) {
-                playbackHistory.push(videoItem);
-            }
+            playbackHistory.push(videoItem);
             if (playbackHistory.size() > 1) {
                 prevVideoBtn.setEnabled(true);
                 if (!stateFullscreen) {
