@@ -237,13 +237,9 @@ public class WatchVideoActivity extends AppCompatActivity {
 
 
         // Плеер
-        final DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        final TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        final TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-        final SimpleExoPlayer exoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
-
+        final SimpleExoPlayer exoPlayer = ExoPlayerFactory.newSimpleInstance(this);
         videoDataSourceFactory = new DefaultDataSourceFactory(this,
-                Util.getUserAgent(this, "yashlang"), bandwidthMeter);
+                Util.getUserAgent(this, "yashlang"));
 
         videoPlayerView.requestFocus();
         videoPlayerView.setPlayer(exoPlayer);
