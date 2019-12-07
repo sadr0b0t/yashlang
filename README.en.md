@@ -5,6 +5,8 @@ Online YouTube player for Android with local playlists and whitelisted recommend
 - Switch off videos inside added playlists if you don't like them
 - Watch videos you only want to
 
+Turns YouTube to a safe place for you and your children.
+
 (available interface languages: English, Russian)
 
 ### On the main screen and on the player screen: random recommendations from chosen channels
