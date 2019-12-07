@@ -10,6 +10,12 @@ android {
         versionCode 3
         versionName "0.0.1-draft9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     // для exoplayer 2.10.8 (> 2.7.3)
