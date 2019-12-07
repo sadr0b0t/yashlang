@@ -5,6 +5,8 @@ Online YouTube player for Android with local playlists and whitelisted recommend
 - Switch off videos inside added playlists if you don't like them
 - Watch videos you only want to
 
+(available interface languages: English, Russian)
+
 ### On the main screen and on the player screen: random recommendations from chosen channels
 
 [<img src="doc/screens/v0.1.x/glagna-1.png" width=600>](doc/screens/v0.1.x/glagna-1.png)
