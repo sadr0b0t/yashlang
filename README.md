@@ -1,7 +1,7 @@
-# YaShlang
+# YaShlang [Йа-Шланг]
 Online YouTube player for Android with local playlists and whitelisted recommendations; for English go to [README.en.md](README.en.md)
 
-YaShlang [Йа-Шланг] — онлайн-плеер YouTube с локальными плейлистами, каналами и рекомендациями.
+Онлайн-плеер YouTube с локальными плейлистами, каналами и рекомендациями.
 
 - Добавляйте любимые каналы и плейлисты
 - Внутри добавленных плейлистов выключайте лишние ролики, если они вам не нужны
@@ -91,6 +91,7 @@ _Настройки > меню в заголовке > Черный список
 Любимые ролики в экране плеера отмечаются звёздочкой в правом верхнем углу.
 
 ### Контекстные меню в заголовке экрана и по долгому клику в галереях и списках
+
 [<img src="doc/screens/v0.1.x/context-menu-1.png" width=200>](doc/screens/v0.1.x/context-menu-1.png)
 [<img src="doc/screens/v0.1.x/context-menu-2.png" width=200>](doc/screens/v0.1.x/context-menu-2.png)
 [<img src="doc/screens/v0.1.x/context-menu-3.png" width=200>](doc/screens/v0.1.x/context-menu-3.png)
