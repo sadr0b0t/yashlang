@@ -265,13 +265,6 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
                                                 item.setEnabled(isChecked);
                                             }
                                         }).start();
-
-                                        handler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                //playlistList.getAdapter().notifyDataSetChanged();
-                                            }
-                                        });
                                     }
                                 }));
                         // если список пустой, показываем специальный экранчик с кнопками
