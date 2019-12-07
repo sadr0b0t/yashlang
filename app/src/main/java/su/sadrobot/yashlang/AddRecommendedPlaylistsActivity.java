@@ -76,10 +76,16 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
 
     private PlaylistInfo[] recommendedPlaylists = {
+            // классические мультики
             new PlaylistInfo("Мультики студии Союзмультфильм",
                     "https://www.youtube.com/user/ClassicCartoonsMedia",
                     "https://yt3.ggpht.com/a/AGF-l79QQ2pizTFB3G61q3I4ryzr659sbHFt5TffzQ=s100-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_USER),
+            // новые мультики
+            new PlaylistInfo("Союзмультфильм",
+                    "https://www.youtube.com/channel/UCHS2LM1n3f5cyL-ebgkqyLw",
+                    "https://yt3.ggpht.com/a/AGF-l7_HNF5e69DLSH-h-B67EAfm0GEtmiykww7FOg=s100-c-k-c0xffffffff-no-rj-mo",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
             new PlaylistInfo("Киножурнал Ералаш",
                     "https://www.youtube.com/channel/UC0u6gAESA0XmSJQaAyDTTVg",
                     "https://yt3.ggpht.com/a/AGF-l7_hKI23Rm_DGUcoN7JFm2tKQl2maXaQdAJbqA=s100-c-k-c0xffffffff-no-rj-mo",
