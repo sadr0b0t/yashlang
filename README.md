@@ -1,5 +1,6 @@
 # YaShlang [Йа-Шланг]
-Online YouTube player for Android with local playlists and whitelisted recommendations; for English go to [README.en.md](README.en.md)
+Online YouTube player for Android with local playlists and whitelisted recommendations
+for English go to [README.en.md](README.en.md)
 
 Онлайн плеер YouTube с локальными плейлистами, каналами и рекомендациями.
 
