@@ -1,5 +1,5 @@
 # YaShlang
-Online YouTube player for Android with local playlists and whitelisted recommendations.
+Online YouTube player for Android with local playlists and whitelisted recommendations  
 на русском: [README.md](README.md)
 
 - Add fave channels and playlists
