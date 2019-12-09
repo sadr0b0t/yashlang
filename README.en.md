@@ -101,7 +101,8 @@ Starred videos (faves) are starred (marked as fave) in the top right corner in t
 ## Quick start — add recommended channels and playlists
 
 [<img src="doc/screens/v0.1.x/glagna-empty.png" width=200>](doc/screens/v0.1.x/glagna-empty.png)
-[<img src="doc/screens/v0.1.x/add-recommended-1.png" width=200>](doc/screens/v0.1.x/add-recommended-1.png)
+[<img src="doc/screens/v0.1.x/add-recommended-1.png" width=200>](doc/screens/v0.1.x/add-recommended-1.png) =>
+[<img src="doc/screens/v0.1.x/blacklist-1.png" width=200>](doc/screens/v0.1.x/blacklist-1.png)
 
 The app would immediately start looking like the one on the above screens.
 
@@ -124,13 +125,13 @@ Opensource (libresource) under GPLv3 license.
 
 for example: [Илья Муромец, Киноконцерн "Мосфильм"](https://www.youtube.com/watch?v=hooaKxdXbfM), [Руслан и Людмила 1-ая серия / Ruslan and Lyudmila film 1, Киноконцерн "Мосфильм"](https://www.youtube.com/watch?v=2UoO2t536Ko)
 
-_Recommend to add such videos to blacklist or ask their authors to reset the restiction if it was set by mistake._
+_tip: add such videos to blacklist or ask their authors to reset the restiction if it was set by mistake._
 
 - Won't play some translations with zero duration returned by service (such videos would be marked as "[dur undef]" in place of duration in lists and galleries)
 
 for example: [Ну Погоди! Все Выпуски 🐰🐺 Союзмультфильм HD (Мультики для детей),  Мультики студии Союзмультфильм](https://www.youtube.com/watch?v=fwzpCVt2ExY), [Топ мультиков Союзмультфильм,  Мультики студии Союзмультфильм](https://www.youtube.com/watch?v=XK1_9fw5CwA)
 
-_Recomment to add such videos to blacklist._
+_tip: to add such videos to blacklist._
 
 - Videos, only available by direct link, may not come to local playlist copy, even if you load all videos from some particular user
 
