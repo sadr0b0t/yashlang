@@ -307,7 +307,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         //addPlaylistBtn.setEnabled(true);
-                        playlistAddProgress.setVisibility(View.GONE);
+                        playlistAddProgress.setVisibility(View.INVISIBLE);
                         playlistAddStatusTxt.setText(taskController.getStatusMsg());
                     }
                 });
