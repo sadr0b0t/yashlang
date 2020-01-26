@@ -26,12 +26,11 @@ import android.graphics.Bitmap;
 import androidx.annotation.NonNull;
 import androidx.paging.ItemKeyedDataSource;
 
-import org.schabi.newpipe.Downloader;
+import org.schabi.newpipe.DownloaderTestImpl;
 import org.schabi.newpipe.extractor.ListExtractor;
 import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
-import org.schabi.newpipe.extractor.utils.Localization;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -140,7 +139,7 @@ public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, Video
 
     protected ListExtractor<StreamInfoItem> getExtractor(final String plUrl) throws ExtractionException {
         // Выкачать список видео с 1й страницы канала
-        NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
+        NewPipe.init(DownloaderTestImpl.getInstance());
 
         final ListExtractor<StreamInfoItem> extractor;
         if(PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {

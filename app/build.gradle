@@ -7,8 +7,8 @@ android {
         applicationId "su.sadrobot.yashlang"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 4
-        versionName "0.1.0-beta2"
+        versionCode 5
+        versionName "0.1.0-beta3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -41,6 +41,10 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+
+    // for @NonNull and @ annotations in DownloaderTestImpl since NewPipeExtractor 0.18.x
+    implementation 'com.github.spotbugs:spotbugs-annotations:3.1.0'
+
     // ViewPager, RecyclerView (компеляецца и так)
     //implementation 'androidx.viewpager:viewpager:1.0.0'
     //implementation 'androidx.recyclerview:recyclerview:1.0.0'
@@ -65,7 +69,7 @@ dependencies {
 
     // NewPipe: youtube parser
     // https://github.com/TeamNewPipe/NewPipeExtractor
-    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.17.4"
+    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.18.2"
     implementation 'androidx.paging:paging-runtime:2.1.0'
 
     // google Exoplayer

@@ -24,7 +24,7 @@ package su.sadrobot.yashlang.controller;
 import android.content.Context;
 import android.database.SQLException;
 
-import org.schabi.newpipe.Downloader;
+import org.schabi.newpipe.DownloaderTestImpl;
 import org.schabi.newpipe.extractor.InfoItem;
 import org.schabi.newpipe.extractor.ListExtractor;
 import org.schabi.newpipe.extractor.NewPipe;
@@ -36,7 +36,6 @@ import org.schabi.newpipe.extractor.search.SearchExtractor;
 import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor;
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
-import org.schabi.newpipe.extractor.utils.Localization;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -152,21 +151,19 @@ public class ContentLoader {
         final List<PlaylistInfo> playlists = new ArrayList<PlaylistInfo>();
         final List<InfoItem> pageItems = new ArrayList<InfoItem>();
 
-        NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
+        NewPipe.init(DownloaderTestImpl.getInstance());
 
         // с YouTube работает только 1й элемент (см YoutubeSearchQueryHandlerFactory.getUrl)
         final List<String> contentFilters = new ArrayList<String>();
         contentFilters.add(YoutubeSearchQueryHandlerFactory.CHANNELS);
-        SearchExtractor extractor = YouTube.getSearchExtractor(
-                sstr, contentFilters, "", new Localization("GB", "en"));
+        SearchExtractor extractor = YouTube.getSearchExtractor(sstr, contentFilters, "");
         extractor.fetchPage();
         pageItems.addAll(extractor.getInitialPage().getItems());
 
         // теперь плейлисты
         contentFilters.clear();
         contentFilters.add(YoutubeSearchQueryHandlerFactory.PLAYLISTS);
-        extractor = YouTube.getSearchExtractor(
-                sstr, contentFilters, "", new Localization("GB", "en"));
+        extractor = YouTube.getSearchExtractor(sstr, contentFilters, "");
         extractor.fetchPage();
         pageItems.addAll(extractor.getInitialPage().getItems());
 
@@ -200,7 +197,7 @@ public class ContentLoader {
         final PlaylistInfo.PlaylistType plType;
 
         // Выкачать список всех видео в канале
-        NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
+        NewPipe.init(DownloaderTestImpl.getInstance());
         final ListExtractor<StreamInfoItem> extractor;
         if (PlaylistUrlUtil.isYtChannel(plUrl) ){
             plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
@@ -281,7 +278,7 @@ public class ContentLoader {
 
                     final PlaylistInfo.PlaylistType plType;
 
-                    NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
+                    NewPipe.init(DownloaderTestImpl.getInstance());
                     final ListExtractor<StreamInfoItem> extractor;
                     try {
                         if (PlaylistUrlUtil.isYtChannel(plUrl) ){
@@ -456,7 +453,7 @@ public class ContentLoader {
 
                     final List<VideoItem> videoItems = new ArrayList<VideoItem>();
 
-                    NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
+                    NewPipe.init(DownloaderTestImpl.getInstance());
                     final ListExtractor<StreamInfoItem> extractor;
                     try {
                         if (PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {
@@ -600,7 +597,7 @@ public class ContentLoader {
 
         final String plUrl = playlist.getUrl();
 
-        NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
+        NewPipe.init(DownloaderTestImpl.getInstance());
         final ListExtractor<StreamInfoItem> extractor;
         if (PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {
             extractor = YouTube.getChannelExtractor(plUrl);
@@ -686,7 +683,7 @@ public class ContentLoader {
 
     public VideoItem getYtVideoItem(final String ytId) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
-        NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
+        NewPipe.init(DownloaderTestImpl.getInstance());
         final YoutubeStreamExtractor extractor = (YoutubeStreamExtractor) YouTube
                 .getStreamExtractor(PlaylistUrlUtil.getVideoUrl(ytId));
         extractor.fetchPage();
@@ -695,7 +692,7 @@ public class ContentLoader {
 
     public String extractYtStreamUrl(final String ytId) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
-        NewPipe.init(Downloader.getInstance(), new Localization("GB", "en"));
+        NewPipe.init(DownloaderTestImpl.getInstance());
         final YoutubeStreamExtractor extractor = (YoutubeStreamExtractor) YouTube
                 .getStreamExtractor(PlaylistUrlUtil.getVideoUrl(ytId));
         extractor.fetchPage();
