@@ -2,6 +2,8 @@
 Online YouTube player for Android with local playlists and whitelisted recommendations  
 на русском: [README.md](README.md)
 
+<a href="https://f-droid.org/packages/su.sadrobot.yashlang/"><img src="https://f-droid.org/wiki/images/0/06/F-Droid-button_get-it-on.png"></a>
+
 - Add fave channels and playlists
 - Switch off videos inside added playlists if you don't like them
 - Watch videos you only want to
@@ -108,6 +110,15 @@ Starred videos (faves) are starred (marked as fave) in the top right corner in t
 The app would immediately start looking like the one on the above screens.
 
 You can switch off or delete unwanted playlists and channels in the settings.
+
+## Install
+
+- F-Droid: https://f-droid.org/packages/su.sadrobot.yashlang/
+- Build from sources: https://github.com/sadr0b0t/yashlang/
+- Download apk from releases: https://github.com/sadr0b0t/yashlang/releases
+- Application is not listed in Google Play and won't appear there at the nearest time (Google would ban apps who parse their services sites)
+
+Please note, that you will not be able to switch between Github release / F-Droid app versions without removing the app (and losing data: e.g. - added playlists, stars, watch history) and reinstalling it due to different apk signatures.
 
 ## Technical info
 
