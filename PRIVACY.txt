@@ -6,7 +6,8 @@ not require login and does not identify its users in any way.
 
 However, media streams, shown in the app, are taken from 3-pty services
 (such as YouTube), so, while loading content, the app would request data
-from 3-pty services on your behalf. While such requests are fully anonymous,
-you should concider getting acquanted with privacy policies of those 3-pty
-services (such as YouTube).
+from 3-pty services on your behalf. While such requests would only access
+data which is publically available, would not require login and are fully
+anonymous, you should consider getting acquanted with privacy policies
+of those 3-pty services (such as YouTube).
 
