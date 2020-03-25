@@ -1,0 +1,6 @@
+Privacy Policy
+
+The YaShlang project aims to provide a private, anonymous experience for using media web services. The app does not collect any data, does not require login and does not identify its users in any way.
+
+However, media streams, shown in the app, are taken from 3-pty services (such as YouTube), so, while loading content, the app would request data from 3-pty services on your behalf. While such requests are fully anonymous, you should concider getting acquanted with privacy policies of those 3-pty services (such as YouTube).
+
