@@ -1,26 +1,7 @@
 package org.schabi.newpipe;
 
-import org.schabi.newpipe.extractor.downloader.Downloader;
-import org.schabi.newpipe.extractor.downloader.Request;
-import org.schabi.newpipe.extractor.downloader.Response;
-import org.schabi.newpipe.extractor.exceptions.ReCaptchaException;
-import org.schabi.newpipe.extractor.localization.Localization;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.net.ssl.HttpsURLConnection;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.List;
-import java.util.Map;
-
-
 // copy from here
-// https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/DownloaderTestImpl.java
+// https://github.com/TeamNewPipe/NewPipeExtractor/blob/v0.19.5/extractor/src/test/java/org/schabi/newpipe/DownloaderTestImpl.java
 
 /*
  * Created by Christian Schabesberger on 28.01.16.
@@ -42,9 +23,28 @@ import java.util.Map;
  * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+import org.schabi.newpipe.extractor.downloader.Downloader;
+import org.schabi.newpipe.extractor.downloader.Request;
+import org.schabi.newpipe.extractor.downloader.Response;
+import org.schabi.newpipe.extractor.exceptions.ReCaptchaException;
+import org.schabi.newpipe.extractor.localization.Localization;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.net.ssl.HttpsURLConnection;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.List;
+import java.util.Map;
+
 public class DownloaderTestImpl extends Downloader {
 
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0";
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101 Firefox/68.0";
     private static final String DEFAULT_HTTP_ACCEPT_LANGUAGE = "en";
 
     private static DownloaderTestImpl instance = null;
@@ -123,23 +123,28 @@ public class DownloaderTestImpl extends Downloader {
             final int responseCode = connection.getResponseCode();
             final String responseMessage = connection.getResponseMessage();
             final Map<String, List<String>> responseHeaders = connection.getHeaderFields();
+            final String latestUrl = connection.getURL().toString();
 
-            return new Response(responseCode, responseMessage, responseHeaders, response.toString());
+            return new Response(responseCode, responseMessage, responseHeaders, response.toString(), latestUrl);
         } catch (Exception e) {
+            final int responseCode = connection.getResponseCode();
+
             /*
              * HTTP 429 == Too Many Request
              * Receive from Youtube.com = ReCaptcha challenge request
              * See : https://github.com/rg3/youtube-dl/issues/5138
              */
-            if (connection.getResponseCode() == 429) {
+            if (responseCode == 429) {
                 throw new ReCaptchaException("reCaptcha Challenge requested", url);
+            } else if (responseCode != -1) {
+                final String latestUrl = connection.getURL().toString();
+                return new Response(responseCode, connection.getResponseMessage(), connection.getHeaderFields(), null, latestUrl);
             }
 
-            throw new IOException(connection.getResponseCode() + " " + connection.getResponseMessage(), e);
+            throw new IOException("Error occurred while fetching the content", e);
         } finally {
             if (outputStream != null) outputStream.close();
             if (input != null) input.close();
         }
     }
 }
-
