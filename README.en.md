@@ -116,6 +116,7 @@ You can switch off or delete unwanted playlists and channels in the settings.
 - F-Droid: https://f-droid.org/packages/su.sadrobot.yashlang/
 - Build from sources: https://github.com/sadr0b0t/yashlang/
 - Download apk from releases: https://github.com/sadr0b0t/yashlang/releases
+- AppGallery Huawei (apk from github releases): https://appstore.huawei.com/app/C101887905
 - Application is not listed in Google Play and won't appear there at the nearest time (Google would ban apps who parse their services sites)
 
 Please note, that you will not be able to switch between Github release / F-Droid app versions without removing the app (and losing data: e.g. - added playlists, stars, watch history) and reinstalling it due to different apk signatures.
