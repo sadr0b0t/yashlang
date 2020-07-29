@@ -372,7 +372,6 @@ public class ContentLoader {
 
                         page_n++;
                         taskController.setStatusMsg("Loading page-" + page_n + "...");
-                        final String url = nextPage.getNextPageUrl();
 
                         boolean done = false;
                         // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
@@ -381,7 +380,7 @@ public class ContentLoader {
                         Exception retryEx = null;
                         while (!done && retryCount > 0) {
                             try {
-                                nextPage = extractor.getPage(url);
+                                nextPage = extractor.getPage(nextPage.getNextPage());
                                 done = true;
                             } catch (Exception e) {
                                 taskController.setStatusMsg("Loading page-" + page_n + "..." +
@@ -523,7 +522,6 @@ public class ContentLoader {
 
                         page_n++;
                         taskController.setStatusMsg("Loading page-" + page_n + "...");
-                        final String url = nextPage.getNextPageUrl();
 
                         boolean done = false;
                         // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
@@ -531,7 +529,7 @@ public class ContentLoader {
                         int retryCount = LOAD_PAGE_RETRY_COUNT;
                         while (!done && retryCount > 0) {
                             try {
-                                nextPage = extractor.getPage(url);
+                                nextPage = extractor.getPage(nextPage.getNextPage());
                                 done = true;
                             } catch (IOException | ExtractionException e) {
                                 retryCount--;
@@ -639,7 +637,6 @@ public class ContentLoader {
         // или не встретим ролик, который уже был добавлен в базу
         while (!foundOld && nextPage.hasNextPage()) {
             pageItems.clear();
-            final String url = nextPage.getNextPageUrl();
 
             boolean done = false;
             // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
@@ -647,7 +644,7 @@ public class ContentLoader {
             int retryCount = LOAD_PAGE_RETRY_COUNT;
             while (!done && retryCount > 0) {
                 try {
-                    nextPage = extractor.getPage(url);
+                    nextPage = extractor.getPage(nextPage.getNextPage());
                     done = true;
                 } catch (IOException | ExtractionException e) {
                     retryCount--;

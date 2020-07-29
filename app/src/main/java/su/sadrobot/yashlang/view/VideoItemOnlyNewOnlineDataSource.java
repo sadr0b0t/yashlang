@@ -119,8 +119,6 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
     @Override
     public void loadAfter(@NonNull LoadParams<String> params, @NonNull LoadCallback<VideoItem> callback) {
         if(!foundOld && loadedPage.hasNextPage() ) {
-            final String url = loadedPage.getNextPageUrl();
-
             boolean done = false;
             // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
             // ошибку вместо страницы
@@ -128,7 +126,7 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
             Exception retryEx = null;
             while (!done && retryCount > 0) {
                 try {
-                    loadedPage = extractor.getPage(url);
+                    loadedPage = extractor.getPage(loadedPage.getNextPage());
                     done = true;
                 } catch (Exception e) {
                     retryEx = e;

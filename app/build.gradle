@@ -7,8 +7,8 @@ android {
         applicationId "su.sadrobot.yashlang"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 5
-        versionName "0.1.0-beta4"
+        versionCode 7
+        versionName "0.1.0-beta5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -69,7 +69,7 @@ dependencies {
 
     // NewPipe: youtube parser
     // https://github.com/TeamNewPipe/NewPipeExtractor
-    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.19.5"
+    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.19.8"
     implementation 'androidx.paging:paging-runtime:2.1.0'
 
     // google Exoplayer
