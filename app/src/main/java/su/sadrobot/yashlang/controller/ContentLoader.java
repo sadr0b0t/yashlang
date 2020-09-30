@@ -36,6 +36,7 @@ import org.schabi.newpipe.extractor.search.SearchExtractor;
 import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor;
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
+import org.schabi.newpipe.extractor.stream.VideoStream;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -693,9 +694,11 @@ public class ContentLoader {
         final YoutubeStreamExtractor extractor = (YoutubeStreamExtractor) YouTube
                 .getStreamExtractor(PlaylistUrlUtil.getVideoUrl(ytId));
         extractor.fetchPage();
-        final String streamUrl = extractor.getVideoStreams().size() > 0 ? extractor.getVideoStreams().get(0).getUrl() : null;
+        // выбирать стрим с наилучшим качеством (в конце списка)
+        final String streamUrl = extractor.getVideoStreams().size() > 0 ?
+                extractor.getVideoStreams().get(extractor.getVideoStreams().size() - 1).getUrl() : null;
 //        for (final VideoStream stream : extractor.getVideoStreams()) {
-//            stream.getUrl();
+//            System.out.println(stream.getResolution() + " " + stream.getFormat().getName() + " " + stream.getFormat().getMimeType() + " " + stream.getFormat().getSuffix());
 //        }
         return streamUrl;
     }
