@@ -75,6 +75,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.model.PlaylistInfo;
@@ -153,6 +156,9 @@ public class WatchVideoActivity extends AppCompatActivity {
     private VideoDatabase videodb;
 
     private final Handler handler = new Handler();
+
+    // будем загружать видео в фоне, но строго последовательно
+    private ExecutorService videoLoadingExector = Executors.newFixedThreadPool(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -988,8 +994,11 @@ public class WatchVideoActivity extends AppCompatActivity {
         }
     }
 
-    // начать проигрывание нового ролика - показать информацию о видео, решить вопросы
-    // с сохранением позиций предыдущего видео, стеком истории проигрывания и т.п.
+    /**
+     * Начать проигрывание нового ролика - показать информацию о видео, решить вопросы
+     * с сохранением позиций предыдущего видео, стеком истории проигрывания и т.п.
+     */
+
     private void playVideoItem(final VideoItem videoItem, final boolean resetCurrPos) {
         // сбросим или сохраним текущую позицию предыдущего видео
         if (resetCurrPos) {
@@ -1045,7 +1054,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
 
             // теперь то, что в фоне
-            new Thread(new Runnable() {
+            videoLoadingExector.execute(new Runnable() {
                 @Override
                 public void run() {
                     // посчитать просмотр (для ролика, загруженного из базы)
@@ -1055,7 +1064,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
                     loadVideoItem(videoItem);
                 }
-            }).start();
+            });
         }
     }
 
@@ -1198,7 +1207,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
             // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
             // видео заново - обе операции в фоновом потоке
-            new Thread(new Runnable() {
+            videoLoadingExector.execute(new Runnable() {
                 @Override
                 public void run() {
                     // если за время запуска потока видео успели переключить, всё отменяем
@@ -1214,7 +1223,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                         loadVideoItem(currentVideo);
                     }
                 }
-            }).start();
+            });
         }
     }
 
