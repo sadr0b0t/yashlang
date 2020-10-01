@@ -38,8 +38,8 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:orientation="vertical"
                     android:gravity="center"
+                    android:orientation="vertical"
                     android:visibility="gone">
 
                     <TextView
@@ -62,6 +62,23 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="30dp"
                         android:text="@string/reload" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/video_player_loading_view"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <ProgressBar
+                        android:id="@+id/check_progress"
+                        style="?android:attr/progressBarStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="30dp" />
                 </LinearLayout>
 
                 <com.google.android.exoplayer2.ui.PlayerView

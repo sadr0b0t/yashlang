@@ -122,6 +122,11 @@ public class WatchVideoActivity extends AppCompatActivity {
     public static final String PARAM_RECOMMENDATIONS_OFF = "PARAM_RECOMMENDATIONS_OFF";
 
 
+    private enum PlayerState {
+        EMPTY, LOADED, LOADING, ERROR
+    }
+
+
     private PlayerView videoPlayerView;
     private PlayerControlView videoPlayerControlView;
     private ImageButton prevVideoBtn;
@@ -131,6 +136,8 @@ public class WatchVideoActivity extends AppCompatActivity {
     private TextView videoLoadErrorTxt;
     private Button reloadOnErrorBtn;
 
+    private View videoPlayerLoadingView;
+
     private RecyclerView videoList;
 
     private Toolbar toolbar;
@@ -139,7 +146,6 @@ public class WatchVideoActivity extends AppCompatActivity {
     private com.google.android.exoplayer2.upstream.DataSource.Factory videoDataSourceFactory;
 
     private VideoItem currentVideo;
-    private boolean currentVideoStreamLoaded = false;
     // для функции перехода на следующее видео
     private int currentVideoPosition = -1;
     private Map<Long, Integer> posMap = new HashMap<Long, Integer>();
@@ -148,7 +154,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
     private boolean stateFullscreen = false;
 
-    private boolean stateVideoLoadError = false;
+    private PlayerState playerState = PlayerState.EMPTY;
     private String videoLoadErrorMsg = "";
 
     // рекомендации
@@ -174,6 +180,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoPlayerErrorView = findViewById(R.id.video_player_error_view);
         videoLoadErrorTxt = findViewById(R.id.video_load_error_txt);
         reloadOnErrorBtn = findViewById(R.id.reload_btn);
+
+        videoPlayerLoadingView = findViewById(R.id.video_player_loading_view);
 
         videoList = findViewById(R.id.video_recommend_list);
 
@@ -401,6 +409,15 @@ public class WatchVideoActivity extends AppCompatActivity {
         });
 
 
+        // Панель - прогресс загрузки видео
+        videoPlayerLoadingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideNavigationBar();
+                toggleFullscreen();
+            }
+        });
+
         // подключимся к базе один раз при создании активити,
         // закрывать подключение в onDestroy
         videodb = VideoDatabase.getDb(WatchVideoActivity.this);
@@ -503,6 +520,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoPlayerErrorView = findViewById(R.id.video_player_error_view);
         videoLoadErrorTxt = findViewById(R.id.video_load_error_txt);
         reloadOnErrorBtn = findViewById(R.id.reload_btn);
+
+        videoPlayerLoadingView = findViewById(R.id.video_player_loading_view);
 
         videoList = findViewById(R.id.video_recommend_list);
 
@@ -639,6 +658,15 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         });
 
+        // Панель - прогресс загрузки видео
+        videoPlayerLoadingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideNavigationBar();
+                toggleFullscreen();
+            }
+        });
+
         // Рекомендации
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
@@ -655,8 +683,8 @@ public class WatchVideoActivity extends AppCompatActivity {
             getSupportActionBar().setSubtitle(currentVideo.getUploader());
         }
 
-        // видео загружено или ошибка
-        setLoadError(stateVideoLoadError, videoLoadErrorMsg);
+        // видео загружено, загружается или ошибка
+        setPlayerState(playerState, videoLoadErrorMsg);
     }
 
     @Override
@@ -924,40 +952,62 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             getSupportActionBar().show();
 
-            //videoPlayerView.showController();
-            videoPlayerControlView.show();
+            if(playerState == PlayerState.LOADED) {
+                videoPlayerControlView.show();
+            }
         }
     }
 
-    private void setLoadError(final boolean loadError, final String errorMsg) {
-        stateVideoLoadError = loadError;
-        videoLoadErrorMsg = loadError ? errorMsg : "";
+    private void setPlayerState(final PlayerState playerState, final String errorMsg) {
+        this.playerState = playerState;
+        videoLoadErrorMsg = playerState == PlayerState.ERROR ? errorMsg : "";
 
-        if (stateVideoLoadError) {
-            setFullscreen(false);
+        switch (playerState) {
+            case EMPTY:
+                break;
 
-            videoPlayerView.setVisibility(View.GONE);
-            videoPlayerControlView.setVisibility(View.GONE);
+            case ERROR:
+                setFullscreen(false);
 
-            videoPlayerErrorView.setVisibility(View.VISIBLE);
+                videoPlayerView.setVisibility(View.GONE);
+                videoPlayerControlView.setVisibility(View.GONE);
 
-            videoLoadErrorTxt.setText(videoLoadErrorMsg);
-        } else {
-            videoPlayerView.setVisibility(View.VISIBLE);
-            if (!stateFullscreen) {
-                videoPlayerControlView.setVisibility(View.VISIBLE);
-            }
-            videoPlayerErrorView.setVisibility(View.GONE);
+                videoPlayerLoadingView.setVisibility(View.GONE);
 
-            videoLoadErrorTxt.setText("");
+                videoPlayerErrorView.setVisibility(View.VISIBLE);
+
+                break;
+
+            case LOADING:
+                videoPlayerLoadingView.setVisibility(View.VISIBLE);
+
+                videoPlayerView.setVisibility(View.GONE);
+                videoPlayerErrorView.setVisibility(View.GONE);
+
+                videoPlayerControlView.setVisibility(View.INVISIBLE);
+
+                break;
+
+            case LOADED:
+                videoPlayerView.setVisibility(View.VISIBLE);
+                if (!stateFullscreen) {
+                    videoPlayerControlView.setVisibility(View.VISIBLE);
+                }
+
+                videoPlayerLoadingView.setVisibility(View.GONE);
+                videoPlayerErrorView.setVisibility(View.GONE);
+
+                break;
         }
+
+        videoLoadErrorTxt.setText(videoLoadErrorMsg);
     }
 
     /**
      * Сохраним текущую позицию видео в базу
      */
     private void saveVideoCurrPos() {
-        if (currentVideo != null && currentVideoStreamLoaded && !stateVideoLoadError) {
+        if (currentVideo != null && playerState == PlayerState.LOADED) {
             // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
             // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
             final VideoItem _currentVideo = currentVideo;
@@ -1006,9 +1056,12 @@ public class WatchVideoActivity extends AppCompatActivity {
         } else {
             saveVideoCurrPos();
         }
+        // остановим старое видео, если оно играло
+        playVideoStream(null, 0, false);
 
         // загружаем новое видео
-        currentVideoStreamLoaded = false;
+        setPlayerState(PlayerState.LOADING, null);
+
         currentVideo = videoItem;
         currentVideoPosition = posMap.containsKey(videoItem.getId()) ? posMap.get(videoItem.getId()) : -1;
         if (currentVideoPosition != -1) {
@@ -1075,7 +1128,24 @@ public class WatchVideoActivity extends AppCompatActivity {
      * @param videoItem
      */
     private void loadVideoItem(final VideoItem videoItem) {
-        currentVideoStreamLoaded = false;
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                // для начала остановим проигрывание текущего видео,
+                // чтобы оно не играло в фоне во время загрузки
+                // (если его не остановили перед этим)
+                playVideoStream(null, 0, false);
+
+                // теперь покажем экран загрузки
+                setPlayerState(PlayerState.LOADING, null);
+            }
+        });
+
+        // Вообще, наверное, хорошо делать эту операцию после того, как плеер перейдет в состояние
+        // "загружаем", т.е. создать новый фоновый поток внутри handler.post выше. Но, если handler.post
+        // отправляет задачи в синхронную очередь для выполнения одна за одной, то задача в handler.post
+        // ниже будет выполнена в любом случае после задачи handler.post выше, поэтому проблемы
+        //
         try {
             // загрузить поток видео
             final String vidStreamUrl = ContentLoader.getInstance().extractYtStreamUrl(videoItem.getYtId());
@@ -1083,8 +1153,6 @@ public class WatchVideoActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        setLoadError(false, null);
-
                         // т.к. загрузка видео осуществляется в фононовом потоке, мы можем сюда попасть
                         // в такой ситуации, когда пользователь кликнул на загрузку видео, а потом
                         // сразу свернул приложение - в этом случае ролик начнет проигрывание в фоне,
@@ -1099,6 +1167,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                             playVideoStream(vidStreamUrl, videoItem.getPausedAt(),
                                     !WatchVideoActivity.this.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED));
                         } catch (Exception ex) {
+                            // в принципе, мы сюда не должны попасть никогда. Возможно, был повод
+                            // поймать RuntimeException в плеере и не упасть.
                             ex.printStackTrace();
                         }
                     }
@@ -1111,7 +1181,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        setLoadError(true, getString(R.string.err_video_stream_url_null));
+                        setPlayerState(PlayerState.ERROR, getString(R.string.err_video_stream_url_null));
 
                         playVideoStream(null, 0, false);
                     }
@@ -1121,7 +1191,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    setLoadError(true, e.getMessage());
+                    setPlayerState(PlayerState.ERROR, e.getMessage());
 
                     playVideoStream(null, 0, false);
                 }
@@ -1142,6 +1212,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         if (streamUrl == null) {
             // остановить проигрывание текущего ролика, если был загружен
             videoPlayerView.getPlayer().stop(true);
+
+            setPlayerState(PlayerState.EMPTY, null);
         } else {
             // https://exoplayer.dev/
             // https://github.com/google/ExoPlayer
@@ -1184,7 +1256,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                 videoPlayerView.getPlayer().seekTo(seekTo - 5000 > 0 ? seekTo - 5000 : 0);
             }
             videoPlayerView.getPlayer().setPlayWhenReady(!paused);
-            currentVideoStreamLoaded = true;
+
+            setPlayerState(PlayerState.LOADED, null);
         }
     }
 
@@ -1202,7 +1275,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             final VideoItem _currentVideo = currentVideo;
             final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
             // для текущего кэша, да
-            if (currentVideo != null && !stateVideoLoadError) {
+            if (currentVideo != null && playerState == PlayerState.LOADED) {
                 currentVideo.setPausedAt(_currentPos);
             }
             // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
@@ -1212,7 +1285,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 public void run() {
                     // если за время запуска потока видео успели переключить, всё отменяем
                     if (_currentVideo != null && _currentVideo == currentVideo) {
-                        if (!stateVideoLoadError) {
+                        if (playerState == PlayerState.LOADED) {
                             // сохраним текущую позицию только в том случае, если ролик был загружен
                             // (может быть ситуация, когда мы переключились на видео с ранее
                             // сохраненной позицией, а оно не загрузилось, тогда бы у нас
