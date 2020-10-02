@@ -75,9 +75,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.model.PlaylistInfo;
@@ -164,7 +167,34 @@ public class WatchVideoActivity extends AppCompatActivity {
     private final Handler handler = new Handler();
 
     // будем загружать видео в фоне, но строго последовательно
-    private ExecutorService videoLoadingExector = Executors.newFixedThreadPool(1);
+    //private ExecutorService videoLoadingExecutor = Executors.newFixedThreadPool(1);
+    //private ExecutorService videoLoadingExecutor = Executors.newSingleThreadExecutor();
+    // Вообще, если мы начала загружать новое видео, а потом поставили еще одно видео в очередь на загрузку,
+    // а потом после него еще одно, то загружать второе видео вообще не обязательно - загружать
+    // нужно только самое последнее видео после того, как завершится загрузка первого видео,
+    // раз уж она началась (по-хорошему, ее тоже можно прервать, но это отдельная история).
+    // По этой причине у нас ThreadPool будет содержать в очереди на выполнение всегда только один элемент:
+    // один поток выполняется (должен быть уже извлечен из очереди), еще одно задание ожидает,
+    // если добавляется новое задание, то оно заменяет ожидающее.
+    // Как ни странно, в стандартных реализациях BlockingQueue такого варианта поведения не нашлось,
+    // поэтому придется переопределить добавление элементов в очередь самостоятельно.
+    // по мотивам:
+    // https://www.javamex.com/tutorials/threads/thread_pools_queues.shtml
+    // https://askdev.ru/q/ogranichennaya-po-razmeru-ochered-soderzhaschaya-poslednie-n-elementov-v-java-10569/
+    // (похоже на автоматический перевод с английского, но там нет ссылки на источник)
+    // здесь:
+    //   - конструктор ThreadPoolExecutor с LinkedBlockingQueue взял из Executors.newSingleThreadExecutor
+    //   - ThreadPoolExecutor.execute вызывает queue.offer, а не queue.add, поэтому переопределяем его
+    private ExecutorService videoLoadingExecutor =
+            new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<Runnable>() {
+                        @Override
+                        public boolean offer(Runnable o) {
+                            super.clear();
+                            return super.offer(o);
+                        }
+                    });
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -952,7 +982,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             getSupportActionBar().show();
 
-            if(playerState == PlayerState.LOADED) {
+            if (playerState == PlayerState.LOADED) {
                 videoPlayerControlView.show();
             }
         }
@@ -964,6 +994,14 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         switch (playerState) {
             case EMPTY:
+                setFullscreen(false);
+
+                // обычно этот экран не видно никогда
+                videoPlayerView.setVisibility(View.INVISIBLE);
+                videoPlayerControlView.setVisibility(View.GONE);
+                videoPlayerLoadingView.setVisibility(View.GONE);
+                videoPlayerErrorView.setVisibility(View.GONE);
+
                 break;
 
             case ERROR:
@@ -971,20 +1009,16 @@ public class WatchVideoActivity extends AppCompatActivity {
 
                 videoPlayerView.setVisibility(View.GONE);
                 videoPlayerControlView.setVisibility(View.GONE);
-
                 videoPlayerLoadingView.setVisibility(View.GONE);
-
                 videoPlayerErrorView.setVisibility(View.VISIBLE);
 
                 break;
 
             case LOADING:
-                videoPlayerLoadingView.setVisibility(View.VISIBLE);
-
                 videoPlayerView.setVisibility(View.GONE);
-                videoPlayerErrorView.setVisibility(View.GONE);
-
                 videoPlayerControlView.setVisibility(View.INVISIBLE);
+                videoPlayerLoadingView.setVisibility(View.VISIBLE);
+                videoPlayerErrorView.setVisibility(View.GONE);
 
                 break;
 
@@ -1107,7 +1141,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
 
             // теперь то, что в фоне
-            videoLoadingExector.execute(new Runnable() {
+            videoLoadingExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     // посчитать просмотр (для ролика, загруженного из базы)
@@ -1149,53 +1183,59 @@ public class WatchVideoActivity extends AppCompatActivity {
         try {
             // загрузить поток видео
             final String vidStreamUrl = ContentLoader.getInstance().extractYtStreamUrl(videoItem.getYtId());
-            if (vidStreamUrl != null) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        // т.к. загрузка видео осуществляется в фононовом потоке, мы можем сюда попасть
-                        // в такой ситуации, когда пользователь кликнул на загрузку видео, а потом
-                        // сразу свернул приложение - в этом случае ролик начнет проигрывание в фоне,
-                        // а пользователь услышит его звук и ему придется вернуться в приложение, чтобы
-                        // поставить плеер на паузу.
-                        // по этой причине мы здесь проверяем, является ли экран с плеером активным
-                        // (см: https://stackoverflow.com/questions/5446565/android-how-do-i-check-if-activity-is-running/25722319 )
-                        // и если не является, то загружать видео, но не начинать его проигрывание
-                        // сразу после загрузки.
-                        // https://github.com/sadr0b0t/yashlang/issues/4
-                        try {
-                            playVideoStream(vidStreamUrl, videoItem.getPausedAt(),
-                                    !WatchVideoActivity.this.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED));
-                        } catch (Exception ex) {
-                            // в принципе, мы сюда не должны попасть никогда. Возможно, был повод
-                            // поймать RuntimeException в плеере и не упасть.
-                            ex.printStackTrace();
+            // пока загружали информацию о видео, пользователь мог кликнуть на загрузку нового ролика,
+            // в этом случае уже нет смысла загружать в плеер этот ролик на долю секунды
+            // или на то время, пока загружается новый ролик, поэтому здесь просто ничего не делаем,
+            // а плеер останется в статусе "LOADING" до тех пор, пока не будет загружен новый ролик
+            if(videoItem == currentVideo) {
+                if (vidStreamUrl != null) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            // т.к. загрузка видео осуществляется в фононовом потоке, мы можем сюда попасть
+                            // в такой ситуации, когда пользователь кликнул на загрузку видео, а потом
+                            // сразу свернул приложение - в этом случае ролик начнет проигрывание в фоне,
+                            // а пользователь услышит его звук и ему придется вернуться в приложение, чтобы
+                            // поставить плеер на паузу.
+                            // по этой причине мы здесь проверяем, является ли экран с плеером активным
+                            // (см: https://stackoverflow.com/questions/5446565/android-how-do-i-check-if-activity-is-running/25722319 )
+                            // и если не является, то загружать видео, но не начинать его проигрывание
+                            // сразу после загрузки.
+                            // https://github.com/sadr0b0t/yashlang/issues/4
+                            try {
+                                playVideoStream(vidStreamUrl, videoItem.getPausedAt(),
+                                        !WatchVideoActivity.this.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED));
+                            } catch (Exception ex) {
+                                // в принципе, мы сюда не должны попасть никогда. Возможно, был повод
+                                // поймать RuntimeException в плеере и не упасть.
+                                ex.printStackTrace();
+                            }
                         }
-                    }
-                });
-            } else {
-                // здесь может быть NULL для некоторых роликов:
-                // - из-за глюков экстрактора
-                // - у некоторых специальных роликов изначально не определена продолжительность и
-                // нет ссылки на поток видео (например, см ролик "Топ мультиков Союзмультфильм")
+                    });
+                } else {
+                    // здесь может быть NULL для некоторых роликов:
+                    // - из-за глюков экстрактора
+                    // - у некоторых специальных роликов изначально не определена продолжительность и
+                    // нет ссылки на поток видео (например, см ролик "Топ мультиков Союзмультфильм")
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            playVideoStream(null, 0, false);
+                            setPlayerState(PlayerState.ERROR, getString(R.string.err_video_stream_url_null));
+                        }
+                    });
+                }
+            }
+        } catch (final ExtractionException | IOException e) {
+            if (videoItem == currentVideo) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        setPlayerState(PlayerState.ERROR, getString(R.string.err_video_stream_url_null));
-
                         playVideoStream(null, 0, false);
+                        setPlayerState(PlayerState.ERROR, e.getMessage());
                     }
                 });
             }
-        } catch (final ExtractionException | IOException e) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    setPlayerState(PlayerState.ERROR, e.getMessage());
-
-                    playVideoStream(null, 0, false);
-                }
-            });
         }
     }
 
@@ -1212,8 +1252,6 @@ public class WatchVideoActivity extends AppCompatActivity {
         if (streamUrl == null) {
             // остановить проигрывание текущего ролика, если был загружен
             videoPlayerView.getPlayer().stop(true);
-
-            setPlayerState(PlayerState.EMPTY, null);
         } else {
             // https://exoplayer.dev/
             // https://github.com/google/ExoPlayer
@@ -1280,7 +1318,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
             // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
             // видео заново - обе операции в фоновом потоке
-            videoLoadingExector.execute(new Runnable() {
+            videoLoadingExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     // если за время запуска потока видео успели переключить, всё отменяем
