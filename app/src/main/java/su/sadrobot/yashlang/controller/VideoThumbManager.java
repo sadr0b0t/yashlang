@@ -61,12 +61,26 @@ public class VideoThumbManager {
     private Bitmap defaultThumb = null;//BitmapFactory.decodeResource(R.drawable.bug1);
 
     public Bitmap loadBitmap(final String url) throws IOException {
+        // 2020-10-03 22:14:23.911 27270-27314/su.sadrobot.yashlang W/OkHttpClient: A connection to https://i.ytimg.com/ was leaked. Did you forget to close a response body?
 
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        // если здесь будет IOException в openConnection или в connect, то вылетит весь метод
+        final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.connect();
-        InputStream input = connection.getInputStream();
 
-        return BitmapFactory.decodeStream(input);
+        InputStream input = null;
+        Bitmap bm;
+
+        try {
+            input = connection.getInputStream();
+            bm = BitmapFactory.decodeStream(input);
+        } finally {
+            if(input != null) {
+                input.close();
+            }
+            connection.disconnect();
+        }
+
+        return bm;
     }
 
     /**
@@ -107,39 +121,29 @@ public class VideoThumbManager {
      * @return
      */
     public Bitmap loadVideoThumb(final Context context, final VideoItem vid) {
-        Bitmap thumb;
+        Bitmap thumb = null;
         try {
             //thumb = loadVideoThumb(vid.getYtId());
             thumb = loadBitmap(vid.getThumbUrl());
         } catch (IOException e) {
             //thumb = defaultThumb; // default thumb
+            //e.printStackTrace();
+        }
+        if(thumb == null) {
             thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
         }
         return thumb;
     }
 
-    /**
-     * Загрузить картинку с превью видео или вернуть картинку по умолчанию.
-     * @param thumbUrl
-     * @return
-     */
-    public Bitmap loadVideoThumb(final Context context, final String thumbUrl) {
-        Bitmap thumb;
-        try {
-            thumb = loadBitmap(thumbUrl);
-        } catch (IOException e) {
-            //thumb = defaultThumb; // default thumb
-            thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
-        }
-        return thumb;
-    }
 
     public Bitmap loadPlaylistThumb(final Context context, final String thumbUrl) {
-        Bitmap thumb;
+        Bitmap thumb = null;
         try {
             thumb = loadBitmap(thumbUrl);
         } catch (IOException e) {
             //thumb = defaultThumb; // default thumb
+        }
+        if(thumb == null) {
             thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
         }
         return thumb;
