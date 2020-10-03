@@ -403,8 +403,63 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPlayerError(ExoPlaybackException error) {
+            public void onPlayerError(final ExoPlaybackException error) {
+                //  здесь для предотвращения деградации после вот этого коммита
+                //  https://github.com/sadr0b0t/yashlang/commit/b89c415ba3d71a0ac81c40f5d54b7fad249eac27
+                //  применим логику:
+                // - если произошла ошибка при загрузке плеером потока и при этом этот поток -
+                //   поток высокого качества, то попробовать загрузить другой поток низкого качества
+                //   (который предлагает YouTube первым в списке по умолчанию)
+                // - если же это уже и так был поток низкого качества, то показать ошибку
+                // TODO: всю эту логику можно отработать в текущем потоке (thread) без обращения в интернет,
+                // если кэшировать в VideoItem адрес не одного потока (stream), но и всех доступных потоков (stream)
+                final VideoItem _currentVideo = currentVideo;
+                videoLoadingExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (_currentVideo == currentVideo) {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (_currentVideo == currentVideo) {
+                                        setPlayerState(PlayerState.LOADING, null);
+                                    }
+                                }
+                            });
+                            boolean tryAnotherStream = false;
+                            try {
+                                final String defaultStreamUrl = ContentLoader.getInstance().extractDefaultYtStreamUrl(_currentVideo.getYtId());
+                                if (_currentVideo.getVideoStreamUrl() != null &&
+                                        !_currentVideo.getVideoStreamUrl().equals(defaultStreamUrl)) {
+                                    _currentVideo.setVideoStreamUrl(defaultStreamUrl);
+                                    tryAnotherStream = true;
+                                    handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (_currentVideo == currentVideo) {
+                                                setPlayerState(PlayerState.LOADING, null);
+                                                playVideoStream(defaultStreamUrl, _currentVideo.getPausedAt(),
+                                                        !WatchVideoActivity.this.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED));
+                                            }
+                                        }
+                                    });
+                                }
+                            } catch (Exception e) {
+                            }
 
+                            if (!tryAnotherStream) {
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (_currentVideo == currentVideo) {
+                                            setPlayerState(PlayerState.ERROR, error.getMessage());
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
             }
 
             @Override
@@ -1183,11 +1238,12 @@ public class WatchVideoActivity extends AppCompatActivity {
         try {
             // загрузить поток видео
             final String vidStreamUrl = ContentLoader.getInstance().extractYtStreamUrl(videoItem.getYtId());
+            videoItem.setVideoStreamUrl(vidStreamUrl);
             // пока загружали информацию о видео, пользователь мог кликнуть на загрузку нового ролика,
             // в этом случае уже нет смысла загружать в плеер этот ролик на долю секунды
             // или на то время, пока загружается новый ролик, поэтому здесь просто ничего не делаем,
             // а плеер останется в статусе "LOADING" до тех пор, пока не будет загружен новый ролик
-            if(videoItem == currentVideo) {
+            if (videoItem == currentVideo) {
                 if (vidStreamUrl != null) {
                     handler.post(new Runnable() {
                         @Override
@@ -1220,7 +1276,6 @@ public class WatchVideoActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            playVideoStream(null, 0, false);
                             setPlayerState(PlayerState.ERROR, getString(R.string.err_video_stream_url_null));
                         }
                     });
@@ -1231,7 +1286,6 @@ public class WatchVideoActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        playVideoStream(null, 0, false);
                         setPlayerState(PlayerState.ERROR, e.getMessage());
                     }
                 });

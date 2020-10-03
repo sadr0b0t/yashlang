@@ -202,6 +202,10 @@ public class VideoItem {
     @Ignore
     private PlaylistInfo playlistInfo;
 
+    // кэш - адрес потока видео, загруженный для этого ролика в последний раз
+    @Ignore
+    private String videoStreamUrl;
+
     public VideoItem(long playlistId, String ytId, String name, String uploader,
                      long viewCount, long viewCountExt, long duration, String thumbUrl,
                      boolean enabled, boolean blacklisted) {
@@ -393,5 +397,13 @@ public class VideoItem {
 
     public void setPlaylistInfo(PlaylistInfo playlistInfo) {
         this.playlistInfo = playlistInfo;
+    }
+
+    public String getVideoStreamUrl() {
+        return videoStreamUrl;
+    }
+
+    public void setVideoStreamUrl(String videoStreamUrl) {
+        this.videoStreamUrl = videoStreamUrl;
     }
 }
