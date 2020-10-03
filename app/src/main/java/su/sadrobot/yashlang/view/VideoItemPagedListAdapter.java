@@ -38,6 +38,9 @@ import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import su.sadrobot.yashlang.R;
 import su.sadrobot.yashlang.WatchVideoActivity;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
@@ -58,6 +61,8 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
     private OnListItemClickListener<VideoItem> onItemClickListener;
     private OnListItemSwitchListener<VideoItem> onItemSwitchListener;
     private int orientation = ORIENTATION_VERTICAL;
+
+    private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
 
 
     public static class VideoItemViewHolder extends RecyclerView.ViewHolder {
@@ -188,7 +193,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             if (item.getThumbBitmap() != null) {
                 holder.thumbImg.setImageBitmap(item.getThumbBitmap());
             } else {
-                new Thread(new Runnable() {
+                thumbLoaderExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         final Bitmap thumb =
@@ -201,7 +206,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
                             }
                         });
                     }
-                }).start();
+                });
             }
         }
 

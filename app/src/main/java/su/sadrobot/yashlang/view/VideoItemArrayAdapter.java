@@ -35,6 +35,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import su.sadrobot.yashlang.R;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
@@ -51,6 +53,9 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
     private OnListItemClickListener<VideoItem> onItemClickListener;
     private OnListItemSwitchListener<VideoItem> onItemSwitchListener;
     private int orientation = ORIENTATION_VERTICAL;
+
+
+    private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
 
     public static class VideoItemViewHolder extends RecyclerView.ViewHolder {
         TextView nameTxt;
@@ -142,7 +147,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
             if (item.getThumbBitmap() != null) {
                 holder.thumbImg.setImageBitmap(item.getThumbBitmap());
             } else {
-                new Thread(new Runnable() {
+                thumbLoaderExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         final Bitmap thumb =
@@ -155,7 +160,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
                             }
                         });
                     }
-                }).start();
+                });
             }
         }
 
