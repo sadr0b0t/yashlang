@@ -62,6 +62,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
     private OnListItemSwitchListener<VideoItem> onItemSwitchListener;
     private int orientation = ORIENTATION_VERTICAL;
 
+    private ExecutorService dbQueryExecutor = Executors.newFixedThreadPool(10);
     private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
 
 
@@ -159,7 +160,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             if(item.getPlaylistInfo() != null) {
                 holder.playlistTxt.setText(item.getPlaylistInfo().getName());
             } else {
-                new Thread(new Runnable() {
+                dbQueryExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         final VideoDatabase videodb = VideoDatabase.getDb(context);
@@ -175,7 +176,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
                             });
                         }
                     }
-                }).start();
+                });
             }
         }
 
