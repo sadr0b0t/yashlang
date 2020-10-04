@@ -61,9 +61,7 @@ public class VideoThumbManager {
     private Bitmap defaultThumb = null;//BitmapFactory.decodeResource(R.drawable.bug1);
 
     public Bitmap loadBitmap(final String url) throws IOException {
-        // 2020-10-03 22:14:23.911 27270-27314/su.sadrobot.yashlang W/OkHttpClient: A connection to https://i.ytimg.com/ was leaked. Did you forget to close a response body?
 
-        // если здесь будет IOException в openConnection или в connect, то вылетит весь метод
         final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.connect();
 
@@ -76,6 +74,18 @@ public class VideoThumbManager {
         } finally {
             if(input != null) {
                 input.close();
+            }
+            if(connection.getErrorStream() != null) {
+                // Сюда попадаем, если connection.getInputStream() вылетает с эксепшеном
+                // (на сервере нет иконки, которую пытаемся скачать)
+                // Это очень важное место:
+                // 1. Без него будет регулярно сыпаться ворнинг при прокрутке роликов в разных списках:
+                // 2020-10-03 22:14:23.911 27270-27314/su.sadrobot.yashlang W/OkHttpClient: A connection to https://i.ytimg.com/ was leaked. Did you forget to close a response body?
+                // 2. Хуже того, приложение может вылететь при быстрой прокрутке списка с большим
+                // количеством роликов, для которых удалены аналоги на сервере (иконка недоступна на сервере),
+                // если в этом же списке происходит обращение к б/д - вылетает ошибка:
+                // SQLiteCantOpenDatabaseException: unable to open database file
+                connection.getErrorStream().close();
             }
             connection.disconnect();
         }
