@@ -182,6 +182,7 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
             public void run() {
                 final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsActivity.this);
                 final List<PlaylistInfo> items = videodb.playlistInfoDao().getAll();
+                videodb.close();
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
