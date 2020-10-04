@@ -205,7 +205,7 @@ public class ViewPlaylistFragment extends Fragment {
         }).start();
 
 
-        setupVideoListAdapter(plId, "");
+        setupVideoListAdapter(plId, filterPlaylistInput.getText().toString());
     }
 
     private void setupVideoListAdapter(final long plId, final String filterStr) {
