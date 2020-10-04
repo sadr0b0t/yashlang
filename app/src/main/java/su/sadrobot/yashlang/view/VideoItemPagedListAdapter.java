@@ -40,6 +40,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import su.sadrobot.yashlang.R;
 import su.sadrobot.yashlang.WatchVideoActivity;
@@ -62,9 +66,32 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
     private OnListItemSwitchListener<VideoItem> onItemSwitchListener;
     private int orientation = ORIENTATION_VERTICAL;
 
-    private ExecutorService dbQueryExecutor = Executors.newFixedThreadPool(10);
-    private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
+    //private ExecutorService dbQueryExecutor = Executors.newFixedThreadPool(10);
+    //private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
 
+    // Извлекать задания на выполнение не в режиме очереди, а в режиме стека: последнее добавленное
+    // задание отправляется на выполнение первым: этот режим лучше подходит при прокрутке списка, т.к.
+    // пользователь видит часть иконок, до которых он уже домотал, их нужно загрузить в первую очередь,
+    // а не ждать, пока загрузятся те иконки, которые уже пролистали раньше (это важнее для загрузки
+    // иконок через интернет, но для обращение к базе данных тоже так сделаем)
+
+    // код создания ThreadPool из Executors.newFixedThreadPool(10)
+    private ExecutorService dbQueryExecutor = new ThreadPoolExecutor(10, 10, 0L,TimeUnit.MILLISECONDS,
+            new LinkedBlockingDeque<Runnable>() {
+                @Override
+                public Runnable take() throws InterruptedException {
+                    return super.takeLast();
+                }
+            });
+
+    // код создания ThreadPool из Executors.newFixedThreadPool(10)
+    private ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L,TimeUnit.MILLISECONDS,
+                    new LinkedBlockingDeque<Runnable>() {
+        @Override
+        public Runnable take() throws InterruptedException {
+            return super.takeLast();
+        }
+    });
 
     public static class VideoItemViewHolder extends RecyclerView.ViewHolder {
         TextView nameTxt;
