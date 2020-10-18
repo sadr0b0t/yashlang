@@ -812,13 +812,23 @@ public class WatchVideoActivity extends AppCompatActivity {
                     // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
                     // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
                     final VideoItem _currentVideo = currentVideo;
+                    final Stack<VideoItem> _playbackHistory = playbackHistory;
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
                             if (_currentVideo != null) {
                                 videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
+
                                 // обновим кэш
                                 _currentVideo.setStarred(isChecked);
+
+                                // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
+                                // (там ролик будет тот же, а объект VideoItem - другой)
+                                for(final VideoItem item : _playbackHistory){
+                                    if(item.getId() == _currentVideo.getId()) {
+                                        item.setStarred(isChecked);
+                                    }
+                                }
                             }
                         }
                     }).start();
@@ -957,6 +967,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
                     // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
                     final VideoItem _currentVideo = currentVideo;
+                    final Stack<VideoItem> _playbackHistory = playbackHistory;
                     new AlertDialog.Builder(WatchVideoActivity.this)
                             .setTitle(getString(R.string.blacklist_video_title))
                             .setMessage(getString(R.string.blacklist_video_message))
@@ -968,8 +979,18 @@ public class WatchVideoActivity extends AppCompatActivity {
                                         @Override
                                         public void run() {
                                             videodb.videoItemDao().setBlacklisted(_currentVideo.getId(), true);
+
                                             // обновим кэш
                                             _currentVideo.setBlacklisted(true);
+
+                                            // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
+                                            // (там ролик будет тот же, а объект VideoItem - другой)
+                                            for(final VideoItem item : _playbackHistory){
+                                                if(item.getId() == _currentVideo.getId()) {
+                                                    item.setBlacklisted(true);
+                                                }
+                                            }
+
                                             handler.post(new Runnable() {
                                                 @Override
                                                 public void run() {
@@ -1200,13 +1221,23 @@ public class WatchVideoActivity extends AppCompatActivity {
                         // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
                         // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
                         final VideoItem _currentVideo = currentVideo;
+                        final Stack<VideoItem> _playbackHistory = playbackHistory;
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 if (_currentVideo != null) {
                                     videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
+
                                     // обновим кэш
                                     _currentVideo.setStarred(isChecked);
+
+                                    // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
+                                    // (там ролик будет тот же, а объект VideoItem - другой)
+                                    for(final VideoItem item : _playbackHistory){
+                                        if(item.getId() == _currentVideo.getId()) {
+                                            item.setStarred(isChecked);
+                                        }
+                                    }
                                 }
                             }
                         }).start();
@@ -1503,6 +1534,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                                 break;
                             case R.id.action_blacklist:
                                 if (videoItem != null && videoItem.getId() != -1) {
+                                    final Stack<VideoItem> _playbackHistory = playbackHistory;
                                     new AlertDialog.Builder(WatchVideoActivity.this)
                                             .setTitle(getString(R.string.blacklist_video_title))
                                             .setMessage(getString(R.string.blacklist_video_message))
@@ -1514,8 +1546,18 @@ public class WatchVideoActivity extends AppCompatActivity {
                                                         @Override
                                                         public void run() {
                                                             videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
+
                                                             // обновим кэш
                                                             videoItem.setBlacklisted(true);
+
+                                                            // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
+                                                            // (там ролик будет тот же, а объект VideoItem - другой)
+                                                            for(final VideoItem item : _playbackHistory){
+                                                                if(item.getId() == videoItem.getId()) {
+                                                                    item.setBlacklisted(true);
+                                                                }
+                                                            }
+
                                                             handler.post(new Runnable() {
                                                                 @Override
                                                                 public void run() {
