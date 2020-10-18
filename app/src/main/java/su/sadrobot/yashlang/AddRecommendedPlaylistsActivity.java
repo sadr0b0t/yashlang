@@ -76,16 +76,19 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
 
     private PlaylistInfo[] recommendedPlaylists = {
-            // классические мультики
-            new PlaylistInfo("Мультики студии Союзмультфильм",
-                    "https://www.youtube.com/user/ClassicCartoonsMedia",
-                    "https://yt3.ggpht.com/a/AGF-l79QQ2pizTFB3G61q3I4ryzr659sbHFt5TffzQ=s100-c-k-c0xffffffff-no-rj-mo",
-                    PlaylistInfo.PlaylistType.YT_USER),
-            // новые мультики
-            new PlaylistInfo("Союзмультфильм",
-                    "https://www.youtube.com/channel/UCHS2LM1n3f5cyL-ebgkqyLw",
-                    "https://yt3.ggpht.com/a/AGF-l7_HNF5e69DLSH-h-B67EAfm0GEtmiykww7FOg=s100-c-k-c0xffffffff-no-rj-mo",
+            // Классические и современные мультфильмы и детские фильмы
+            // Проект телеканала «Россия», ВГТРК Официальный сайт  https://russia.tv
+            new PlaylistInfo("СМОТРИМ. Русские мультфильмы",
+                    "https://youtube.com/channel/UCU06hfFzcBjQl9-Ih2SvpoQ",
+                    "https://yt3.ggpht.com/a/AGF-l7-gkH8i4mTtUaGQuzHz2JriteeLSioPlqzS2Q=s100-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_CHANNEL),
+
+            // много разных мультиков (в т.ч. с зачищенного союзмультифильма)
+            new PlaylistInfo("Дети",
+                    "https://www.youtube.com/channel/UCmLgLTTZgMA6NJPlJFeF92g",
+                    "https://yt3.ggpht.com/a/AATXAJzKiY6Zo17GSTg1biFDETEAGXw_sx_uX4C58O3_=s88-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+
             new PlaylistInfo("Киножурнал Ералаш",
                     "https://www.youtube.com/channel/UC0u6gAESA0XmSJQaAyDTTVg",
                     "https://yt3.ggpht.com/a/AGF-l7_hKI23Rm_DGUcoN7JFm2tKQl2maXaQdAJbqA=s100-c-k-c0xffffffff-no-rj-mo",
@@ -94,10 +97,8 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/channel/UCoVS2PU1QJpXrO9oTyke2cw",
                     "https://yt3.ggpht.com/a/AGF-l7_uiPDLitSDNNS9ehGNte53CdDDml2D7lK99g=s100-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_CHANNEL),
-            new PlaylistInfo("СМОТРИМ. Русские мультфильмы",
-                    "https://youtube.com/channel/UCU06hfFzcBjQl9-Ih2SvpoQ",
-                    "https://yt3.ggpht.com/a/AGF-l7-gkH8i4mTtUaGQuzHz2JriteeLSioPlqzS2Q=s100-c-k-c0xffffffff-no-rj-mo",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+
+            // новые мультики
             new PlaylistInfo("Гора самоцветов (Mountain of Gems)",
                     "https://www.youtube.com/channel/UCexc-emEni9lvU5jbTqLEkw",
                     "https://yt3.ggpht.com/a/AGF-l7_xkC44VNzYDmi61jX6bSLyXw4GE3DprxAPZA=s100-c-k-c0xffffffff-no-rj-mo",
@@ -122,6 +123,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/user/VezuhaTV",
                     "https://yt3.ggpht.com/a/AGF-l7_dooQIqq5Ap1knpH0keV-3x4iYwSHH9lX4Mg=s100-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_USER),
+            new PlaylistInfo("Барбоскины",
+                    "https://www.youtube.com/user/barboskinyonline",
+                    "https://yt3.ggpht.com/a/AATXAJwXuqcyOX1d5m0SK_3aGQDYvuCUNmJQTp1Cg8M93Q=s88-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
             new PlaylistInfo("Поросенок - сериал студии \"Пилот\"",
                     "https://www.youtube.com/user/pigletseries",
                     "https://yt3.ggpht.com/a/AGF-l7-ST5Lc17u7l2CMR3NL12FB5Qs4HBK-bipBEw=s100-c-k-c0xffffffff-no-rj-mo",
@@ -130,10 +135,48 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/channel/UCjUys-_zDFCFOub0KXTRfiQ",
                     "https://yt3.ggpht.com/a/AGF-l7-000FEVT1_uU9M1T9_3w2m0wPOgdF-yLOM8g=s100-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_CHANNEL),
+            new PlaylistInfo("Unknown Soviet cartoons 1939-1942",
+                    "https://www.youtube.com/playlist?list=PL7DB3215F59FB91BE",
+                    "https://i.ytimg.com/vi/2pXUlfN59GM/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCDlO70xqMO6cF8dPGI6aXBDmFEeA",
+                    PlaylistInfo.PlaylistType.YT_PLAYLIST),
+
             new PlaylistInfo("Студия Диафильм",
                     "https://www.youtube.com/channel/UCmFS6kwGK_ewWGLM6Kedjrw",
                     "https://yt3.ggpht.com/a/AGF-l7_1rGU24Nl1-PN3JAKtBqm6wK0Qa6tEy4QJSQ=s100-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_CHANNEL),
+
+
+            // Союзмультфильм удОлил со всех каналов все мультики почти
+            // Канал ClassicCartoonsMedia закрыл доступ к советским мультфильмам Союзмультфильм
+            // (более 1 тыс роликов ранее доступных на канале переведено в закрытый доступ)
+            // https://habr.com/ru/news/t/522318/
+            new PlaylistInfo("Союзмультфильм",
+                    "https://www.youtube.com/c/Soyuzmultfilm",
+                    "https://yt3.ggpht.com/a/AATXAJxZuJCvh4_p_zuVvZpit2zZ4TBK2FeBvjbHrdmF-g=s100-c-k-c0xffffffff-no-rj-mo",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+            new PlaylistInfo("Мультики студии Союзмультфильм",
+                    "https://www.youtube.com/user/ClassicCartoonsMedia",
+                    "https://yt3.ggpht.com/a/AGF-l79QQ2pizTFB3G61q3I4ryzr659sbHFt5TffzQ=s100-c-k-c0xffffffff-no-rj-mo",
+                    PlaylistInfo.PlaylistType.YT_USER),
+
+            // Немного иностранных
+            new PlaylistInfo("Губка Боб Квадратные Штаны | Все Серии | Nickelodeon Россия",
+                    "https://www.youtube.com/playlist?list=PLBTgeBUAoPL3MOem4yPmMN-z8e74dcaFT",
+                    "https://i.ytimg.com/vi/hF3SPkkNLHU/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCW_zPLUmRdOATy3SeeoXZxIWAJ9A",
+                    PlaylistInfo.PlaylistType.YT_PLAYLIST),
+
+            new PlaylistInfo("Анимационные сериалы",
+                    "https://www.youtube.com/user/KanalDisneyCartoons",
+                    "https://yt3.ggpht.com/a/AATXAJw8y6JXryHGNALfFyw9AWeKCASVmLFnDW5winSllA=s88-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
+
+
+            new PlaylistInfo("Мифы Древней Греции",
+                    "https://www.youtube.com/playlist?list=PLcUOA4FFMK6Os4O89ScOGO8jl13T-n1Bv",
+                    "https://i.ytimg.com/vi/Qg0ACKG8yq0/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAf6f_bYqjy1kQZ3lsH3XBqxnCruQ",
+                    PlaylistInfo.PlaylistType.YT_PLAYLIST),
+
+
             // Некоторые фильмы могут не попасть в выкачанный список, хотя доступны по прямой ссылке
             // (судя по всему, это позволяют настройки ютюба)
             // Например, Укращение огня, 1972:
@@ -141,6 +184,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
             new PlaylistInfo("Киноконцерн \"Мосфильм\"",
                     "https://www.youtube.com/user/mosfilm",
                     "https://yt3.ggpht.com/a/AGF-l7-FqSADElUC3tgnze1kWQXADQwaIRFsN9po=s100-c-k-c0xffffffff-no-rj-mo",
+                    PlaylistInfo.PlaylistType.YT_USER),
+            new PlaylistInfo("Мосфильм - для детей",
+                    "https://www.youtube.com/c/MosfilmForKids",
+                    "https://yt3.ggpht.com/a/AATXAJwPEIA26tSEzQaAcIO9IhvPb9-Rjfkmg_hvlsV7=s88-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
             new PlaylistInfo("LFV (Ленфильм)",
                     "https://www.youtube.com/user/LenfilmVideo",
@@ -162,6 +209,11 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/user/ClassicFilmRVisionTV",
                     "https://yt3.ggpht.com/a/AGF-l78fTaV6q6jL0CZuHFG1O-zQrBfFftDOxvQcAQ=s100-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_USER),
+            new PlaylistInfo("RVISION: Фильмы и сериалы",
+                    "https://www.youtube.com/c/RVisionChannel/",
+                    "https://yt3.ggpht.com/a/AATXAJxsyKVxC4NKsqb1glTO0VbR2OLo_xptzYP1AOo5=s88-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
+
             new PlaylistInfo("Советская фантастика.",
                     "https://www.youtube.com/playlist?list=PLT9f4X3_Znfo5fryLC0x6EWiuc3ebH5wJ",
                     "https://i.ytimg.com/vi/YFcKh6phfAo/hqdefault.jpg?sqp=-oaymwEXCPYBEIoBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBaSMUurhuhfEotCVYFsVp0chHw0Q",
@@ -186,10 +238,55 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/channel/UCZeBpzAG7iQKVcS60x2Q0sQ",
                     "https://yt3.ggpht.com/a/AGF-l79kBZBW4cY6OXj737Ef5LioChPz88HwcJRWeg=s100-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_CHANNEL),
+
             new PlaylistInfo("Киножурнал Фитиль (официальный канал)",
                     "https://www.youtube.com/user/FitilOfficial",
                     "https://yt3.ggpht.com/a/AGF-l7-f8u9owggUKS6VVXyGEmtLNvIsT-6cvti4eg=s100-c-k-c0xffffffff-no-rj-mo",
+                    PlaylistInfo.PlaylistType.YT_USER),
+
+            new PlaylistInfo("Маски-шоу",
+                    "https://www.youtube.com/channel/UCVgBv2Q-V2S7UgeonH4Pg0w",
+                    "https://yt3.ggpht.com/a/AATXAJy3V0P0Mr_2R18YRSbhm11dVwUF_Y92PskOtTaL=s88-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+
+            new PlaylistInfo("Gorodok TV",
+                    "https://www.youtube.com/c/GorodokTV",
+                    "https://yt3.ggpht.com/a/AATXAJwWC-ZdpF4vMOUTXD_-PYrrWYHi0qPdjO4H6UEdUg=s88-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
+
+            new PlaylistInfo("Студия Самарафильм",
+                    "https://www.youtube.com/channel/UCLBOPmSYOdq6C5HRlq3Ki5w",
+                    "https://yt3.ggpht.com/a/AATXAJz3Dwm6gto3vPu_E4Psas8gnPTH_9lUxcsEYWGK=s88-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+
+
+            // Телевидение
+            new PlaylistInfo("Советское телевидение. ГОСТЕЛЕРАДИОФОНД России",
+                    "https://www.youtube.com/c/gtrftv",
+                    "https://yt3.ggpht.com/a/AATXAJzRnIyB3c_jQzRe48NsNJfdbCBW3-F3Wg9i25f4=s88-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
+
+            new PlaylistInfo("Classic TV Channel",
+                    "https://www.youtube.com/channel/UCNCAEXQK6M8wU0kOcFa6gng",
+                    "https://yt3.ggpht.com/a/AATXAJxATE9pRoGhJ6OxkE-xv80LreHme2q2dWz02uue=s88-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+
+
+            // Разное
+
+            // Много хорошей старых мультиков и старой хроники, но разбавлено современными записями
+            // и несколько роликов с военной хроникой с трупами, которую, наверное (пока), не буду включать
+//            new PlaylistInfo("Stic (Политика. Кинохроники Эпохи: СССР, Белое движение, Царизм. Спектакли и телеспектакли СССР",
+//                    "https://www.youtube.com/c/Stic",
+//                    "https://yt3.ggpht.com/a/AATXAJyNr6MZe5TwUhJeN9wKnqhBiBAwjnBKY9E0iug8=s88-c-k-c0x00ffffff-no-rj",
+//                    PlaylistInfo.PlaylistType.YT_USER),
+
+            // Разные мультики, хроника и еще клипы Виары в начале
+            new PlaylistInfo("Интересный кинозал",
+                    "https://www.youtube.com/c/v1977",
+                    "https://yt3.ggpht.com/a/AATXAJyF9HvvJZXnJ8gmHYu-51Yo7CanuVvjkdQ1hit6uA=s88-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER)
+
     };
 
 
