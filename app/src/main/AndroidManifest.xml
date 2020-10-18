@@ -69,7 +69,7 @@
             android:name=".StarredActivity"
             android:configChanges="orientation"
             android:label="@string/yashlang_starred"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/CustomToolbarTheme" />
         <activity
             android:name=".BlacklistActivity"
             android:configChanges="orientation"

@@ -75,9 +75,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -113,6 +111,11 @@ public class WatchVideoActivity extends AppCompatActivity {
      * Список рекомендаций - результат поиска по запросу
      */
     public static final String PARAM_SEARCH_STR = "PARAM_SEARCH_STR";
+
+    /**
+     * Список рекомендаций - любимые видео
+     */
+    public static final String PARAM_PLAY_STARRED = "PARAM_PLAY_STARRED";
 
     /**
      * Список рекомендаций - плейлист
@@ -255,15 +258,21 @@ public class WatchVideoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // переходим на следующее видео по списку рекомендаций
+                // если мы на последней рекомендации, начинаем с начала
                 final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
                         0 : currentVideoPosition + 1;
                 final VideoItem item;
-                if (videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
-                    // здесь не случайные рекомендации, а, например, список выдачи по поисковому запросу
-                    item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
-                } else if (videoList.getAdapter() instanceof VideoItemArrayAdapter) {
-                    // здесь скорее всего случайные рекомендации
-                    item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                if (videoList.getAdapter().getItemCount() > 0) {
+                    if (videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
+                        // здесь не случайные рекомендации, а, например, список выдачи по поисковому запросу
+                        item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                    } else if (videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                        // здесь скорее всего случайные рекомендации
+                        item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                    } else {
+                        // сюда не попадём
+                        item = null;
+                    }
                 } else {
                     item = null;
                 }
@@ -519,6 +528,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             videoList.setVisibility(View.GONE);
         } else {
             final String searchStr = super.getIntent().getStringExtra(PARAM_SEARCH_STR);
+            final boolean playStarred = super.getIntent().getBooleanExtra(PARAM_PLAY_STARRED, false);
             final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, -1);
             if (searchStr != null) {
                 // будем считать, что в случае с передачей поисковой строки нам передают для
@@ -529,6 +539,15 @@ public class WatchVideoActivity extends AppCompatActivity {
                 // posMap.put(videoItem.getId(), currentVideoPosition))
                 currentVideoPosition = 0;
                 setupVideoListPagedListAdapter(searchStr);
+            } else if (playStarred) {
+                // будем считать, что в случае в режиме "играть любимое" мы выбираем для
+                // проигрывания первый элемент из списка любимых, поэтому, чтобы кнопка
+                // "следующее видео" не повторяла первый ролик два раза, начнем считать индекс
+                // текущего ролика сразу с 0-ля (т.е. первый элемент списка рекомендаций)
+                // (но, чтобы это сработало, нужно еще ниже положить:
+                // posMap.put(videoItem.getId(), currentVideoPosition))
+                currentVideoPosition = 0;
+                setupStarredVideoListPagedListAdapter();
             } else if (playlistId != -1) {
                 setupVideoListPagedListAdapter(playlistId);
             } else {
@@ -1584,6 +1603,43 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         final DataSource.Factory factory =
                 videodb.videoItemDao().searchEnabledVideosDs(searchStr);
+
+        videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
+
+        videoItemsLiveData.observe(this, new Observer<PagedList<VideoItem>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<VideoItem> videos) {
+                adapter.submitList(videos);
+            }
+        });
+
+        videoList.setAdapter(adapter);
+    }
+
+    private void setupStarredVideoListPagedListAdapter() {
+        if (videoItemsLiveData != null) {
+            videoItemsLiveData.removeObservers(this);
+        }
+
+        final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(
+                this, new OnListItemClickListener<VideoItem>() {
+            @Override
+            public void onItemClick(final View view, final int position, final VideoItem videoItem) {
+                posMap.put(videoItem.getId(), position);
+                playVideoItem(videoItem, false);
+            }
+
+            @Override
+            public boolean onItemLongClick(View view, int position, VideoItem videoItem) {
+                actionVideoContextMenu(view, videoItem);
+                return true;
+            }
+        }, null, VideoItemPagedListAdapter.ORIENTATION_HORIZONTAL);
+
+        // Initial page size to fetch can also be configured here too
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+
+        final DataSource.Factory factory = videodb.videoItemDao().getStarredAtDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

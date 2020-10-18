@@ -60,4 +60,6 @@
     <string name="play_results">Play results</string>
     <string name="nothing_starred">Nothing is starred ★</string>
     <string name="nothing_in_history">Nothing in history</string>
+    <string name="play_starred">Play starred</string>
+    <string name="nothing_to_play">Nothing to play</string>
 </resources>

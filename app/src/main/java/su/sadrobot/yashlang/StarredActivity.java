@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -35,6 +36,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.paging.DataSource;
@@ -54,6 +56,8 @@ import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
  *
  */
 public class StarredActivity extends AppCompatActivity {
+
+    private Toolbar toolbar;
 
     private RecyclerView videoList;
     private View emptyView;
@@ -95,9 +99,14 @@ public class StarredActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_starred);
 
+        toolbar = findViewById(R.id.toolbar);
+
         emptyView = findViewById(R.id.empty_view);
         videoList = findViewById(R.id.video_list);
 
+        // https://developer.android.com/training/appbar
+        // https://www.vogella.com/tutorials/AndroidActionBar/article.html#custom-views-in-the-action-bar
+        setSupportActionBar(toolbar);
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -110,6 +119,42 @@ public class StarredActivity extends AppCompatActivity {
         videodb = VideoDatabase.getDb(StarredActivity.this);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        // https://developer.android.com/training/appbar/action-views.html
+
+        toolbar.inflateMenu(R.menu.starred_actions);
+
+        toolbar.setOnMenuItemClickListener(
+                new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        return onOptionsItemSelected(item);
+                    }
+                });
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_play_starred:
+                if(videoList.getAdapter().getItemCount() > 0) {
+                    final Intent intent = new Intent(StarredActivity.this, WatchVideoActivity.class);
+                    intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID,
+                            ((VideoItemPagedListAdapter)videoList.getAdapter()).getItem(0).getId());
+                    intent.putExtra(WatchVideoActivity.PARAM_PLAY_STARRED, true);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onResume() {

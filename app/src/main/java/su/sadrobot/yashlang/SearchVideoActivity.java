@@ -155,6 +155,8 @@ public class SearchVideoActivity extends AppCompatActivity {
                             ((VideoItemPagedListAdapter)videoList.getAdapter()).getItem(0).getId());
                     intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, searchVideoInput.getText().toString());
                     startActivity(intent);
+                } else {
+                    Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
                 }
                 break;
 
