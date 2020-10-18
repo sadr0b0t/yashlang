@@ -58,4 +58,6 @@
     <string name="failed_to_load_video">Problem loading video :(</string>
     <string name="err_video_stream_url_null">Could not extract video stream URL</string>
     <string name="play_results">Play results</string>
+    <string name="nothing_starred">Nothing is starred ★</string>
+    <string name="nothing_in_history">Nothing in history</string>
 </resources>

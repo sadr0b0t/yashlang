@@ -56,18 +56,46 @@ import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 public class StarredActivity extends AppCompatActivity {
 
     private RecyclerView videoList;
+    private View emptyView;
 
     private Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
     private VideoDatabase videodb;
 
+    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+        // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
+        // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
+        // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
+        private void checkIfEmpty() {
+            final boolean listIsEmpty = videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0;
+            emptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
+            videoList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
+        }
+
+        @Override
+        public void onChanged() {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+    };
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_history);
+        setContentView(R.layout.activity_starred);
 
+        emptyView = findViewById(R.id.empty_view);
         videoList = findViewById(R.id.video_list);
 
         // кнопка "Назад" на акшенбаре
@@ -108,6 +136,9 @@ public class StarredActivity extends AppCompatActivity {
     private void setupVideoListAdapter() {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
+        }
+        if (videoList.getAdapter() != null) {
+            videoList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
         }
 
         final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(this,
@@ -244,6 +275,8 @@ public class StarredActivity extends AppCompatActivity {
                         return true;
                     }
                 }, null);
+        // если список пустой, показываем специальный экранчик с сообщением
+        adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();

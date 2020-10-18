@@ -58,4 +58,6 @@
     <string name="failed_to_load_video">Видео не загрузилось :(</string>
     <string name="err_video_stream_url_null">Не получилось найти адрес потока видео</string>
     <string name="play_results">Играть всё в плеере</string>
+    <string name="nothing_starred">Здесь будут любимые ролики ★</string>
+    <string name="nothing_in_history">Здесь будет история просмотров</string>
 </resources>
