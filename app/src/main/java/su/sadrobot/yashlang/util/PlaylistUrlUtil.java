@@ -62,7 +62,10 @@ public class PlaylistUrlUtil {
 
     public static boolean isYtUser(final String url) {
         // TODO: this parser is too dummy
-        return url.contains("youtube.com/user/");
+        // обратить внимание: варианты  плйлистов youtube.com/user/ и youtube.com/c/ не обязательно взаимозаменяемые
+        // например: www.youtube.com/user/Soyuzmultfilm и www.youtube.com/c/Soyuzmultfilm - разные пользователи
+        // (но иногда совпадают)
+        return url.contains("youtube.com/user/") || url.contains("youtube.com/c/");
     }
 
     /**
