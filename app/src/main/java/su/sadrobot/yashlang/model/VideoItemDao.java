@@ -85,10 +85,10 @@ public interface VideoItemDao {
     DataSource.Factory<Integer, VideoItem> getHistoryOrderByViewCountDs();
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND view_count > 0 ORDER BY last_viewed_date DESC")
-    DataSource.Factory<Integer, VideoItem> getHistoryOrderByLastViewedAtDs();
+    DataSource.Factory<Integer, VideoItem> getHistoryOrderByLastViewedDs();
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND starred ORDER BY starred_date DESC")
-    DataSource.Factory<Integer, VideoItem> getStarredAtDs();
+    DataSource.Factory<Integer, VideoItem> getStarredDs();
 
     @Query("SELECT * FROM video_item WHERE blacklisted ORDER BY name")
     DataSource.Factory<Integer, VideoItem> getBlacklistDs();

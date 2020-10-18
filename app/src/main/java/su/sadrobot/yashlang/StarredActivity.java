@@ -327,7 +327,7 @@ public class StarredActivity extends AppCompatActivity {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
         final DataSource.Factory factory =
-                videodb.videoItemDao().getStarredAtDs();
+                videodb.videoItemDao().getStarredDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

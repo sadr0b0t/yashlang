@@ -282,7 +282,7 @@ public class HistoryActivity extends AppCompatActivity {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
         final DataSource.Factory factory =
-                videodb.videoItemDao().getHistoryOrderByLastViewedAtDs();
+                videodb.videoItemDao().getHistoryOrderByLastViewedDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
