@@ -221,7 +221,13 @@ public class ContentLoader {
         final String plThumbUrl;
 
         if (extractor instanceof ChannelExtractor) {
-            plThumbUrl = ((ChannelExtractor) extractor).getAvatarUrl();
+            // Пример ссылки на иконку:
+            // https://yt3.ggpht.com/a/AGF-l7_hKI23Rm_DGUcoN7JFm2tKQl2maXaQdAJbqA=s110-c-k-c0xffffffff-no-rj-mo
+            // Размер иконки канала можно задавать любой вообще в параметре: *=s110-*
+            // В какой-то момент getAvatarUrl стал возвращать слишком маленькую иконку (s48)
+            // (скорее всего, её такую возвращает ютюб, т.к. NewPipeExtractor парсит страницы)
+            // У нас иконки примерно 100x100 везде, но будем брать с запасом 240x240, чтобы хайрез
+            plThumbUrl = ((ChannelExtractor) extractor).getAvatarUrl().replace("=s48-", "=s240-");
         } else if (extractor instanceof PlaylistExtractor) {
             plThumbUrl = ((PlaylistExtractor) extractor).getThumbnailUrl();
         } else {
@@ -314,7 +320,13 @@ public class ContentLoader {
                     try {
                         plName = extractor.getName();
                         if (extractor instanceof ChannelExtractor) {
-                            plThumbUrl = ((ChannelExtractor) extractor).getAvatarUrl();
+                            // Пример ссылки на иконку:
+                            // https://yt3.ggpht.com/a/AGF-l7_hKI23Rm_DGUcoN7JFm2tKQl2maXaQdAJbqA=s110-c-k-c0xffffffff-no-rj-mo
+                            // Размер иконки канала можно задавать любой вообще в параметре: *=s110-*
+                            // В какой-то момент getAvatarUrl стал возвращать слишком маленькую иконку (s48)
+                            // (скорее всего, её такую возвращает ютюб, т.к. NewPipeExtractor парсит страницы)
+                            // У нас иконки примерно 100x100 везде, но будем брать с запасом 240x240, чтобы хайрез
+                            plThumbUrl = ((ChannelExtractor) extractor).getAvatarUrl().replace("=s48-", "=s240-");
                         } else if (extractor instanceof PlaylistExtractor) {
                             plThumbUrl = ((PlaylistExtractor) extractor).getThumbnailUrl();
                         } else {
