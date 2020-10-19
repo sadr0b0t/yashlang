@@ -125,11 +125,9 @@ public class SearchOnlinePlaylistActivity extends AppCompatActivity {
                 List<PlaylistInfo> _playlists;
                 try {
                     _playlists = ContentLoader.getInstance().searchPlaylists(sstr);
-                    final List<PlaylistInfo> playlists = _playlists;
-
 
                 } catch (Exception e) {
-                    _playlists = new ArrayList<PlaylistInfo>();
+                    _playlists = new ArrayList<>();
                 }
 
                 final List<PlaylistInfo> playlists = _playlists;
