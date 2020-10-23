@@ -48,6 +48,8 @@ import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
 
+import static org.schabi.newpipe.extractor.ServiceList.YouTube;
+
 /**
  *
  */
@@ -94,9 +96,9 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     PlaylistInfo.PlaylistType.YT_CHANNEL),
 
             new PlaylistInfo("Киножурнал Ералаш",
-                    "https://www.youtube.com/channel/UC0u6gAESA0XmSJQaAyDTTVg",
-                    "https://yt3.ggpht.com/a/AGF-l7_hKI23Rm_DGUcoN7JFm2tKQl2maXaQdAJbqA=s240-c-k-c0xffffffff-no-rj-mo",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+                    "https://www.youtube.com/c/eralash",
+                    "https://yt3.ggpht.com/a/AATXAJyrcud4u0wZRamlOQyHYV0pREVXNpPFfgs9dYec0g=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
             new PlaylistInfo("Спокойной ночи, малыши!",
                     "https://www.youtube.com/channel/UCoVS2PU1QJpXrO9oTyke2cw",
                     "https://yt3.ggpht.com/a/AGF-l7_uiPDLitSDNNS9ehGNte53CdDDml2D7lK99g=s240-c-k-c0xffffffff-no-rj-mo",
@@ -112,9 +114,9 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://yt3.ggpht.com/a/AGF-l7_2xR6oqSIrUzTH_LzZdBXwyFPCPtM0SKKsBQ=s240-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_USER),
             new PlaylistInfo("Малышарики",
-                    "https://www.youtube.com/channel/UCn8CnDy4-uzkxXzXPSzQZ0A",
-                    "https://yt3.ggpht.com/a/AGF-l78cHA23WW5sKEE2qr5zzRSP9ncYeHfK-0Gf7g=s240-c-k-c0xffffffff-no-rj-mo",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+                    "https://www.youtube.com/c/malyshariki",
+                    "https://yt3.ggpht.com/a/AATXAJyQZYqZ7qX4g_jh9nKhoFESAbEobUb8iLAB0OO8gw=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
             new PlaylistInfo("Маша и Медведь",
                     "https://www.youtube.com/user/MashaMedvedTV",
                     "https://yt3.ggpht.com/a/AGF-l78kf4dz0_5f84x2Wjmle_4oQ8gz7dRApCZeRw=s240-c-k-c0xffffffff-no-rj-mo",
@@ -128,9 +130,9 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://yt3.ggpht.com/a/AATXAJw0P592ZMPs7XcqwOGPwud033lYjJP1WAlineUvhg=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
             new PlaylistInfo("Мульт",
-                    "https://www.youtube.com/channel/UCM3vklq_KgWZDmbfg_0Yg_A",
-                    "https://yt3.ggpht.com/a/AGF-l7-BrNjRT8XO5uPU6nnIju-t4aI4ZsRYGFfllA=s240-c-k-c0xffffffff-no-rj-mo",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+                    "https://www.youtube.com/c/kanalmult",
+                    "https://yt3.ggpht.com/a/AATXAJwyQdAsaS_XEqp5l6iSDGSKyqqz-3XgK2jrlBmiBQ=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
             new PlaylistInfo("Барбоскины",
                     "https://www.youtube.com/user/barboskinyonline",
                     "https://yt3.ggpht.com/a/AATXAJwXuqcyOX1d5m0SK_3aGQDYvuCUNmJQTp1Cg8M93Q=s240-c-k-c0x00ffffff-no-rj",
@@ -148,10 +150,17 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://i.ytimg.com/vi/2pXUlfN59GM/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCDlO70xqMO6cF8dPGI6aXBDmFEeA",
                     PlaylistInfo.PlaylistType.YT_PLAYLIST),
 
+            // NewPipeExtractor (как минимум в версии 0.20.1) не работает с названиями каналов в UTF
+            // https://github.com/TeamNewPipe/NewPipeExtractor/issues/435
             new PlaylistInfo("Студия Диафильм",
+                    //"https://www.youtube.com/c/СтудияДиафильм",
                     "https://www.youtube.com/channel/UCmFS6kwGK_ewWGLM6Kedjrw",
-                    "https://yt3.ggpht.com/a/AGF-l7_1rGU24Nl1-PN3JAKtBqm6wK0Qa6tEy4QJSQ=s240-c-k-c0xffffffff-no-rj-mo",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+                    "https://yt3.ggpht.com/a/AATXAJx5kRDv3zUNvBD0SxZXq0C1NVMAr-AAMX1OX0VAkg=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
+            new PlaylistInfo("Все Самые Лучшие Диафильмы и мультфильмы",
+                    "https://www.youtube.com/user/DiafilmyMultfilmy",
+                    "https://yt3.ggpht.com/a/AATXAJwre_bV4gNmA7ZbgoxSBO2JemLHlzGbrnBSSsXvXg=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
 
 
             // Союзмультфильм удОлил со всех каналов все мультики почти
