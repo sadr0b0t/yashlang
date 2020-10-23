@@ -255,6 +255,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/channel/UCZeBpzAG7iQKVcS60x2Q0sQ",
                     "https://yt3.ggpht.com/a/AGF-l79kBZBW4cY6OXj737Ef5LioChPz88HwcJRWeg=s240-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_CHANNEL),
+            new PlaylistInfo("Учебные документальные фильмы СССР",
+                    "https://www.youtube.com/playlist?list=PLfmFpq8sdXGo1Ow-BYKLMkS1uu6V-gpNg",
+                    "https://i.ytimg.com/vi/QNPsvXhx798/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDum9KSVOOjK9y5akSysOu3PRfXJw",
+                    PlaylistInfo.PlaylistType.YT_PLAYLIST),
 
             new PlaylistInfo("Киножурнал Фитиль (официальный канал)",
                     "https://www.youtube.com/user/FitilOfficial",
