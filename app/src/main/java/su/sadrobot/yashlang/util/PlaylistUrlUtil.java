@@ -20,7 +20,6 @@ package su.sadrobot.yashlang.util;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import su.sadrobot.yashlang.model.VideoItem;
 
 public class PlaylistUrlUtil {
     public static String getYtPlaylistUid(final String url) {

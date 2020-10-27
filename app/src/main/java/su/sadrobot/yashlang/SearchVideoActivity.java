@@ -53,7 +53,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
-import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 

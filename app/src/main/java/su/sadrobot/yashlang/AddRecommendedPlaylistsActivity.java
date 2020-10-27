@@ -48,8 +48,6 @@ import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
 
-import static org.schabi.newpipe.extractor.ServiceList.YouTube;
-
 /**
  *
  */
