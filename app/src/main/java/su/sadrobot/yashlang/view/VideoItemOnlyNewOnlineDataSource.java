@@ -82,9 +82,8 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
             final List<StreamInfoItem> pageNewItems = new ArrayList<StreamInfoItem>();
 
             final VideoDatabase videodb = VideoDatabase.getDb(context);
-            for (StreamInfoItem item : loadedPage.getItems()) {
-                final String ytId = item.getUrl().replace("https://www.youtube.com/watch?v=", "");
-                if (videodb.videoItemDao().getByYtId(playlistId, ytId) == null) {
+            for (final StreamInfoItem item : loadedPage.getItems()) {
+                if (videodb.videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
                     pageNewItems.add(item);
                 } else {
                     foundOld = true;
@@ -139,9 +138,8 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
                 final List<StreamInfoItem> pageNewItems = new ArrayList<StreamInfoItem>();
 
                 final VideoDatabase videodb = VideoDatabase.getDb(context);
-                for (StreamInfoItem item : loadedPage.getItems()) {
-                    final String ytId = item.getUrl().replace("https://www.youtube.com/watch?v=", "");
-                    if (videodb.videoItemDao().getByYtId(playlistId, ytId) == null) {
+                for (final StreamInfoItem item : loadedPage.getItems()) {
+                    if (videodb.videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
                         pageNewItems.add(item);
                     } else {
                         foundOld = true;

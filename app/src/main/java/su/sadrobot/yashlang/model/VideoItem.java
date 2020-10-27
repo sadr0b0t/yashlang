@@ -62,6 +62,10 @@ public class VideoItem {
     @ColumnInfo(name = "playlist_id")
     private long playlistId;
 
+    @ColumnInfo(name = "item_url")
+    private String itemUrl;
+
+    @Deprecated
     @ColumnInfo(name = "yt_id")
     private String ytId;
 
@@ -206,10 +210,12 @@ public class VideoItem {
     @Ignore
     private String videoStreamUrl;
 
-    public VideoItem(long playlistId, String ytId, String name, String uploader,
+    // конструктор для ROOM - создаёт объекты из базы данных
+    public VideoItem(long playlistId, String itemUrl, String ytId, String name, String uploader,
                      long viewCount, long viewCountExt, long duration, String thumbUrl,
                      boolean enabled, boolean blacklisted) {
         this.playlistId = playlistId;
+        this.itemUrl = itemUrl;
         this.ytId = ytId;
         this.name = name;
         this.uploader = uploader;
@@ -221,12 +227,13 @@ public class VideoItem {
         this.blacklisted = blacklisted;
     }
 
+    // конструкторы для создания объектов вручную (например, по результатам работы онлайн-парсера)
 
     @Ignore
-    public VideoItem(long playlistId, String ytId, String name, String uploader,
+    public VideoItem(long playlistId, String itemUrl, String name, String uploader,
                      long viewCount, long viewCountExt, long duration, String thumbUrl) {
         this.playlistId = playlistId;
-        this.ytId = ytId;
+        this.itemUrl = itemUrl;
         this.name = name;
         this.uploader = uploader;
         this.viewCount = viewCount;
@@ -239,11 +246,11 @@ public class VideoItem {
     }
 
     @Ignore
-    public VideoItem(long playlistId, String ytId, String name, String uploader,
+    public VideoItem(long playlistId, String itemUrl, String name, String uploader,
                      long viewCount, long viewCountExt, long duration, String thumbUrl,
                      boolean enabled, long fakeTimestamp) {
         this.playlistId = playlistId;
-        this.ytId = ytId;
+        this.itemUrl = itemUrl;
         this.name = name;
         this.uploader = uploader;
         this.viewCount = viewCount;
@@ -271,12 +278,22 @@ public class VideoItem {
         this.playlistId = playlistId;
     }
 
+    @Deprecated
     public String getYtId() {
         return ytId;
     }
 
+    @Deprecated
     public void setYtId(String ytId) {
         this.ytId = ytId;
+    }
+
+    public String getItemUrl() {
+        return itemUrl;
+    }
+
+    public void setItemUrl(String itemUrl) {
+        this.itemUrl = itemUrl;
     }
 
     public String getName() {

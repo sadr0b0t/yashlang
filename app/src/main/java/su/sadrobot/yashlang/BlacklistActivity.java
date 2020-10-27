@@ -172,7 +172,7 @@ public class BlacklistActivity extends AppCompatActivity {
                                                 break;
                                             }
                                             case R.id.action_copy_video_url: {
-                                                final String vidUrl = PlaylistUrlUtil.getVideoUrl(videoItem);
+                                                final String vidUrl = videoItem.getItemUrl();
                                                 final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                                                 final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
                                                 clipboard.setPrimaryClip(clip);

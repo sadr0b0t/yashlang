@@ -54,11 +54,11 @@ public interface VideoItemDao {
     @Query("SELECT * FROM video_item WHERE _id IN (:vidIds)")
     List<VideoItem> getByIds(int[] vidIds);
 
-    @Query("SELECT * FROM video_item WHERE yt_id = :ytId LIMIT 1")
-    VideoItem getByYtId(String ytId);
+    @Query("SELECT * FROM video_item WHERE item_url = :itemUrl LIMIT 1")
+    VideoItem getByItemUrl(String itemUrl);
 
-    @Query("SELECT * FROM video_item WHERE playlist_id = :plId AND yt_id = :ytId LIMIT 1")
-    VideoItem getByYtId(long plId, String ytId);
+    @Query("SELECT * FROM video_item WHERE playlist_id = :plId AND item_url = :itemUrl LIMIT 1")
+    VideoItem getByItemUrl(long plId, String itemUrl);
 
     @Query("SELECT * FROM video_item WHERE playlist_id = :playlistId")
     List<VideoItem> getByPlaylist(long playlistId);

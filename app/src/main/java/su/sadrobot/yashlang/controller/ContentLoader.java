@@ -33,10 +33,9 @@ import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.playlist.PlaylistExtractor;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
-import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor;
+import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
-import org.schabi.newpipe.extractor.stream.VideoStream;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -510,8 +509,7 @@ public class ContentLoader {
 
                     boolean foundOld = false;
                     for (StreamInfoItem item : pageItems) {
-                        final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
-                        if (videodb.videoItemDao().getByYtId(plId, ytId) == null) {
+                        if (videodb.videoItemDao().getByItemUrl(plId, item.getUrl()) == null) {
                             videoItems.add(extractVideoItem(item, plId, plEnabled, fakeTimestamp));
                             fakeTimestamp--;
                             videoItemCount++;
@@ -553,8 +551,7 @@ public class ContentLoader {
                             // загрузили страницу - проверяем ролики
                             pageItems.addAll(nextPage.getItems());
                             for (StreamInfoItem item : pageItems) {
-                                final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
-                                if (videodb.videoItemDao().getByYtId(plId, ytId) == null) {
+                                if (videodb.videoItemDao().getByItemUrl(plId, item.getUrl()) == null) {
                                     videoItems.add(extractVideoItem(item, plId, plEnabled, fakeTimestamp));
                                     fakeTimestamp--;
                                     videoItemCount++;
@@ -632,8 +629,7 @@ public class ContentLoader {
         boolean foundOld = false;
         VideoDatabase videodb = VideoDatabase.getDb(context);
         for (StreamInfoItem item : pageItems) {
-            final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
-            if (videodb.videoItemDao().getByYtId(playlist.getId(), ytId) == null) {
+            if (videodb.videoItemDao().getByItemUrl(playlist.getId(), item.getUrl()) == null) {
                 videoItems.add(extractVideoItem(item, playlist.getId(), playlist.isEnabled(), 0));
             } else {
                 foundOld = true;
@@ -669,8 +665,7 @@ public class ContentLoader {
                 pageItems.addAll(nextPage.getItems());
                 videodb = VideoDatabase.getDb(context);
                 for (StreamInfoItem item : pageItems) {
-                    final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
-                    if (videodb.videoItemDao().getByYtId(playlist.getId(), ytId) == null) {
+                    if (videodb.videoItemDao().getByItemUrl(playlist.getId(), item.getUrl()) == null) {
                         videoItems.add(extractVideoItem(item, playlist.getId(), playlist.isEnabled(), 0));
                     } else {
                         foundOld = true;
@@ -691,20 +686,18 @@ public class ContentLoader {
         return videoItems;
     }
 
-    public VideoItem getYtVideoItem(final String ytId) throws ExtractionException, IOException {
+    public VideoItem getVideoItem(final String itemUrl) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
         NewPipe.init(DownloaderTestImpl.getInstance());
-        final YoutubeStreamExtractor extractor = (YoutubeStreamExtractor) YouTube
-                .getStreamExtractor(PlaylistUrlUtil.getVideoUrl(ytId));
+        final StreamExtractor extractor = YouTube.getStreamExtractor(itemUrl);
         extractor.fetchPage();
         return extractVideoItem(extractor);
     }
 
-    public String extractDefaultYtStreamUrl(final String ytId) throws ExtractionException, IOException {
+    public String extractDefaultStreamUrl(final String itemUrl) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
         NewPipe.init(DownloaderTestImpl.getInstance());
-        final YoutubeStreamExtractor extractor = (YoutubeStreamExtractor) YouTube
-                .getStreamExtractor(PlaylistUrlUtil.getVideoUrl(ytId));
+        final StreamExtractor extractor = YouTube.getStreamExtractor(itemUrl);
         extractor.fetchPage();
 
         // взять стрим 1-й с списке (скорее всего это стрим с наименьшим качеством - обычно это 360p mp4)
@@ -714,11 +707,10 @@ public class ContentLoader {
         return streamUrl;
     }
 
-    public String extractYtStreamUrl(final String ytId) throws ExtractionException, IOException {
+    public String extractStreamUrl(final String itemUrl) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
         NewPipe.init(DownloaderTestImpl.getInstance());
-        final YoutubeStreamExtractor extractor = (YoutubeStreamExtractor) YouTube
-                .getStreamExtractor(PlaylistUrlUtil.getVideoUrl(ytId));
+        final StreamExtractor extractor = YouTube.getStreamExtractor(itemUrl);
         extractor.fetchPage();
 
         // выбирать стрим с наилучшим качеством (в конце списка)
@@ -737,8 +729,8 @@ public class ContentLoader {
         return streamUrl;
     }
 
-    private VideoItem extractVideoItem(final YoutubeStreamExtractor item) throws ParsingException {
-        final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
+    private VideoItem extractVideoItem(final StreamExtractor item) throws ParsingException {
+        final String itemUrl = item.getUrl();
         final String name = item.getName();
         final String uploader = item.getUploaderName();
         //final String date = item.getUploadDate();
@@ -750,7 +742,7 @@ public class ContentLoader {
         final long duration = 0;
         final String thumbUrl = item.getThumbnailUrl();
 
-        return new VideoItem(-1, ytId, name, uploader, viewCount, viewCountExt, duration, thumbUrl);
+        return new VideoItem(-1, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl);
     }
 
     /**
@@ -764,7 +756,7 @@ public class ContentLoader {
     private VideoItem extractVideoItem(final StreamInfoItem item, final long playlistId,
                                        final boolean enabled, final long fakeTimestamp) {
         //final long _playlistId = playlistId;
-        final String ytId = PlaylistUrlUtil.getYtId(item.getUrl());
+        final String itemUrl = item.getUrl();
         final String name = item.getName();
         final String uploader = item.getUploaderName();
         //final String date = item.getUploadDate();
@@ -774,6 +766,6 @@ public class ContentLoader {
         final String thumbUrl = item.getThumbnailUrl();
         //final long _fakeTimestamp = fakeTimestamp;
 
-        return new VideoItem(playlistId, ytId, name, uploader, viewCount, viewCountExt, duration, thumbUrl, enabled, fakeTimestamp);
+        return new VideoItem(playlistId, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl, enabled, fakeTimestamp);
     }
 }

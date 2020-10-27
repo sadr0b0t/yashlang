@@ -105,7 +105,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     /**
      * Загрузить информацию о видео онлайн
      */
-    public static final String PARAM_VIDEO_YTID = "PARAM_VIDEO_YTID";
+    public static final String PARAM_VIDEO_ITEM_URL = "PARAM_VIDEO_ITEM_URL";
 
     /**
      * Список рекомендаций - результат поиска по запросу
@@ -437,7 +437,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                             });
                             boolean tryAnotherStream = false;
                             try {
-                                final String defaultStreamUrl = ContentLoader.getInstance().extractDefaultYtStreamUrl(_currentVideo.getYtId());
+                                final String defaultStreamUrl = ContentLoader.getInstance().extractDefaultStreamUrl(_currentVideo.getItemUrl());
                                 if (_currentVideo.getVideoStreamUrl() != null &&
                                         !_currentVideo.getVideoStreamUrl().equals(defaultStreamUrl)) {
                                     _currentVideo.setVideoStreamUrl(defaultStreamUrl);
@@ -559,7 +559,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         // если передан параметр videoId, то загружаем видео по id из базы, если videoId
         // нет, но есть videoYtId, то используем его
         final long videoId = super.getIntent().getLongExtra(PARAM_VIDEO_ID, -1);
-        final String videoYtId = super.getIntent().getStringExtra(PARAM_VIDEO_YTID);
+        final String videoItemUrl = super.getIntent().getStringExtra(PARAM_VIDEO_ITEM_URL);
         if (videoId != -1) {
             new Thread(new Runnable() {
                 @Override
@@ -575,14 +575,14 @@ public class WatchVideoActivity extends AppCompatActivity {
                     });
                 }
             }).start();
-        } else if (videoYtId != null) {
+        } else if (videoItemUrl != null) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     // грузим информацию из онлайна
                     VideoItem _videoItem;
                     try {
-                        _videoItem = ContentLoader.getInstance().getYtVideoItem(videoYtId);
+                        _videoItem = ContentLoader.getInstance().getVideoItem(videoItemUrl);
                     } catch (ExtractionException | IOException e) {
                         _videoItem = null;
                         //e.printStackTrace();
@@ -896,7 +896,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 break;
             case R.id.action_copy_video_url:
                 if (currentVideo != null) {
-                    final String vidUrl = PlaylistUrlUtil.getVideoUrl(currentVideo);
+                    final String vidUrl = currentVideo.getItemUrl();
                     final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                     final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
                     clipboard.setPrimaryClip(clip);
@@ -1287,7 +1287,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         //
         try {
             // загрузить поток видео
-            final String vidStreamUrl = ContentLoader.getInstance().extractYtStreamUrl(videoItem.getYtId());
+            final String vidStreamUrl = ContentLoader.getInstance().extractStreamUrl(videoItem.getItemUrl());
             videoItem.setVideoStreamUrl(vidStreamUrl);
             // пока загружали информацию о видео, пользователь мог кликнуть на загрузку нового ролика,
             // в этом случае уже нет смысла загружать в плеер этот ролик на долю секунды
@@ -1468,7 +1468,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                                 break;
                             }
                             case R.id.action_copy_video_url: {
-                                final String vidUrl = PlaylistUrlUtil.getVideoUrl(videoItem);
+                                final String vidUrl = videoItem.getItemUrl();
                                 final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                                 final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
                                 clipboard.setPrimaryClip(clip);

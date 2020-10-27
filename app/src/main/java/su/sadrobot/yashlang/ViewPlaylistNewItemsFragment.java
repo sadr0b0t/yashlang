@@ -315,7 +315,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                     @Override
                     public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                         final Intent intent = new Intent(ViewPlaylistNewItemsFragment.this.getContext(), WatchVideoActivity.class);
-                        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_YTID, videoItem.getYtId());
+                        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_URL, videoItem.getItemUrl());
                         intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, playlistId);
                         startActivity(intent);
                     }
@@ -344,7 +344,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                                                 break;
                                             }
                                             case R.id.action_copy_video_url: {
-                                                final String vidUrl = PlaylistUrlUtil.getVideoUrl(videoItem);
+                                                final String vidUrl = videoItem.getItemUrl();
                                                 final ClipboardManager clipboard = (ClipboardManager) ViewPlaylistNewItemsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                                                 final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
                                                 clipboard.setPrimaryClip(clip);

@@ -68,7 +68,7 @@ public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, Video
     @NonNull
     @Override
     public String getKey(@NonNull VideoItem item) {
-        return item.getYtId();
+        return item.getItemUrl();
     }
 
     @Override
@@ -163,7 +163,7 @@ public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, Video
 
     protected VideoItem extractVideoItem(final StreamInfoItem item) {
         final long playlistId = -1;
-        final String ytId = item.getUrl().replace("https://www.youtube.com/watch?v=", "");
+        final String itemUrl = item.getUrl();
         final String name = item.getName();
         final String uploader = item.getUploaderName();
         //final String date = item.getUploadDate();
@@ -172,7 +172,7 @@ public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, Video
         final long duration = item.getDuration();
         final String thumbUrl = item.getThumbnailUrl();
 
-        return new VideoItem(playlistId, ytId, name, uploader, viewCount, viewCountExt, duration, thumbUrl);
+        return new VideoItem(playlistId, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl);
     }
 
     protected void loadThumbs(final List<VideoItem> videoItems) {

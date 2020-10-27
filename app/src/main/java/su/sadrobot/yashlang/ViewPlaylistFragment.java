@@ -245,7 +245,7 @@ public class ViewPlaylistFragment extends Fragment {
                                                 break;
                                             }
                                             case R.id.action_copy_video_url: {
-                                                final String vidUrl = PlaylistUrlUtil.getVideoUrl(videoItem);
+                                                final String vidUrl = videoItem.getItemUrl();
                                                 final ClipboardManager clipboard = (ClipboardManager) ViewPlaylistFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                                                 final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
                                                 clipboard.setPrimaryClip(clip);

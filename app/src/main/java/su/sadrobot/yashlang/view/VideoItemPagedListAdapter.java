@@ -119,7 +119,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
 
                 @Override
                 public boolean areContentsTheSame(VideoItem oldItem, VideoItem newItem) {
-                    return (oldItem.getYtId().equals(newItem.getYtId()));
+                    return (oldItem.getItemUrl().equals(newItem.getItemUrl()));
                 }
             };
 

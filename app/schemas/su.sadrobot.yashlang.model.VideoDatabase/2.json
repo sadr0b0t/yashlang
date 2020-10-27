@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
+    "version": 2,
     "identityHash": "746cfeccedc34efc834dbf41cfd0bd80",
     "entities": [
       {
         "tableName": "video_item",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `playlist_id` INTEGER NOT NULL, `yt_id` TEXT, `item_url` TEXT, `name` TEXT, `uploader` TEXT, `view_count` INTEGER NOT NULL, `view_count_ext` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `thumb_url` TEXT, `enabled` INTEGER NOT NULL, `blacklisted` INTEGER NOT NULL, `starred` INTEGER NOT NULL, `starred_date` TEXT, `last_viewed_date` TEXT, `paused_at` INTEGER NOT NULL, `fake_timestamp` INTEGER NOT NULL, FOREIGN KEY(`playlist_id`) REFERENCES `playlist_info`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `playlist_id` INTEGER NOT NULL, `item_url` TEXT, `yt_id` TEXT, `name` TEXT, `uploader` TEXT, `view_count` INTEGER NOT NULL, `view_count_ext` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `thumb_url` TEXT, `enabled` INTEGER NOT NULL, `blacklisted` INTEGER NOT NULL, `starred` INTEGER NOT NULL, `starred_date` TEXT, `last_viewed_date` TEXT, `paused_at` INTEGER NOT NULL, `fake_timestamp` INTEGER NOT NULL, FOREIGN KEY(`playlist_id`) REFERENCES `playlist_info`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "_id",
@@ -21,14 +21,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "ytId",
-            "columnName": "yt_id",
+            "fieldPath": "itemUrl",
+            "columnName": "item_url",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "itemUrl",
-            "columnName": "item_url",
+            "fieldPath": "ytId",
+            "columnName": "yt_id",
             "affinity": "TEXT",
             "notNull": false
           },
