@@ -20,6 +20,9 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -145,9 +148,13 @@ public class SearchOnlinePlaylistActivity extends AppCompatActivity {
                                     }
                                     @Override
                                     public boolean onItemLongClick(final View view, final int position, final PlaylistInfo item) {
-                                        Toast.makeText(SearchOnlinePlaylistActivity.this, "LONG CLLICK" +position + ":" +
-                                                        item.getUrl() + ":" + item.getType(),
-                                                Toast.LENGTH_SHORT).show();
+                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                        final ClipData clip = ClipData.newPlainText(item.getUrl(), item.getUrl());
+                                        clipboard.setPrimaryClip(clip);
+
+                                        Toast.makeText(SearchOnlinePlaylistActivity.this,
+                                                getString(R.string.copied) + ": " + item.getUrl(),
+                                                Toast.LENGTH_LONG).show();
                                         return true;
                                     }
                                 }, null));
