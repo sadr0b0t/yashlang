@@ -21,14 +21,20 @@ package su.sadrobot.yashlang;
  */
 
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -46,6 +52,7 @@ import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
+import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
 
 /**
@@ -385,7 +392,54 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     PlaylistInfo.PlaylistType.YT_USER));
         }
         final PlaylistInfoArrayAdapter recPlsAdapter = new PlaylistInfoArrayAdapter(this,
-                plList, null, null);
+                plList, new OnListItemClickListener<PlaylistInfo>() {
+            @Override
+            public void onItemClick(final View view, final int position, final PlaylistInfo item) {
+            }
+
+            @Override
+            public boolean onItemLongClick(final View view, final int position, final PlaylistInfo plInfo) {
+
+                // параметр Gravity.CENTER не работает (и появился еще только в API 19+),
+                // работает только вариант Gravity.RIGHT
+                //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
+                final PopupMenu popup = new PopupMenu(AddRecommendedPlaylistsActivity.this,
+                        view.findViewById(R.id.playlist_name_txt));
+                popup.getMenuInflater().inflate(R.menu.playlist_actions, popup.getMenu());
+                popup.setOnMenuItemClickListener(
+                        new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                switch (item.getItemId()) {
+                                    case R.id.action_copy_playlist_name: {
+                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                        final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
+                                        clipboard.setPrimaryClip(clip);
+
+                                        Toast.makeText(AddRecommendedPlaylistsActivity.this,
+                                                getString(R.string.copied) + ": " + plInfo.getName(),
+                                                Toast.LENGTH_LONG).show();
+                                        break;
+                                    }
+                                    case R.id.action_copy_playlist_url: {
+                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                        final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
+                                        clipboard.setPrimaryClip(clip);
+
+                                        Toast.makeText(AddRecommendedPlaylistsActivity.this,
+                                                getString(R.string.copied) + ": " + plInfo.getUrl(),
+                                                Toast.LENGTH_LONG).show();
+                                        break;
+                                    }
+                                }
+                                return true;
+                            }
+                        }
+                );
+                popup.show();
+                return true;
+            }
+        }, null);
         playlistList.setAdapter(recPlsAdapter);
 
         // кнопка "Назад" на акшенбаре
