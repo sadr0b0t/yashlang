@@ -27,6 +27,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -194,7 +196,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(ConfigOptions.DEVEL_MODE_ON) {
-            playlistUrlInput.setText("https://youtube.com/user/ClassicCartoonsMedia");
+            playlistUrlInput.setText("https://www.youtube.com/c/eralash");
         }
 
         // set a LinearLayoutManager with default vertical orientation
@@ -208,6 +210,29 @@ public class AddPlaylistActivity extends AppCompatActivity {
                 updateVideoListBg(playlistUrl);
 
                 return false;
+            }
+        });
+        playlistUrlInput.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (count > 10) {
+                    // пробовать загрузить плейлист если в поле ввода более 10 символов:
+                    // - будем считать, что это вставка адреса из контекстного меню
+                    // - даже если это не вставка, загрузка в процессе набора не повредит
+                    // https://stackoverflow.com/questions/14980227/android-intercept-paste-copy-cut-on-edittext/
+                    final String playlistUrl = playlistUrlInput.getText().toString();
+                    updateVideoListBg(playlistUrl);
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            public void afterTextChanged(Editable s) {
+
             }
         });
 
