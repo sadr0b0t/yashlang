@@ -75,17 +75,25 @@ public class PlaylistUrlUtil {
     }
 
     public static boolean isPtChannel(final String url) {
-        // TODO: может не сработать для каналов на других доменах
         // например:
+        // https://open.tube/video-channels/public_domain_romance/videos
         // https://peer.tube/video-channels/cartoons@vidcommons.org/videos
-        return url.contains("peer.tube/video-channels") && url.contains("/videos");
+        // в конец могут попасть параметры:
+        // https://peer.tube/video-channels/root_channel@yunopeertube.myddns.me/videos?a-state=42
+
+        // https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html
+        return url.matches(".+/video-channels/.+/videos(\\?.+)?");
     }
 
     public static boolean isPtUser(final String url) {
-        // TODO: может не сработать для каналов на других доменах
         // например:
+        // https://open.tube/accounts/openmovies/video-channels
         // https://peer.tube/accounts/animation@vidcommons.org/videos
-        return url.contains("peer.tube/accounts") && url.contains("/videos");
+        // в конец могут попасть параметры:
+        // https://peertube.ch/accounts/gabyweber/videos?a-state=42
+
+        // https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html
+        return url.matches(".+/accounts/.+/videos(\\?.+)?");
     }
 
 
@@ -99,7 +107,7 @@ public class PlaylistUrlUtil {
         // TODO: может не сработать для каналов на других доменах
         // например:
         // https://peer.tube/api/v1/videos/a5bcc9ab-221c-4e25-afdb-88d837741b61
-        return url.startsWith("https://peer.tube") && url.contains("/videos/");
+        return url.matches(".+/api/.+/videos/.+");
     }
 
     /**
