@@ -78,14 +78,14 @@ public class PlaylistUrlUtil {
         // TODO: может не сработать для каналов на других доменах
         // например:
         // https://peer.tube/video-channels/cartoons@vidcommons.org/videos
-        return url.contains("peer.tube/video-channels") && url.endsWith("/videos");
+        return url.contains("peer.tube/video-channels") && url.contains("/videos");
     }
 
     public static boolean isPtUser(final String url) {
         // TODO: может не сработать для каналов на других доменах
         // например:
         // https://peer.tube/accounts/animation@vidcommons.org/videos
-        return url.contains("peer.tube/accounts") && url.endsWith("/videos");
+        return url.contains("peer.tube/accounts") && url.contains("/videos");
     }
 
 
