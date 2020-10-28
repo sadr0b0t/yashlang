@@ -307,13 +307,9 @@ public class ContentLoader {
                     try {
                         plName = extractor.getName();
                         if (extractor instanceof ChannelExtractor) {
-                            // Пример ссылки на иконку:
-                            // https://yt3.ggpht.com/a/AGF-l7_hKI23Rm_DGUcoN7JFm2tKQl2maXaQdAJbqA=s110-c-k-c0xffffffff-no-rj-mo
-                            // Размер иконки канала можно задавать любой вообще в параметре: *=s110-*
-                            // В какой-то момент getAvatarUrl стал возвращать слишком маленькую иконку (s48)
-                            // (скорее всего, её такую возвращает ютюб, т.к. NewPipeExtractor парсит страницы)
-                            // У нас иконки примерно 100x100 везде, но будем брать с запасом 240x240, чтобы хайрез
-                            plThumbUrl = ((ChannelExtractor) extractor).getAvatarUrl().replace("=s48-", "=s240-");
+                            // Хак: выбрать разрмер побольше для иконки YouTube
+                            // Для PeerTube это просто ничего не сделает
+                            plThumbUrl = PlaylistUrlUtil.fixYtChannelAvatarSize(((ChannelExtractor) extractor).getAvatarUrl());
                         } else if (extractor instanceof PlaylistExtractor) {
                             plThumbUrl = ((PlaylistExtractor) extractor).getThumbnailUrl();
                         } else {
@@ -616,12 +612,14 @@ public class ContentLoader {
     private ListExtractor<StreamInfoItem> getListExtractor(final String plUrl) throws ExtractionException {
         final ListExtractor<StreamInfoItem> extractor;
 
-        if (PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {
+        if (PlaylistUrlUtil.isYtUser(plUrl) || PlaylistUrlUtil.isYtChannel(plUrl)) {
             extractor = YouTube.getChannelExtractor(plUrl);
         } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
             extractor = YouTube.getPlaylistExtractor(plUrl);
-        } else if (PlaylistUrlUtil.isPtChannel(plUrl) || PlaylistUrlUtil.isPtUser(plUrl)) {
+        } else if (PlaylistUrlUtil.isPtUser(plUrl) || PlaylistUrlUtil.isPtChannel(plUrl)) {
             extractor = PeerTube.getChannelExtractor(plUrl);
+        } else if (PlaylistUrlUtil.isPtPlaylist(plUrl)) {
+            extractor = PeerTube.getPlaylistExtractor(plUrl);
         } else {
             throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
         }
@@ -632,16 +630,18 @@ public class ContentLoader {
     private PlaylistInfo.PlaylistType getPlaylistType(final String plUrl) throws ExtractionException {
         final PlaylistInfo.PlaylistType plType;
 
-        if (PlaylistUrlUtil.isYtChannel(plUrl)) {
-            plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
-        } else if (PlaylistUrlUtil.isYtUser(plUrl)) {
+        if (PlaylistUrlUtil.isYtUser(plUrl)) {
             plType = PlaylistInfo.PlaylistType.YT_USER;
+        } else if (PlaylistUrlUtil.isYtChannel(plUrl)) {
+            plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
         } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
             plType = PlaylistInfo.PlaylistType.YT_PLAYLIST;
-        } else if (PlaylistUrlUtil.isPtChannel(plUrl)) {
-            plType = PlaylistInfo.PlaylistType.PT_CHANNEL;
         } else if (PlaylistUrlUtil.isPtUser(plUrl)) {
             plType = PlaylistInfo.PlaylistType.PT_USER;
+        } else if (PlaylistUrlUtil.isPtChannel(plUrl)) {
+            plType = PlaylistInfo.PlaylistType.PT_CHANNEL;
+        } else if (PlaylistUrlUtil.isPtPlaylist(plUrl)) {
+            plType = PlaylistInfo.PlaylistType.PT_PLAYLIST;
         } else {
             throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
         }

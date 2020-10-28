@@ -31,7 +31,7 @@ import androidx.room.PrimaryKey;
 public class PlaylistInfo {
 
     public enum PlaylistType {
-        LOCAL, YT_USER, YT_CHANNEL, YT_PLAYLIST, PT_CHANNEL, PT_USER
+        LOCAL, YT_USER, YT_CHANNEL, YT_PLAYLIST, PT_USER, PT_CHANNEL, PT_PLAYLIST
     }
 
     // Id должен быть только long, иначе из метода @Insert не получится получить id вновь созданной записи

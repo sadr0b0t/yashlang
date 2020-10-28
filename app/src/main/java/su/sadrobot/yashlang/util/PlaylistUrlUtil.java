@@ -22,45 +22,6 @@ package su.sadrobot.yashlang.util;
 
 
 public class PlaylistUrlUtil {
-    public static String getYtPlaylistUid(final String url) {
-        // https://www.youtube.com/playlist?list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388
-        return url
-                .replace("https://www.youtube.com/playlist?list=", "")
-                .replace("http://www.youtube.com/playlist?list=", "")
-                .replace("www.youtube.com/playlist?list=", "")
-                .replace("youtube.com/playlist?list=", "");
-    }
-
-    public static String getYtChannelUid(final String url) {
-        // https://www.youtube.com/channel/UCrlFHstLFNA_HsIV7AveNzA
-        return url
-                .replace("https://www.youtube.com/channel/", "")
-                .replace("http://www.youtube.com/channel/", "")
-                .replace("www.youtube.com/channel/", "")
-                .replace("youtube.com/channel/", "");
-    }
-
-    public static String getYtUserUid(final String url) {
-        // https://www.youtube.com/user/ClassicCartoonsMedia
-        return url
-                .replace("https://www.youtube.com/user/", "")
-                .replace("http://www.youtube.com/user/", "")
-                .replace("www.youtube.com/user/", "")
-                .replace("youtube.com/user/", "");
-    }
-
-    public static boolean isYtPlaylist(final String url) {
-        // например:
-        // https://www.youtube.com/playlist?list=PL7DB3215F59FB91BE
-        // https://www.youtube.com/watch?v=5NXpdxG4j5k&list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388
-        return url.contains("youtube.com") && url.contains("list=");
-    }
-
-    public static boolean isYtChannel(final String url) {
-        // например:
-        // https://www.youtube.com/channel/UCrlFHstLFNA_HsIV7AveNzA
-        return url.contains("youtube.com/channel/");
-    }
 
     public static boolean isYtUser(final String url) {
         // например:
@@ -74,15 +35,17 @@ public class PlaylistUrlUtil {
         return url.contains("youtube.com/user/") || url.contains("youtube.com/c/");
     }
 
-    public static boolean isPtChannel(final String url) {
+    public static boolean isYtChannel(final String url) {
         // например:
-        // https://open.tube/video-channels/public_domain_romance/videos
-        // https://peer.tube/video-channels/cartoons@vidcommons.org/videos
-        // в конец могут попасть параметры:
-        // https://peer.tube/video-channels/root_channel@yunopeertube.myddns.me/videos?a-state=42
+        // https://www.youtube.com/channel/UCrlFHstLFNA_HsIV7AveNzA
+        return url.contains("youtube.com/channel/");
+    }
 
-        // https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html
-        return url.matches(".+/video-channels/.+/videos(\\?.+)?");
+    public static boolean isYtPlaylist(final String url) {
+        // например:
+        // https://www.youtube.com/playlist?list=PL7DB3215F59FB91BE
+        // https://www.youtube.com/watch?v=5NXpdxG4j5k&list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388
+        return url.contains("youtube.com") && url.contains("list=");
     }
 
     public static boolean isPtUser(final String url) {
@@ -96,6 +59,27 @@ public class PlaylistUrlUtil {
         return url.matches(".+/accounts/.+/videos(\\?.+)?");
     }
 
+    public static boolean isPtChannel(final String url) {
+        // например:
+        // https://open.tube/video-channels/public_domain_romance/videos
+        // https://peer.tube/video-channels/cartoons@vidcommons.org/videos
+        // в конец могут попасть параметры:
+        // https://peer.tube/video-channels/root_channel@yunopeertube.myddns.me/videos?a-state=42
+
+        // https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html
+        return url.matches(".+/video-channels/.+/videos(\\?.+)?");
+    }
+
+    public static boolean isPtPlaylist(final String url) {
+        // например:
+        // https://peertube.ch/videos/watch/playlist/3e46da13-20ed-4ad3-92d0-9f8dbb08fb95
+        // в конец могут попасть параметры:
+        // https://peertube.ch/videos/watch/playlist/3e46da13-20ed-4ad3-92d0-9f8dbb08fb95?playlistPosition=1
+
+        // https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html
+        return url.matches(".+/videos/watch/playlist/.+");
+    }
+
 
     public static boolean isYtVideo(final String url) {
         // например:
@@ -104,9 +88,10 @@ public class PlaylistUrlUtil {
     }
 
     public static boolean isPtVideo(final String url) {
-        // TODO: может не сработать для каналов на других доменах
         // например:
         // https://peer.tube/api/v1/videos/a5bcc9ab-221c-4e25-afdb-88d837741b61
+
+        // https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html
         return url.matches(".+/api/.+/videos/.+");
     }
 

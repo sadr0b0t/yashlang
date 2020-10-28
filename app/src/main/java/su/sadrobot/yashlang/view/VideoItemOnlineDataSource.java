@@ -141,12 +141,14 @@ public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, Video
 
     protected ListExtractor<StreamInfoItem> getListExtractor(final String plUrl) throws ExtractionException {
         final ListExtractor<StreamInfoItem> extractor;
-        if(PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {
+        if(PlaylistUrlUtil.isYtUser(plUrl) || PlaylistUrlUtil.isYtChannel(plUrl)) {
             extractor = YouTube.getChannelExtractor(plUrl);
         } else if(PlaylistUrlUtil.isYtPlaylist(plUrl)) {
             extractor = YouTube.getPlaylistExtractor(plUrl);
-        } else if(PlaylistUrlUtil.isPtChannel(plUrl) || PlaylistUrlUtil.isPtUser(plUrl)) {
+        } else if(PlaylistUrlUtil.isPtUser(plUrl) || PlaylistUrlUtil.isPtChannel(plUrl)) {
             extractor = PeerTube.getChannelExtractor(plUrl);
+        } else if(PlaylistUrlUtil.isPtPlaylist(plUrl)) {
+            extractor = PeerTube.getPlaylistExtractor(plUrl);
         } else {
             throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
         }
