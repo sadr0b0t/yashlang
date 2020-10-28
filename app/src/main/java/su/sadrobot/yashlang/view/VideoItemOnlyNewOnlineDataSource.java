@@ -24,6 +24,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import org.schabi.newpipe.DownloaderTestImpl;
+import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 
@@ -53,8 +55,6 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
     // на странице видео есть дата получше (например: "12 авг. 2008 г."),
     // но ее парсить тоже не очень удобно с учетом локализации и сокращений.
 
-
-
     private long playlistId;
 
     // дошли до старых видео
@@ -72,7 +72,10 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
     public void loadInitial(@NonNull LoadInitialParams<String> params, @NonNull LoadInitialCallback<VideoItem> callback) {
 
         try {
-            extractor = getExtractor(playlistUrl);
+            // Выкачать список видео с 1-й страницы канала
+            NewPipe.init(DownloaderTestImpl.getInstance());
+
+            extractor = getListExtractor(playlistUrl);
 
             // загрузить первую страницу
             extractor.fetchPage();

@@ -353,7 +353,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final long plId = ContentLoader.getInstance().addYtPlaylist(
+                final long plId = ContentLoader.getInstance().addPlaylist(
                         AddPlaylistActivity.this, loadedPlaylist.getUrl(), taskController);
 
                 if (plId != -1) {
@@ -396,7 +396,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
                 Bitmap _plThumb = null;
                 String _errMsg = "";
                 try {
-                    _plInfo = ContentLoader.getInstance().getYtPlaylistInfo(plUrl);
+                    _plInfo = ContentLoader.getInstance().getPlaylistInfo(plUrl);
 
                     // иконка канала
                     _plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(

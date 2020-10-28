@@ -76,7 +76,17 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
 
     private PlaylistInfo[] recommendedPlaylists = {
-            // Замечание: размер иконки канала можно задавать любой вообще в параметре: *=s240-*
+
+            // PeerTube
+
+            new PlaylistInfo("Cartoons!",
+                    "https://peer.tube/video-channels/cartoons@vidcommons.org/videos",
+                    "https://peer.tube/lazy-static/avatars/67783267-cd06-4d8a-850c-d84bcd8a5c27.jpg",
+                    PlaylistInfo.PlaylistType.PT_CHANNEL),
+
+            // YouTube
+
+            // Замечание: размер иконки канала YouTube можно задавать любой вообще в параметре: *=s240-*
             // (например: *=s240-* или *=s160-*)
             // У нас иконки примерно 100x100 везде, но будем брать с запасом 240x240, чтобы хайрез
 
@@ -487,7 +497,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                         });
                     } else {
                         // добавляем
-                        final long plId = ContentLoader.getInstance().addYtPlaylist(
+                        final long plId = ContentLoader.getInstance().addPlaylist(
                                 AddRecommendedPlaylistsActivity.this, plInfo.getUrl(), taskController);
                         if (plId == -1) {
                             // Плейлист не добавлен - завершаему эту попытку, экран не закрываем
@@ -527,7 +537,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
                 for(final PlaylistInfo plInfo : recommendedPlaylists) {
                     try {
-                        final PlaylistInfo plInfo_ = ContentLoader.getInstance().getYtPlaylistInfo(plInfo.getUrl());
+                        final PlaylistInfo plInfo_ = ContentLoader.getInstance().getPlaylistInfo(plInfo.getUrl());
                         System.out.println(plInfo_.getName());
                         System.out.println(plInfo_.getUrl());
                         System.out.println(plInfo_.getThumbUrl());

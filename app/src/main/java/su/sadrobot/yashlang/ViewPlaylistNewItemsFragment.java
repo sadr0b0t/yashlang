@@ -470,7 +470,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                ContentLoader.getInstance().addYtPlaylistNewItems(
+                ContentLoader.getInstance().addPlaylistNewItems(
                         ViewPlaylistNewItemsFragment.this.getContext(),
                         playlistId, playlistUrl, taskController);
             }

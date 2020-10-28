@@ -48,6 +48,7 @@ import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 
+import static org.schabi.newpipe.extractor.ServiceList.PeerTube;
 import static org.schabi.newpipe.extractor.ServiceList.YouTube;
 
 
@@ -137,12 +138,13 @@ public class ContentLoader {
 
     /**
      * Ищем каналы и плейлисты по имени. В выдачу сначала добавляем каналы, потом плейлисты.
+     *
      * @param sstr
      * @return
      * @throws ExtractionException
      * @throws IOException
      */
-    public List<PlaylistInfo> searchPlaylists(final String sstr) throws ExtractionException, IOException {
+    public List<PlaylistInfo> searchYtPlaylists(final String sstr) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeChannelExtractorTest.java
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubePlaylistExtractorTest.java
@@ -189,44 +191,28 @@ public class ContentLoader {
         return playlists;
     }
 
-    public PlaylistInfo getYtPlaylistInfo(final String plUrl) throws ExtractionException, IOException {
+    public PlaylistInfo getPlaylistInfo(final String plUrl) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeChannelExtractorTest.java
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubePlaylistExtractorTest.java
 
-        final PlaylistInfo.PlaylistType plType;
-
         // Выкачать список всех видео в канале
         NewPipe.init(DownloaderTestImpl.getInstance());
-        final ListExtractor<StreamInfoItem> extractor;
-        if (PlaylistUrlUtil.isYtChannel(plUrl) ){
-            plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
-            extractor = YouTube.getChannelExtractor(plUrl);
-        } else if(PlaylistUrlUtil.isYtUser(plUrl)) {
-            plType = PlaylistInfo.PlaylistType.YT_USER;
-            extractor = YouTube.getChannelExtractor(plUrl);
-        } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
-            plType = PlaylistInfo.PlaylistType.YT_PLAYLIST;
-            extractor = YouTube.getPlaylistExtractor(plUrl);
-        } else {
-            throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
-        }
+
+        final PlaylistInfo.PlaylistType plType = getPlaylistType(plUrl);
+        final ListExtractor<StreamInfoItem> extractor = getListExtractor(plUrl);
 
         // грузим реально страницу здесь
         extractor.fetchPage();
 
-        // заберем со траницы то, что нам нужно
+        // заберем со страницы то, что нам нужно
         final String plName = extractor.getName();
         final String plThumbUrl;
 
         if (extractor instanceof ChannelExtractor) {
-            // Пример ссылки на иконку:
-            // https://yt3.ggpht.com/a/AGF-l7_hKI23Rm_DGUcoN7JFm2tKQl2maXaQdAJbqA=s110-c-k-c0xffffffff-no-rj-mo
-            // Размер иконки канала можно задавать любой вообще в параметре: *=s110-*
-            // В какой-то момент getAvatarUrl стал возвращать слишком маленькую иконку (s48)
-            // (скорее всего, её такую возвращает ютюб, т.к. NewPipeExtractor парсит страницы)
-            // У нас иконки примерно 100x100 везде, но будем брать с запасом 240x240, чтобы хайрез
-            plThumbUrl = ((ChannelExtractor) extractor).getAvatarUrl().replace("=s48-", "=s240-");
+            // Хак: выбрать разрмер побольше для иконки YouTube
+            // Для PeerTube это просто ничего не сделает
+            plThumbUrl = PlaylistUrlUtil.fixYtChannelAvatarSize(((ChannelExtractor) extractor).getAvatarUrl());
         } else if (extractor instanceof PlaylistExtractor) {
             plThumbUrl = ((PlaylistExtractor) extractor).getThumbnailUrl();
         } else {
@@ -237,7 +223,7 @@ public class ContentLoader {
         return new PlaylistInfo(plName, plUrl, plThumbUrl, plType);
     }
 
-    public long addYtPlaylist(final Context context, final String plUrl, final TaskController taskController) {
+    public long addPlaylist(final Context context, final String plUrl, final TaskController taskController) {
         // https://github.com/TeamNewPipe/NewPipeExtractor
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeChannelExtractorTest.java
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubePlaylistExtractorTest.java
@@ -252,6 +238,7 @@ public class ContentLoader {
         // информации из сети, вариант "выкачать все записи со всех страниц, а потом все их
         // добавить в базу" выглядит красивее
 
+        // YouTube
         // канал
         //https://www.youtube.com/channel/UCrlFHstLFNA_HsIV7AveNzA
         // пользователь
@@ -259,6 +246,12 @@ public class ContentLoader {
         // плейлист
         //https://www.youtube.com/playlist?list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388
         //https://www.youtube.com/watch?v=5NXpdxG4j5k&list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388
+
+        // PeerTube
+        // канал
+        // https://peer.tube/video-channels/cartoons@vidcommons.org/videos
+        // пользователь
+        // https://peer.tube/accounts/animation@vidcommons.org/video-channels
 
         taskController.setRunning(true);
 
@@ -273,6 +266,7 @@ public class ContentLoader {
                     // Выкачать список всех видео в канале
 
                     // для тестов:
+                    // YouTube
                     // канал
                     //final String plUrl = "https://www.youtube.com/channel/UCrlFHstLFNA_HsIV7AveNzA";
                     // пользователь
@@ -281,24 +275,18 @@ public class ContentLoader {
                     //final String plUrl = "https://www.youtube.com/playlist?list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388";
                     //final String plUrl = "https://www.youtube.com/watch?v=5NXpdxG4j5k&list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388";
 
+                    // PeerTube
+                    // канал
+                    // final String plUrl = "https://peer.tube/video-channels/cartoons@vidcommons.org/videos"
 
-                    final PlaylistInfo.PlaylistType plType;
 
                     NewPipe.init(DownloaderTestImpl.getInstance());
+
+                    final PlaylistInfo.PlaylistType plType;
                     final ListExtractor<StreamInfoItem> extractor;
                     try {
-                        if (PlaylistUrlUtil.isYtChannel(plUrl) ){
-                            plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
-                            extractor = YouTube.getChannelExtractor(plUrl);
-                        } else if(PlaylistUrlUtil.isYtUser(plUrl)) {
-                            plType = PlaylistInfo.PlaylistType.YT_USER;
-                            extractor = YouTube.getChannelExtractor(plUrl);
-                        } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
-                            plType = PlaylistInfo.PlaylistType.YT_PLAYLIST;
-                            extractor = YouTube.getPlaylistExtractor(plUrl);
-                        } else {
-                            throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
-                        }
+                        plType = getPlaylistType(plUrl);
+                        extractor = getListExtractor(plUrl);
                     } catch (ExtractionException e) {
                         taskController.setStatusMsg("Error loading playlist", e);
                         throw new RuntimeException(e);
@@ -430,7 +418,7 @@ public class ContentLoader {
         } catch (SQLException e) {
             taskController.setStatusMsg("UNEXPECTED DB problem", e);
             e.printStackTrace();
-        } catch (Exception e){
+        } catch (Exception e) {
             // нам все-таки нужно поймать здесь RuntimeException,
             // статус taskController уже выставлен внутри
         }
@@ -439,7 +427,7 @@ public class ContentLoader {
         return plId.get();
     }
 
-    public void addYtPlaylistNewItems(final Context context, final long plId,
+    public void addPlaylistNewItems(final Context context, final long plId,
                                       final String plUrl, final TaskController taskController) {
         // Загрузить новые видео в плейлисте - видео, добавленные после того,
         // как плейлист был сохранен локально или последний раз обновлялся
@@ -467,13 +455,7 @@ public class ContentLoader {
                     NewPipe.init(DownloaderTestImpl.getInstance());
                     final ListExtractor<StreamInfoItem> extractor;
                     try {
-                        if (PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {
-                            extractor = YouTube.getChannelExtractor(plUrl);
-                        } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
-                            extractor = YouTube.getPlaylistExtractor(plUrl);
-                        } else {
-                            throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
-                        }
+                        extractor = getListExtractor(plUrl);
                     } catch (ExtractionException e) {
                         taskController.setStatusMsg("Error loading playlist", e);
                         throw new RuntimeException(e);
@@ -579,7 +561,7 @@ public class ContentLoader {
         } catch (SQLException e) {
             taskController.setStatusMsg("UNEXPECTED DB problem", e);
             e.printStackTrace();
-        } catch (Exception e){
+        } catch (Exception e) {
             // нам все-таки нужно поймать здесь RuntimeException,
             // статус taskController уже выставлен внутри
         }
@@ -588,108 +570,10 @@ public class ContentLoader {
         taskController.setRunning(false);
     }
 
-    public List<VideoItem> loadYtPlaylistNewItems(final Context context, final PlaylistInfo playlist) throws IOException, ExtractionException {
-        // Загрузить новые видео в плейлисте - видео, добавленные после того,
-        // как плейлист был сохранен локально или последний раз обновлялся
-        // Алгоритм такой:
-        // 1) Мы считаем, что самые новые видео появляются первыми начиная с первой страницы
-        // 2) Загружаем все видео страница за страницей до тех пор, пока не встретится
-        // видео, которое уже было добавлено в локальную базу для этого плейлиста
-        // 3) У видео есть дата, но ее использовать сложнее и накладнее, чем предложенный
-        // алгоритм: во-первых, при загрузке информации о видео со страницы плейлиста
-        // вместо даты загрузки приходит бесполезная поебень вида "1 год назад", "4 месяца назад" и т.п.;
-        // на странице видео есть дата получше (например: "12 авг. 2008 г."),
-        // но ее парсить тоже не очень удобно с учетом локализации и сокращений.
-
-        final List<VideoItem> videoItems = new ArrayList<VideoItem>();
-
-        final String plUrl = playlist.getUrl();
-
-        NewPipe.init(DownloaderTestImpl.getInstance());
-        final ListExtractor<StreamInfoItem> extractor;
-        if (PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {
-            extractor = YouTube.getChannelExtractor(plUrl);
-        } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
-            extractor = YouTube.getPlaylistExtractor(plUrl);
-        } else {
-            throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
-        }
-
-        // список видео страница за страницей
-
-        // начинаем с первой страницы
-        // загрузить первую страницу
-        extractor.fetchPage();
-        ListExtractor.InfoItemsPage<StreamInfoItem> nextPage = extractor.getInitialPage();
-
-        final List<StreamInfoItem> pageItems = new ArrayList<StreamInfoItem>();
-        pageItems.addAll(nextPage.getItems());
-
-
-        boolean foundOld = false;
-        VideoDatabase videodb = VideoDatabase.getDb(context);
-        for (StreamInfoItem item : pageItems) {
-            if (videodb.videoItemDao().getByItemUrl(playlist.getId(), item.getUrl()) == null) {
-                videoItems.add(extractVideoItem(item, playlist.getId(), playlist.isEnabled(), 0));
-            } else {
-                foundOld = true;
-                break;
-            }
-        }
-        // закроем базу здесь и откроем заново после того, как будет загружена
-        // следующая страница, чтобы не оставить ее открытой в случае какого-нибудь
-        // экспепнеша в процессе загрузки страницы
-        videodb.close();
-
-        // если на первой странице все ролики оказались новыми, продолжаем с остальными страницами
-        // загружать по порядку остальные страницы до тех пор, пока не закончатся страницы
-        // или не встретим ролик, который уже был добавлен в базу
-        while (!foundOld && nextPage.hasNextPage()) {
-            pageItems.clear();
-
-            boolean done = false;
-            // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
-            // ошибку вместо страницы
-            int retryCount = LOAD_PAGE_RETRY_COUNT;
-            while (!done && retryCount > 0) {
-                try {
-                    nextPage = extractor.getPage(nextPage.getNextPage());
-                    done = true;
-                } catch (IOException | ExtractionException e) {
-                    retryCount--;
-                }
-            }
-
-            if (done) {
-                // загрузили страницу - проверяем ролики
-                pageItems.addAll(nextPage.getItems());
-                videodb = VideoDatabase.getDb(context);
-                for (StreamInfoItem item : pageItems) {
-                    if (videodb.videoItemDao().getByItemUrl(playlist.getId(), item.getUrl()) == null) {
-                        videoItems.add(extractVideoItem(item, playlist.getId(), playlist.isEnabled(), 0));
-                    } else {
-                        foundOld = true;
-                        break;
-                    }
-                }
-                // закроем базу здесь и откроем заново после того, как будет загружена
-                // следующая страница, чтобы не оставить ее открытой в случае какого-нибудь
-                // экспепнеша в процессе загрузки страницы
-                videodb.close();
-            } else {
-                // страница так и не загрузилась,
-                // обрываем транзакцию с ошибкой
-                throw new IOException("Error loading page, retry count exceeded");
-            }
-        }
-
-        return videoItems;
-    }
-
-    public VideoItem getVideoItem(final String itemUrl) throws ExtractionException, IOException {
+    public VideoItem fetchVideoItem(final String itemUrl) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
         NewPipe.init(DownloaderTestImpl.getInstance());
-        final StreamExtractor extractor = YouTube.getStreamExtractor(itemUrl);
+        final StreamExtractor extractor = getStreamExtractor(itemUrl);
         extractor.fetchPage();
         return extractVideoItem(extractor);
     }
@@ -697,7 +581,7 @@ public class ContentLoader {
     public String extractDefaultStreamUrl(final String itemUrl) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
         NewPipe.init(DownloaderTestImpl.getInstance());
-        final StreamExtractor extractor = YouTube.getStreamExtractor(itemUrl);
+        final StreamExtractor extractor = getStreamExtractor(itemUrl);
         extractor.fetchPage();
 
         // взять стрим 1-й с списке (скорее всего это стрим с наименьшим качеством - обычно это 360p mp4)
@@ -710,7 +594,7 @@ public class ContentLoader {
     public String extractStreamUrl(final String itemUrl) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
         NewPipe.init(DownloaderTestImpl.getInstance());
-        final StreamExtractor extractor = YouTube.getStreamExtractor(itemUrl);
+        final StreamExtractor extractor = getStreamExtractor(itemUrl);
         extractor.fetchPage();
 
         // выбирать стрим с наилучшим качеством (в конце списка)
@@ -727,6 +611,54 @@ public class ContentLoader {
 //        }
 
         return streamUrl;
+    }
+
+    private ListExtractor<StreamInfoItem> getListExtractor(final String plUrl) throws ExtractionException {
+        final ListExtractor<StreamInfoItem> extractor;
+
+        if (PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {
+            extractor = YouTube.getChannelExtractor(plUrl);
+        } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
+            extractor = YouTube.getPlaylistExtractor(plUrl);
+        } else if (PlaylistUrlUtil.isPtChannel(plUrl) || PlaylistUrlUtil.isPtUser(plUrl)) {
+            extractor = PeerTube.getChannelExtractor(plUrl);
+        } else {
+            throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
+        }
+
+        return extractor;
+    }
+
+    private PlaylistInfo.PlaylistType getPlaylistType(final String plUrl) throws ExtractionException {
+        final PlaylistInfo.PlaylistType plType;
+
+        if (PlaylistUrlUtil.isYtChannel(plUrl)) {
+            plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
+        } else if (PlaylistUrlUtil.isYtUser(plUrl)) {
+            plType = PlaylistInfo.PlaylistType.YT_USER;
+        } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
+            plType = PlaylistInfo.PlaylistType.YT_PLAYLIST;
+        } else if (PlaylistUrlUtil.isPtChannel(plUrl)) {
+            plType = PlaylistInfo.PlaylistType.PT_CHANNEL;
+        } else if (PlaylistUrlUtil.isPtUser(plUrl)) {
+            plType = PlaylistInfo.PlaylistType.PT_USER;
+        } else {
+            throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
+        }
+
+        return plType;
+    }
+
+    private StreamExtractor getStreamExtractor(final String itemUrl) throws ExtractionException {
+        final StreamExtractor extractor;
+        if (PlaylistUrlUtil.isYtVideo(itemUrl)) {
+            extractor = YouTube.getStreamExtractor(itemUrl);
+        } else if (PlaylistUrlUtil.isPtVideo(itemUrl)) {
+            extractor = PeerTube.getStreamExtractor(itemUrl);
+        } else {
+            throw new ExtractionException("Unrecognized video URL: " + itemUrl);
+        }
+        return extractor;
     }
 
     private VideoItem extractVideoItem(final StreamExtractor item) throws ParsingException {
@@ -746,10 +678,9 @@ public class ContentLoader {
     }
 
     /**
-     *
      * @param item
-     * @param playlistId playlist_id value to set
-     * @param enabled enabled flag to set
+     * @param playlistId    playlist_id value to set
+     * @param enabled       enabled flag to set
      * @param fakeTimestamp fake_timestamp value to set
      * @return
      */

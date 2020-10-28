@@ -50,21 +50,56 @@ public class PlaylistUrlUtil {
     }
 
     public static boolean isYtPlaylist(final String url) {
-        // TODO: this parser is too dummy
-        return url.contains("youtube.com/playlist?list=");
+        // например:
+        // https://www.youtube.com/playlist?list=PL7DB3215F59FB91BE
+        // https://www.youtube.com/watch?v=5NXpdxG4j5k&list=PLt6kNtUbjfc_YA0YmmyQP6ByXKa3u4388
+        return url.contains("youtube.com") && url.contains("list=");
     }
 
     public static boolean isYtChannel(final String url) {
-        // TODO: this parser is too dummy
+        // например:
+        // https://www.youtube.com/channel/UCrlFHstLFNA_HsIV7AveNzA
         return url.contains("youtube.com/channel/");
     }
 
     public static boolean isYtUser(final String url) {
-        // TODO: this parser is too dummy
+        // например:
+        // https://www.youtube.com/c/eralash
+        // https://www.youtube.com/user/TVSmeshariki
+
         // обратить внимание: варианты  плйлистов youtube.com/user/ и youtube.com/c/ не обязательно взаимозаменяемые
         // например: www.youtube.com/user/Soyuzmultfilm и www.youtube.com/c/Soyuzmultfilm - разные пользователи
+        // или: https://www.youtube.com/c/eralash есть, а https://www.youtube.com/user/eralash вообще не существует
         // (но иногда совпадают)
         return url.contains("youtube.com/user/") || url.contains("youtube.com/c/");
+    }
+
+    public static boolean isPtChannel(final String url) {
+        // TODO: может не сработать для каналов на других доменах
+        // например:
+        // https://peer.tube/video-channels/cartoons@vidcommons.org/videos
+        return url.contains("peer.tube/video-channels") && url.endsWith("/videos");
+    }
+
+    public static boolean isPtUser(final String url) {
+        // TODO: может не сработать для каналов на других доменах
+        // например:
+        // https://peer.tube/accounts/animation@vidcommons.org/videos
+        return url.contains("peer.tube/accounts") && url.endsWith("/videos");
+    }
+
+
+    public static boolean isYtVideo(final String url) {
+        // например:
+        // https://www.youtube.com/watch?v=Tb8jSMhTK0s
+        return url.startsWith("https://www.youtube.com/watch?v=");
+    }
+
+    public static boolean isPtVideo(final String url) {
+        // TODO: может не сработать для каналов на других доменах
+        // например:
+        // https://peer.tube/api/v1/videos/a5bcc9ab-221c-4e25-afdb-88d837741b61
+        return url.startsWith("https://peer.tube") && url.contains("/videos/");
     }
 
     /**
@@ -74,5 +109,20 @@ public class PlaylistUrlUtil {
      */
     public static String cleanupUrl(final String url) {
         return url.replaceFirst("https://", "").replaceFirst("www.", "");
+    }
+
+    /**
+     * Исправить адрес иконки канала YouTube так, чтобы иконка была большего размера
+     * @param iconUrl
+     * @return
+     */
+    public static String fixYtChannelAvatarSize(final String iconUrl) {
+        // Пример ссылки на иконку:
+        // https://yt3.ggpht.com/a/AGF-l7_hKI23Rm_DGUcoN7JFm2tKQl2maXaQdAJbqA=s110-c-k-c0xffffffff-no-rj-mo
+        // Размер иконки канала YouTube можно задавать любой вообще в параметре: *=s110-*
+        // В какой-то момент getAvatarUrl стал возвращать слишком маленькую иконку (s48)
+        // (скорее всего, её такую возвращает ютюб, т.к. NewPipeExtractor парсит страницы)
+        // У нас иконки примерно 100x100 везде, но будем брать с запасом 240x240, чтобы хайрез
+        return iconUrl.replace("=s48-", "=s240-");
     }
 }

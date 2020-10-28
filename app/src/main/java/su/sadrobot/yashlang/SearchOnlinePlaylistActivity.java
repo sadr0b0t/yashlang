@@ -127,7 +127,7 @@ public class SearchOnlinePlaylistActivity extends AppCompatActivity {
                 // загрузить список видео
                 List<PlaylistInfo> _playlists;
                 try {
-                    _playlists = ContentLoader.getInstance().searchPlaylists(sstr);
+                    _playlists = ContentLoader.getInstance().searchYtPlaylists(sstr);
 
                 } catch (Exception e) {
                     _playlists = new ArrayList<>();

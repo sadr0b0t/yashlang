@@ -40,6 +40,7 @@ import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 
+import static org.schabi.newpipe.extractor.ServiceList.PeerTube;
 import static org.schabi.newpipe.extractor.ServiceList.YouTube;
 
 /**
@@ -75,7 +76,10 @@ public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, Video
     public void loadInitial(@NonNull LoadInitialParams<String> params, @NonNull LoadInitialCallback<VideoItem> callback) {
 
         try {
-            extractor = getExtractor(playlistUrl);
+            // Выкачать список видео с 1-й страницы канала
+            NewPipe.init(DownloaderTestImpl.getInstance());
+
+            extractor = getListExtractor(playlistUrl);
 
             // загрузить первую страницу
             extractor.fetchPage();
@@ -135,15 +139,14 @@ public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, Video
 
     }
 
-    protected ListExtractor<StreamInfoItem> getExtractor(final String plUrl) throws ExtractionException {
-        // Выкачать список видео с 1й страницы канала
-        NewPipe.init(DownloaderTestImpl.getInstance());
-
+    protected ListExtractor<StreamInfoItem> getListExtractor(final String plUrl) throws ExtractionException {
         final ListExtractor<StreamInfoItem> extractor;
         if(PlaylistUrlUtil.isYtChannel(plUrl) || PlaylistUrlUtil.isYtUser(plUrl)) {
             extractor = YouTube.getChannelExtractor(plUrl);
         } else if(PlaylistUrlUtil.isYtPlaylist(plUrl)) {
             extractor = YouTube.getPlaylistExtractor(plUrl);
+        } else if(PlaylistUrlUtil.isPtChannel(plUrl) || PlaylistUrlUtil.isPtUser(plUrl)) {
+            extractor = PeerTube.getChannelExtractor(plUrl);
         } else {
             throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
         }

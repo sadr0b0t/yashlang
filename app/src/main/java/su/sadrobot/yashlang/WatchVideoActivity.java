@@ -581,7 +581,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     // грузим информацию из онлайна
                     VideoItem _videoItem;
                     try {
-                        _videoItem = ContentLoader.getInstance().getVideoItem(videoItemUrl);
+                        _videoItem = ContentLoader.getInstance().fetchVideoItem(videoItemUrl);
                     } catch (ExtractionException | IOException e) {
                         _videoItem = null;
                         //e.printStackTrace();
