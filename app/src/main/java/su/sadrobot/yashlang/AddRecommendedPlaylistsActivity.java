@@ -92,7 +92,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     PlaylistInfo.PlaylistType.PT_CHANNEL),
 
             new PlaylistInfo("OpenMovies \uD83D\uDCFD",
-                    "https://open.tube/accounts/openmovies/video-channels",
+                    "https://open.tube/accounts/openmovies/videos",
                     "https://open.tube/lazy-static/avatars/a5a7dff0-27ed-4079-9a91-165a30fb5532.jpg",
                     PlaylistInfo.PlaylistType.PT_USER),
 

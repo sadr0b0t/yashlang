@@ -50,7 +50,7 @@ public class PlaylistUrlUtil {
 
     public static boolean isPtUser(final String url) {
         // например:
-        // https://open.tube/accounts/openmovies/video-channels
+        // https://open.tube/accounts/openmovies/videos
         // https://peer.tube/accounts/animation@vidcommons.org/videos
         // в конец могут попасть параметры:
         // https://peertube.ch/accounts/gabyweber/videos?a-state=42
