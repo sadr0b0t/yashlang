@@ -82,9 +82,12 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
     private View playlistItemsView;
 
     private View emptyView;
-    private Button checkNewItemsBtn;
-    private TextView checkErrorTxt;
+    private View checkInitialView;
     private ProgressBar checkProgress;
+    private View checkErrorView;
+    private TextView checkErrorTxt;
+    private Button checkNewItemsBtn;
+
 
     private View newItemsView;
     private Button addNewItemsBtn;
@@ -113,13 +116,24 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
     private long playlistId = -1;
     private PlaylistInfo plInfo;
 
+    private boolean checkError = false;
+
     private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
         private void checkIfEmpty() {
             // пришли какие-то данные (или сообщение, что их нет) - в любом случае прячем прогресс
-            checkProgress.setVisibility(View.INVISIBLE);
+            // плюс, сюда же попадаем в случае ошибки
+            if(!checkError) {
+                checkProgress.setVisibility(View.INVISIBLE);
+                checkInitialView.setVisibility(View.VISIBLE);
+                checkErrorView.setVisibility(View.GONE);
+            } else {
+                checkProgress.setVisibility(View.GONE);
+                checkInitialView.setVisibility(View.GONE);
+                checkErrorView.setVisibility(View.VISIBLE);
+            }
             checkNewItemsBtn.setEnabled(true);
 
             //
@@ -176,9 +190,12 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         playlistItemsView = view.findViewById(R.id.playlist_items_view);
 
         emptyView = view.findViewById(R.id.empty_view);
-        checkNewItemsBtn = view.findViewById(R.id.check_new_items_btn);
-        checkErrorTxt = view.findViewById(R.id.check_error_txt);
+        checkInitialView = view.findViewById(R.id.check_initial_view);
         checkProgress = view.findViewById(R.id.check_progress);
+        checkErrorView = view.findViewById(R.id.check_error_view);
+        checkErrorTxt = view.findViewById(R.id.check_error_txt);
+        checkNewItemsBtn = view.findViewById(R.id.check_new_items_btn);
+
 
         newItemsView = view.findViewById(R.id.playlist_new_items_view);
         addNewItemsBtn = view.findViewById(R.id.add_new_items_btn);
@@ -263,9 +280,15 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
      * @param plId
      */
     private void updateVideoListBg(final long plId) {
-        // прогресс будет видно до тех пор, пока в адаптер не придут какие-то данные
+        // прогресс будет видно до тех пор, пока в адаптер не придут какие-то данные или не
+        // произойдет ошибка
+        checkError = false;
+
+        checkInitialView.setVisibility(View.INVISIBLE);
         checkProgress.setVisibility(View.VISIBLE);
-        checkErrorTxt.setVisibility(View.GONE);
+        checkErrorView.setVisibility(View.GONE);
+
+        checkErrorTxt.setText("");
         checkNewItemsBtn.setEnabled(false);
 
         new Thread(new Runnable() {
@@ -378,8 +401,14 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                                 handler.post(new Runnable() {
                                     @Override
                                     public void run() {
+                                        checkError = true;
+
                                         checkErrorTxt.setText(e.getMessage());
-                                        checkErrorTxt.setVisibility(View.VISIBLE);
+
+                                        // настройки видимости будут выше в checkIfEmpty
+                                        //checkErrorView.setVisibility(View.VISIBLE);
+                                        //checkInitialView.setVisibility(View.GONE);
+                                        //checkProgress.setVisibility(View.GONE);
                                     }
                                 });
                             }

@@ -207,8 +207,9 @@ public class AddPlaylistActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
                 final String playlistUrl = playlistUrlInput.getText().toString();
-                updateVideoListBg(playlistUrl);
-
+                if(playlistUrl.length() > 0) {
+                    updateVideoListBg(playlistUrl);
+                }
                 return false;
             }
         });

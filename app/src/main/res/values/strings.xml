@@ -10,7 +10,7 @@
     <string name="yashlang_blacklist">YaShlang: blacklist</string>
     <string name="search">Search</string>
     <string name="add_new_playlist">Add new playlist</string>
-    <string name="failed_to_load_list">Failed to load list</string>
+    <string name="failed_to_load_list">Failed to load playlist</string>
     <string name="reload">Reload</string>
     <string name="add">Add</string>
     <string name="adding_playlist">Adding playlist</string>
@@ -62,4 +62,6 @@
     <string name="nothing_in_history">Nothing in history</string>
     <string name="play_starred">Play starred</string>
     <string name="nothing_to_play">Nothing to play</string>
+    <string name="pt_or_yt">(PeerTube or YT)</string>
+    <string name="failed_to_load_new_items">Failed to load new items</string>
 </resources>

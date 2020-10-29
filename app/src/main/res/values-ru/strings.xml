@@ -10,7 +10,7 @@
     <string name="yashlang_blacklist">YaShlang: черный список</string>
     <string name="search">Искать</string>
     <string name="add_new_playlist">Добавить новый плейлист</string>
-    <string name="failed_to_load_list">Ошибка добавления списка</string>
+    <string name="failed_to_load_list">Не получилось загрузить плейлист</string>
     <string name="reload">Загрузить заново</string>
     <string name="add">Добавить</string>
     <string name="adding_playlist">Добавляем плейлист</string>
@@ -22,7 +22,7 @@
     <string name="history">История</string>
     <string name="faves">Любимое</string>
     <string name="search_video">искать видео</string>
-    <string name="channel_or_playlist_name">имя плейлиста или канала</string>
+    <string name="channel_or_playlist_name">имя канала или плейлиста</string>
     <string name="go_back">Назад</string>
     <string name="prev_video">Предыдущее видео</string>
     <string name="delete">Удалить</string>
@@ -30,7 +30,7 @@
     <string name="enable">Включить</string>
     <string name="no_new_items_in_playlist">Для этого списка пока нет новых элементов</string>
     <string name="check_for_new_items">Проверить, есть что нового</string>
-    <string name="channel_or_playlist_url">адрес url плейлиста или канала</string>
+    <string name="channel_or_playlist_url">адрес url канала или плейлиста</string>
     <string name="filter">фильтр</string>
     <string name="add_to_blacklist">Блокировать</string>
     <string name="copy_playlist_url">Копировать адрес плейлиста</string>
@@ -62,4 +62,6 @@
     <string name="nothing_in_history">Здесь будет история просмотров</string>
     <string name="play_starred">Играть любимые</string>
     <string name="nothing_to_play">Нечего играть</string>
+    <string name="pt_or_yt">(PeerTube или YT)</string>
+    <string name="failed_to_load_new_items">Не получилось загрузить новые элементы</string>
 </resources>
