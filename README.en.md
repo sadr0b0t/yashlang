@@ -1,5 +1,5 @@
 # YaShlang
-Online YouTube player for Android with local playlists and whitelisted recommendations  
+Online PeerTube and YouTube player for Android with local playlists and whitelisted recommendations  
 на русском: [README.md](README.md)
 
 <a href="https://f-droid.org/packages/su.sadrobot.yashlang/"><img src="https://f-droid.org/wiki/images/0/06/F-Droid-button_get-it-on.png"></a>
@@ -8,7 +8,7 @@ Online YouTube player for Android with local playlists and whitelisted recommend
 - Switch off videos inside added playlists if you don't like them
 - Watch videos you only want to
 
-Turns YouTube to a safe place for you and your children.
+Make your own safe and fully controlled online theater.
 
 (available interface languages: English, Russian)
 
@@ -46,6 +46,8 @@ Turns YouTube to a safe place for you and your children.
 [<img src="doc/screens/v0.1.x/add-playlist-9.png" width=200>](doc/screens/v0.1.x/add-playlist-9.png)
 
 Search online by name or insert known address.
+
+You can insert known address of PeerTube or YouTube channel, user or playlist. Online search by name works only for YouTube channels and playlists.
 
 ### Dynamic playlist — play search results
 
@@ -127,14 +129,14 @@ Does not require Google/YouTube account, you will need only interner.
 
 Used libraries:
 
-- [NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor/) to get info from YouTube
+- [NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor/) to get info from PeerTube and YouTube
 - [ExoPlayer](https://exoplayer.dev/) to play videos.
 
 Opensource (libresource) under GPLv3 license.
 
 ## Known problems
 
-- Won't play videos with age restrictions, which require Google/YouTube login
+- Won't play YouTube videos with age restrictions, which require Google/YouTube login
 
 for example: [Илья Муромец, Киноконцерн "Мосфильм"](https://www.youtube.com/watch?v=hooaKxdXbfM), [Руслан и Людмила 1-ая серия / Ruslan and Lyudmila film 1, Киноконцерн "Мосфильм"](https://www.youtube.com/watch?v=2UoO2t536Ko)
 
@@ -154,7 +156,17 @@ for example: [Укрощение огня 1 серия, Киноконцерн "
 
 - Interface might be glitchy while loading galleries and lists with slow (but available) internet
 
+updt: should be better after this https://github.com/sadr0b0t/yashlang/issues/17
+
 - If you catch NullPointerException while opening video or adding playlist, please copy stack trace and create bug report, then try same operation again, most likely it would finish successfully.
+
+- "reCAPTCHA challendge" error while adding new playlists
+
+Google does not like big number of queries from same address, so it enables captcha for loading pages. You can try to switch to another network (for example, switch off wifi and switch to mobile inet) or wait for the end of current hour (or wait for the whole hour) when Google would disable ban for punished address.
+
+- DO NOT DOWNGRADE to 0.1.0 (or lower) after upgrading to 0.20 (or higher): you would loose all app data - added playlists, view history, stars etc.
+
+This is fixed starting from 0.2.0 (you can safely downgrade to 0.2.0 in future, but not to 0.1.0!). Version 0.1.0 is broked anyway, so there is no reasonable need to downgrade.
 
 ## Someday in the future
 
