@@ -56,6 +56,9 @@ public class VideoItem {
     // for the inserted item. If the parameter is an array or a collection,
     // it should return long[] or List<Long> instead.
 
+    // также _id должен быть равен нулю в тех случаях, когда мы добавляем объект в базу для того,
+    // чтобы работал механизм autogenerate
+
     @PrimaryKey(autoGenerate = true)
     private long _id;
 

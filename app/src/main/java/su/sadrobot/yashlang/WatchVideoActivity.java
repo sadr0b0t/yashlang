@@ -402,7 +402,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     // TODO: сделайть экран с таймаутом секунд на 10, прогрессбаром и кнопкой
                     // перейти сейчас, отменить, играть заново текущий.
 
-                    if(videoList.getAdapter() != null && videoList.getAdapter().getItemCount() > 1) {
+                    if (videoList.getAdapter() != null && videoList.getAdapter().getItemCount() > 1) {
                         // переходим на следующее видео по списку рекомендаций
                         final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
                                 0 : currentVideoPosition + 1;
@@ -605,6 +605,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                     VideoItem _videoItem;
                     try {
                         _videoItem = ContentLoader.getInstance().fetchVideoItem(videoItemUrl);
+                        // это значит для нас, что объекта нет в базе (по умолчанию _id=0)
+                        _videoItem.setId(-1);
                     } catch (ExtractionException | IOException e) {
                         _videoItem = null;
                         //e.printStackTrace();
@@ -827,54 +829,62 @@ public class WatchVideoActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(final Menu menu) {
         // https://developer.android.com/training/appbar/action-views.html
 
-        toolbar.inflateMenu(R.menu.watch_video_actions);
-        starredCheck = (CheckBox) toolbar.getMenu().findItem(R.id.action_star).getActionView();
-        starredCheck.setButtonDrawable(android.R.drawable.btn_star);
-
-        // Текущее значение и клик-листенер для starredCheck задается внутри playVideoItem.
-        // Но при загрузке аквити у нас получается так, что currentVideo появляется раньше в onCreate,
-        // чем создается меню здесь, поэтому playVideoItem вызывается раньше, чем появляется starredCheck,
-        // поэтому там клик-лисенер для starredCheck не назначается, нужно назначить его здесь.
+        // Создаём меню заново для каждого нового загруженного видео, при загрузке нового видео
+        // в playVideoItem вызываем invalidateOptionsMenu.
         if (currentVideo != null) {
-            // еще так же делаем в playVideoItem
-            starredCheck.setChecked(currentVideo.isStarred());
-            starredCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
-                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
-                    final VideoItem _currentVideo = currentVideo;
-                    final Stack<VideoItem> _playbackHistory = playbackHistory;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (_currentVideo != null) {
-                                videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
 
-                                // обновим кэш
-                                _currentVideo.setStarred(isChecked);
+            toolbar.inflateMenu(R.menu.watch_video_actions);
 
-                                // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
-                                // (там ролик будет тот же, а объект VideoItem - другой)
-                                for(final VideoItem item : _playbackHistory){
-                                    if(item.getId() == _currentVideo.getId()) {
-                                        item.setStarred(isChecked);
+            if (currentVideo.getId() != -1) {
+
+                starredCheck = (CheckBox) toolbar.getMenu().findItem(R.id.action_star).getActionView();
+                starredCheck.setButtonDrawable(android.R.drawable.btn_star);
+
+                starredCheck.setChecked(currentVideo.isStarred());
+                starredCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+                        // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+                        // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+                        final VideoItem _currentVideo = currentVideo;
+                        final Stack<VideoItem> _playbackHistory = playbackHistory;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (_currentVideo != null) {
+                                    videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
+
+                                    // обновим кэш
+                                    _currentVideo.setStarred(isChecked);
+
+                                    // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
+                                    // (там ролик будет тот же, а объект VideoItem - другой)
+                                    for (final VideoItem item : _playbackHistory) {
+                                        if (item.getId() == _currentVideo.getId()) {
+                                            item.setStarred(isChecked);
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }).start();
-                }
-            });
-        }
-
-        toolbar.setOnMenuItemClickListener(
-                new Toolbar.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        return onOptionsItemSelected(item);
+                        }).start();
                     }
                 });
+
+            } else {
+                toolbar.getMenu().findItem(R.id.action_star).setVisible(false);
+                toolbar.getMenu().findItem(R.id.action_blacklist).setVisible(false);
+                toolbar.getMenu().findItem(R.id.action_copy_playlist_name).setVisible(false);
+                toolbar.getMenu().findItem(R.id.action_copy_playlist_url).setVisible(false);
+            }
+
+            toolbar.setOnMenuItemClickListener(
+                    new Toolbar.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            return onOptionsItemSelected(item);
+                        }
+                    });
+        }
 
         return true;
     }
@@ -1017,8 +1027,8 @@ public class WatchVideoActivity extends AppCompatActivity {
 
                                             // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
                                             // (там ролик будет тот же, а объект VideoItem - другой)
-                                            for(final VideoItem item : _playbackHistory){
-                                                if(item.getId() == _currentVideo.getId()) {
+                                            for (final VideoItem item : _playbackHistory) {
+                                                if (item.getId() == _currentVideo.getId()) {
                                                     item.setBlacklisted(true);
                                                 }
                                             }
@@ -1084,7 +1094,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
     private void updateControlsVisibility() {
-        if(stateFullscreen) {
+        if (stateFullscreen) {
             prevVideoBtn.setVisibility(View.GONE);
             nextVideoBtn.setVisibility(View.GONE);
             videoList.setVisibility(View.GONE);
@@ -1094,7 +1104,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             //videoPlayerView.hideController();
             videoPlayerControlView.hide();
         } else {
-            if(videoList.getAdapter() == null || videoList.getAdapter().getItemCount() < 2) {
+            if (videoList.getAdapter() == null || videoList.getAdapter().getItemCount() < 2) {
                 prevVideoBtn.setVisibility(View.GONE);
                 nextVideoBtn.setVisibility(View.GONE);
                 videoList.setVisibility(View.GONE);
@@ -1220,7 +1230,6 @@ public class WatchVideoActivity extends AppCompatActivity {
      * Начать проигрывание нового ролика - показать информацию о видео, решить вопросы
      * с сохранением позиций предыдущего видео, стеком истории проигрывания и т.п.
      */
-
     private void playVideoItem(final VideoItem videoItem, final boolean resetCurrPos) {
         // сбросим или сохраним текущую позицию предыдущего видео
         if (resetCurrPos) {
@@ -1248,41 +1257,8 @@ public class WatchVideoActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(videoItem.getName());
             getSupportActionBar().setSubtitle(videoItem.getUploader());
 
-            // передобавлять слушателя здесь, чтобы лишний раз не перезаписывать звездочку в базе
-            // (starredCheck у нас появляется в onCreateOptionsMenu, поэтому он может быть null,
-            // если вызываем playVideoItem из onCreate'а)
-            if (starredCheck != null) {
-                starredCheck.setOnCheckedChangeListener(null);
-                starredCheck.setChecked(videoItem.isStarred());
-                starredCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                        // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
-                        // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
-                        final VideoItem _currentVideo = currentVideo;
-                        final Stack<VideoItem> _playbackHistory = playbackHistory;
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (_currentVideo != null) {
-                                    videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
-
-                                    // обновим кэш
-                                    _currentVideo.setStarred(isChecked);
-
-                                    // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
-                                    // (там ролик будет тот же, а объект VideoItem - другой)
-                                    for(final VideoItem item : _playbackHistory){
-                                        if(item.getId() == _currentVideo.getId()) {
-                                            item.setStarred(isChecked);
-                                        }
-                                    }
-                                }
-                            }
-                        }).start();
-                    }
-                });
-            }
+            // обновить меню - в onCreateOptionsMenu()
+            invalidateOptionsMenu();
 
             // теперь то, что в фоне
             videoLoadingExecutor.execute(new Runnable() {
@@ -1446,38 +1422,57 @@ public class WatchVideoActivity extends AppCompatActivity {
      * Загрузить заново видеопоток для текущего ролика
      */
     private void actionReload() {
-        if (currentVideo != null && currentVideo.getId() != -1) {
-            // загрузить поток видео заново (иногда после разрыва соединения
-            // видео может перестать загружаться и появление соединения процесс
-            // не возобновляет)
+        if (currentVideo != null) {
+            if (currentVideo.getId() != -1) {
+                // загрузить поток видео заново (иногда после разрыва соединения
+                // видео может перестать загружаться и появление соединения процесс
+                // не возобновляет)
 
-            // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
-            // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
-            final VideoItem _currentVideo = currentVideo;
-            final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
-            // для текущего кэша, да
-            if (currentVideo != null && playerState == PlayerState.LOADED) {
-                currentVideo.setPausedAt(_currentPos);
-            }
-            // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
-            // видео заново - обе операции в фоновом потоке
-            videoLoadingExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    // если за время запуска потока видео успели переключить, всё отменяем
-                    if (_currentVideo != null && _currentVideo == currentVideo) {
-                        if (playerState == PlayerState.LOADED) {
-                            // сохраним текущую позицию только в том случае, если ролик был загружен
-                            // (может быть ситуация, когда мы переключились на видео с ранее
-                            // сохраненной позицией, а оно не загрузилось, тогда бы у нас
-                            // сбросилась старая сохраненная позиция, а это не хорошо)
-                            videodb.videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
-                        }
-
-                        loadVideoItem(currentVideo);
-                    }
+                // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+                // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+                final VideoItem _currentVideo = currentVideo;
+                final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
+                // для текущего кэша, да
+                if (currentVideo != null && playerState == PlayerState.LOADED) {
+                    currentVideo.setPausedAt(_currentPos);
                 }
-            });
+                // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
+                // видео заново - обе операции в фоновом потоке
+                videoLoadingExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        // если за время запуска потока видео успели переключить, всё отменяем
+                        if (_currentVideo != null && _currentVideo == currentVideo) {
+                            if (playerState == PlayerState.LOADED) {
+                                // сохраним текущую позицию только в том случае, если ролик был загружен
+                                // (может быть ситуация, когда мы переключились на видео с ранее
+                                // сохраненной позицией, а оно не загрузилось, тогда бы у нас
+                                // сбросилась старая сохраненная позиция, а это не хорошо)
+                                videodb.videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
+                            }
+
+                            loadVideoItem(currentVideo);
+                        }
+                    }
+                });
+            } else {
+                // если видео нет в базе
+                final VideoItem _currentVideo = currentVideo;
+                final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
+                // для текущего кэша, да
+                if (currentVideo != null && playerState == PlayerState.LOADED) {
+                    currentVideo.setPausedAt(_currentPos);
+                }
+                videoLoadingExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        // если за время запуска потока видео успели переключить, всё отменяем
+                        if (_currentVideo != null && _currentVideo == currentVideo) {
+                            loadVideoItem(currentVideo);
+                        }
+                    }
+                });
+            }
         }
     }
 
@@ -1591,8 +1586,8 @@ public class WatchVideoActivity extends AppCompatActivity {
 
                                                             // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
                                                             // (там ролик будет тот же, а объект VideoItem - другой)
-                                                            for(final VideoItem item : _playbackHistory){
-                                                                if(item.getId() == videoItem.getId()) {
+                                                            for (final VideoItem item : _playbackHistory) {
+                                                                if (item.getId() == videoItem.getId()) {
                                                                     item.setBlacklisted(true);
                                                                 }
                                                             }
