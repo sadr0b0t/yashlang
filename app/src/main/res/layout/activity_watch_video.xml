@@ -31,7 +31,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="10dp"
-                    android:src="@drawable/exo_controls_previous" />
+                    android:src="@drawable/exo_controls_previous"
+                    android:visibility="invisible"/>
 
                 <LinearLayout
                     android:id="@+id/video_player_error_view"

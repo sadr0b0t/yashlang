@@ -90,7 +90,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:src="@drawable/exo_controls_previous" />
+            android:src="@drawable/exo_controls_previous"
+            android:visibility="invisible"/>
 
         <ImageButton
             android:id="@+id/next_video_btn"

@@ -197,6 +197,31 @@ public class WatchVideoActivity extends AppCompatActivity {
                         }
                     });
 
+    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+        // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
+        // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
+        // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
+        private void checkIfEmpty() {
+            // видимость некоторых элементов управления зависит от наличия элементов в
+            // списке рекомендаций, а они могут загружаться в фоне
+            updateControlsVisibility();
+        }
+
+        @Override
+        public void onChanged() {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,11 +258,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         });
 
-        ///
-
         prevVideoBtn.setEnabled(false);
-        prevVideoBtn.setVisibility(View.INVISIBLE);
-
         prevVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -245,10 +266,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     playbackHistory.pop();
                     playVideoItem(playbackHistory.pop(), false);
 
-                    if (playbackHistory.size() <= 1) {
-                        prevVideoBtn.setEnabled(false);
-                        prevVideoBtn.setVisibility(View.INVISIBLE);
-                    }
+                    updateControlsVisibility();
                 }
             }
         });
@@ -256,6 +274,11 @@ public class WatchVideoActivity extends AppCompatActivity {
         nextVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (videoList.getAdapter() == null) {
+                    // по-хорошему, мы не должны сюда попасть, т.к. в этом случае кнопка будет скрыта
+                    return;
+                }
+
                 // переходим на следующее видео по списку рекомендаций
                 // если мы на последней рекомендации, начинаем с начала
                 final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
@@ -379,23 +402,25 @@ public class WatchVideoActivity extends AppCompatActivity {
                     // TODO: сделайть экран с таймаутом секунд на 10, прогрессбаром и кнопкой
                     // перейти сейчас, отменить, играть заново текущий.
 
-                    // переходим на следующее видео по списку рекомендаций
-                    final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
-                            0 : currentVideoPosition + 1;
-                    final VideoItem item;
-                    if (videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
-                        // здесь не случайные рекомендации, а, например, список выдачи по поисковому запросу
-                        item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
-                    } else if (videoList.getAdapter() instanceof VideoItemArrayAdapter) {
-                        // здесь скорее всего случайные рекомендации
-                        item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
-                    } else {
-                        item = null;
-                    }
-                    if (item != null) {
-                        posMap.put(item.getId(), nextVideoPosition);
-                        // перед загрузкой нового видео обнулим текущую позицию
-                        playVideoItem(item, true);
+                    if(videoList.getAdapter() != null && videoList.getAdapter().getItemCount() > 1) {
+                        // переходим на следующее видео по списку рекомендаций
+                        final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
+                                0 : currentVideoPosition + 1;
+                        final VideoItem item;
+                        if (videoList.getAdapter() instanceof VideoItemPagedListAdapter) {
+                            // здесь не случайные рекомендации, а, например, список выдачи по поисковому запросу
+                            item = ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                        } else if (videoList.getAdapter() instanceof VideoItemArrayAdapter) {
+                            // здесь скорее всего случайные рекомендации
+                            item = ((VideoItemArrayAdapter) videoList.getAdapter()).getItem(nextVideoPosition);
+                        } else {
+                            item = null;
+                        }
+                        if (item != null) {
+                            posMap.put(item.getId(), nextVideoPosition);
+                            // перед загрузкой нового видео обнулим текущую позицию
+                            playVideoItem(item, true);
+                        }
                     }
                 }
             }
@@ -523,9 +548,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
 
         final boolean recommendationsOff = super.getIntent().getBooleanExtra(PARAM_RECOMMENDATIONS_OFF, false);
-        if (recommendationsOff) {
-            videoList.setVisibility(View.GONE);
-        } else {
+        if (!recommendationsOff) {
             final String searchStr = super.getIntent().getStringExtra(PARAM_SEARCH_STR);
             final boolean playStarred = super.getIntent().getBooleanExtra(PARAM_PLAY_STARRED, false);
             final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, -1);
@@ -597,6 +620,12 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
             }).start();
         }
+
+        // настройки видимости элементов управления
+        // (одного этого вызова в onCreate будет не достаточно, т.к.
+        // видимость некоторых элементов управления зависит от наличия элементов в списке рекомендаций,
+        // а они могут загружаться в фоне позже, чем мы сюда попадем)
+        updateControlsVisibility();
     }
 
     @Override
@@ -645,8 +674,6 @@ public class WatchVideoActivity extends AppCompatActivity {
         });
 
         prevVideoBtn.setEnabled(playbackHistory.size() > 1);
-        prevVideoBtn.setVisibility(playbackHistory.size() > 1 ? View.VISIBLE : View.INVISIBLE);
-
         prevVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -655,10 +682,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                     // здесь снимаем ролик с вершины, но он там снова сразу окажется в playVideoItem
                     playVideoItem(playbackHistory.pop(), false);
 
-                    if (playbackHistory.size() <= 1) {
-                        prevVideoBtn.setEnabled(false);
-                        prevVideoBtn.setVisibility(View.INVISIBLE);
-                    }
+                    prevVideoBtn.setEnabled(playbackHistory.size() > 1);
+                    updateControlsVisibility();
                 }
             }
         });
@@ -666,6 +691,10 @@ public class WatchVideoActivity extends AppCompatActivity {
         nextVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (videoList.getAdapter() == null) {
+                    // по-хорошему, мы не должны сюда попасть, т.к. в этом случае кнопка будет скрыта
+                    return;
+                }
                 // переходим на следующее видео по списку рекомендаций
                 final int nextVideoPosition = currentVideoPosition >= videoList.getAdapter().getItemCount() - 1 ?
                         0 : currentVideoPosition + 1;
@@ -779,6 +808,10 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         // Режим полного или неполного экрана
         setFullscreen(stateFullscreen);
+
+        // настройки видимости элементов управления
+        // будет вызвано из setFullscreen(stateFullscreen);
+        //updateControlsVisibility();
 
         // показать информацию о ролике
         if (currentVideo != null) {
@@ -1050,13 +1083,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         );
     }
 
-    private void toggleFullscreen() {
-        setFullscreen(!stateFullscreen);
-    }
-
-    private void setFullscreen(final boolean fullscreen) {
-        stateFullscreen = fullscreen;
-        if (stateFullscreen) {
+    private void updateControlsVisibility() {
+        if(stateFullscreen) {
             prevVideoBtn.setVisibility(View.GONE);
             nextVideoBtn.setVisibility(View.GONE);
             videoList.setVisibility(View.GONE);
@@ -1065,14 +1093,16 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             //videoPlayerView.hideController();
             videoPlayerControlView.hide();
-            // продолжить играть, если была пауза
-            videoPlayerView.getPlayer().setPlayWhenReady(true);
         } else {
-            //prevVideoBtn.setVisibility(View.VISIBLE);
-            prevVideoBtn.setVisibility(playbackHistory.size() > 1 ? View.VISIBLE : View.INVISIBLE);
-            nextVideoBtn.setVisibility(View.VISIBLE);
-
-            videoList.setVisibility(View.VISIBLE);
+            if(videoList.getAdapter() == null || videoList.getAdapter().getItemCount() < 2) {
+                prevVideoBtn.setVisibility(View.GONE);
+                nextVideoBtn.setVisibility(View.GONE);
+                videoList.setVisibility(View.GONE);
+            } else {
+                prevVideoBtn.setVisibility(playbackHistory.size() > 1 ? View.VISIBLE : View.INVISIBLE);
+                nextVideoBtn.setVisibility(View.VISIBLE);
+                videoList.setVisibility(View.VISIBLE);
+            }
 
             getSupportActionBar().show();
 
@@ -1080,6 +1110,20 @@ public class WatchVideoActivity extends AppCompatActivity {
                 videoPlayerControlView.show();
             }
         }
+    }
+
+
+    private void setFullscreen(final boolean fullscreen) {
+        stateFullscreen = fullscreen;
+        updateControlsVisibility();
+        if (stateFullscreen) {
+            // продолжить играть, если была пауза
+            videoPlayerView.getPlayer().setPlayWhenReady(true);
+        }
+    }
+
+    private void toggleFullscreen() {
+        setFullscreen(!stateFullscreen);
     }
 
     private void setPlayerState(final PlayerState playerState, final String errorMsg) {
@@ -1197,12 +1241,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         }
         if (videoItem != null) {
             playbackHistory.push(videoItem);
-            if (playbackHistory.size() > 1) {
-                prevVideoBtn.setEnabled(true);
-                if (!stateFullscreen) {
-                    prevVideoBtn.setVisibility(View.VISIBLE);
-                }
-            }
+            prevVideoBtn.setEnabled(playbackHistory.size() > 1);
+            updateControlsVisibility();
 
             // показать информацию о ролике
             getSupportActionBar().setTitle(videoItem.getName());
@@ -1612,6 +1652,9 @@ public class WatchVideoActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         videoList.setAdapter(adapter);
+                        // emptyListObserver здесь не сработает, обновим видимость элементов
+                        // управления прямо здесь
+                        updateControlsVisibility();
                     }
                 });
             }
@@ -1622,6 +1665,10 @@ public class WatchVideoActivity extends AppCompatActivity {
     private void setupVideoListPagedListAdapter(final String searchStr) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
+        }
+
+        if (videoList.getAdapter() != null) {
+            videoList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
         }
 
         final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(
@@ -1638,6 +1685,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                 return true;
             }
         }, null, VideoItemPagedListAdapter.ORIENTATION_HORIZONTAL);
+
+        // видимость некоторых элементов управления зависит от наличия элементов в
+        // списке рекомендаций, а они могут загружаться в фоне
+        adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
@@ -1662,6 +1713,10 @@ public class WatchVideoActivity extends AppCompatActivity {
             videoItemsLiveData.removeObservers(this);
         }
 
+        if (videoList.getAdapter() != null) {
+            videoList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
+        }
+
         final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(
                 this, new OnListItemClickListener<VideoItem>() {
             @Override
@@ -1676,6 +1731,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                 return true;
             }
         }, null, VideoItemPagedListAdapter.ORIENTATION_HORIZONTAL);
+
+        // видимость некоторых элементов управления зависит от наличия элементов в
+        // списке рекомендаций, а они могут загружаться в фоне
+        adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
@@ -1699,6 +1758,10 @@ public class WatchVideoActivity extends AppCompatActivity {
             videoItemsLiveData.removeObservers(this);
         }
 
+        if (videoList.getAdapter() != null) {
+            videoList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
+        }
+
         final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(
                 this, new OnListItemClickListener<VideoItem>() {
             @Override
@@ -1713,6 +1776,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                 return true;
             }
         }, null, VideoItemPagedListAdapter.ORIENTATION_HORIZONTAL);
+
+        // видимость некоторых элементов управления зависит от наличия элементов в
+        // списке рекомендаций, а они могут загружаться в фоне
+        adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
