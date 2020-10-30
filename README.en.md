@@ -136,6 +136,10 @@ Opensource (libresource) under GPLv3 license.
 
 ## Known problems
 
+- Google breaks compatibility for external players quite often. YouTube videos can stop loading at any moment. Usually those problems are fixed by NewPipeExtractor (and youtube-dl) project team quite quickly, actual info can be usually found in [NewPipeExtractor/issues](https://github.com/TeamNewPipe/NewPipeExtractor/issues) bugtracker. You will have to wait several days for fixed app update release anyway (F-Droid users especially).
+
+_tip: Find [appropriate PeerTube server](https://joinpeertube.org/) with upload enabled (or create your own instance), import your fave videos from YouTube and add PeerTube channel to YaShalang playlists!_
+
 - Won't play YouTube videos with age restrictions, which require Google/YouTube login
 
 for example: [Илья Муромец, Киноконцерн "Мосфильм"](https://www.youtube.com/watch?v=hooaKxdXbfM), [Руслан и Людмила 1-ая серия / Ruslan and Lyudmila film 1, Киноконцерн "Мосфильм"](https://www.youtube.com/watch?v=2UoO2t536Ko)
@@ -160,7 +164,7 @@ updt: should be better after this https://github.com/sadr0b0t/yashlang/issues/17
 
 - If you catch NullPointerException while opening video or adding playlist, please copy stack trace and create bug report, then try same operation again, most likely it would finish successfully.
 
-- "reCAPTCHA challendge" error while adding new playlists
+- "reCaptcha Challendge requested" error while adding new playlists
 
 Google does not like big number of queries from same address, so it enables captcha for loading pages. You can try to switch to another network (for example, switch off wifi and switch to mobile inet) or wait for the end of current hour (or wait for the whole hour) when Google would disable ban for punished address.
 
