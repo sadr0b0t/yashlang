@@ -90,6 +90,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://vidcommons.org/video-channels/cartoons/videos",
                     "https://vidcommons.org/lazy-static/avatars/8431c1e3-1ef4-44cb-a3c7-b838cc60fa1e.jpg",
                     PlaylistInfo.PlaylistType.PT_CHANNEL),
+            new PlaylistInfo("Bendito Machine",
+                    "https://vidcommons.org/video-channels/bendito_machine/videos",
+                    "https://vidcommons.org/lazy-static/avatars/04beedea-5da9-4c6d-9f6d-b8d4dfac535c.jpg",
+                    PlaylistInfo.PlaylistType.PT_CHANNEL),
 
             new PlaylistInfo("OpenMovies \uD83D\uDCFD",
                     "https://open.tube/accounts/openmovies/videos",
