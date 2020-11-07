@@ -1647,8 +1647,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         videoList.setAdapter(adapter);
-                        // emptyListObserver здесь не сработает, обновим видимость элементов
-                        // управления прямо здесь
+                        // emptyListObserver здесь не сработает (т.к. у нас ArrayAdapter),
+                        // обновим видимость элементов управления прямо здесь
                         updateControlsVisibility();
                     }
                 });
