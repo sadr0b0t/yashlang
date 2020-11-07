@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
@@ -49,21 +50,16 @@ import static org.schabi.newpipe.extractor.ServiceList.YouTube;
  * https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeChannelExtractorTest.java
  * https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubePlaylistExtractorTest.java
  */
-public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, VideoItem> {
-    protected Context context;
+public class VideoItemOnlineDataSource extends AbstractVideoItemOnlineDataSource {
     protected String playlistUrl;
-    protected boolean loadThumbs;
-    protected DataSourceListener dataSourceListener;
 
     protected ListExtractor<StreamInfoItem> extractor;
     protected ListExtractor.InfoItemsPage<StreamInfoItem> loadedPage;
 
     public VideoItemOnlineDataSource(final Context context, final String playlistUrl, final boolean loadThumbs,
                                      final DataSourceListener dataSourceListener) {
-        this.context = context;
+        super(context, loadThumbs, dataSourceListener);
         this.playlistUrl = playlistUrl;
-        this.loadThumbs = loadThumbs;
-        this.dataSourceListener = dataSourceListener;
     }
 
     @NonNull
@@ -79,16 +75,16 @@ public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, Video
             // Выкачать список видео с 1-й страницы канала
             NewPipe.init(DownloaderTestImpl.getInstance());
 
-            extractor = getListExtractor(playlistUrl);
+            extractor = ContentLoader.getInstance().getListExtractor(playlistUrl);
 
             // загрузить первую страницу
             extractor.fetchPage();
             loadedPage = extractor.getInitialPage();
 
             // загрузили, можно обновлять список
-            final List<VideoItem> videoItems = extractVideoItems(loadedPage.getItems());
+            final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(loadedPage.getItems());
             if(loadThumbs) {
-                loadThumbs(videoItems);
+                VideoThumbManager.getInstance().loadThumbs(context, videoItems);
             }
             callback.onResult(videoItems);
         } catch (ExtractionException | IOException e) {
@@ -118,9 +114,9 @@ public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, Video
 
             if (done) {
                 // загрузили страницу, можно обновлять список
-                final List<VideoItem> videoItems = extractVideoItems(loadedPage.getItems());
+                final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(loadedPage.getItems());
                 if(loadThumbs) {
-                    loadThumbs(videoItems);
+                    VideoThumbManager.getInstance().loadThumbs(context, videoItems);
                 }
                 callback.onResult(videoItems);
 
@@ -137,54 +133,5 @@ public class VideoItemOnlineDataSource extends ItemKeyedDataSource<String, Video
     @Override
     public void loadBefore(@NonNull LoadParams<String> params, @NonNull LoadCallback<VideoItem> callback) {
 
-    }
-
-    protected ListExtractor<StreamInfoItem> getListExtractor(final String plUrl) throws ExtractionException {
-        final ListExtractor<StreamInfoItem> extractor;
-        if(PlaylistUrlUtil.isYtUser(plUrl) || PlaylistUrlUtil.isYtChannel(plUrl)) {
-            extractor = YouTube.getChannelExtractor(plUrl);
-        } else if(PlaylistUrlUtil.isYtPlaylist(plUrl)) {
-            extractor = YouTube.getPlaylistExtractor(plUrl);
-        } else if(PlaylistUrlUtil.isPtUser(plUrl) || PlaylistUrlUtil.isPtChannel(plUrl)) {
-            extractor = PeerTube.getChannelExtractor(plUrl);
-        } else if(PlaylistUrlUtil.isPtPlaylist(plUrl)) {
-            extractor = PeerTube.getPlaylistExtractor(plUrl);
-        } else {
-            throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
-        }
-
-        return extractor;
-    }
-
-    protected List<VideoItem> extractVideoItems(final List<StreamInfoItem> pageItems) {
-        final List<VideoItem> videos = new ArrayList<VideoItem>();
-
-        // конвертировать в объекты VideoItem
-        for (StreamInfoItem item : pageItems) {
-            videos.add(extractVideoItem(item));
-        }
-        return videos;
-    }
-
-    protected VideoItem extractVideoItem(final StreamInfoItem item) {
-        final long playlistId = -1;
-        final String itemUrl = item.getUrl();
-        final String name = item.getName();
-        final String uploader = item.getUploaderName();
-        //final String date = item.getUploadDate();
-        final long viewCount = 0;
-        final long viewCountExt = item.getViewCount();
-        final long duration = item.getDuration();
-        final String thumbUrl = item.getThumbnailUrl();
-
-        return new VideoItem(playlistId, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl);
-    }
-
-    protected void loadThumbs(final List<VideoItem> videoItems) {
-        for (VideoItem videoItem : videoItems) {
-            final Bitmap thumb =
-                    VideoThumbManager.getInstance().loadVideoThumb(context, videoItem);
-            videoItem.setThumbBitmap(thumb);
-        }
     }
 }

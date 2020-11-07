@@ -303,7 +303,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                         playlistNameTxt.setText(plInfo.getName());
                         playlistUrlTxt.setText(PlaylistUrlUtil.cleanupUrl(plInfo.getUrl()));
 
-                        setupVideoListAdapter(plId, plInfo.getUrl());
+                        setupVideoListAdapter(plId);
                     }
                 });
 
@@ -325,7 +325,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         }).start();
     }
 
-    private void setupVideoListAdapter(final long plId, final String plUrl) {
+    private void setupVideoListAdapter(final long plId) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -394,7 +394,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
         final DataSource.Factory factory =
-                new VideoItemOnlyNewOnlineDataSourceFactory(this.getContext(), plUrl, plId, false,
+                new VideoItemOnlyNewOnlineDataSourceFactory(this.getContext(), plId, false,
                         new DataSourceListener() {
                             @Override
                             public void onLoadInitialError(final Exception e) {
@@ -489,7 +489,8 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                             newItemsAddErrorView.setVisibility(View.VISIBLE);
                             newItemsAddDoneView.setVisibility(View.GONE);
 
-                            newItemsAddErrorTxt.setText(e.getMessage());
+                            newItemsAddErrorTxt.setText(e.getMessage()
+                                    + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
                         }
                     }
                 });

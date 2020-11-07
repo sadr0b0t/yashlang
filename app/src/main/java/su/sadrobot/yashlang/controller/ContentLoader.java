@@ -423,7 +423,17 @@ public class ContentLoader {
         return plId.get();
     }
 
-    public void addPlaylistNewItems(final Context context, final long plId,
+    /**
+     *
+     * @param context
+     * @param plId
+     * @param plUrl
+     * @param taskController
+     * @return количество добавленных элементов,
+     *         0 - если нет новых элементов,
+     *        -1 - если ошибка во время проверки или добавления
+     */
+    public int addPlaylistNewItems(final Context context, final long plId,
                                       final String plUrl, final TaskController taskController) {
         // Загрузить новые видео в плейлисте - видео, добавленные после того,
         // как плейлист был сохранен локально или последний раз обновлялся
@@ -439,8 +449,12 @@ public class ContentLoader {
 
         taskController.setRunning(true);
 
-        final VideoDatabase videodb = VideoDatabase.getDb(context);
+        // здесь небольшой хак, чтобы получить количество добавленных элементов
+        // из транзакции в переменную за пределами транзакции
+        final int[] videoItemCount = {0};
 
+
+        final VideoDatabase videodb = VideoDatabase.getDb(context);
         try {
             videodb.runInTransaction(new Runnable() {
                 @Override
@@ -477,7 +491,6 @@ public class ContentLoader {
                         throw new RuntimeException(e);
                     }
 
-                    int videoItemCount = 0;
                     long fakeTimestamp = videodb.videoItemDao().getMaxFakeTimestamp(plId) + VideoItem.FAKE_TIMESTAMP_BLOCK_SIZE;
                     final boolean plEnabled = videodb.playlistInfoDao().isEnabled(plId);
 
@@ -490,7 +503,7 @@ public class ContentLoader {
                         if (videodb.videoItemDao().getByItemUrl(plId, item.getUrl()) == null) {
                             videoItems.add(extractVideoItem(item, plId, plEnabled, fakeTimestamp));
                             fakeTimestamp--;
-                            videoItemCount++;
+                            videoItemCount[0]++;
                         } else {
                             foundOld = true;
                             break;
@@ -532,7 +545,7 @@ public class ContentLoader {
                                 if (videodb.videoItemDao().getByItemUrl(plId, item.getUrl()) == null) {
                                     videoItems.add(extractVideoItem(item, plId, plEnabled, fakeTimestamp));
                                     fakeTimestamp--;
-                                    videoItemCount++;
+                                    videoItemCount[0]++;
                                 } else {
                                     foundOld = true;
                                     break;
@@ -551,19 +564,22 @@ public class ContentLoader {
                         }
                     }
 
-                    taskController.setStatusMsg("Added " + videoItemCount + " items");
+                    taskController.setStatusMsg("Added " + videoItemCount[0] + " items");
                 }
             });
         } catch (SQLException e) {
+            videoItemCount[0] = -1;
             taskController.setStatusMsg("UNEXPECTED DB problem", e);
             e.printStackTrace();
         } catch (Exception e) {
+            videoItemCount[0] = -1;
             // нам все-таки нужно поймать здесь RuntimeException,
             // статус taskController уже выставлен внутри
         }
 
         videodb.close();
         taskController.setRunning(false);
+        return videoItemCount[0];
     }
 
     public VideoItem fetchVideoItem(final String itemUrl) throws ExtractionException, IOException {
@@ -609,7 +625,7 @@ public class ContentLoader {
         return streamUrl;
     }
 
-    private ListExtractor<StreamInfoItem> getListExtractor(final String plUrl) throws ExtractionException {
+    public ListExtractor<StreamInfoItem> getListExtractor(final String plUrl) throws ExtractionException {
         final ListExtractor<StreamInfoItem> extractor;
 
         if (PlaylistUrlUtil.isYtUser(plUrl) || PlaylistUrlUtil.isYtChannel(plUrl)) {
@@ -627,7 +643,7 @@ public class ContentLoader {
         return extractor;
     }
 
-    private PlaylistInfo.PlaylistType getPlaylistType(final String plUrl) throws ExtractionException {
+    public PlaylistInfo.PlaylistType getPlaylistType(final String plUrl) throws ExtractionException {
         final PlaylistInfo.PlaylistType plType;
 
         if (PlaylistUrlUtil.isYtUser(plUrl)) {
@@ -649,7 +665,7 @@ public class ContentLoader {
         return plType;
     }
 
-    private StreamExtractor getStreamExtractor(final String itemUrl) throws ExtractionException {
+    public StreamExtractor getStreamExtractor(final String itemUrl) throws ExtractionException {
         final StreamExtractor extractor;
         if (PlaylistUrlUtil.isYtVideo(itemUrl)) {
             extractor = YouTube.getStreamExtractor(itemUrl);
@@ -661,7 +677,7 @@ public class ContentLoader {
         return extractor;
     }
 
-    private VideoItem extractVideoItem(final StreamExtractor item) throws ParsingException {
+    public VideoItem extractVideoItem(final StreamExtractor item) throws ParsingException {
         final String itemUrl = item.getUrl();
         final String name = item.getName();
         final String uploader = item.getUploaderName();
@@ -684,7 +700,7 @@ public class ContentLoader {
      * @param fakeTimestamp fake_timestamp value to set
      * @return
      */
-    private VideoItem extractVideoItem(final StreamInfoItem item, final long playlistId,
+    public VideoItem extractVideoItem(final StreamInfoItem item, final long playlistId,
                                        final boolean enabled, final long fakeTimestamp) {
         //final long _playlistId = playlistId;
         final String itemUrl = item.getUrl();
@@ -698,5 +714,41 @@ public class ContentLoader {
         //final long _fakeTimestamp = fakeTimestamp;
 
         return new VideoItem(playlistId, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl, enabled, fakeTimestamp);
+    }
+
+    public VideoItem extractVideoItem(final StreamInfoItem item) {
+        final long playlistId = -1;
+        final String itemUrl = item.getUrl();
+        final String name = item.getName();
+        final String uploader = item.getUploaderName();
+        //final String date = item.getUploadDate();
+        final long viewCount = 0;
+        final long viewCountExt = item.getViewCount();
+        final long duration = item.getDuration();
+        final String thumbUrl = item.getThumbnailUrl();
+
+        return new VideoItem(playlistId, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl);
+    }
+
+    public List<VideoItem> extractVideoItems(final List<StreamInfoItem> pageItems) {
+        final List<VideoItem> videos = new ArrayList<>();
+
+        // конвертировать в объекты VideoItem
+        for (StreamInfoItem item : pageItems) {
+            videos.add(extractVideoItem(item));
+        }
+        return videos;
+    }
+
+    public List<VideoItem> extractVideoItems(final List<StreamInfoItem> pageItems, long playlistId) {
+        final List<VideoItem> videos = new ArrayList<>();
+
+        // конвертировать в объекты VideoItem
+        for (StreamInfoItem item : pageItems) {
+            VideoItem videoItem = extractVideoItem(item);
+            videoItem.setPlaylistId(playlistId);
+            videos.add(videoItem);
+        }
+        return videos;
     }
 }

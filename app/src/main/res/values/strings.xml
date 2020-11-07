@@ -64,4 +64,7 @@
     <string name="nothing_to_play">Nothing to play</string>
     <string name="pt_or_yt">(PeerTube or YT)</string>
     <string name="failed_to_load_new_items">Failed to load new items</string>
+    <string name="tab_item_playlists">PLAYLISTS</string>
+    <string name="add_all">Add all</string>
+    <string name="added_n_items">Added %s items</string>
 </resources>

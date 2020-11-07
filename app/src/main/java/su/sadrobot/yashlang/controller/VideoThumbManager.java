@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import su.sadrobot.yashlang.R;
@@ -157,5 +158,13 @@ public class VideoThumbManager {
             thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
         }
         return thumb;
+    }
+
+    public void loadThumbs(final Context context, final List<VideoItem> videoItems) {
+        for (VideoItem videoItem : videoItems) {
+            final Bitmap thumb =
+                    VideoThumbManager.getInstance().loadVideoThumb(context, videoItem);
+            videoItem.setThumbBitmap(thumb);
+        }
     }
 }

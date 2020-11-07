@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ConfigurePlaylistsActivity">
+    tools:context=".ViewPlaylistActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -13,36 +14,15 @@
         android:background="?attr/colorPrimary"
         android:theme="?attr/actionBarTheme" />
 
-    <Button
-        android:id="@+id/add_playlist_btn"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_playlist" />
+        app:tabGravity="fill"
+        app:tabMaxWidth="0dp" />
 
-    <LinearLayout
-        android:id="@+id/playlist_list_empty_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/playlist_list_is_empty" />
-
-        <Button
-            android:id="@+id/add_recommended_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="@string/add_recommended_playlists" />
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/playlist_list"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </LinearLayout>

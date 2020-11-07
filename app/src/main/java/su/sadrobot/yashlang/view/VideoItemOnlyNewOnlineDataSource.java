@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import su.sadrobot.yashlang.controller.ContentLoader;
+import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
 
@@ -42,7 +44,7 @@ import su.sadrobot.yashlang.model.VideoItem;
  * https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeChannelExtractorTest.java
  * https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubePlaylistExtractorTest.java
  */
-public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource {
+public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDataSource {
     // Загрузить новые видео в плейлисте - видео, добавленные после того,
     // как плейлист был сохранен локально или последний раз обновлялся
     // Алгоритм такой:
@@ -60,10 +62,10 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
     // дошли до старых видео
     private boolean foundOld = false;
 
-    public VideoItemOnlyNewOnlineDataSource(final Context context, final String playlistUrl,
+    public VideoItemOnlyNewOnlineDataSource(final Context context,
                                             final long playlistId, final boolean loadThumbs,
                                             final DataSourceListener dataSourceListener) {
-        super(context, playlistUrl, loadThumbs, dataSourceListener);
+        super(context, loadThumbs, dataSourceListener);
 
         this.playlistId = playlistId;
     }
@@ -72,10 +74,14 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
     public void loadInitial(@NonNull LoadInitialParams<String> params, @NonNull LoadInitialCallback<VideoItem> callback) {
 
         try {
+            VideoDatabase videodb = VideoDatabase.getDb(context);
+            final String playlistUrl = videodb.playlistInfoDao().getById(playlistId).getUrl();
+            videodb.close();
+
             // Выкачать список видео с 1-й страницы канала
             NewPipe.init(DownloaderTestImpl.getInstance());
 
-            extractor = getListExtractor(playlistUrl);
+            extractor = ContentLoader.getInstance().getListExtractor(playlistUrl);
 
             // загрузить первую страницу
             extractor.fetchPage();
@@ -84,7 +90,7 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
             // загрузили страницу, проверим, есть ли на ней новые элементы
             final List<StreamInfoItem> pageNewItems = new ArrayList<StreamInfoItem>();
 
-            final VideoDatabase videodb = VideoDatabase.getDb(context);
+            videodb = VideoDatabase.getDb(context);
             for (final StreamInfoItem item : loadedPage.getItems()) {
                 if (videodb.videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
                     pageNewItems.add(item);
@@ -100,17 +106,17 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
 
             // можно обновлять список
             if(pageNewItems.size() > 0) {
-                final List<VideoItem> videoItems = extractVideoItems(pageNewItems);
+                final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(pageNewItems, playlistId);
                 if (loadThumbs) {
-                    loadThumbs(videoItems);
+                    VideoThumbManager.getInstance().loadThumbs(context, videoItems);
                 }
                 callback.onResult(videoItems);
             }
-        } catch (ExtractionException | IOException e) {
+        } catch (final ExtractionException | IOException e) {
             if(dataSourceListener != null) {
                 dataSourceListener.onLoadInitialError(e);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // было дело - словили непредвиденный NullPointer
             if(dataSourceListener != null) {
                 dataSourceListener.onLoadInitialError(e);
@@ -155,9 +161,9 @@ public class VideoItemOnlyNewOnlineDataSource extends VideoItemOnlineDataSource 
                 videodb.close();
 
                 if(pageNewItems.size() > 0) {
-                    final List<VideoItem> videoItems = extractVideoItems(pageNewItems);
+                    final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(pageNewItems, playlistId);
                     if (loadThumbs) {
-                        loadThumbs(videoItems);
+                        VideoThumbManager.getInstance().loadThumbs(context, videoItems);
                     }
                     callback.onResult(videoItems);
                 }

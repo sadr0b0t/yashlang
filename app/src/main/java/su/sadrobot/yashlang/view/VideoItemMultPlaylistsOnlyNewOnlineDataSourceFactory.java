@@ -24,25 +24,27 @@ import android.content.Context;
 
 import androidx.paging.DataSource;
 
+import java.util.List;
+
 import su.sadrobot.yashlang.model.VideoItem;
 
-public class VideoItemOnlyNewOnlineDataSourceFactory extends DataSource.Factory<String, VideoItem> {
+public class VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory extends DataSource.Factory<String, VideoItem> {
     private Context context;
-    private long playlistId;
+    private List<Long> playlistIds;
     private boolean loadThumbs;
     private DataSourceListener dataSourceListener;
 
-    public VideoItemOnlyNewOnlineDataSourceFactory(final Context context,
-                                                   final long playlistId, final boolean loadThumbs,
-                                                   final DataSourceListener dataSourceListener) {
+    public VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory(final Context context,
+                                                                final List<Long> playlistIds, final boolean loadThumbs,
+                                                                final DataSourceListener dataSourceListener) {
         this.context = context;
-        this.playlistId = playlistId;
+        this.playlistIds = playlistIds;
         this.loadThumbs = loadThumbs;
         this.dataSourceListener = dataSourceListener;
     }
 
     @Override
     public DataSource<String, VideoItem> create() {
-        return new VideoItemOnlyNewOnlineDataSource(context, playlistId, loadThumbs, dataSourceListener);
+        return new VideoItemMultPlaylistsOnlyNewOnlineDataSource(context, playlistIds, loadThumbs, dataSourceListener);
     }
 }
