@@ -180,7 +180,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
         if (holder.playlistTxt != null) {
             if(item.getPlaylistInfo() != null) {
                 holder.playlistTxt.setText(item.getPlaylistInfo().getName());
-            } else {
+            } else if(item.getPlaylistId() != -1) {
                 dbQueryExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
