@@ -112,7 +112,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
 
-    private boolean playistLoadError = false;
+    private boolean playlistLoadError = false;
 
     private PlaylistInfo loadedPlaylist = null;
 
@@ -124,7 +124,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
             // в любом случае прячем прогресс, если он был включен
             playlistEmptyInitialView.setVisibility(View.GONE);
             playlistLoadProgressView.setVisibility(View.GONE);
-            if (playistLoadError) {
+            if (playlistLoadError) {
                 playlistLoadErrorView.setVisibility(View.VISIBLE);
                 playlistLoadedView.setVisibility(View.GONE);
             } else {
@@ -412,7 +412,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
 
         //
         loadedPlaylist = null;
-        playistLoadError = false;
+        playlistLoadError = false;
 
         new Thread(new Runnable() {
             @Override
@@ -428,12 +428,12 @@ public class AddPlaylistActivity extends AppCompatActivity {
                     _plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
                             AddPlaylistActivity.this, _plInfo.getThumbUrl());
                 } catch (final Exception e) {
-                    playistLoadError = true;
+                    playlistLoadError = true;
                     _errMsg = e.getMessage()
                             + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : "");
                 }
 
-                if (!playistLoadError) {
+                if (!playlistLoadError) {
                     // здесь loadedPlaylist будет не null даже в том случае, если произойдет какая-то
                     // ошибка при загрузке списка видео с 1й страницы, хотя информация о загруженном
                     // плейлисте (и кнопка добавления плейлиста) появится только после того,
@@ -443,15 +443,19 @@ public class AddPlaylistActivity extends AppCompatActivity {
                 }
 
                 final String errMsg = _errMsg;
+                // сохраним значения здесь, чтобы значения не повредились к тому моменту,
+                // когда к ним обратимся в потоке handler
+                final boolean _playlistLoadError = playlistLoadError;
+                final PlaylistInfo _loadedPlaylist = loadedPlaylist;
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (!playistLoadError) {
+                        if (!_playlistLoadError) {
                             // информация о канале (не будет видна до завершения загрузки первой
                             // страницы списка)
-                            // На null не проверяем, т.к. достаточно проверки флага playistLoadError
-                            playlistNameTxt.setText(loadedPlaylist.getName());
-                            playlistThumbImg.setImageBitmap(loadedPlaylist.getThumbBitmap());
+                            // На null не проверяем, т.к. достаточно проверки флага playlistLoadError
+                            playlistNameTxt.setText(_loadedPlaylist.getName());
+                            playlistThumbImg.setImageBitmap(_loadedPlaylist.getThumbBitmap());
 
                             // загрузить список видео
                             setupVideoListAdapter(plUrl);
@@ -545,7 +549,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                playistLoadError = true;
+                                playlistLoadError = true;
                                 playlistLoadErrorTxt.setText(e.getMessage()
                                         + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
                             }
