@@ -113,8 +113,16 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
 
     private PlaylistUpdateListener playlistUpdateListener;
 
+
     private long playlistId = -1;
     private PlaylistInfo plInfo;
+
+    private enum State {
+        NEW_ITEMS_LIST_EMPTY, NEW_ITEMS_LIST_LOAD_PROGRESS, NEW_ITEMS_LIST_LOAD_ERROR, NEW_ITEMS_LIST_LOADED,
+        PLAYLIST_UPDATE_PROGRESS, PLAYLIST_UPDATE_ERROR, PLAYLIST_UPDATE_OK
+    }
+
+    private State state = State.NEW_ITEMS_LIST_EMPTY;
 
     private boolean checkError = false;
 
@@ -125,21 +133,28 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         private void checkIfEmpty() {
             // пришли какие-то данные (или сообщение, что их нет) - в любом случае прячем прогресс
             // плюс, сюда же попадаем в случае ошибки
-            if(!checkError) {
-                checkProgress.setVisibility(View.INVISIBLE);
-                checkInitialView.setVisibility(View.VISIBLE);
-                checkErrorView.setVisibility(View.GONE);
-            } else {
-                checkProgress.setVisibility(View.GONE);
-                checkInitialView.setVisibility(View.GONE);
-                checkErrorView.setVisibility(View.VISIBLE);
-            }
-            checkNewItemsBtn.setEnabled(true);
 
-            //
-            final boolean listIsEmpty = videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0;
-            emptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
-            newItemsView.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
+            if(state != State.PLAYLIST_UPDATE_PROGRESS && state != State.PLAYLIST_UPDATE_ERROR &&
+                    state != State.PLAYLIST_UPDATE_OK) {
+                // Будем менять состояние здесь только в том случае, если у нас сейчас активна панель
+                // со списком новых видео. Если мы в процессе добавления новых видео в базу, то
+                // состояние здесь менять не будем, чтобы оно не скрыло панели статуса добавления.
+                // Такое может произойти, например, если мы крутанули список новых видео вниз
+                // и нажали кнопку "добавить новые видео": элементы списка начали подгружаться в фоне
+                // и генерировать события, которые приведут программу сюда уже после того, как
+                // пользователь начнет наблюдать панели со статусом добавления новых элементов.
+
+                final boolean listIsEmpty = videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0;
+                if (checkError) {
+                    state = State.NEW_ITEMS_LIST_LOAD_ERROR;
+                } else if (listIsEmpty) {
+                    state = State.NEW_ITEMS_LIST_EMPTY;
+                } else {
+                    state = State.NEW_ITEMS_LIST_LOADED;
+                }
+
+                updateControlsVisibility();
+            }
         }
 
         @Override
@@ -229,30 +244,32 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         addNewItemsBtn.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addNewItems();
+                addNewItemsBg();
             }
         });
 
         newItemsAddRetryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addNewItems();
+                addNewItemsBg();
             }
         });
 
         newItemsAddCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playlistItemsView.setVisibility(View.VISIBLE);
-                newItemsAddProgressView.setVisibility(View.GONE);
+                state = State.NEW_ITEMS_LIST_EMPTY;
+                updateControlsVisibility();
+                //updateVideoListBg(playlistId);
             }
         });
 
         newItemsAddDoneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playlistItemsView.setVisibility(View.VISIBLE);
-                newItemsAddProgressView.setVisibility(View.GONE);
+                state = State.NEW_ITEMS_LIST_EMPTY;
+                updateControlsVisibility();
+                //updateVideoListBg(playlistId);
             }
         });
 
@@ -274,6 +291,88 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         this.playlistUpdateListener = playlistUpdateListener;
     }
 
+    private void updateControlsVisibility() {
+        switch (state){
+            case NEW_ITEMS_LIST_EMPTY:
+                playlistItemsView.setVisibility(View.VISIBLE);
+                newItemsAddProgressView.setVisibility(View.GONE);
+
+                emptyView.setVisibility(View.VISIBLE);
+                newItemsView.setVisibility(View.GONE);
+
+                checkInitialView.setVisibility(View.VISIBLE);
+                checkErrorView.setVisibility(View.GONE);
+                checkProgress.setVisibility(View.INVISIBLE);
+
+                checkNewItemsBtn.setEnabled(true);
+
+                break;
+            case NEW_ITEMS_LIST_LOAD_PROGRESS:
+                playlistItemsView.setVisibility(View.VISIBLE);
+                newItemsAddProgressView.setVisibility(View.GONE);
+
+                emptyView.setVisibility(View.VISIBLE);
+                newItemsView.setVisibility(View.GONE);
+
+                checkInitialView.setVisibility(View.INVISIBLE);
+                checkErrorView.setVisibility(View.GONE);
+                checkProgress.setVisibility(View.VISIBLE);
+
+                checkNewItemsBtn.setEnabled(false);
+
+                break;
+            case NEW_ITEMS_LIST_LOAD_ERROR:
+                playlistItemsView.setVisibility(View.VISIBLE);
+                newItemsAddProgressView.setVisibility(View.GONE);
+
+                emptyView.setVisibility(View.VISIBLE);
+                newItemsView.setVisibility(View.GONE);
+
+                checkInitialView.setVisibility(View.GONE);
+                checkErrorView.setVisibility(View.VISIBLE);
+                checkProgress.setVisibility(View.GONE);
+
+                checkNewItemsBtn.setEnabled(true);
+
+                break;
+            case NEW_ITEMS_LIST_LOADED:
+                playlistItemsView.setVisibility(View.VISIBLE);
+                newItemsAddProgressView.setVisibility(View.GONE);
+
+                emptyView.setVisibility(View.GONE);
+                newItemsView.setVisibility(View.VISIBLE);
+
+                break;
+            case PLAYLIST_UPDATE_PROGRESS:
+                playlistItemsView.setVisibility(View.GONE);
+                newItemsAddProgressView.setVisibility(View.VISIBLE);
+
+                newItemsAddProgress.setVisibility(View.VISIBLE);
+                newItemsAddErrorView.setVisibility(View.GONE);
+                newItemsAddDoneView.setVisibility(View.GONE);
+
+                break;
+            case PLAYLIST_UPDATE_ERROR:
+                playlistItemsView.setVisibility(View.GONE);
+                newItemsAddProgressView.setVisibility(View.VISIBLE);
+
+                newItemsAddProgress.setVisibility(View.GONE);
+                newItemsAddErrorView.setVisibility(View.VISIBLE);
+                newItemsAddDoneView.setVisibility(View.GONE);
+
+                break;
+            case PLAYLIST_UPDATE_OK:
+                playlistItemsView.setVisibility(View.GONE);
+                newItemsAddProgressView.setVisibility(View.VISIBLE);
+
+                newItemsAddProgress.setVisibility(View.GONE);
+                newItemsAddErrorView.setVisibility(View.GONE);
+                newItemsAddDoneView.setVisibility(View.VISIBLE);
+
+                break;
+        }
+    }
+
     /**
      * Update video list in background
      *
@@ -283,13 +382,9 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         // прогресс будет видно до тех пор, пока в адаптер не придут какие-то данные или не
         // произойдет ошибка
         checkError = false;
-
-        checkInitialView.setVisibility(View.INVISIBLE);
-        checkProgress.setVisibility(View.VISIBLE);
-        checkErrorView.setVisibility(View.GONE);
-
         checkErrorTxt.setText("");
-        checkNewItemsBtn.setEnabled(false);
+        state = State.NEW_ITEMS_LIST_LOAD_PROGRESS;
+        updateControlsVisibility();
 
         new Thread(new Runnable() {
             @Override
@@ -402,13 +497,13 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                                     @Override
                                     public void run() {
                                         checkError = true;
-
                                         checkErrorTxt.setText(e.getMessage());
 
-                                        // настройки видимости будут выше в checkIfEmpty
-                                        //checkErrorView.setVisibility(View.VISIBLE);
-                                        //checkInitialView.setVisibility(View.GONE);
-                                        //checkProgress.setVisibility(View.GONE);
+                                        //updateControlsVisibility();
+                                        // смена статуса и настройки видимости элементов управления
+                                        // будут выше в emptyListObserver.checkIfEmpty
+                                        // (мы туда попадем после завершения loadInitial, видимо,
+                                        // в любом случае, даже если ничего не добавлено в callback.onResult)
                                     }
                                 });
                             }
@@ -436,7 +531,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         videoList.setAdapter(adapter);
     }
 
-    private void addNewItems() {
+    private void addNewItemsBg() {
         final String playlistUrl = plInfo.getUrl();
         // канал или плейлист
         final ContentLoader.TaskController taskController = new ContentLoader.TaskController();
@@ -446,14 +541,9 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        playlistItemsView.setVisibility(View.GONE);
-                        newItemsAddProgressView.setVisibility(View.VISIBLE);
-
-                        newItemsAddProgress.setVisibility(View.VISIBLE);
-                        newItemsAddErrorView.setVisibility(View.GONE);
-                        newItemsAddDoneView.setVisibility(View.GONE);
-
                         newItemsAddStatusTxt.setText(taskController.getStatusMsg());
+                        state = State.PLAYLIST_UPDATE_PROGRESS;
+                        updateControlsVisibility();
                     }
                 });
             }
@@ -466,13 +556,9 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                     @Override
                     public void run() {
                         if(taskController.getException() == null) {
-                            updateVideoListBg(playlistId);
-
-                            newItemsAddProgress.setVisibility(View.GONE);
-                            newItemsAddErrorView.setVisibility(View.GONE);
-                            newItemsAddDoneView.setVisibility(View.VISIBLE);
-
                             newItemsAddStatusTxt.setText(taskController.getStatusMsg());
+                            state = State.PLAYLIST_UPDATE_OK;
+                            updateControlsVisibility();
                         }
                     }
                 });
@@ -485,12 +571,10 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                     public void run() {
                         newItemsAddStatusTxt.setText(status);
                         if (e != null) {
-                            newItemsAddProgress.setVisibility(View.GONE);
-                            newItemsAddErrorView.setVisibility(View.VISIBLE);
-                            newItemsAddDoneView.setVisibility(View.GONE);
-
                             newItemsAddErrorTxt.setText(e.getMessage()
                                     + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
+                            state = State.PLAYLIST_UPDATE_ERROR;
+                            updateControlsVisibility();
                         }
                     }
                 });
