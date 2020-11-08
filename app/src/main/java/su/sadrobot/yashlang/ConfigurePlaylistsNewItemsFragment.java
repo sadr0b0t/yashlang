@@ -305,13 +305,12 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                 newItemsAddProgressView.setVisibility(View.GONE);
                 newItemsAddDoneView.setVisibility(View.GONE);
 
-
                 emptyView.setVisibility(View.VISIBLE);
                 newItemsView.setVisibility(View.GONE);
 
-                checkProgress.setVisibility(View.INVISIBLE);
                 checkInitialView.setVisibility(View.VISIBLE);
                 checkErrorView.setVisibility(View.GONE);
+                checkProgress.setVisibility(View.INVISIBLE);
 
                 checkNewItemsBtn.setEnabled(true);
 
@@ -324,11 +323,12 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                 emptyView.setVisibility(View.VISIBLE);
                 newItemsView.setVisibility(View.GONE);
 
-                checkProgress.setVisibility(View.VISIBLE);
                 checkInitialView.setVisibility(View.INVISIBLE);
                 checkErrorView.setVisibility(View.GONE);
+                checkProgress.setVisibility(View.VISIBLE);
 
                 checkNewItemsBtn.setEnabled(false);
+
                 break;
             case NEW_ITEMS_LIST_LOAD_ERROR:
                 playlistItemsView.setVisibility(View.VISIBLE);
@@ -338,9 +338,9 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                 emptyView.setVisibility(View.VISIBLE);
                 newItemsView.setVisibility(View.GONE);
 
-                checkProgress.setVisibility(View.GONE);
                 checkInitialView.setVisibility(View.GONE);
                 checkErrorView.setVisibility(View.VISIBLE);
+                checkProgress.setVisibility(View.GONE);
 
                 checkNewItemsBtn.setEnabled(true);
 
@@ -358,9 +358,6 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                 playlistItemsView.setVisibility(View.GONE);
                 newItemsAddProgressView.setVisibility(View.VISIBLE);
                 newItemsAddDoneView.setVisibility(View.GONE);
-
-                playlistItemsView.setVisibility(View.GONE);
-                newItemsAddProgressView.setVisibility(View.VISIBLE);
 
                 newItemsAddProgress.setVisibility(View.VISIBLE);
                 newItemsAddErrorView.setVisibility(View.GONE);
@@ -400,10 +397,8 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
         // прогресс будет видно до тех пор, пока в адаптер не придут какие-то данные или не
         // произойдет ошибка
         checkError = false;
-        state = State.NEW_ITEMS_LIST_LOAD_PROGRESS;
-
         checkErrorTxt.setText("");
-
+        state = State.NEW_ITEMS_LIST_LOAD_PROGRESS;
         updateControlsVisibility();
 
         new Thread(new Runnable() {
@@ -503,7 +498,6 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                                     @Override
                                     public void run() {
                                         checkError = true;
-
                                         checkErrorTxt.setText(e.getMessage());
 
                                         //updateControlsVisibility();
@@ -547,10 +541,8 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        state = State.PLAYLIST_UPDATE_PROGRESS;
-
                         newItemsAddStatusTxt.setText(taskController.getStatusMsg());
-
+                        state = State.PLAYLIST_UPDATE_PROGRESS;
                         updateControlsVisibility();
                     }
                 });
@@ -562,10 +554,8 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                     @Override
                     public void run() {
                         if(taskController.getException() == null) {
-                            state = State.PLAYLIST_UPDATE_OK;
-
                             newItemsAddStatusTxt.setText(taskController.getStatusMsg());
-
+                            state = State.PLAYLIST_UPDATE_OK;
                             updateControlsVisibility();
                         }
                     }
@@ -579,11 +569,9 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                     public void run() {
                         newItemsAddStatusTxt.setText(status);
                         if (e != null) {
-                            state = State.PLAYLIST_UPDATE_ERROR;
-
                             newItemsAddErrorTxt.setText(e.getMessage()
                                     + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
-
+                            state = State.PLAYLIST_UPDATE_ERROR;
                             updateControlsVisibility();
                         }
                     }
