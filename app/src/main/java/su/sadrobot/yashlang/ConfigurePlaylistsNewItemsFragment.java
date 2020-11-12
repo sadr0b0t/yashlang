@@ -553,11 +553,13 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
+                        newItemsAddStatusTxt.setText(taskController.getStatusMsg());
                         if(taskController.getException() == null) {
-                            newItemsAddStatusTxt.setText(taskController.getStatusMsg());
                             state = State.PLAYLIST_UPDATE_OK;
-                            updateControlsVisibility();
+                        } else {
+                            state = State.PLAYLIST_UPDATE_ERROR;
                         }
+                        updateControlsVisibility();
                     }
                 });
             }

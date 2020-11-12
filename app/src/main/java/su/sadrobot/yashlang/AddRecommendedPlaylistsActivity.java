@@ -79,13 +79,21 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
 
+
+    private enum State {
+        INITIAL_RECOMMENDED,
+        PLAYLIST_ADD_PROGRESS, PLAYLIST_ADD_ERROR, PLAYLIST_ADD_OK
+    }
+
+    private State state = State.INITIAL_RECOMMENDED;
+
     private int plToAddStartIndex = 0;
 
 
     private PlaylistInfo[] recommendedPlaylists = {
 
             // PeerTube
-
+            
             new PlaylistInfo("Cartoons!",
                     "https://vidcommons.org/video-channels/cartoons/videos",
                     "https://vidcommons.org/lazy-static/avatars/8431c1e3-1ef4-44cb-a3c7-b838cc60fa1e.jpg",
@@ -525,10 +533,43 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
         return true;
     }
 
+    private void updateControlsVisibility() {
+        switch (state){
+            case INITIAL_RECOMMENDED:
+                recommendedPlaylistsView.setVisibility(View.VISIBLE);
+                playlistsAddProgressView.setVisibility(View.GONE);
+
+                break;
+            case PLAYLIST_ADD_PROGRESS:
+                recommendedPlaylistsView.setVisibility(View.GONE);
+                playlistsAddProgressView.setVisibility(View.VISIBLE);
+
+                playlistAddProgress.setVisibility(View.VISIBLE);
+                playlistAddErrorView.setVisibility(View.GONE);
+
+                break;
+            case PLAYLIST_ADD_ERROR:
+                recommendedPlaylistsView.setVisibility(View.GONE);
+                playlistsAddProgressView.setVisibility(View.VISIBLE);
+
+                playlistAddProgress.setVisibility(View.GONE);
+                playlistAddErrorView.setVisibility(View.VISIBLE);
+
+                break;
+            case PLAYLIST_ADD_OK:
+                recommendedPlaylistsView.setVisibility(View.GONE);
+                playlistsAddProgressView.setVisibility(View.VISIBLE);
+
+                playlistAddProgress.setVisibility(View.GONE);
+                playlistAddErrorView.setVisibility(View.GONE);
+
+                break;
+        }
+    }
+
     private void addPlaylistsBg() {
-        recommendedPlaylistsView.setVisibility(View.GONE);
-        playlistsAddProgressView.setVisibility(View.VISIBLE);
-        playlistAddErrorView.setVisibility(View.GONE);
+        this.state = State.PLAYLIST_ADD_PROGRESS;
+        updateControlsVisibility();
 
         // канал или плейлист
         final ContentLoader.TaskController taskController = new ContentLoader.TaskController();
@@ -538,9 +579,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        //addPlaylistBtn.setEnabled(false);
-                        playlistAddProgress.setVisibility(View.VISIBLE);
+
                         playlistAddStatusTxt.setText(taskController.getStatusMsg());
+                        state = State.PLAYLIST_ADD_PROGRESS;
+                        updateControlsVisibility();
                     }
                 });
             }
@@ -550,9 +592,13 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        //addPlaylistBtn.setEnabled(true);
-                        playlistAddProgress.setVisibility(View.GONE);
                         playlistAddStatusTxt.setText(taskController.getStatusMsg());
+                        if(taskController.getException() == null) {
+                            state = State.PLAYLIST_ADD_OK;
+                        } else {
+                            state = State.PLAYLIST_ADD_ERROR;
+                        }
+                        updateControlsVisibility();
                     }
                 });
             }
@@ -564,9 +610,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     public void run() {
                         playlistAddStatusTxt.setText(status);
                         if (e != null) {
-                            playlistAddErrorView.setVisibility(View.VISIBLE);
                             playlistAddErrorTxt.setText(e.getMessage()
                                     + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
+                            state = State.PLAYLIST_ADD_ERROR;
+                            updateControlsVisibility();
                         }
                     }
                 });

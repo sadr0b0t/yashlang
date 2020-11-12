@@ -91,6 +91,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
     private ImageView playlistThumbImg;
     private TextView playlistNameTxt;
     private Button addPlaylistBtn;
+    private View playlistLoadedEmptyView;
     private RecyclerView videoList;
 
     //
@@ -112,6 +113,13 @@ public class AddPlaylistActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
 
+    private enum State {
+        ITEMS_LIST_EMPTY, ITEMS_LIST_LOAD_PROGRESS, ITEMS_LIST_LOAD_ERROR, ITEMS_LIST_LOADED_EMPTY, ITEMS_LIST_LOADED,
+        PLAYLIST_ADD_PROGRESS, PLAYLIST_ADD_ERROR, PLAYLIST_ADD_OK
+    }
+
+    private State state = State.ITEMS_LIST_EMPTY;
+
     private boolean playlistLoadError = false;
 
     private PlaylistInfo loadedPlaylist = null;
@@ -122,19 +130,29 @@ public class AddPlaylistActivity extends AppCompatActivity {
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
         private void checkIfEmpty() {
             // в любом случае прячем прогресс, если он был включен
-            playlistEmptyInitialView.setVisibility(View.GONE);
-            playlistLoadProgressView.setVisibility(View.GONE);
-            if (playlistLoadError) {
-                playlistLoadErrorView.setVisibility(View.VISIBLE);
-                playlistLoadedView.setVisibility(View.GONE);
-            } else {
-                playlistLoadErrorView.setVisibility(View.GONE);
-                playlistLoadedView.setVisibility(View.VISIBLE);
-            }
 
-            //final boolean listIsEmpty = videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0;
-            //addPlaylistBtn.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
-            //addPlaylistBtn.setEnabled(!listIsEmpty);
+            if(state != State.PLAYLIST_ADD_PROGRESS && state != State.PLAYLIST_ADD_ERROR &&
+                    state != State.PLAYLIST_ADD_OK) {
+                // Будем менять состояние здесь только в том случае, если у нас сейчас активна панель
+                // со списком новых видео. Если мы в процессе добавления новых видео в базу, то
+                // состояние здесь менять не будем, чтобы оно не скрыло панели статуса добавления.
+                // Такое может произойти, например, если мы крутанули список новых видео вниз
+                // и нажали кнопку "добавить новые видео": элементы списка начали подгружаться в фоне
+                // и генерировать события, которые приведут программу сюда уже после того, как
+                // пользователь начнет наблюдать панели со статусом добавления новых элементов.
+
+                final boolean listIsEmpty = videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0;
+
+                if (playlistLoadError) {
+                    state = State.ITEMS_LIST_LOAD_ERROR;
+                } else if (listIsEmpty) {
+                    state = State.ITEMS_LIST_LOADED_EMPTY;
+                } else {
+                    state = State.ITEMS_LIST_LOADED;
+                }
+
+                updateControlsVisibility();
+            }
         }
 
         @Override
@@ -178,6 +196,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
         playlistThumbImg = findViewById(R.id.playlist_thumb_img);
         playlistNameTxt = findViewById(R.id.playlist_name_txt);
         addPlaylistBtn = findViewById(R.id.playlist_add_btn);
+        playlistLoadedEmptyView = findViewById(R.id.playlist_loaded_empty_view);
         videoList = findViewById(R.id.video_list);
 
         playlistAddProgressView = findViewById(R.id.playlist_add_progress_view);
@@ -315,96 +334,92 @@ public class AddPlaylistActivity extends AppCompatActivity {
         return true;
     }
 
-    private void addLoadedPlaylistBg() {
-        // разрешено добавлять только после того, как о плейлисте загружена предварительная
-        // информация, т.е. объект loadedPlaylist будет не null
-        //final String playlistUrl = playlistUrlInput.getText().toString();
-        playlistAddPlThumbImg.setImageBitmap(loadedPlaylist.getThumbBitmap());
-        playlistAddPlNameTxt.setText(loadedPlaylist.getName());
-        playlistAddPlUrlTxt.setText(PlaylistUrlUtil.cleanupUrl(loadedPlaylist.getUrl()));
+    private void updateControlsVisibility() {
+        switch (state){
+            case ITEMS_LIST_EMPTY:
+                playlistView.setVisibility(View.VISIBLE);
+                playlistAddProgressView.setVisibility(View.GONE);
 
-        // обнулить состояние виджетов
-        playlistAddStatusTxt.setText("");
-        playlistAddProgress.setVisibility(View.GONE);
-        playlistAddErrorView.setVisibility(View.GONE);
-        playlistAddErrorTxt.setText("");
+                playlistEmptyInitialView.setVisibility(View.VISIBLE);
+                playlistLoadProgressView.setVisibility(View.GONE);
+                playlistLoadErrorView.setVisibility(View.GONE);
+                playlistLoadedView.setVisibility(View.GONE);
+                break;
+            case ITEMS_LIST_LOAD_PROGRESS:
+                playlistView.setVisibility(View.VISIBLE);
+                playlistAddProgressView.setVisibility(View.GONE);
 
-        // показать панель статуса добавления плейлиста
-        playlistView.setVisibility(View.GONE);
-        playlistAddProgressView.setVisibility(View.VISIBLE);
+                playlistEmptyInitialView.setVisibility(View.GONE);
+                playlistLoadProgressView.setVisibility(View.VISIBLE);
+                playlistLoadErrorView.setVisibility(View.GONE);
+                playlistLoadedView.setVisibility(View.GONE);
 
-        // канал или плейлист
-        final ContentLoader.TaskController taskController = new ContentLoader.TaskController();
-        taskController.setTaskListener(new ContentLoader.TaskListener() {
-            @Override
-            public void onStart() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        //addPlaylistBtn.setEnabled(false);
-                        playlistAddProgress.setVisibility(View.VISIBLE);
-                        playlistAddStatusTxt.setText(taskController.getStatusMsg());
-                    }
-                });
-            }
+                break;
+            case ITEMS_LIST_LOAD_ERROR:
+                playlistView.setVisibility(View.VISIBLE);
+                playlistAddProgressView.setVisibility(View.GONE);
 
-            @Override
-            public void onFinish() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        //addPlaylistBtn.setEnabled(true);
-                        playlistAddProgress.setVisibility(View.GONE);
-                        playlistAddStatusTxt.setText(taskController.getStatusMsg());
-                    }
-                });
-            }
+                playlistEmptyInitialView.setVisibility(View.GONE);
+                playlistLoadProgressView.setVisibility(View.GONE);
+                playlistLoadErrorView.setVisibility(View.VISIBLE);
+                playlistLoadedView.setVisibility(View.GONE);
 
-            @Override
-            public void onStatusChange(final String status, final Exception e) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        playlistAddStatusTxt.setText(status);
-                        if (e != null) {
-                            playlistAddErrorView.setVisibility(View.VISIBLE);
-                            playlistAddErrorTxt.setText(e.getMessage()
-                                    + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
-                        }
-                    }
-                });
-            }
-        });
+                break;
+            case ITEMS_LIST_LOADED_EMPTY:
+                playlistView.setVisibility(View.VISIBLE);
+                playlistAddProgressView.setVisibility(View.GONE);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final long plId = ContentLoader.getInstance().addPlaylist(
-                        AddPlaylistActivity.this, loadedPlaylist.getUrl(), taskController);
+                playlistEmptyInitialView.setVisibility(View.GONE);
+                playlistLoadProgressView.setVisibility(View.GONE);
+                playlistLoadErrorView.setVisibility(View.GONE);
+                playlistLoadedView.setVisibility(View.VISIBLE);
 
-                if (plId != -1) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            // открываем активити со списком
-                            final Intent intent = new Intent(AddPlaylistActivity.this, ViewPlaylistActivity.class);
-                            intent.putExtra(ViewPlaylistActivity.PARAM_PLAYLIST_ID, plId);
-                            startActivity(intent);
+                playlistLoadedEmptyView.setVisibility(View.VISIBLE);
+                videoList.setVisibility(View.GONE);
 
-                            AddPlaylistActivity.this.finish();
-                        }
-                    });
-                }
-            }
-        }).start();
+                break;
+            case ITEMS_LIST_LOADED:
+                playlistView.setVisibility(View.VISIBLE);
+                playlistAddProgressView.setVisibility(View.GONE);
+
+                playlistEmptyInitialView.setVisibility(View.GONE);
+                playlistLoadProgressView.setVisibility(View.GONE);
+                playlistLoadErrorView.setVisibility(View.GONE);
+                playlistLoadedView.setVisibility(View.VISIBLE);
+
+                playlistLoadedEmptyView.setVisibility(View.GONE);
+                videoList.setVisibility(View.VISIBLE);
+
+                break;
+            case PLAYLIST_ADD_PROGRESS:
+                playlistView.setVisibility(View.GONE);
+                playlistAddProgressView.setVisibility(View.VISIBLE);
+
+                playlistAddProgress.setVisibility(View.VISIBLE);
+                playlistAddErrorView.setVisibility(View.GONE);
+
+                break;
+            case PLAYLIST_ADD_ERROR:
+                playlistView.setVisibility(View.GONE);
+                playlistAddProgressView.setVisibility(View.VISIBLE);
+
+                playlistAddProgress.setVisibility(View.GONE);
+                playlistAddErrorView.setVisibility(View.VISIBLE);
+
+                break;
+            case PLAYLIST_ADD_OK:
+                playlistView.setVisibility(View.GONE);
+                playlistAddProgressView.setVisibility(View.VISIBLE);
+
+                playlistAddProgress.setVisibility(View.GONE);
+                playlistAddErrorView.setVisibility(View.GONE);
+
+                break;
+        }
     }
 
-    private void updateVideoListBg(final String plUrl) {
-        playlistEmptyInitialView.setVisibility(View.GONE);
-        playlistLoadProgressView.setVisibility(View.VISIBLE);
-        playlistLoadErrorView.setVisibility(View.GONE);
-        playlistLoadedView.setVisibility(View.GONE);
 
+    private void updateVideoListBg(final String plUrl) {
         // значения по умолчанию
         playlistNameTxt.setText("");
         playlistThumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
@@ -413,6 +428,10 @@ public class AddPlaylistActivity extends AppCompatActivity {
         //
         loadedPlaylist = null;
         playlistLoadError = false;
+
+        state = State.ITEMS_LIST_LOAD_PROGRESS;
+        updateControlsVisibility();
+
 
         new Thread(new Runnable() {
             @Override
@@ -462,12 +481,8 @@ public class AddPlaylistActivity extends AppCompatActivity {
                         } else {
                             // ошибочка вышла
                             playlistLoadErrorTxt.setText(errMsg);
-
-                            playlistEmptyInitialView.setVisibility(View.GONE);
-                            playlistLoadProgressView.setVisibility(View.GONE);
-                            playlistLoadErrorView.setVisibility(View.VISIBLE);
-                            playlistLoadedView.setVisibility(View.GONE);
-                            playlistAddProgressView.setVisibility(View.GONE);
+                            state = State.ITEMS_LIST_LOAD_ERROR;
+                            updateControlsVisibility();
                         }
                     }
                 });
@@ -552,6 +567,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
                                 playlistLoadError = true;
                                 playlistLoadErrorTxt.setText(e.getMessage()
                                         + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
+                                // видимость элементов управления обновится в emptyListObserver
                             }
                         });
                     }
@@ -579,5 +595,93 @@ public class AddPlaylistActivity extends AppCompatActivity {
         });
 
         videoList.setAdapter(adapter);
+    }
+
+    private void addLoadedPlaylistBg() {
+        // разрешено добавлять только после того, как о плейлисте загружена предварительная
+        // информация, т.е. объект loadedPlaylist будет не null
+        //final String playlistUrl = playlistUrlInput.getText().toString();
+        playlistAddPlThumbImg.setImageBitmap(loadedPlaylist.getThumbBitmap());
+        playlistAddPlNameTxt.setText(loadedPlaylist.getName());
+        playlistAddPlUrlTxt.setText(PlaylistUrlUtil.cleanupUrl(loadedPlaylist.getUrl()));
+
+        // обнулить состояние виджетов
+        playlistAddStatusTxt.setText("");
+        playlistAddErrorTxt.setText("");
+
+        // показать панель статуса добавления плейлиста
+        state = State.PLAYLIST_ADD_PROGRESS;
+        updateControlsVisibility();
+
+        // канал или плейлист
+        final ContentLoader.TaskController taskController = new ContentLoader.TaskController();
+        taskController.setTaskListener(new ContentLoader.TaskListener() {
+            @Override
+            public void onStart() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        playlistAddStatusTxt.setText(taskController.getStatusMsg());
+                        state = State.PLAYLIST_ADD_PROGRESS;
+                        updateControlsVisibility();
+
+                    }
+                });
+            }
+
+            @Override
+            public void onFinish() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        playlistAddStatusTxt.setText(taskController.getStatusMsg());
+                        if(taskController.getException() == null) {
+                            state = State.PLAYLIST_ADD_OK;
+                        } else {
+                            state = State.PLAYLIST_ADD_ERROR;
+                        }
+                        updateControlsVisibility();
+                    }
+                });
+            }
+
+            @Override
+            public void onStatusChange(final String status, final Exception e) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        playlistAddStatusTxt.setText(status);
+                        if (e != null) {
+                            playlistAddErrorTxt.setText(e.getMessage()
+                                    + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
+                            state = State.PLAYLIST_ADD_ERROR;
+                            updateControlsVisibility();
+                        }
+                    }
+                });
+            }
+        });
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final long plId = ContentLoader.getInstance().addPlaylist(
+                        AddPlaylistActivity.this, loadedPlaylist.getUrl(), taskController);
+
+                if (plId != -1) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            // открываем активити со списком
+                            final Intent intent = new Intent(AddPlaylistActivity.this, ViewPlaylistActivity.class);
+                            intent.putExtra(ViewPlaylistActivity.PARAM_PLAYLIST_ID, plId);
+                            startActivity(intent);
+
+                            AddPlaylistActivity.this.finish();
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 }

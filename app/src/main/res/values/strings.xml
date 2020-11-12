@@ -67,4 +67,5 @@
     <string name="tab_item_playlists">PLAYLISTS</string>
     <string name="add_all">Add all</string>
     <string name="added_n_items">Added %s items</string>
+    <string name="no_items_in_playlist">No items in this playlist</string>
 </resources>
