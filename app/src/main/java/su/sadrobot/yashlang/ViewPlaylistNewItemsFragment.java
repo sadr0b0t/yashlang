@@ -104,6 +104,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
     private Button newItemsAddCancelBtn;
 
     private View newItemsAddDoneView;
+    private TextView newItemsAddDoneStatusTxt;
     private Button newItemsAddDoneBtn;
 
     private Handler handler = new Handler();
@@ -227,6 +228,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         newItemsAddCancelBtn = view.findViewById(R.id.playlist_new_items_add_cancel_btn);
 
         newItemsAddDoneView = view.findViewById(R.id.playlist_new_items_add_done_view);
+        newItemsAddDoneStatusTxt = view.findViewById(R.id.playlist_new_items_add_done_status_txt);
         newItemsAddDoneBtn = view.findViewById(R.id.playlist_new_items_add_done_btn);
 
         // set a LinearLayoutManager with default vertical orientation
@@ -296,6 +298,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
             case NEW_ITEMS_LIST_EMPTY:
                 playlistItemsView.setVisibility(View.VISIBLE);
                 newItemsAddProgressView.setVisibility(View.GONE);
+                newItemsAddDoneView.setVisibility(View.GONE);
 
                 emptyView.setVisibility(View.VISIBLE);
                 newItemsView.setVisibility(View.GONE);
@@ -310,6 +313,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
             case NEW_ITEMS_LIST_LOAD_PROGRESS:
                 playlistItemsView.setVisibility(View.VISIBLE);
                 newItemsAddProgressView.setVisibility(View.GONE);
+                newItemsAddDoneView.setVisibility(View.GONE);
 
                 emptyView.setVisibility(View.VISIBLE);
                 newItemsView.setVisibility(View.GONE);
@@ -324,6 +328,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
             case NEW_ITEMS_LIST_LOAD_ERROR:
                 playlistItemsView.setVisibility(View.VISIBLE);
                 newItemsAddProgressView.setVisibility(View.GONE);
+                newItemsAddDoneView.setVisibility(View.GONE);
 
                 emptyView.setVisibility(View.VISIBLE);
                 newItemsView.setVisibility(View.GONE);
@@ -338,6 +343,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
             case NEW_ITEMS_LIST_LOADED:
                 playlistItemsView.setVisibility(View.VISIBLE);
                 newItemsAddProgressView.setVisibility(View.GONE);
+                newItemsAddDoneView.setVisibility(View.GONE);
 
                 emptyView.setVisibility(View.GONE);
                 newItemsView.setVisibility(View.VISIBLE);
@@ -346,27 +352,24 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
             case PLAYLIST_UPDATE_PROGRESS:
                 playlistItemsView.setVisibility(View.GONE);
                 newItemsAddProgressView.setVisibility(View.VISIBLE);
+                newItemsAddDoneView.setVisibility(View.GONE);
 
                 newItemsAddProgress.setVisibility(View.VISIBLE);
                 newItemsAddErrorView.setVisibility(View.GONE);
-                newItemsAddDoneView.setVisibility(View.GONE);
 
                 break;
             case PLAYLIST_UPDATE_ERROR:
                 playlistItemsView.setVisibility(View.GONE);
                 newItemsAddProgressView.setVisibility(View.VISIBLE);
+                newItemsAddDoneView.setVisibility(View.GONE);
 
                 newItemsAddProgress.setVisibility(View.GONE);
                 newItemsAddErrorView.setVisibility(View.VISIBLE);
-                newItemsAddDoneView.setVisibility(View.GONE);
 
                 break;
             case PLAYLIST_UPDATE_OK:
                 playlistItemsView.setVisibility(View.GONE);
-                newItemsAddProgressView.setVisibility(View.VISIBLE);
-
-                newItemsAddProgress.setVisibility(View.GONE);
-                newItemsAddErrorView.setVisibility(View.GONE);
+                newItemsAddProgressView.setVisibility(View.GONE);
                 newItemsAddDoneView.setVisibility(View.VISIBLE);
 
                 break;
@@ -556,10 +559,13 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                     @Override
                     public void run() {
                         if(taskController.getException() == null) {
-                            newItemsAddStatusTxt.setText(taskController.getStatusMsg());
+                            newItemsAddDoneStatusTxt.setText(taskController.getStatusMsg());
                             state = State.PLAYLIST_UPDATE_OK;
-                            updateControlsVisibility();
+                        } else {
+                            newItemsAddStatusTxt.setText(taskController.getStatusMsg());
+                            state = State.PLAYLIST_UPDATE_ERROR;
                         }
+                        updateControlsVisibility();
                     }
                 });
             }
