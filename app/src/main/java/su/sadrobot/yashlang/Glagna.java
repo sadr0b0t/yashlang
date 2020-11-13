@@ -203,6 +203,7 @@ public class Glagna extends AppCompatActivity {
             public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                 final Intent intent = new Intent(Glagna.this, WatchVideoActivity.class);
                 intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
+                intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.RANDOM);
                 startActivity(intent);
             }
 

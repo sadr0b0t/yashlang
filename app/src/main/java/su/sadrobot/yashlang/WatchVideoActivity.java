@@ -106,26 +106,33 @@ public class WatchVideoActivity extends AppCompatActivity {
      */
     public static final String PARAM_VIDEO_ITEM_URL = "PARAM_VIDEO_ITEM_URL";
 
+
     /**
-     * Список рекомендаций - результат поиска по запросу
+     * Режим для списка рекомендаций: значение из RecommendationsMode
+     */
+    public static final String PARAM_RECOMMENDATIONS_MODE = "PARAM_RECOMMENDATIONS_MODE";
+
+    /**
+     * Строка поиска для списка рекомендаций в режиме "результат поиска по запросу"
+     * (PARAM_RECOMMENDATIONS_MODE=RecommendationsMode.SEARCH_STR).
+     *
      */
     public static final String PARAM_SEARCH_STR = "PARAM_SEARCH_STR";
 
     /**
-     * Список рекомендаций - любимые видео
-     */
-    public static final String PARAM_PLAY_STARRED = "PARAM_PLAY_STARRED";
-
-    /**
+     * Айди плейлиста для списка рекомендаций в режиме "плейлист по идентификатору"
+     * (PARAM_RECOMMENDATIONS_MODE=RecommendationsMode.PLAYLIST_ID).
      * Список рекомендаций - плейлист
      */
     public static final String PARAM_PLAYLIST_ID = "PARAM_PLAYLIST_ID";
 
-    /**
-     * Список рекомендаций - пустой
-     */
-    public static final String PARAM_RECOMMENDATIONS_OFF = "PARAM_RECOMMENDATIONS_OFF";
 
+    /**
+     * Режимы для списка рекомендаций
+     */
+    public enum RecommendationsMode {
+        OFF, RANDOM, PLAYLIST_ID, SEARCH_STR, STARRED
+    }
 
     private enum PlayerState {
         EMPTY, LOADED, LOADING, ERROR
@@ -547,12 +554,12 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoList.setLayoutManager(linearLayoutManager);
 
 
-        final boolean recommendationsOff = super.getIntent().getBooleanExtra(PARAM_RECOMMENDATIONS_OFF, false);
-        if (!recommendationsOff) {
-            final String searchStr = super.getIntent().getStringExtra(PARAM_SEARCH_STR);
-            final boolean playStarred = super.getIntent().getBooleanExtra(PARAM_PLAY_STARRED, false);
-            final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, -1);
-            if (searchStr != null) {
+        final RecommendationsMode recommendationsMode =super.getIntent().hasExtra(PARAM_RECOMMENDATIONS_MODE) ?
+                (RecommendationsMode) super.getIntent().getSerializableExtra(PARAM_RECOMMENDATIONS_MODE) :
+                RecommendationsMode.RANDOM;
+        switch (recommendationsMode) {
+            case SEARCH_STR:
+                final String searchStr = super.getIntent().getStringExtra(PARAM_SEARCH_STR);
                 // будем считать, что в случае с передачей поисковой строки нам передают для
                 // проигрывания первый элемент из поисковой выдачи, поэтому, чтобы кнопка
                 // "следующее видео" не повторяла первый ролик два раза, начнем считать индекс
@@ -560,8 +567,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                 // (но, чтобы это сработало, нужно еще ниже положить:
                 // posMap.put(videoItem.getId(), currentVideoPosition))
                 currentVideoPosition = 0;
-                setupVideoListPagedListAdapter(searchStr);
-            } else if (playStarred) {
+                setupVideoListSearchPagedListAdapter(searchStr);
+
+                break;
+            case STARRED:
                 // будем считать, что в случае в режиме "играть любимое" мы выбираем для
                 // проигрывания первый элемент из списка любимых, поэтому, чтобы кнопка
                 // "следующее видео" не повторяла первый ролик два раза, начнем считать индекс
@@ -569,12 +578,21 @@ public class WatchVideoActivity extends AppCompatActivity {
                 // (но, чтобы это сработало, нужно еще ниже положить:
                 // posMap.put(videoItem.getId(), currentVideoPosition))
                 currentVideoPosition = 0;
-                setupStarredVideoListPagedListAdapter();
-            } else if (playlistId != -1) {
-                setupVideoListPagedListAdapter(playlistId);
-            } else {
-                setupVideoListArrayAdapter();
-            }
+                setupVideoListStarredPagedListAdapter();
+
+                break;
+            case PLAYLIST_ID:
+                final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, -1);
+                setupVideoListPlaylistPagedListAdapter(playlistId);
+
+                break;
+            case RANDOM:
+                setupVideoListRandomArrayAdapter();
+
+                break;
+
+            //case OFF:
+            //default:
         }
 
         // загружаем видео
@@ -1623,7 +1641,7 @@ public class WatchVideoActivity extends AppCompatActivity {
      * при каждой записи в базу (например, при переключении видео с сохранением текущей позиции
      * или при клике на кнопку со звездочкой)
      */
-    private void setupVideoListArrayAdapter() {
+    private void setupVideoListRandomArrayAdapter() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -1657,7 +1675,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
 
-    private void setupVideoListPagedListAdapter(final String searchStr) {
+    private void setupVideoListSearchPagedListAdapter(final String searchStr) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -1703,7 +1721,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoList.setAdapter(adapter);
     }
 
-    private void setupStarredVideoListPagedListAdapter() {
+    private void setupVideoListStarredPagedListAdapter() {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -1748,7 +1766,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoList.setAdapter(adapter);
     }
 
-    private void setupVideoListPagedListAdapter(final long playlistId) {
+    private void setupVideoListPlaylistPagedListAdapter(final long playlistId) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }

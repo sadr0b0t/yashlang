@@ -152,6 +152,7 @@ public class SearchVideoActivity extends AppCompatActivity {
                     final Intent intent = new Intent(SearchVideoActivity.this, WatchVideoActivity.class);
                     intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID,
                             ((VideoItemPagedListAdapter)videoList.getAdapter()).getItem(0).getId());
+                    intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.SEARCH_STR);
                     intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, searchVideoInput.getText().toString());
                     startActivity(intent);
                 } else {

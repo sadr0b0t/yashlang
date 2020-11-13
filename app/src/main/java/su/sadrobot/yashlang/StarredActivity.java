@@ -143,7 +143,7 @@ public class StarredActivity extends AppCompatActivity {
                     final Intent intent = new Intent(StarredActivity.this, WatchVideoActivity.class);
                     intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID,
                             ((VideoItemPagedListAdapter)videoList.getAdapter()).getItem(0).getId());
-                    intent.putExtra(WatchVideoActivity.PARAM_PLAY_STARRED, true);
+                    intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.STARRED);
                     startActivity(intent);
                 } else {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
