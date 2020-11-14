@@ -48,6 +48,14 @@ import su.sadrobot.yashlang.util.TimestampConverter;
         indices=@Index(value="playlist_id"))
 public class VideoItem {
 
+    /**
+     * Значение поля id для элементов, не добавленных в базу. Это же значение
+     * должно быть устновлено для элементов, которые можно добавить в базу так,
+     * чтобы сработал механизм autogenerate (поэтому ID_NONE=0, а не, например, -1).
+     * Действующие id элементов в базе начинаются с 1.
+     */
+    public static int ID_NONE = 0;
+
     public static int FAKE_TIMESTAMP_BLOCK_SIZE = 10000;
 
     // Id должен быть только long, иначе из метода @Insert не получится получить id вновь созданной записи
@@ -57,7 +65,7 @@ public class VideoItem {
     // it should return long[] or List<Long> instead.
 
     // также _id должен быть равен нулю в тех случаях, когда мы добавляем объект в базу для того,
-    // чтобы работал механизм autogenerate
+    // чтобы работал механизм autogenerate (id в базе начинаются с 1)
 
     @PrimaryKey(autoGenerate = true)
     private long _id;

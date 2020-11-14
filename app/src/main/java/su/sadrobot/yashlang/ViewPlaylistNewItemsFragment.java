@@ -115,7 +115,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
     private PlaylistUpdateListener playlistUpdateListener;
 
 
-    private long playlistId = -1;
+    private long playlistId = PlaylistInfo.ID_NONE;
     private PlaylistInfo plInfo;
 
     private enum State {
@@ -180,7 +180,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
 
-        playlistId = super.getActivity().getIntent().getLongExtra(PARAM_PLAYLIST_ID, -1);
+        playlistId = super.getActivity().getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
 
         // подключимся к базе один раз при создании активити,
         // закрывать подключение в onDestroy

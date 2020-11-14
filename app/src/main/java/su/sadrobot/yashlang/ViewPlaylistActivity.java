@@ -67,7 +67,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {
     private Handler handler = new Handler();
 
     private VideoDatabase videodb;
-    private long playlistId = -1;
+    private long playlistId = PlaylistInfo.ID_NONE;
     private PlaylistInfo plInfo;
 
     @Override
@@ -133,14 +133,14 @@ public class ViewPlaylistActivity extends AppCompatActivity {
             }
         });
 
-        playlistId = getIntent().getLongExtra(PARAM_PLAYLIST_ID, -1);
+        playlistId = getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
 
 
         // подключимся к базе один раз при создании активити,
         // закрывать подключение в onDestroy
         videodb = VideoDatabase.getDb(this);
 
-        if (playlistId != -1) {
+        if (playlistId != PlaylistInfo.ID_NONE) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {

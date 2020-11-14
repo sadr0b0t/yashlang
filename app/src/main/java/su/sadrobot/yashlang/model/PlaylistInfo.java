@@ -34,6 +34,14 @@ public class PlaylistInfo {
         LOCAL, YT_USER, YT_CHANNEL, YT_PLAYLIST, PT_USER, PT_CHANNEL, PT_PLAYLIST
     }
 
+    /**
+     * Значение поля id для элементов, не добавленных в базу. Это же значение
+     * должно быть устновлено для элементов, которые можно добавить в базу так,
+     * чтобы сработал механизм autogenerate (поэтому ID_NONE=0, а не, например, -1).
+     * Действующие id элементов в базе начинаются с 1.
+     */
+    public static int ID_NONE = 0;
+
     // Id должен быть только long, иначе из метода @Insert не получится получить id вновь созданной записи
     // https://developer.android.com/training/data-storage/room/accessing-data#convenience-insert
     // If the @Insert method receives only 1 parameter, it can return a long, which is the new rowId

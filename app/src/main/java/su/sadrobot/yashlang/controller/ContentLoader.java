@@ -255,7 +255,7 @@ public class ContentLoader {
 
         taskController.setRunning(true);
 
-        final AtomicLong plId = new AtomicLong(-1);
+        final AtomicLong plId = new AtomicLong(PlaylistInfo.ID_NONE);
 
         final VideoDatabase videodb = VideoDatabase.getDb(context);
         try {
@@ -690,7 +690,7 @@ public class ContentLoader {
         final long duration = 0;
         final String thumbUrl = item.getThumbnailUrl();
 
-        return new VideoItem(-1, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl);
+        return new VideoItem(PlaylistInfo.ID_NONE, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl);
     }
 
     /**
@@ -717,7 +717,7 @@ public class ContentLoader {
     }
 
     public VideoItem extractVideoItem(final StreamInfoItem item) {
-        final long playlistId = -1;
+        final long playlistId = PlaylistInfo.ID_NONE;
         final String itemUrl = item.getUrl();
         final String name = item.getName();
         final String uploader = item.getUploaderName();

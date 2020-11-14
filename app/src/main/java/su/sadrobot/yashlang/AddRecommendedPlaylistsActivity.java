@@ -93,7 +93,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
     private PlaylistInfo[] recommendedPlaylists = {
 
             // PeerTube
-            
+
             new PlaylistInfo("Cartoons!",
                     "https://vidcommons.org/video-channels/cartoons/videos",
                     "https://vidcommons.org/lazy-static/avatars/8431c1e3-1ef4-44cb-a3c7-b838cc60fa1e.jpg",
@@ -664,7 +664,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                         // добавляем
                         final long plId = ContentLoader.getInstance().addPlaylist(
                                 AddRecommendedPlaylistsActivity.this, plInfo.getUrl(), taskController);
-                        if (plId == -1) {
+                        if (plId == PlaylistInfo.ID_NONE) {
                             // Плейлист не добавлен - завершаему эту попытку, экран не закрываем
                             // (в колбэк таск-контроллера еще раньше должно прийти событие с ошибкой,
                             // он покажет экран ошибки с сообщением и предложениями попробовать еще,

@@ -160,9 +160,9 @@ public class WatchVideoActivity extends AppCompatActivity {
     private VideoItem currentVideo;
     // для функции перехода на следующее видео
     private int currentVideoPosition = -1;
-    private Map<Long, Integer> posMap = new HashMap<Long, Integer>();
+    private Map<Long, Integer> posMap = new HashMap<>();
 
-    private Stack<VideoItem> playbackHistory = new Stack<VideoItem>();
+    private Stack<VideoItem> playbackHistory = new Stack<>();
 
     private boolean stateFullscreen = false;
 
@@ -582,7 +582,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
                 break;
             case PLAYLIST_ID:
-                final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, -1);
+                final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
                 setupVideoListPlaylistPagedListAdapter(playlistId);
 
                 break;
@@ -598,9 +598,9 @@ public class WatchVideoActivity extends AppCompatActivity {
         // загружаем видео
         // если передан параметр videoId, то загружаем видео по id из базы, если videoId
         // нет, но есть videoYtId, то используем его
-        final long videoId = super.getIntent().getLongExtra(PARAM_VIDEO_ID, -1);
+        final long videoId = super.getIntent().getLongExtra(PARAM_VIDEO_ID, VideoItem.ID_NONE);
         final String videoItemUrl = super.getIntent().getStringExtra(PARAM_VIDEO_ITEM_URL);
-        if (videoId != -1) {
+        if (videoId != VideoItem.ID_NONE) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -623,8 +623,6 @@ public class WatchVideoActivity extends AppCompatActivity {
                     VideoItem _videoItem;
                     try {
                         _videoItem = ContentLoader.getInstance().fetchVideoItem(videoItemUrl);
-                        // это значит для нас, что объекта нет в базе (по умолчанию _id=0)
-                        _videoItem.setId(-1);
                     } catch (ExtractionException | IOException e) {
                         _videoItem = null;
                         //e.printStackTrace();
@@ -853,7 +851,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             toolbar.inflateMenu(R.menu.watch_video_actions);
 
-            if (currentVideo.getId() != -1) {
+            if (currentVideo.getId() != VideoItem.ID_NONE) {
 
                 starredCheck = (CheckBox) toolbar.getMenu().findItem(R.id.action_star).getActionView();
                 starredCheck.setButtonDrawable(android.R.drawable.btn_star);
@@ -967,7 +965,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.action_copy_playlist_name:
-                if (currentVideo != null && currentVideo.getPlaylistId() != -1) {
+                if (currentVideo != null && currentVideo.getPlaylistId() != PlaylistInfo.ID_NONE) {
                     final VideoItem _currentVideo = currentVideo;
                     new Thread(new Runnable() {
                         @Override
@@ -989,13 +987,13 @@ public class WatchVideoActivity extends AppCompatActivity {
                             }
                         }
                     }).start();
-                } else if (currentVideo != null && currentVideo.getPlaylistId() == -1) {
+                } else if (currentVideo != null && currentVideo.getPlaylistId() == PlaylistInfo.ID_NONE) {
                     Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
                             Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.action_copy_playlist_url:
-                if (currentVideo != null && currentVideo.getPlaylistId() != -1) {
+                if (currentVideo != null && currentVideo.getPlaylistId() != PlaylistInfo.ID_NONE) {
                     final VideoItem _currentVideo = currentVideo;
                     new Thread(new Runnable() {
                         @Override
@@ -1017,13 +1015,13 @@ public class WatchVideoActivity extends AppCompatActivity {
                             }
                         }
                     }).start();
-                } else if (currentVideo != null && currentVideo.getPlaylistId() == -1) {
+                } else if (currentVideo != null && currentVideo.getPlaylistId() == PlaylistInfo.ID_NONE) {
                     Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
                             Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.action_blacklist:
-                if (currentVideo != null && currentVideo.getId() != -1) {
+                if (currentVideo != null && currentVideo.getId() != VideoItem.ID_NONE) {
                     // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
                     // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
                     final VideoItem _currentVideo = currentVideo;
@@ -1283,7 +1281,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     // посчитать просмотр (для ролика, загруженного из базы)
-                    if (videoItem.getId() != -1) {
+                    if (videoItem.getId() != VideoItem.ID_NONE) {
                         videodb.videoItemDao().countView(videoItem.getId());
                     }
 
@@ -1441,7 +1439,7 @@ public class WatchVideoActivity extends AppCompatActivity {
      */
     private void actionReload() {
         if (currentVideo != null) {
-            if (currentVideo.getId() != -1) {
+            if (currentVideo.getId() != VideoItem.ID_NONE) {
                 // загрузить поток видео заново (иногда после разрыва соединения
                 // видео может перестать загружаться и появление соединения процесс
                 // не возобновляет)
@@ -1531,7 +1529,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                                 break;
                             }
                             case R.id.action_copy_playlist_name:
-                                if (videoItem != null && videoItem.getPlaylistId() != -1) {
+                                if (videoItem != null && videoItem.getPlaylistId() != PlaylistInfo.ID_NONE) {
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -1552,13 +1550,13 @@ public class WatchVideoActivity extends AppCompatActivity {
                                             }
                                         }
                                     }).start();
-                                } else if (videoItem != null && videoItem.getPlaylistId() == -1) {
+                                } else if (videoItem != null && videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
                                     Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
                                             Toast.LENGTH_LONG).show();
                                 }
                                 break;
                             case R.id.action_copy_playlist_url:
-                                if (videoItem != null && videoItem.getPlaylistId() != -1) {
+                                if (videoItem != null && videoItem.getPlaylistId() != PlaylistInfo.ID_NONE) {
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -1579,13 +1577,13 @@ public class WatchVideoActivity extends AppCompatActivity {
                                             }
                                         }
                                     }).start();
-                                } else if (videoItem != null && videoItem.getPlaylistId() == -1) {
+                                } else if (videoItem != null && videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
                                     Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
                                             Toast.LENGTH_LONG).show();
                                 }
                                 break;
                             case R.id.action_blacklist:
-                                if (videoItem != null && videoItem.getId() != -1) {
+                                if (videoItem != null && videoItem.getId() != VideoItem.ID_NONE) {
                                     final Stack<VideoItem> _playbackHistory = playbackHistory;
                                     new AlertDialog.Builder(WatchVideoActivity.this)
                                             .setTitle(getString(R.string.blacklist_video_title))

@@ -240,7 +240,7 @@ public class Glagna extends AppCompatActivity {
                                         break;
                                     }
                                     case R.id.action_copy_playlist_name:
-                                        if (videoItem != null && videoItem.getPlaylistId() != -1) {
+                                        if (videoItem != null && videoItem.getPlaylistId() != PlaylistInfo.ID_NONE) {
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
@@ -261,13 +261,13 @@ public class Glagna extends AppCompatActivity {
                                                     }
                                                 }
                                             }).start();
-                                        } else if(videoItem != null && videoItem.getPlaylistId() == -1) {
+                                        } else if(videoItem != null && videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
                                             Toast.makeText(Glagna.this, getString(R.string.err_playlist_not_defined),
                                                     Toast.LENGTH_LONG).show();
                                         }
                                         break;
                                     case R.id.action_copy_playlist_url:
-                                        if (videoItem != null && videoItem.getPlaylistId() != -1) {
+                                        if (videoItem != null && videoItem.getPlaylistId() != PlaylistInfo.ID_NONE) {
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
@@ -288,13 +288,13 @@ public class Glagna extends AppCompatActivity {
                                                     }
                                                 }
                                             }).start();
-                                        } else if(videoItem != null && videoItem.getPlaylistId() == -1) {
+                                        } else if(videoItem != null && videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
                                             Toast.makeText(Glagna.this, getString(R.string.err_playlist_not_defined),
                                                     Toast.LENGTH_LONG).show();
                                         }
                                         break;
                                     case R.id.action_blacklist:
-                                        if (videoItem != null && videoItem.getId() != -1) {
+                                        if (videoItem != null && videoItem.getId() != PlaylistInfo.ID_NONE) {
                                             new AlertDialog.Builder(Glagna.this)
                                                     .setTitle(getString(R.string.blacklist_video_title))
                                                     .setMessage(getString(R.string.blacklist_video_message))

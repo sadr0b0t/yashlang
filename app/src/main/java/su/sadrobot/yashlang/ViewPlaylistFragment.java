@@ -84,7 +84,7 @@ public class ViewPlaylistFragment extends Fragment {
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
     private VideoDatabase videodb;
 
-    private long playlistId = -1;
+    private long playlistId = PlaylistInfo.ID_NONE;
 
 
     @Override
@@ -92,7 +92,7 @@ public class ViewPlaylistFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
 
-        playlistId = super.getActivity().getIntent().getLongExtra(PARAM_PLAYLIST_ID, -1);
+        playlistId = super.getActivity().getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
 
         // подключимся к базе один раз при создании активити,
         // закрывать подключение в onDestroy
@@ -257,7 +257,7 @@ public class ViewPlaylistFragment extends Fragment {
                                                 break;
                                             }
                                             case R.id.action_copy_playlist_name:
-                                                if (videoItem != null && videoItem.getPlaylistId() != -1) {
+                                                if (videoItem != null && videoItem.getPlaylistId() != PlaylistInfo.ID_NONE) {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
@@ -278,13 +278,13 @@ public class ViewPlaylistFragment extends Fragment {
                                                             }
                                                         }
                                                     }).start();
-                                                } else if(videoItem != null && videoItem.getPlaylistId() == -1) {
+                                                } else if(videoItem != null && videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
                                                     Toast.makeText(ViewPlaylistFragment.this.getContext(), getString(R.string.err_playlist_not_defined),
                                                             Toast.LENGTH_LONG).show();
                                                 }
                                                 break;
                                             case R.id.action_copy_playlist_url:
-                                                if (videoItem != null && videoItem.getPlaylistId() != -1) {
+                                                if (videoItem != null && videoItem.getPlaylistId() != PlaylistInfo.ID_NONE) {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
@@ -305,7 +305,7 @@ public class ViewPlaylistFragment extends Fragment {
                                                             }
                                                         }
                                                     }).start();
-                                                } else if(videoItem != null && videoItem.getPlaylistId() == -1) {
+                                                } else if(videoItem != null && videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
                                                     Toast.makeText(ViewPlaylistFragment.this.getContext(), getString(R.string.err_playlist_not_defined),
                                                             Toast.LENGTH_LONG).show();
                                                 }

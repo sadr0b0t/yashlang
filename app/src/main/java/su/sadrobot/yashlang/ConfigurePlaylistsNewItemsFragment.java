@@ -224,7 +224,6 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
 
         // Всё добавлено
         newItemsAddDoneView = view.findViewById(R.id.playlist_new_items_add_done_view);
-
         newItemsAddDoneStatusTxt = view.findViewById(R.id.playlist_new_items_add_done_status_txt);
         newItemsAddDoneBtn = view.findViewById(R.id.playlist_new_items_add_done_btn);
 

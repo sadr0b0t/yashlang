@@ -668,7 +668,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
                 final long plId = ContentLoader.getInstance().addPlaylist(
                         AddPlaylistActivity.this, loadedPlaylist.getUrl(), taskController);
 
-                if (plId != -1) {
+                if (plId != PlaylistInfo.ID_NONE) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
