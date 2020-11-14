@@ -404,12 +404,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
             @Override
             public void run() {
                 // информация из базы данных - загрузится быстро и без интернета
-                final List<Long> plIds  = new ArrayList<>();
-                final List<PlaylistInfo> plInfos = videodb.playlistInfoDao().getAll();
-                for(PlaylistInfo plInfo : plInfos) {
-                    plIds.add(plInfo.getId());
-                }
-
+                final List<Long> plIds = videodb.playlistInfoDao().getAllIds();
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -434,7 +429,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                     public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                         final Intent intent = new Intent(ConfigurePlaylistsNewItemsFragment.this.getContext(), WatchVideoActivity.class);
                         intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_URL, videoItem.getItemUrl());
-                        ///intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
+                        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.ALL_NEW);
                         startActivity(intent);
                     }
 

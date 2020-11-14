@@ -84,8 +84,12 @@ import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.view.DataSourceListener;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemArrayAdapter;
+import su.sadrobot.yashlang.view.VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory;
+import su.sadrobot.yashlang.view.VideoItemOnlineDataSourceFactory;
+import su.sadrobot.yashlang.view.VideoItemOnlyNewOnlineDataSourceFactory;
 import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 
 
@@ -115,23 +119,31 @@ public class WatchVideoActivity extends AppCompatActivity {
     /**
      * Строка поиска для списка рекомендаций в режиме "результат поиска по запросу"
      * (PARAM_RECOMMENDATIONS_MODE=RecommendationsMode.SEARCH_STR).
+     * Список рекомендаций - все видео, найденные в базе по поисковой строке.
      *
      */
     public static final String PARAM_SEARCH_STR = "PARAM_SEARCH_STR";
 
     /**
      * Айди плейлиста для списка рекомендаций в режиме "плейлист по идентификатору"
-     * (PARAM_RECOMMENDATIONS_MODE=RecommendationsMode.PLAYLIST_ID).
-     * Список рекомендаций - плейлист
+     * (PARAM_RECOMMENDATIONS_MODE=RecommendationsMode.PLAYLIST_ID или RecommendationsMode.PLAYLIST_NEW).
+     * Список рекомендаций - плейлист.
      */
     public static final String PARAM_PLAYLIST_ID = "PARAM_PLAYLIST_ID";
+
+    /**
+     * Адрес плейлиста для списка рекомендаций в режиме "плейлист онлайн по адресу"
+     * (PARAM_RECOMMENDATIONS_MODE=RecommendationsMode.PLAYLIST_URL).
+     * Список рекомендаций - плейлист, загруженный онлайн.
+     */
+    public static final String PARAM_PLAYLIST_URL = "PARAM_PLAYLIST_URL";
 
 
     /**
      * Режимы для списка рекомендаций
      */
     public enum RecommendationsMode {
-        OFF, RANDOM, PLAYLIST_ID, SEARCH_STR, STARRED
+        OFF, RANDOM, PLAYLIST_ID, PLAYLIST_URL, PLAYLIST_NEW, ALL_NEW, SEARCH_STR, STARRED
     }
 
     private enum PlayerState {
@@ -554,11 +566,11 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoList.setLayoutManager(linearLayoutManager);
 
 
-        final RecommendationsMode recommendationsMode =super.getIntent().hasExtra(PARAM_RECOMMENDATIONS_MODE) ?
+        final RecommendationsMode recommendationsMode = super.getIntent().hasExtra(PARAM_RECOMMENDATIONS_MODE) ?
                 (RecommendationsMode) super.getIntent().getSerializableExtra(PARAM_RECOMMENDATIONS_MODE) :
                 RecommendationsMode.RANDOM;
         switch (recommendationsMode) {
-            case SEARCH_STR:
+            case SEARCH_STR: {
                 final String searchStr = super.getIntent().getStringExtra(PARAM_SEARCH_STR);
                 // будем считать, что в случае с передачей поисковой строки нам передают для
                 // проигрывания первый элемент из поисковой выдачи, поэтому, чтобы кнопка
@@ -570,7 +582,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                 setupVideoListSearchPagedListAdapter(searchStr);
 
                 break;
-            case STARRED:
+            }
+            case STARRED: {
                 // будем считать, что в случае в режиме "играть любимое" мы выбираем для
                 // проигрывания первый элемент из списка любимых, поэтому, чтобы кнопка
                 // "следующее видео" не повторяла первый ролик два раза, начнем считать индекс
@@ -581,16 +594,35 @@ public class WatchVideoActivity extends AppCompatActivity {
                 setupVideoListStarredPagedListAdapter();
 
                 break;
-            case PLAYLIST_ID:
+            }
+            case PLAYLIST_ID: {
                 final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
                 setupVideoListPlaylistPagedListAdapter(playlistId);
 
                 break;
-            case RANDOM:
+            }
+            case PLAYLIST_URL: {
+                final String playlistUrl = super.getIntent().getStringExtra(PARAM_PLAYLIST_URL);
+                setupVideoListPlaylistOnlinePagedListAdapter(playlistUrl);
+
+                break;
+            }
+            case PLAYLIST_NEW: {
+                final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
+                setupVideoListPlaylistNewPagedListAdapter(playlistId);
+
+                break;
+            }
+            case ALL_NEW: {
+                setupVideoListAllNewPagedListAdapter();
+
+                break;
+            }
+            case RANDOM: {
                 setupVideoListRandomArrayAdapter();
 
                 break;
-
+            }
             //case OFF:
             //default:
         }
@@ -1123,7 +1155,30 @@ public class WatchVideoActivity extends AppCompatActivity {
             if (videoList.getAdapter() == null || videoList.getAdapter().getItemCount() < 2) {
                 prevVideoBtn.setVisibility(View.GONE);
                 nextVideoBtn.setVisibility(View.GONE);
-                videoList.setVisibility(View.GONE);
+
+                if(super.getIntent().getSerializableExtra(PARAM_RECOMMENDATIONS_MODE) != RecommendationsMode.ALL_NEW) {
+                    // спрячем список рекомендаций, даже если в нем будет 1 элемент, т.к.
+                    // обычно это будет тот же самый ролик, который сейчас загружен
+                    videoList.setVisibility(View.GONE);
+                } else {
+                    // Но только не в случае, если у нас список рекомендаций - все новые элементы для
+                    // всех плейлистов. В этом случае может прозойти совсем не очевидная ситуация:
+                    // если в 1-м плейлисте с новыми элементами окажется всего ровно 1 новый элемент,
+                    // то движок адаптера вызовет у VideoItemMultPlaylistsOnlyNewOnlineDataSource
+                    // только loadIntitial (внутри которого и будет загружен этот 1-й элемент),
+                    // после чего, если мы бы спрятали список здесь, loadAfter для загрузки
+                    // новых элементов никогда бы не был дальше вызван, т.к. он вызывается по требованию
+                    // интерфейса при промотке списка, когда требуется отобразить недостающие элеметы,
+                    // а скрытый список не требует ничего отображать. Поэтому мы так и останемся
+                    // с единственным элементом, загруженным в loadIntitial, и список рекомендаций
+                    // так никогда не отобразится (чтобы отобразить список рекомендаций, нужно загрузить
+                    // хотябы еще один элемент, а чтобы загрузить еще один элемент, нужно отобразить
+                    // список рекомендаций). Поэтому список рекомендаций в режиме "всё новое" мы
+                    // будем отображать всегда, даже если в нем всего один элемент, т.к. мы не знаем,
+                    // появится ли там что-то еще или этот первый загруженный элемент вообще единственный.
+                    videoList.setVisibility(View.VISIBLE);
+                }
+
             } else {
                 prevVideoBtn.setVisibility(playbackHistory.size() > 1 ? View.VISIBLE : View.INVISIBLE);
                 nextVideoBtn.setVisibility(View.VISIBLE);
@@ -1808,5 +1863,158 @@ public class WatchVideoActivity extends AppCompatActivity {
         });
 
         videoList.setAdapter(adapter);
+    }
+    private void setupVideoListPlaylistOnlinePagedListAdapter(final String playlistUrl) {
+        if (videoItemsLiveData != null) {
+            videoItemsLiveData.removeObservers(this);
+        }
+
+        if (videoList.getAdapter() != null) {
+            videoList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
+        }
+
+        final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(
+                this, new OnListItemClickListener<VideoItem>() {
+            @Override
+            public void onItemClick(final View view, final int position, final VideoItem videoItem) {
+                posMap.put(videoItem.getId(), position);
+                playVideoItem(videoItem, false);
+            }
+
+            @Override
+            public boolean onItemLongClick(View view, int position, VideoItem videoItem) {
+                actionVideoContextMenu(view, videoItem);
+                return true;
+            }
+        }, null, VideoItemPagedListAdapter.ORIENTATION_HORIZONTAL);
+
+        // видимость некоторых элементов управления зависит от наличия элементов в
+        // списке рекомендаций, а они могут загружаться в фоне
+        adapter.registerAdapterDataObserver(emptyListObserver);
+
+        // Initial page size to fetch can also be configured here too
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+
+        final DataSource.Factory factory =
+                new VideoItemOnlineDataSourceFactory(this, playlistUrl, false, null);
+
+        videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
+
+        videoItemsLiveData.observe(this, new Observer<PagedList<VideoItem>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<VideoItem> videos) {
+                adapter.submitList(videos);
+            }
+        });
+
+        videoList.setAdapter(adapter);
+    }
+
+    private void setupVideoListPlaylistNewPagedListAdapter(final long playlistId) {
+        if (videoItemsLiveData != null) {
+            videoItemsLiveData.removeObservers(this);
+        }
+
+        if (videoList.getAdapter() != null) {
+            videoList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
+        }
+
+        final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(
+                this, new OnListItemClickListener<VideoItem>() {
+            @Override
+            public void onItemClick(final View view, final int position, final VideoItem videoItem) {
+                posMap.put(videoItem.getId(), position);
+                playVideoItem(videoItem, false);
+            }
+
+            @Override
+            public boolean onItemLongClick(View view, int position, VideoItem videoItem) {
+                actionVideoContextMenu(view, videoItem);
+                return true;
+            }
+        }, null, VideoItemPagedListAdapter.ORIENTATION_HORIZONTAL);
+
+        // видимость некоторых элементов управления зависит от наличия элементов в
+        // списке рекомендаций, а они могут загружаться в фоне
+        adapter.registerAdapterDataObserver(emptyListObserver);
+
+        // Initial page size to fetch can also be configured here too
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+
+        final DataSource.Factory factory =
+                new VideoItemOnlyNewOnlineDataSourceFactory(this, playlistId, false, null);
+
+        videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
+
+        videoItemsLiveData.observe(this, new Observer<PagedList<VideoItem>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<VideoItem> videos) {
+                adapter.submitList(videos);
+            }
+        });
+
+        videoList.setAdapter(adapter);
+    }
+
+    private void setupVideoListAllNewPagedListAdapter() {
+        // здесь в фоне, т.к. список всех плейлистов получаем из базы данных
+        // (вообще, был бы нормальный вариант сделать конструктор
+        // VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory без параметров, в таком случае
+        // список всех плейлистов можно было бы извлекать в фоне внутри
+        // VideoItemMultPlaylistsOnlyNewOnlineDataSource.loadInitial , но так тоже ок)
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (videoItemsLiveData != null) {
+                    videoItemsLiveData.removeObservers(WatchVideoActivity.this);
+                }
+
+                if (videoList.getAdapter() != null) {
+                    videoList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
+                }
+
+                final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(
+                        WatchVideoActivity.this, new OnListItemClickListener<VideoItem>() {
+                    @Override
+                    public void onItemClick(final View view, final int position, final VideoItem videoItem) {
+                        posMap.put(videoItem.getId(), position);
+                        playVideoItem(videoItem, false);
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(View view, int position, VideoItem videoItem) {
+                        actionVideoContextMenu(view, videoItem);
+                        return true;
+                    }
+                }, null, VideoItemPagedListAdapter.ORIENTATION_HORIZONTAL);
+
+                // видимость некоторых элементов управления зависит от наличия элементов в
+                // списке рекомендаций, а они могут загружаться в фоне
+                adapter.registerAdapterDataObserver(emptyListObserver);
+
+                // Initial page size to fetch can also be configured here too
+                final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+
+                final List<Long> plIds = videodb.playlistInfoDao().getAllIds();
+                final DataSource.Factory factory =
+                        new VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory(
+                                WatchVideoActivity.this, plIds, false, null);
+
+                videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        videoItemsLiveData.observe(WatchVideoActivity.this, new Observer<PagedList<VideoItem>>() {
+                            @Override
+                            public void onChanged(@Nullable PagedList<VideoItem> videos) {
+                                adapter.submitList(videos);
+                            }
+                        });
+
+                        videoList.setAdapter(adapter);
+                    }
+                });
+            }
+        }).start();
     }
 }

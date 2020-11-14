@@ -504,7 +504,8 @@ public class AddPlaylistActivity extends AppCompatActivity {
                     public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                         final Intent intent = new Intent(AddPlaylistActivity.this, WatchVideoActivity.class);
                         intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_URL, videoItem.getItemUrl());
-                        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.OFF);
+                        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_URL);
+                        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_URL, plUrl);
                         startActivity(intent);
                     }
 

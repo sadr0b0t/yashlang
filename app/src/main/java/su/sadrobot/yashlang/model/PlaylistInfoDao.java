@@ -32,6 +32,9 @@ public interface PlaylistInfoDao {
     @Query("SELECT * FROM playlist_info")
     List<PlaylistInfo> getAll();
 
+    @Query("SELECT _id FROM playlist_info")
+    List<Long> getAllIds();
+
     @Query("SELECT * FROM playlist_info WHERE _id = :id LIMIT 1")
     PlaylistInfo getById(long id);
 
