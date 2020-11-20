@@ -46,7 +46,7 @@
             android:label="@string/yashlang_search_playlist"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".ViewPlaylistActivity"
+            android:name=".ConfigurePlaylistActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/yashlang_view_playlist"
             android:theme="@style/CustomToolbarTheme" />
@@ -59,6 +59,16 @@
             android:name=".SearchVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/yashlang_search"
+            android:theme="@style/CustomToolbarTheme" />
+        <activity
+            android:name=".PlaylistsActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/yashlang_playlists"
+            android:theme="@style/CustomToolbarTheme" />
+        <activity
+            android:name=".PlaylistActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/yashlang_playlist"
             android:theme="@style/CustomToolbarTheme" />
         <activity
             android:name=".HistoryActivity"

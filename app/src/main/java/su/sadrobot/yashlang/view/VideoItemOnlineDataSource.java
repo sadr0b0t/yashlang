@@ -21,10 +21,8 @@ package su.sadrobot.yashlang.view;
  */
 
 import android.content.Context;
-import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
-import androidx.paging.ItemKeyedDataSource;
 
 import org.schabi.newpipe.DownloaderTestImpl;
 import org.schabi.newpipe.extractor.ListExtractor;
@@ -33,16 +31,11 @@ import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.VideoItem;
-import su.sadrobot.yashlang.util.PlaylistUrlUtil;
-
-import static org.schabi.newpipe.extractor.ServiceList.PeerTube;
-import static org.schabi.newpipe.extractor.ServiceList.YouTube;
 
 /**
  * Uses NewPipeExtractor https://github.com/TeamNewPipe/NewPipeExtractor library

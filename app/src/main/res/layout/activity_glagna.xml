@@ -27,7 +27,8 @@
             android:layout_marginTop="20dp"
             android:layout_marginRight="5dp"
             android:src="@android:drawable/btn_star_big_on"
-            android:text="@string/faves" />
+            android:text="@string/starred" />
+
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
@@ -43,6 +44,22 @@
             android:layout_marginRight="5dp"
             android:src="@android:drawable/ic_menu_recent_history"
             android:text="@string/history" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
+
+        <ImageButton
+            android:id="@+id/playlists_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="5dp"
+            android:src="@android:drawable/ic_menu_sort_by_size"
+            android:text="@string/playlists" />
 
         <Space
             android:layout_width="0dp"
@@ -83,7 +100,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/playlist_empty_view"
+        android:id="@+id/collection_empty_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -94,7 +111,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/playlist_is_empty" />
+            android:text="@string/collection_is_empty" />
 
         <Button
             android:id="@+id/configure_playlists_btn"

@@ -4,4 +4,7 @@
     <item
         android:id="@+id/action_play_results"
         android:title="@string/play_results"/>
+    <item
+        android:id="@+id/action_play_results_shuffle"
+        android:title="@string/play_results_shuffle"/>
 </menu>

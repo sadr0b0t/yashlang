@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,13 +37,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import su.sadrobot.yashlang.model.PlaylistInfo;
@@ -136,8 +132,8 @@ public class ConfigurePlaylistsFragment extends Fragment {
                                 new OnListItemClickListener<PlaylistInfo>() {
                                     @Override
                                     public void onItemClick(final View view, final int position, final PlaylistInfo item) {
-                                        final Intent intent = new Intent(ConfigurePlaylistsFragment.this.getContext(), ViewPlaylistActivity.class);
-                                        intent.putExtra(ViewPlaylistActivity.PARAM_PLAYLIST_ID, item.getId());
+                                        final Intent intent = new Intent(ConfigurePlaylistsFragment.this.getContext(), ConfigurePlaylistActivity.class);
+                                        intent.putExtra(ConfigurePlaylistActivity.PARAM_PLAYLIST_ID, item.getId());
                                         startActivity(intent);
                                     }
 
@@ -149,7 +145,7 @@ public class ConfigurePlaylistsFragment extends Fragment {
                                         //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
                                         final PopupMenu popup = new PopupMenu(ConfigurePlaylistsFragment.this.getContext(),
                                                 view.findViewById(R.id.playlist_name_txt));
-                                        popup.getMenuInflater().inflate(R.menu.playlist_actions, popup.getMenu());
+                                        popup.getMenuInflater().inflate(R.menu.playlist_item_actions, popup.getMenu());
                                         popup.setOnMenuItemClickListener(
                                                 new PopupMenu.OnMenuItemClickListener() {
                                                     @Override

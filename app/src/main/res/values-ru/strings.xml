@@ -20,7 +20,7 @@
     <string name="blacklist">Черный список</string>
     <string name="configure">Настройки</string>
     <string name="history">История</string>
-    <string name="faves">Любимое</string>
+    <string name="starred">Любимое</string>
     <string name="search_video">искать видео</string>
     <string name="channel_or_playlist_name">имя канала или плейлиста</string>
     <string name="go_back">Назад</string>
@@ -52,7 +52,7 @@
     <string name="skip">Пропустить</string>
     <string name="playlist_add_status_already_added">Плейлист уже добавлен, пропускаем</string>
     <string name="add_playlists">Добавить плейлисты</string>
-    <string name="playlist_is_empty">В коллекции нет видеороликов. Добавьте или включите каналы и плейлисты.</string>
+    <string name="collection_is_empty">В коллекции нет видеороликов. Добавьте или включите каналы и плейлисты.</string>
     <string name="configure_playlists">Настроить каналы и плейлисты</string>
     <string name="playlist_list_is_empty">Список каналов и плейлистов пуст. Добавьте канал или плейлист.</string>
     <string name="failed_to_load_video">Видео не загрузилось :(</string>
@@ -60,7 +60,7 @@
     <string name="play_results">Играть всё в плеере</string>
     <string name="nothing_starred">Здесь будут любимые ролики ★</string>
     <string name="nothing_in_history">Здесь будет история просмотров</string>
-    <string name="play_starred">Играть любимые</string>
+    <string name="play_all">Играть всё</string>
     <string name="nothing_to_play">Нечего играть</string>
     <string name="pt_or_yt">(PeerTube или YT)</string>
     <string name="failed_to_load_new_items">Не получилось загрузить новые элементы</string>
@@ -68,4 +68,8 @@
     <string name="add_all">Добавить всё</string>
     <string name="added_n_items">Добавили %s элементов</string>
     <string name="no_items_in_playlist">В этом списке нет элементов</string>
+    <string name="yashlang_playlist">YaShlang: канал или плейлист</string>
+    <string name="playlists">Плейлисты</string>
+    <string name="play_all_shuffle">Играть всё (перемешать)</string>
+    <string name="play_results_shuffle">Играть всё (перемешать)</string>
 </resources>

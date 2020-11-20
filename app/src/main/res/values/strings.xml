@@ -20,7 +20,7 @@
     <string name="blacklist">Blacklist</string>
     <string name="configure">Configure</string>
     <string name="history">History</string>
-    <string name="faves">Faves</string>
+    <string name="starred">Faves</string>
     <string name="search_video">search video</string>
     <string name="channel_or_playlist_name">channel or playlist name</string>
     <string name="go_back">Go back</string>
@@ -52,7 +52,7 @@
     <string name="skip">Skip</string>
     <string name="playlist_add_status_already_added">Playlist already added, skipping</string>
     <string name="add_playlists">Add playlists</string>
-    <string name="playlist_is_empty">You have no videos in collection. Add or enable channels or playlist.</string>
+    <string name="collection_is_empty">You have no videos in collection. Add or enable channels or playlist.</string>
     <string name="configure_playlists">Configure channels and playlists</string>
     <string name="playlist_list_is_empty">You have no playlists or channels. Add channel or playlist.</string>
     <string name="failed_to_load_video">Problem loading video :(</string>
@@ -60,7 +60,7 @@
     <string name="play_results">Play results</string>
     <string name="nothing_starred">Nothing is starred ★</string>
     <string name="nothing_in_history">Nothing in history</string>
-    <string name="play_starred">Play starred</string>
+    <string name="play_all">Play all</string>
     <string name="nothing_to_play">Nothing to play</string>
     <string name="pt_or_yt">(PeerTube or YT)</string>
     <string name="failed_to_load_new_items">Failed to load new items</string>
@@ -68,4 +68,8 @@
     <string name="add_all">Add all</string>
     <string name="added_n_items">Added %s items</string>
     <string name="no_items_in_playlist">No items in this playlist</string>
+    <string name="yashlang_playlist">YaShlang: channel or playlist</string>
+    <string name="playlists">Playlists</string>
+    <string name="play_all_shuffle">Play all (shuffle)</string>
+    <string name="play_results_shuffle">Play results (shuffle)</string>
 </resources>

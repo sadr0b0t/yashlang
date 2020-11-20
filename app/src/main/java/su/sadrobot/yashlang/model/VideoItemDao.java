@@ -33,17 +33,11 @@ import java.util.List;
 public interface VideoItemDao {
     // https://developer.android.com/topic/libraries/architecture/paging/
 
-    @Query("SELECT * FROM video_item")
-    List<VideoItem> getAll();
-
     // Здесь и ниже логично использовать Factory<Long, VideoItem>
     // вместо Factory<Integer, VideoItem>, но мы не можем так делать,
-    // т.к с Long генератор генерить некомпилируемый код.
+    // т.к с Long генератор генерит некомпилируемый код.
     // Впрочем, с Factory<Integer, VideoItem> при типе ID Long
-    // кодд тоже компилируется и работает, поэтому пока фиг с ним и так.
-
-    @Query("SELECT * FROM video_item")
-    DataSource.Factory<Integer, VideoItem> getAllDs();
+    // код тоже компилируется и работает, поэтому пока фиг с ним и так.
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted ORDER BY name")
     DataSource.Factory<Integer, VideoItem> getAllEnabledDs();
@@ -51,38 +45,29 @@ public interface VideoItemDao {
     @Query("SELECT * FROM video_item WHERE _id = :id LIMIT 1")
     VideoItem getById(long id);
 
-    @Query("SELECT * FROM video_item WHERE _id IN (:vidIds)")
-    List<VideoItem> getByIds(int[] vidIds);
-
-    @Query("SELECT * FROM video_item WHERE item_url = :itemUrl LIMIT 1")
-    VideoItem getByItemUrl(String itemUrl);
-
     @Query("SELECT * FROM video_item WHERE playlist_id = :plId AND item_url = :itemUrl LIMIT 1")
     VideoItem getByItemUrl(long plId, String itemUrl);
 
-    @Query("SELECT * FROM video_item WHERE playlist_id = :playlistId")
-    List<VideoItem> getByPlaylist(long playlistId);
-
     @Query("SELECT * FROM video_item WHERE playlist_id = :playlistId ORDER BY fake_timestamp DESC")
-    DataSource.Factory<Integer, VideoItem> getByPlaylistDs(long playlistId);
+    DataSource.Factory<Integer, VideoItem> getByPlaylistAllDs(long playlistId);
 
     @Query("SELECT * FROM video_item WHERE playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY fake_timestamp DESC")
+    DataSource.Factory<Integer, VideoItem> getByPlaylistAllDs(long playlistId, String filterStr);
+
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY fake_timestamp DESC")
+    DataSource.Factory<Integer, VideoItem> getByPlaylistDs(long playlistId);
+
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistDs(long playlistId, String filterStr);
 
-    @Query("SELECT * FROM video_item WHERE playlist_id = :playlistId LIMIT :lim OFFSET :offset")
-    List<VideoItem> getByPlaylist(long playlistId, int offset, int lim);
-
-    @Query("SELECT * FROM video_item WHERE name LIKE '%'||:sstr||'%' ORDER BY name")
-    List<VideoItem> searchVideos(String sstr);
-
-    @Query("SELECT * FROM video_item WHERE name LIKE '%'||:sstr||'%' ORDER BY name")
-    DataSource.Factory<Integer, VideoItem> searchVideosDs(String sstr);
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY RANDOM() LIMIT :lim")
+    List<VideoItem> getByPlaylistShuffle(long playlistId, int lim);
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND name LIKE '%'||:sstr||'%' ORDER BY name")
-    DataSource.Factory<Integer, VideoItem> searchEnabledVideosDs(String sstr);
+    DataSource.Factory<Integer, VideoItem> searchVideosDs(String sstr);
 
-    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND view_count > 0 ORDER BY view_count DESC")
-    DataSource.Factory<Integer, VideoItem> getHistoryOrderByViewCountDs();
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND name LIKE '%'||:sstr||'%' ORDER BY RANDOM() LIMIT :lim")
+    List<VideoItem> searchVideosShuffle(String sstr, int lim);
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND view_count > 0 ORDER BY last_viewed_date DESC")
     DataSource.Factory<Integer, VideoItem> getHistoryOrderByLastViewedDs();
@@ -90,11 +75,11 @@ public interface VideoItemDao {
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND starred ORDER BY starred_date DESC")
     DataSource.Factory<Integer, VideoItem> getStarredDs();
 
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND starred ORDER BY RANDOM() LIMIT :lim")
+    List<VideoItem> getStarredShuffle(int lim);
+
     @Query("SELECT * FROM video_item WHERE blacklisted ORDER BY name")
     DataSource.Factory<Integer, VideoItem> getBlacklistDs();
-
-    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted ORDER BY RANDOM() LIMIT :lim")
-    List<VideoItem> randomVideos(int lim);
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> recommendVideos(int lim);
@@ -102,8 +87,11 @@ public interface VideoItemDao {
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted ORDER BY RANDOM()")
     DataSource.Factory<Integer, VideoItem> recommendVideosDs();
 
-    @Query("SELECT COUNT (_id) FROM video_item WHERE playlist_id = :playlistId")
+    @Query("SELECT COUNT (_id) FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId")
     int countVideos(long playlistId);
+
+    @Query("SELECT COUNT (_id) FROM video_item WHERE playlist_id = :playlistId")
+    int countAllVideos(long playlistId);
 
     @Query("UPDATE video_item SET enabled = :enabled WHERE playlist_id = :playlistId")
     void setPlaylistEnabled(long playlistId, boolean enabled);

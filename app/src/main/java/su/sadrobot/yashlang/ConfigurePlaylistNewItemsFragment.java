@@ -4,7 +4,7 @@ package su.sadrobot.yashlang;
  * Created by Anton Moiseev (sadr0b0t) in 2019.
  *
  * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
- * ViewPlaylistNewItemsFragment.java is part of YaShlang.
+ * ConfigurePlaylistNewItemsFragment.java is part of YaShlang.
  *
  * YaShlang is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 /**
  *
  */
-public class ViewPlaylistNewItemsFragment extends Fragment {
+public class ConfigurePlaylistNewItemsFragment extends Fragment {
     // https://developer.android.com/guide/components/fragments
     // https://developer.android.com/guide/navigation/navigation-swipe-view
 
@@ -408,7 +408,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                 // иконка плейлиста - может грузиться подольше, без интернета вообще не загрузится
                 try {
                     final Bitmap plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
-                            ViewPlaylistNewItemsFragment.this.getContext(), plInfo.getThumbUrl());
+                            ConfigurePlaylistNewItemsFragment.this.getContext(), plInfo.getThumbUrl());
                     plInfo.setThumbBitmap(plThumb);
 
                     handler.post(new Runnable() {
@@ -435,7 +435,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                 new OnListItemClickListener<VideoItem>() {
                     @Override
                     public void onItemClick(final View view, final int position, final VideoItem videoItem) {
-                        final Intent intent = new Intent(ViewPlaylistNewItemsFragment.this.getContext(), WatchVideoActivity.class);
+                        final Intent intent = new Intent(ConfigurePlaylistNewItemsFragment.this.getContext(), WatchVideoActivity.class);
                         intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_URL, videoItem.getItemUrl());
                         intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_NEW);
                         intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, playlistId);
@@ -444,9 +444,9 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
 
                     @Override
                     public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
-                        final PopupMenu popup = new PopupMenu(ViewPlaylistNewItemsFragment.this.getContext(),
+                        final PopupMenu popup = new PopupMenu(ConfigurePlaylistNewItemsFragment.this.getContext(),
                                 view.findViewById(R.id.video_name_txt));
-                        popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
+                        popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
                         popup.getMenu().removeItem(R.id.action_blacklist);
                         popup.getMenu().removeItem(R.id.action_copy_playlist_name);
                         popup.getMenu().removeItem(R.id.action_copy_playlist_url);
@@ -456,22 +456,22 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
                                     public boolean onMenuItemClick(final MenuItem item) {
                                         switch (item.getItemId()) {
                                             case R.id.action_copy_video_name: {
-                                                final ClipboardManager clipboard = (ClipboardManager) ViewPlaylistNewItemsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                                final ClipboardManager clipboard = (ClipboardManager) ConfigurePlaylistNewItemsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                                                 final ClipData clip = ClipData.newPlainText(videoItem.getName(), videoItem.getName());
                                                 clipboard.setPrimaryClip(clip);
 
-                                                Toast.makeText(ViewPlaylistNewItemsFragment.this.getContext(),
+                                                Toast.makeText(ConfigurePlaylistNewItemsFragment.this.getContext(),
                                                         getString(R.string.copied) + ": " + videoItem.getName(),
                                                         Toast.LENGTH_LONG).show();
                                                 break;
                                             }
                                             case R.id.action_copy_video_url: {
                                                 final String vidUrl = videoItem.getItemUrl();
-                                                final ClipboardManager clipboard = (ClipboardManager) ViewPlaylistNewItemsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                                final ClipboardManager clipboard = (ClipboardManager) ConfigurePlaylistNewItemsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                                                 final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
                                                 clipboard.setPrimaryClip(clip);
 
-                                                Toast.makeText(ViewPlaylistNewItemsFragment.this.getContext(),
+                                                Toast.makeText(ConfigurePlaylistNewItemsFragment.this.getContext(),
                                                         getString(R.string.copied) + ": " + vidUrl,
                                                         Toast.LENGTH_LONG).show();
                                                 break;
@@ -592,7 +592,7 @@ public class ViewPlaylistNewItemsFragment extends Fragment {
             @Override
             public void run() {
                 ContentLoader.getInstance().addPlaylistNewItems(
-                        ViewPlaylistNewItemsFragment.this.getContext(),
+                        ConfigurePlaylistNewItemsFragment.this.getContext(),
                         playlistId, playlistUrl, taskController);
             }
         }).start();

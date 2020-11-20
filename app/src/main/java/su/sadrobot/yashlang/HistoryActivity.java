@@ -153,7 +153,7 @@ public class HistoryActivity extends AppCompatActivity {
                     public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
                         final PopupMenu popup = new PopupMenu(HistoryActivity.this,
                                 view.findViewById(R.id.video_name_txt));
-                        popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
+                        popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
                         popup.setOnMenuItemClickListener(
                                 new PopupMenu.OnMenuItemClickListener() {
                                     @Override

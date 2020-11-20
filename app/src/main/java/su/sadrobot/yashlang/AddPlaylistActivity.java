@@ -513,7 +513,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
                     public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
                         final PopupMenu popup = new PopupMenu(AddPlaylistActivity.this,
                                 view.findViewById(R.id.video_name_txt));
-                        popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
+                        popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
                         popup.getMenu().removeItem(R.id.action_copy_playlist_name);
                         popup.getMenu().removeItem(R.id.action_copy_playlist_url);
                         popup.getMenu().removeItem(R.id.action_blacklist);
@@ -674,8 +674,8 @@ public class AddPlaylistActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             // открываем активити со списком
-                            final Intent intent = new Intent(AddPlaylistActivity.this, ViewPlaylistActivity.class);
-                            intent.putExtra(ViewPlaylistActivity.PARAM_PLAYLIST_ID, plId);
+                            final Intent intent = new Intent(AddPlaylistActivity.this, ConfigurePlaylistActivity.class);
+                            intent.putExtra(ConfigurePlaylistActivity.PARAM_PLAYLIST_ID, plId);
                             startActivity(intent);
 
                             AddPlaylistActivity.this.finish();

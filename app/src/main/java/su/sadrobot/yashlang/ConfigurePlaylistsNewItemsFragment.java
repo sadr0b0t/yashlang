@@ -4,7 +4,7 @@ package su.sadrobot.yashlang;
  * Created by Anton Moiseev (sadr0b0t) in 2019.
  *
  * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
- * ViewPlaylistNewItemsFragment.java is part of YaShlang.
+ * ConfigurePlaylistNewItemsFragment.java is part of YaShlang.
  *
  * YaShlang is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,6 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
@@ -437,7 +436,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                     public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
                         final PopupMenu popup = new PopupMenu(ConfigurePlaylistsNewItemsFragment.this.getContext(),
                                 view.findViewById(R.id.video_name_txt));
-                        popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
+                        popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
                         popup.getMenu().removeItem(R.id.action_blacklist);
                         popup.getMenu().removeItem(R.id.action_copy_playlist_name);
                         popup.getMenu().removeItem(R.id.action_copy_playlist_url);

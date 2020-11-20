@@ -159,7 +159,19 @@ public class SearchVideoActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
                 }
                 break;
-
+            case R.id.action_play_results_shuffle:
+                if(videoList.getAdapter().getItemCount() > 0) {
+                    final Intent intent = new Intent(SearchVideoActivity.this, WatchVideoActivity.class);
+                    intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID,
+                            ((VideoItemPagedListAdapter)videoList.getAdapter()).getItem(0).getId());
+                    intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.SEARCH_STR);
+                    intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, searchVideoInput.getText().toString());
+                    intent.putExtra(WatchVideoActivity.PARAM_SHUFFLE, true);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
+                }
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -198,7 +210,7 @@ public class SearchVideoActivity extends AppCompatActivity {
             public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
                 final PopupMenu popup = new PopupMenu(SearchVideoActivity.this,
                         view.findViewById(R.id.video_name_txt));
-                popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
+                popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
                 popup.setOnMenuItemClickListener(
                         new PopupMenu.OnMenuItemClickListener() {
                             @Override
@@ -325,7 +337,7 @@ public class SearchVideoActivity extends AppCompatActivity {
 
         final DataSource.Factory factory;
         if (sstr != null && !sstr.isEmpty()) {
-            factory = videodb.videoItemDao().searchEnabledVideosDs(sstr);
+            factory = videodb.videoItemDao().searchVideosDs(sstr);
         } else {
             factory = videodb.videoItemDao().getAllEnabledDs();
         }

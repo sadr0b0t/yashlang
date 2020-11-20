@@ -55,10 +55,11 @@ import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 public class Glagna extends AppCompatActivity {
 
 
-    private ImageButton configBtn;
-    private ImageButton searchBtn;
-    private ImageButton historyBtn;
     private ImageButton starredBtn;
+    private ImageButton historyBtn;
+    private ImageButton playlistsBtn;
+    private ImageButton searchBtn;
+    private ImageButton configBtn;
 
     // Экран с пустым списком
     private View playlistEmptyView;
@@ -107,10 +108,11 @@ public class Glagna extends AppCompatActivity {
 
         starredBtn = findViewById(R.id.starred_btn);
         historyBtn = findViewById(R.id.history_btn);
-        configBtn = findViewById(R.id.config_btn);
+        playlistsBtn = findViewById(R.id.playlists_btn);
         searchBtn = findViewById(R.id.search_btn);
+        configBtn = findViewById(R.id.config_btn);
 
-        playlistEmptyView = findViewById(R.id.playlist_empty_view);
+        playlistEmptyView = findViewById(R.id.collection_empty_view);
         configurePlaylistsBtn = findViewById(R.id.configure_playlists_btn);
         addRecommendedBtn = findViewById(R.id.add_recommended_btn);
 
@@ -135,7 +137,12 @@ public class Glagna extends AppCompatActivity {
                 startActivity(new Intent(Glagna.this, HistoryActivity.class));
             }
         });
-
+        playlistsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Glagna.this, PlaylistsActivity.class));
+            }
+        });
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,7 +156,7 @@ public class Glagna extends AppCompatActivity {
             }
         });
 
-        //
+        // from empty view
         configurePlaylistsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -212,7 +219,7 @@ public class Glagna extends AppCompatActivity {
                 final View anchor = view.findViewById(R.id.video_thumb_img);
 
                 final PopupMenu popup = new PopupMenu(Glagna.this, anchor);
-                popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
+                popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
                 popup.setOnMenuItemClickListener(
                         new PopupMenu.OnMenuItemClickListener() {
                             @Override

@@ -4,7 +4,7 @@ package su.sadrobot.yashlang;
  * Created by Anton Moiseev (sadr0b0t) in 2019.
  *
  * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
- * ViewPlaylistActivity.java is part of YaShlang.
+ * ConfigurePlaylistActivity.java is part of YaShlang.
  *
  * YaShlang is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ import su.sadrobot.yashlang.model.VideoDatabase;
 /**
  *
  */
-public class ViewPlaylistActivity extends AppCompatActivity {
+public class ConfigurePlaylistActivity extends AppCompatActivity {
     // https://developer.android.com/guide/components/fragments
     // https://developer.android.com/guide/navigation/navigation-swipe-view
     // https://developer.android.com/reference/androidx/fragment/app/FragmentPagerAdapter
@@ -61,8 +61,8 @@ public class ViewPlaylistActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Switch enabledSwitch;
 
-    private ViewPlaylistFragment viewPlaylistFrag;
-    private ViewPlaylistNewItemsFragment viewPlaylistNewItemsFrag;
+    private ConfigurePlaylistFragment viewPlaylistFrag;
+    private ConfigurePlaylistNewItemsFragment viewPlaylistNewItemsFrag;
 
     private Handler handler = new Handler();
 
@@ -86,8 +86,8 @@ public class ViewPlaylistActivity extends AppCompatActivity {
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        viewPlaylistFrag = new ViewPlaylistFragment();
-        viewPlaylistNewItemsFrag = new ViewPlaylistNewItemsFragment();
+        viewPlaylistFrag = new ConfigurePlaylistFragment();
+        viewPlaylistNewItemsFrag = new ConfigurePlaylistNewItemsFragment();
 
         pager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -116,7 +116,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {
 
         tabs.setupWithViewPager(pager);
 
-        viewPlaylistNewItemsFrag.setPlaylistUpdateListener(new ViewPlaylistNewItemsFragment.PlaylistUpdateListener() {
+        viewPlaylistNewItemsFrag.setPlaylistUpdateListener(new ConfigurePlaylistNewItemsFragment.PlaylistUpdateListener() {
             @Override
             public void onPlaylistUpdated() {
                 // TODO: здесь нам нужно обновить плейлист на основной вкладке после того,
@@ -154,11 +154,11 @@ public class ViewPlaylistActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(final Menu menu) {
         // https://developer.android.com/training/appbar/action-views.html
 
-        toolbar.inflateMenu(R.menu.view_playlist_actions);
+        toolbar.inflateMenu(R.menu.configure_playlist_actions);
         enabledSwitch = (Switch) toolbar.getMenu().findItem(R.id.action_enable).getActionView();
 
-        // plInfo заргужается в фоновом потоке из onCreate, но все равно появляется раньше,
-        // чем вызывается onCreateOptionsMenu, поэтому здесь plInfo вообще говоря не должен быть null
+        // plInfo загружается в фоновом потоке из onCreate, но все равно появляется раньше, чем
+        // вызывается onCreateOptionsMenu, поэтому здесь plInfo, вообще говоря, не должен быть null
         if (plInfo != null) {
             enabledSwitch.setChecked(plInfo.isEnabled());
             enabledSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -228,7 +228,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {
                     final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
                     clipboard.setPrimaryClip(clip);
 
-                    Toast.makeText(ViewPlaylistActivity.this,
+                    Toast.makeText(ConfigurePlaylistActivity.this,
                             getString(R.string.copied) + ": " + plInfo.getName(),
                             Toast.LENGTH_LONG).show();
                 }
@@ -239,13 +239,13 @@ public class ViewPlaylistActivity extends AppCompatActivity {
                     final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
                     clipboard.setPrimaryClip(clip);
 
-                    Toast.makeText(ViewPlaylistActivity.this,
+                    Toast.makeText(ConfigurePlaylistActivity.this,
                             getString(R.string.copied) + ": " + plInfo.getUrl(),
                             Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.action_delete_playlist:
-                new AlertDialog.Builder(ViewPlaylistActivity.this)
+                new AlertDialog.Builder(ConfigurePlaylistActivity.this)
                         .setTitle(getString(R.string.delete_playlist_title))
                         .setMessage(getString(R.string.delete_playlist_message))
                         .setIcon(android.R.drawable.ic_dialog_alert)
@@ -262,7 +262,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {
                                         handler.post(new Runnable() {
                                             @Override
                                             public void run() {
-                                                ViewPlaylistActivity.this.finish();
+                                                ConfigurePlaylistActivity.this.finish();
                                             }
                                         });
                                     }

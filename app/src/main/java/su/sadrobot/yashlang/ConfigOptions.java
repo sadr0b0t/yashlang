@@ -22,4 +22,6 @@ package su.sadrobot.yashlang;
 
 public class ConfigOptions {
     public static final boolean DEVEL_MODE_ON = false;
+
+    public static final int RECOMMENDED_RANDOM_LIM = 200;
 }

@@ -84,7 +84,6 @@ import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
-import su.sadrobot.yashlang.view.DataSourceListener;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemArrayAdapter;
 import su.sadrobot.yashlang.view.VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory;
@@ -137,6 +136,20 @@ public class WatchVideoActivity extends AppCompatActivity {
      * Список рекомендаций - плейлист, загруженный онлайн.
      */
     public static final String PARAM_PLAYLIST_URL = "PARAM_PLAYLIST_URL";
+
+    /**
+     * Показыывать в рекомендациях все видео, а не только разрешенные (enabled): true/false
+     * (в режиме PLAYLIST_ID)
+     * По умолчанию: false
+     */
+    public static final String PARAM_SHOW_ALL = "PARAM_SHOW_ALL";
+
+    /**
+     * Перемешать рекоменации: true/false
+     * (в режиме PLAYLIST_ID)
+     * По умолчанию: false
+     */
+    public static final String PARAM_SHUFFLE = "PARAM_SHUFFLE";
 
 
     /**
@@ -572,43 +585,74 @@ public class WatchVideoActivity extends AppCompatActivity {
         switch (recommendationsMode) {
             case SEARCH_STR: {
                 final String searchStr = super.getIntent().getStringExtra(PARAM_SEARCH_STR);
-                // будем считать, что в случае с передачей поисковой строки нам передают для
-                // проигрывания первый элемент из поисковой выдачи, поэтому, чтобы кнопка
-                // "следующее видео" не повторяла первый ролик два раза, начнем считать индекс
-                // текущего ролика сразу с 0-ля (т.е. первый элемент списка рекомендаций)
-                // (но, чтобы это сработало, нужно еще ниже положить:
-                // posMap.put(videoItem.getId(), currentVideoPosition))
-                currentVideoPosition = 0;
-                setupVideoListSearchPagedListAdapter(searchStr);
+                final boolean shuffle = super.getIntent().getBooleanExtra(PARAM_SHUFFLE, false);
+
+                if(!shuffle) {
+                    // будем считать, что в случае с передачей поисковой строки нам передают для
+                    // проигрывания первый элемент из поисковой выдачи, поэтому, чтобы кнопка
+                    // "следующее видео" не повторяла первый ролик два раза, начнем считать индекс
+                    // текущего ролика сразу с 0-ля (т.е. первый элемент списка рекомендаций)
+                    // (но, чтобы это сработало, нужно еще ниже положить:
+                    // posMap.put(videoItem.getId(), currentVideoPosition))
+                    currentVideoPosition = 0;
+
+                    setupVideoListSearchPagedListAdapter(searchStr);
+                } else {
+                    setupVideoListSearchShuffleArrayAdapter(searchStr);
+                }
 
                 break;
             }
             case STARRED: {
-                // будем считать, что в случае в режиме "играть любимое" мы выбираем для
-                // проигрывания первый элемент из списка любимых, поэтому, чтобы кнопка
-                // "следующее видео" не повторяла первый ролик два раза, начнем считать индекс
-                // текущего ролика сразу с 0-ля (т.е. первый элемент списка рекомендаций)
-                // (но, чтобы это сработало, нужно еще ниже положить:
-                // posMap.put(videoItem.getId(), currentVideoPosition))
-                currentVideoPosition = 0;
-                setupVideoListStarredPagedListAdapter();
+                final boolean shuffle = super.getIntent().getBooleanExtra(PARAM_SHUFFLE, false);
+
+                if(!shuffle) {
+                    // будем считать, что в случае в режиме "играть любимое" мы выбираем для
+                    // проигрывания первый элемент из списка, поэтому, чтобы кнопка
+                    // "следующее видео" не повторяла первый ролик два раза, начнем считать индекс
+                    // текущего ролика сразу с 0-ля (т.е. первый элемент списка рекомендаций)
+                    // (но, чтобы это сработало, нужно еще ниже положить:
+                    // posMap.put(videoItem.getId(), currentVideoPosition))
+                    currentVideoPosition = 0;
+
+                    setupVideoListStarredPagedListAdapter();
+                } else {
+                    setupVideoListStarredShuffleArrayAdapter();
+                }
 
                 break;
             }
             case PLAYLIST_ID: {
                 final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
-                setupVideoListPlaylistPagedListAdapter(playlistId);
+                final boolean showAll = super.getIntent().getBooleanExtra(PARAM_SHOW_ALL, false);
+                final boolean shuffle = super.getIntent().getBooleanExtra(PARAM_SHUFFLE, false);
+
+                if(!shuffle) {
+                    // будем считать, что в случае в режиме "играть плейлист" мы выбираем для
+                    // проигрывания первый элемент из списка, поэтому, чтобы кнопка
+                    // "следующее видео" не повторяла первый ролик два раза, начнем считать индекс
+                    // текущего ролика сразу с 0-ля (т.е. первый элемент списка рекомендаций)
+                    // (но, чтобы это сработало, нужно еще ниже положить:
+                    // posMap.put(videoItem.getId(), currentVideoPosition))
+                    currentVideoPosition = 0;
+
+                    setupVideoListPlaylistPagedListAdapter(playlistId, showAll);
+                } else {
+                    setupVideoListPlaylistShuffleArrayAdapter(playlistId);
+                }
 
                 break;
             }
             case PLAYLIST_URL: {
                 final String playlistUrl = super.getIntent().getStringExtra(PARAM_PLAYLIST_URL);
+
                 setupVideoListPlaylistOnlinePagedListAdapter(playlistUrl);
 
                 break;
             }
             case PLAYLIST_NEW: {
                 final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
+
                 setupVideoListPlaylistNewPagedListAdapter(playlistId);
 
                 break;
@@ -1549,7 +1593,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
     private void actionVideoContextMenu(final View view, final VideoItem videoItem) {
         final PopupMenu popup = new PopupMenu(WatchVideoActivity.this, view);
-        popup.getMenuInflater().inflate(R.menu.video_actions, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
         popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
             @Override
             public void onDismiss(PopupMenu menu) {
@@ -1692,13 +1736,112 @@ public class WatchVideoActivity extends AppCompatActivity {
      * Случайные рекомандации внизу под основным видео. ArrayAdapter, а не PagedListAdapter
      * потому, что в случае с PagedListAdapter выдача рекомендаций будет автоматом обновляться
      * при каждой записи в базу (например, при переключении видео с сохранением текущей позиции
-     * или при клике на кнопку со звездочкой)
+     * или при клике на кнопку со звездочкой).
      */
     private void setupVideoListRandomArrayAdapter() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final List<VideoItem> videoItems = videodb.videoItemDao().recommendVideos(200);
+                final List<VideoItem> videoItems = videodb.videoItemDao().recommendVideos(ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
+                        WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
+                    @Override
+                    public void onItemClick(final View view, final int position, final VideoItem videoItem) {
+                        posMap.put(videoItem.getId(), position);
+                        playVideoItem(videoItem, false);
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
+                        actionVideoContextMenu(view, videoItem);
+                        return true;
+                    }
+                }, null, VideoItemArrayAdapter.ORIENTATION_HORIZONTAL);
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        videoList.setAdapter(adapter);
+                        // emptyListObserver здесь не сработает (т.к. у нас ArrayAdapter),
+                        // обновим видимость элементов управления прямо здесь
+                        updateControlsVisibility();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void setupVideoListSearchShuffleArrayAdapter(final String searchStr) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<VideoItem> videoItems = videodb.videoItemDao().searchVideosShuffle(searchStr, ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
+                        WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
+                    @Override
+                    public void onItemClick(final View view, final int position, final VideoItem videoItem) {
+                        posMap.put(videoItem.getId(), position);
+                        playVideoItem(videoItem, false);
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
+                        actionVideoContextMenu(view, videoItem);
+                        return true;
+                    }
+                }, null, VideoItemArrayAdapter.ORIENTATION_HORIZONTAL);
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        videoList.setAdapter(adapter);
+                        // emptyListObserver здесь не сработает (т.к. у нас ArrayAdapter),
+                        // обновим видимость элементов управления прямо здесь
+                        updateControlsVisibility();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void setupVideoListStarredShuffleArrayAdapter() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<VideoItem> videoItems = videodb.videoItemDao().getStarredShuffle(ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
+                        WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
+                    @Override
+                    public void onItemClick(final View view, final int position, final VideoItem videoItem) {
+                        posMap.put(videoItem.getId(), position);
+                        playVideoItem(videoItem, false);
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(final View view, final int position, final VideoItem videoItem) {
+                        actionVideoContextMenu(view, videoItem);
+                        return true;
+                    }
+                }, null, VideoItemArrayAdapter.ORIENTATION_HORIZONTAL);
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        videoList.setAdapter(adapter);
+                        // emptyListObserver здесь не сработает (т.к. у нас ArrayAdapter),
+                        // обновим видимость элементов управления прямо здесь
+                        updateControlsVisibility();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void setupVideoListPlaylistShuffleArrayAdapter(final long playlistId) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<VideoItem> videoItems = videodb.videoItemDao().getByPlaylistShuffle(playlistId, ConfigOptions.RECOMMENDED_RANDOM_LIM);
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
@@ -1759,8 +1902,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final DataSource.Factory factory =
-                videodb.videoItemDao().searchEnabledVideosDs(searchStr);
+        final DataSource.Factory factory = videodb.videoItemDao().searchVideosDs(searchStr);
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
@@ -1819,7 +1961,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoList.setAdapter(adapter);
     }
 
-    private void setupVideoListPlaylistPagedListAdapter(final long playlistId) {
+    private void setupVideoListPlaylistPagedListAdapter(final long playlistId, final boolean showAll) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -1850,8 +1992,12 @@ public class WatchVideoActivity extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final DataSource.Factory factory =
-                videodb.videoItemDao().getByPlaylistDs(playlistId);
+        final DataSource.Factory factory;
+        if(showAll) {
+            factory = videodb.videoItemDao().getByPlaylistAllDs(playlistId);
+        } else {
+            factory = videodb.videoItemDao().getByPlaylistDs(playlistId);
+        }
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
@@ -1864,6 +2010,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         videoList.setAdapter(adapter);
     }
+
     private void setupVideoListPlaylistOnlinePagedListAdapter(final String playlistUrl) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);

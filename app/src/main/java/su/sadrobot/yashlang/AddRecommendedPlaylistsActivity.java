@@ -545,7 +545,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                 //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
                 final PopupMenu popup = new PopupMenu(AddRecommendedPlaylistsActivity.this,
                         view.findViewById(R.id.playlist_name_txt));
-                popup.getMenuInflater().inflate(R.menu.playlist_actions, popup.getMenu());
+                popup.getMenuInflater().inflate(R.menu.playlist_item_actions, popup.getMenu());
                 popup.setOnMenuItemClickListener(
                         new PopupMenu.OnMenuItemClickListener() {
                             @Override
