@@ -146,6 +146,7 @@ public class BlacklistActivity extends AppCompatActivity {
                     public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                         final Intent intent = new Intent(BlacklistActivity.this, WatchVideoActivity.class);
                         intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
+                        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.OFF);
                         startActivity(intent);
                     }
 
@@ -154,6 +155,8 @@ public class BlacklistActivity extends AppCompatActivity {
                         final PopupMenu popup = new PopupMenu(BlacklistActivity.this,
                                 view.findViewById(R.id.video_name_txt));
                         popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
+                        popup.getMenu().removeItem(R.id.action_play_in_playlist);
+                        popup.getMenu().removeItem(R.id.action_play_in_playlist_shuffle);
                         popup.getMenu().removeItem(R.id.action_blacklist);
                         popup.setOnMenuItemClickListener(
                                 new PopupMenu.OnMenuItemClickListener() {

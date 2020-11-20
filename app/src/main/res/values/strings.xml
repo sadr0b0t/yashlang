@@ -72,4 +72,6 @@
     <string name="playlists">Playlists</string>
     <string name="play_all_shuffle">Play all (shuffle)</string>
     <string name="play_results_shuffle">Play results (shuffle)</string>
+    <string name="play_in_playlist">Play in playlist</string>
+    <string name="play_in_playlist_shuffle">Play in playlist (shuffle)</string>
 </resources>

@@ -259,6 +259,8 @@ public class ConfigurePlaylistFragment extends Fragment {
                         final PopupMenu popup = new PopupMenu(ConfigurePlaylistFragment.this.getContext(),
                                 view.findViewById(R.id.video_name_txt));
                         popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
+                        popup.getMenu().removeItem(R.id.action_play_in_playlist);
+                        popup.getMenu().removeItem(R.id.action_play_in_playlist_shuffle);
                         popup.getMenu().removeItem(R.id.action_blacklist);
                         popup.setOnMenuItemClickListener(
                                 new PopupMenu.OnMenuItemClickListener() {

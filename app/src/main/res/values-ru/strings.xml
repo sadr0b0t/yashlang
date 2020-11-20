@@ -72,4 +72,6 @@
     <string name="playlists">Плейлисты</string>
     <string name="play_all_shuffle">Играть всё (перемешать)</string>
     <string name="play_results_shuffle">Играть всё (перемешать)</string>
+    <string name="play_in_playlist">Играть в плейлисте</string>
+    <string name="play_in_playlist_shuffle">Играть в плейлисте (перемешать)</string>
 </resources>

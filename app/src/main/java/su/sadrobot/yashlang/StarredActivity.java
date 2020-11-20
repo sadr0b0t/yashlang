@@ -216,6 +216,23 @@ public class StarredActivity extends AppCompatActivity {
                                     @Override
                                     public boolean onMenuItemClick(final MenuItem item) {
                                         switch (item.getItemId()) {
+                                            case R.id.action_play_in_playlist: {
+                                                final Intent intent = new Intent(StarredActivity.this, WatchVideoActivity.class);
+                                                intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
+                                                intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
+                                                intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
+                                                startActivity(intent);
+                                                break;
+                                            }
+                                            case R.id.action_play_in_playlist_shuffle: {
+                                                final Intent intent = new Intent(StarredActivity.this, WatchVideoActivity.class);
+                                                intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
+                                                intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
+                                                intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
+                                                intent.putExtra(WatchVideoActivity.PARAM_SHUFFLE, true);
+                                                startActivity(intent);
+                                                break;
+                                            }
                                             case R.id.action_copy_video_name: {
                                                 final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                                                 final ClipData clip = ClipData.newPlainText(videoItem.getName(), videoItem.getName());

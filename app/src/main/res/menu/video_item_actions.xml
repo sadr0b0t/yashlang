@@ -2,6 +2,12 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/action_play_in_playlist"
+        android:title="@string/play_in_playlist"/>
+    <item
+        android:id="@+id/action_play_in_playlist_shuffle"
+        android:title="@string/play_in_playlist_shuffle"/>
+    <item
         android:id="@+id/action_copy_video_name"
         android:title="@string/copy_video_name"/>
     <item

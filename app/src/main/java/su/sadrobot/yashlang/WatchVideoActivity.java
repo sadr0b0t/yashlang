@@ -1594,6 +1594,8 @@ public class WatchVideoActivity extends AppCompatActivity {
     private void actionVideoContextMenu(final View view, final VideoItem videoItem) {
         final PopupMenu popup = new PopupMenu(WatchVideoActivity.this, view);
         popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
+        popup.getMenu().removeItem(R.id.action_play_in_playlist);
+        popup.getMenu().removeItem(R.id.action_play_in_playlist_shuffle);
         popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
             @Override
             public void onDismiss(PopupMenu menu) {

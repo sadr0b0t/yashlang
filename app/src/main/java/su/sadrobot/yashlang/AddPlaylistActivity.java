@@ -514,6 +514,8 @@ public class AddPlaylistActivity extends AppCompatActivity {
                         final PopupMenu popup = new PopupMenu(AddPlaylistActivity.this,
                                 view.findViewById(R.id.video_name_txt));
                         popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
+                        popup.getMenu().removeItem(R.id.action_play_in_playlist);
+                        popup.getMenu().removeItem(R.id.action_play_in_playlist_shuffle);
                         popup.getMenu().removeItem(R.id.action_copy_playlist_name);
                         popup.getMenu().removeItem(R.id.action_copy_playlist_url);
                         popup.getMenu().removeItem(R.id.action_blacklist);
