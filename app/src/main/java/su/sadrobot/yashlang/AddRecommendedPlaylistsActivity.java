@@ -102,11 +102,11 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
             // канал зачистил ролики на vidcommons.org, но на open.tube сохранилось зеркало
             new PlaylistInfo("Cartoons!",
                     "https://open.tube/video-channels/cartoons@vidcommons.org/videos",
-                    "https://open.tube/lazy-static/avatars/eb7d4596-f847-43b8-98e7-fac87cc04b5b.jpg",
+                    "https://open.tube/lazy-static/avatars/bce8cf0a-a74c-4e42-b58c-080e201d786b.jpg",
                     PlaylistInfo.PlaylistType.PT_CHANNEL),
             new PlaylistInfo("Bendito Machine",
                     "https://open.tube/video-channels/bendito_machine@vidcommons.org/videos",
-                    "https://open.tube/lazy-static/avatars/59875dca-3076-4ffa-943d-048eaa9d539d.jpg",
+                    "https://open.tube/lazy-static/avatars/93e2ae83-b98d-4c0b-9a0e-e2cce57d1e60.jpg",
                     PlaylistInfo.PlaylistType.PT_CHANNEL),
 
             new PlaylistInfo("OpenMovies \uD83D\uDCFD",
@@ -329,6 +329,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
             // (судя по всему, это позволяют настройки ютюба)
             // Например, Укращение огня, 1972:
             // https://www.youtube.com/watch?v=vwBKEKqLOLY&feature=emb_title
+            new PlaylistInfo("Золотая коллекция русского кино",
+                    "https://www.youtube.com/channel/UCOVlL3Oo72Sr6jLXA-Dvzag",
+                    "https://yt3.ggpht.com/ytc/AAUvwniyFZxBH0NUsmMALvmpCp2LTB56W5tpwtlCcKEs=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
             new PlaylistInfo("Киноконцерн \"Мосфильм\"",
                     "https://www.youtube.com/user/mosfilm",
                     "https://yt3.ggpht.com/a/AGF-l7-FqSADElUC3tgnze1kWQXADQwaIRFsN9po=s240-c-k-c0xffffffff-no-rj-mo",
@@ -414,6 +418,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/user/kalamburVideo",
                     "https://yt3.ggpht.com/a/AATXAJyXXNq_bud5ECjqkAVXtzqD932wp-4eMzp6_6li=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
+            new PlaylistInfo("MoscowTheaters",
+                    "https://www.youtube.com/user/MoscowTheaters",
+                    "https://yt3.ggpht.com/ytc/AAUvwniYAKZQ0HhfbUpRx63-oMmyE512FubmF93sxfYt=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
 
             // История, телевидение
             new PlaylistInfo("Студия Самарафильм",
@@ -424,6 +432,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
             new PlaylistInfo("Советское телевидение. ГОСТЕЛЕРАДИОФОНД России",
                     "https://www.youtube.com/c/gtrftv",
                     "https://yt3.ggpht.com/a/AATXAJzRnIyB3c_jQzRe48NsNJfdbCBW3-F3Wg9i25f4=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
+            new PlaylistInfo("Советское радио. ГОСТЕЛЕРАДИОФОНД России",
+                    "https://www.youtube.com/channel/UCM6oyrdQzBf-egEmlkJyQNg",
+                    "https://yt3.ggpht.com/ytc/AAUvwnhzHuBK28S7DxNTqvK1XChbwDw3tuBbkAlcVaMb=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
 
             new PlaylistInfo("Classic TV Channel",
