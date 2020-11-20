@@ -735,7 +735,6 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
                 boolean allOk = true;
 
-                final VideoDatabase videodb = VideoDatabase.getDb(AddRecommendedPlaylistsActivity.this);
                 // начинаем с индекса plToAddStartIndex (например, если продолжаем после ошибки)
                 for (; plToAddStartIndex < recommendedPlaylists.length; plToAddStartIndex++) {
                     final PlaylistInfo plInfo = recommendedPlaylists[plToAddStartIndex];
@@ -762,7 +761,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     });
 
                     // проверим, что список еще не добавлен в базу
-                    if (videodb.playlistInfoDao().findByUrl(plInfo.getUrl()) != null) {
+                    final VideoDatabase videodb = VideoDatabase.getDb(AddRecommendedPlaylistsActivity.this);
+                    final PlaylistInfo existingPlInfo = videodb.playlistInfoDao().findByUrl(plInfo.getUrl());
+                    videodb.close();
+                    if (existingPlInfo != null) {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -791,7 +793,6 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     } catch (final InterruptedException e) {
                     }
                 }
-                videodb.close();
 
                 if (allOk) {
                     // все добавили, выходим
