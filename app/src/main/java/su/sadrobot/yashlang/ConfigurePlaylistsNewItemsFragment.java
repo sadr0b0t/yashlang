@@ -107,7 +107,6 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
 
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
-    private VideoDatabase videodb;
 
     private enum State {
         NEW_ITEMS_LIST_EMPTY, NEW_ITEMS_LIST_LOAD_PROGRESS, NEW_ITEMS_LIST_LOAD_ERROR, NEW_ITEMS_LIST_LOADED,
@@ -169,16 +168,6 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
             checkIfEmpty();
         }
     };
-
-
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // подключимся к базе один раз при создании активити,
-        // закрывать подключение в onDestroy
-        videodb = VideoDatabase.getDb(getContext());
-    }
 
     @Nullable
     @Override
@@ -285,15 +274,6 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
         // будет не очень правильно грузить сеть проверкой всех плейлистов каждый
         // раз, когда мы заходим в настройки - есть и кнопка
         //updateVideoListBg();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if (videodb != null) {
-            videodb.close();
-        }
     }
 
     private void updateControlsVisibility() {
@@ -403,7 +383,9 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
             @Override
             public void run() {
                 // информация из базы данных - загрузится быстро и без интернета
+                final VideoDatabase videodb = VideoDatabase.getDb(getContext());
                 final List<Long> plIds = videodb.playlistInfoDao().getAllIds();
+                videodb.close();
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -579,7 +561,9 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                final VideoDatabase videodb = VideoDatabase.getDb(getContext());
                 final List<PlaylistInfo> allPlaylists = videodb.playlistInfoDao().getAll();
+                videodb.close();
 
                 boolean allOk = true;
 

@@ -60,7 +60,6 @@ public class BlacklistActivity extends AppCompatActivity {
     private Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
-    private VideoDatabase videodb;
 
     private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
@@ -103,10 +102,6 @@ public class BlacklistActivity extends AppCompatActivity {
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         videoList.setLayoutManager(linearLayoutManager);
-
-        // подключимся к базе один раз при создании активити,
-        // закрывать подключение в onDestroy
-        videodb = VideoDatabase.getDb(BlacklistActivity.this);
     }
 
 
@@ -115,15 +110,6 @@ public class BlacklistActivity extends AppCompatActivity {
         super.onResume();
 
         setupVideoListAdapter();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (videodb != null) {
-            videodb.close();
-        }
     }
 
     @Override
@@ -189,7 +175,9 @@ public class BlacklistActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
+                                                            final VideoDatabase videodb = VideoDatabase.getDb(BlacklistActivity.this);
                                                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                            videodb.close();
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -216,7 +204,9 @@ public class BlacklistActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
+                                                            final VideoDatabase videodb = VideoDatabase.getDb(BlacklistActivity.this);
                                                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                            videodb.close();
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -253,7 +243,9 @@ public class BlacklistActivity extends AppCompatActivity {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
+                                final VideoDatabase videodb = VideoDatabase.getDb(BlacklistActivity.this);
                                 videodb.videoItemDao().setBlacklisted(item.getId(), !isChecked);
+                                videodb.close();
 
                                 // здесь тоже нужно обновить вручную, т.к. у нас в адаптере
                                 // хранятся уже загруженные из базы объекты и просто так
@@ -277,8 +269,9 @@ public class BlacklistActivity extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final DataSource.Factory factory =
-                videodb.videoItemDao().getBlacklistDs();
+        final VideoDatabase videodb = VideoDatabase.getDb(BlacklistActivity.this);
+        final DataSource.Factory factory = videodb.videoItemDao().getBlacklistDs();
+        videodb.close();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

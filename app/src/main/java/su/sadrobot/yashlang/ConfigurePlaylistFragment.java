@@ -82,7 +82,6 @@ public class ConfigurePlaylistFragment extends Fragment {
     private Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
-    private VideoDatabase videodb;
 
     private long playlistId = PlaylistInfo.ID_NONE;
 
@@ -119,10 +118,6 @@ public class ConfigurePlaylistFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         playlistId = super.getActivity().getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
-
-        // подключимся к базе один раз при создании активити,
-        // закрывать подключение в onDestroy
-        videodb = VideoDatabase.getDb(getContext());
     }
 
     @Nullable
@@ -181,10 +176,6 @@ public class ConfigurePlaylistFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        if (videodb != null) {
-            videodb.close();
-        }
     }
 
     public void updateVideoListBg() {
@@ -201,8 +192,10 @@ public class ConfigurePlaylistFragment extends Fragment {
             @Override
             public void run() {
                 // информация из базы данных - загрузится быстро и без интернета
+                final VideoDatabase videodb = VideoDatabase.getDb(getContext());
                 final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(plId);
                 final int plVideosCount = videodb.videoItemDao().countAllVideos(plId);
+                videodb.close();
 
                 handler.post(new Runnable() {
                     @Override
@@ -293,7 +286,9 @@ public class ConfigurePlaylistFragment extends Fragment {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
+                                                            final VideoDatabase videodb = VideoDatabase.getDb(getContext());
                                                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                            videodb.close();
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -320,7 +315,9 @@ public class ConfigurePlaylistFragment extends Fragment {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
+                                                            final VideoDatabase videodb = VideoDatabase.getDb(getContext());
                                                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                            videodb.close();
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -357,7 +354,9 @@ public class ConfigurePlaylistFragment extends Fragment {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
+                                final VideoDatabase videodb = VideoDatabase.getDb(getContext());
                                 videodb.videoItemDao().setBlacklisted(item.getId(), !isChecked);
+                                videodb.close();
 
                                 // здесь тоже нужно обновить вручную, т.к. у нас в адаптере
                                 // хранятся уже загруженные из базы объекты и просто так
@@ -382,9 +381,13 @@ public class ConfigurePlaylistFragment extends Fragment {
 
         final DataSource.Factory factory;
         if (filterStr != null && !filterStr.isEmpty()) {
+            final VideoDatabase videodb = VideoDatabase.getDb(getContext());
             factory = videodb.videoItemDao().getByPlaylistAllDs(plId, filterStr);
+            videodb.close();
         } else {
+            final VideoDatabase videodb = VideoDatabase.getDb(getContext());
             factory = videodb.videoItemDao().getByPlaylistAllDs(plId);
+            videodb.close();
         }
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();

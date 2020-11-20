@@ -64,7 +64,6 @@ public class StarredActivity extends AppCompatActivity {
     private Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
-    private VideoDatabase videodb;
 
     private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
@@ -112,10 +111,6 @@ public class StarredActivity extends AppCompatActivity {
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         videoList.setLayoutManager(linearLayoutManager);
-
-        // подключимся к базе один раз при создании активити,
-        // закрывать подключение в onDestroy
-        videodb = VideoDatabase.getDb(StarredActivity.this);
     }
 
     @Override
@@ -172,15 +167,6 @@ public class StarredActivity extends AppCompatActivity {
         super.onResume();
 
         setupVideoListAdapter();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (videodb != null) {
-            videodb.close();
-        }
     }
 
     @Override
@@ -259,7 +245,9 @@ public class StarredActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
+                                                            final VideoDatabase videodb = VideoDatabase.getDb(StarredActivity.this);
                                                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                            videodb.close();
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -286,7 +274,9 @@ public class StarredActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
+                                                            final VideoDatabase videodb = VideoDatabase.getDb(StarredActivity.this);
                                                             final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                            videodb.close();
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -320,7 +310,9 @@ public class StarredActivity extends AppCompatActivity {
                                                                     new Thread(new Runnable() {
                                                                         @Override
                                                                         public void run() {
+                                                                            final VideoDatabase videodb = VideoDatabase.getDb(StarredActivity.this);
                                                                             videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
+                                                                            videodb.close();
                                                                             // обновим кэш
                                                                             videoItem.setBlacklisted(true);
                                                                             handler.post(new Runnable() {
@@ -354,8 +346,9 @@ public class StarredActivity extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final DataSource.Factory factory =
-                videodb.videoItemDao().getStarredDs();
+        final VideoDatabase videodb = VideoDatabase.getDb(StarredActivity.this);
+        final DataSource.Factory factory = videodb.videoItemDao().getStarredDs();
+        videodb.close();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

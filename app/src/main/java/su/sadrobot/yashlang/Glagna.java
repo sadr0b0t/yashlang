@@ -70,7 +70,6 @@ public class Glagna extends AppCompatActivity {
     private RecyclerView videoList;
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
-    private VideoDatabase videodb;
 
     private final Handler handler = new Handler();
 
@@ -169,10 +168,6 @@ public class Glagna extends AppCompatActivity {
                 startActivity(new Intent(Glagna.this, AddRecommendedPlaylistsActivity.class));
             }
         });
-
-        // подключимся к базе один раз при создании активити,
-        // закрывать подключение в onDestroy
-        videodb = VideoDatabase.getDb(Glagna.this);
     }
 
 
@@ -183,17 +178,6 @@ public class Glagna extends AppCompatActivity {
         //
         setupVideoListAdapter();
     }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if(videodb != null) {
-            videodb.close();
-        }
-    }
-
 
     private void setupVideoListAdapter() {
         if (videoItemsLiveData != null) {
@@ -268,7 +252,9 @@ public class Glagna extends AppCompatActivity {
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
+                                                    final VideoDatabase videodb = VideoDatabase.getDb(Glagna.this);
                                                     final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                    videodb.close();
                                                     if(plInfo != null) {
                                                         handler.post(new Runnable() {
                                                             @Override
@@ -295,7 +281,9 @@ public class Glagna extends AppCompatActivity {
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
+                                                    final VideoDatabase videodb = VideoDatabase.getDb(Glagna.this);
                                                     final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                    videodb.close();
                                                     if(plInfo != null) {
                                                         handler.post(new Runnable() {
                                                             @Override
@@ -329,7 +317,9 @@ public class Glagna extends AppCompatActivity {
                                                             new Thread(new Runnable() {
                                                                 @Override
                                                                 public void run() {
+                                                                    final VideoDatabase videodb = VideoDatabase.getDb(Glagna.this);
                                                                     videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
+                                                                    videodb.close();
                                                                     // обновим кэш
                                                                     videoItem.setBlacklisted(true);
                                                                     handler.post(new Runnable() {
@@ -364,8 +354,9 @@ public class Glagna extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final DataSource.Factory factory =
-                videodb.videoItemDao().recommendVideosDs();
+        final VideoDatabase videodb = VideoDatabase.getDb(Glagna.this);
+        final DataSource.Factory factory = videodb.videoItemDao().recommendVideosDs();
+        videodb.close();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

@@ -33,8 +33,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
-import su.sadrobot.yashlang.model.VideoDatabase;
-
 /**
  *
  */
@@ -50,8 +48,6 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
 
     private ConfigurePlaylistsFragment configurePlaylistsFrag;
     private ConfigurePlaylistsNewItemsFragment configurePlaylistsNewItemsFrag;
-
-    private VideoDatabase videodb;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -98,10 +94,6 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
         });
 
         tabs.setupWithViewPager(pager);
-
-        // подключимся к базе один раз при создании активити,
-        // закрывать подключение в onDestroy
-        videodb = VideoDatabase.getDb(this);
     }
 
     @Override
@@ -119,15 +111,6 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
                 });
 
         return true;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if (videodb != null) {
-            videodb.close();
-        }
     }
 
     @Override

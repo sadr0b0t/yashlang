@@ -69,7 +69,6 @@ public class SearchVideoActivity extends AppCompatActivity {
     private Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
-    private VideoDatabase videodb;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -117,11 +116,6 @@ public class SearchVideoActivity extends AppCompatActivity {
                 setupVideoListAdapter(s.toString());
             }
         });
-
-        // подключимся к базе один раз при создании активити,
-        // закрывать подключение в onDestroy
-        videodb = VideoDatabase.getDb(SearchVideoActivity.this);
-
 
         // при пустой поисковой строке будет показывать все видео по алфавиту
         setupVideoListAdapter(null);
@@ -177,15 +171,6 @@ public class SearchVideoActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if(videodb != null) {
-            videodb.close();
-        }
-    }
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -259,7 +244,9 @@ public class SearchVideoActivity extends AppCompatActivity {
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
+                                                    final VideoDatabase videodb = VideoDatabase.getDb(SearchVideoActivity.this);
                                                     final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                    videodb.close();
                                                     if(plInfo != null) {
                                                         handler.post(new Runnable() {
                                                             @Override
@@ -286,7 +273,9 @@ public class SearchVideoActivity extends AppCompatActivity {
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
+                                                    final VideoDatabase videodb = VideoDatabase.getDb(SearchVideoActivity.this);
                                                     final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
+                                                    videodb.close();
                                                     if(plInfo != null) {
                                                         handler.post(new Runnable() {
                                                             @Override
@@ -320,7 +309,9 @@ public class SearchVideoActivity extends AppCompatActivity {
                                                             new Thread(new Runnable() {
                                                                 @Override
                                                                 public void run() {
+                                                                    final VideoDatabase videodb = VideoDatabase.getDb(SearchVideoActivity.this);
                                                                     videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
+                                                                    videodb.close();
                                                                     // обновим кэш
                                                                     videoItem.setBlacklisted(true);
                                                                     handler.post(new Runnable() {
@@ -354,9 +345,13 @@ public class SearchVideoActivity extends AppCompatActivity {
 
         final DataSource.Factory factory;
         if (sstr != null && !sstr.isEmpty()) {
+            final VideoDatabase videodb = VideoDatabase.getDb(SearchVideoActivity.this);
             factory = videodb.videoItemDao().searchVideosDs(sstr);
+            videodb.close();
         } else {
+            final VideoDatabase videodb = VideoDatabase.getDb(SearchVideoActivity.this);
             factory = videodb.videoItemDao().getAllEnabledDs();
+            videodb.close();
         }
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();

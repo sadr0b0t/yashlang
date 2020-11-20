@@ -66,7 +66,6 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
 
-    private VideoDatabase videodb;
     private long playlistId = PlaylistInfo.ID_NONE;
     private PlaylistInfo plInfo;
 
@@ -135,16 +134,13 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
 
         playlistId = getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
 
-
-        // подключимся к базе один раз при создании активити,
-        // закрывать подключение в onDestroy
-        videodb = VideoDatabase.getDb(this);
-
         if (playlistId != PlaylistInfo.ID_NONE) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistActivity.this);
                     plInfo = videodb.playlistInfoDao().getById(playlistId);
+                    videodb.close();
                 }
             }).start();
         }
@@ -170,6 +166,7 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                             if (plInfo != null) {
                                 // TODO: здесь замечательно пойдет метод с @Transaction в DAO
                                 // https://developer.android.com/reference/android/arch/persistence/room/Transaction.html
+                                final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistActivity.this);
                                 videodb.runInTransaction(new Runnable() {
                                     @Override
                                     public void run() {
@@ -177,6 +174,7 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                                         videodb.videoItemDao().setPlaylistEnabled(plInfo.getId(), isChecked);
                                     }
                                 });
+                                videodb.close();
 
                                 // обновим кэш
                                 plInfo.setEnabled(isChecked);
@@ -199,15 +197,6 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if (videodb != null) {
-            videodb.close();
-        }
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_enable:
@@ -215,7 +204,9 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
+                            final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistActivity.this);
                             videodb.videoItemDao().setStarred(plInfo.getId(), !plInfo.isEnabled());
+                            videodb.close();
                             // обновим кэш
                             plInfo.setEnabled(!plInfo.isEnabled());
                         }
@@ -256,8 +247,10 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistActivity.this);
                                         final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(playlistId);
                                         videodb.playlistInfoDao().delete(plInfo);
+                                        videodb.close();
 
                                         handler.post(new Runnable() {
                                             @Override
