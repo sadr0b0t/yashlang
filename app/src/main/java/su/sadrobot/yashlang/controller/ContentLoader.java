@@ -293,12 +293,20 @@ public class ContentLoader {
                     }
 
                     taskController.setStatusMsg("Loading page-1...");
-                    // загрузить первую страницу
+                    // загрузить первую страницу - вот здесь может быть долго
                     try {
                         extractor.fetchPage();
                     } catch (IOException | ExtractionException e) {
                         taskController.setStatusMsg("Error loading playlist", e);
                         throw new RuntimeException(e);
+                    }
+
+                    // выкачивали страницу некоторое время, в течение которого могли успеть
+                    // отменить задачу (кнопкой или закрыв экран)
+                    if(taskController.isCanceled()) {
+                        final RuntimeException e = new RuntimeException("Task canceled");
+                        taskController.setStatusMsg("Task canceled", e);
+                        throw e;
                     }
 
                     // имя канала
@@ -363,6 +371,12 @@ public class ContentLoader {
                     // загружать по порядку остальные страницы до тех пор, пока не закончатся
                     int page_n = 1;
                     while (nextPage.hasNextPage()) {
+                        if(taskController.isCanceled()) {
+                            final RuntimeException e = new RuntimeException("Task canceled");
+                            taskController.setStatusMsg("Task canceled", e);
+                            throw e;
+                        }
+
                         pageItems.clear();
                         videoItems.clear();
 
@@ -375,7 +389,13 @@ public class ContentLoader {
                         int retryCount = LOAD_PAGE_RETRY_COUNT;
                         Exception retryEx = null;
                         while (!done && retryCount > 0) {
+                            if(taskController.isCanceled()) {
+                                final RuntimeException e = new RuntimeException("Task canceled");
+                                taskController.setStatusMsg("Task canceled", e);
+                                throw e;
+                            }
                             try {
+                                // здесь тоже долго
                                 nextPage = extractor.getPage(nextPage.getNextPage());
                                 done = true;
                             } catch (Exception e) {
@@ -384,6 +404,12 @@ public class ContentLoader {
                                 retryEx = e;
                                 retryCount--;
                             }
+                        }
+
+                        if(taskController.isCanceled()) {
+                            final RuntimeException e = new RuntimeException("Task canceled");
+                            taskController.setStatusMsg("Task canceled", e);
+                            throw e;
                         }
 
                         if (done) {
@@ -475,12 +501,20 @@ public class ContentLoader {
 
                     // начинаем с первой страницы
                     taskController.setStatusMsg("Loading page-1...");
-                    // загрузить первую страницу
+                    // загрузить первую страницу - вот здесь может быть долго
                     try {
                         extractor.fetchPage();
                     } catch (IOException | ExtractionException e) {
                         taskController.setStatusMsg("Error loading playlist", e);
                         throw new RuntimeException(e);
+                    }
+
+                    // выкачивали страницу некоторое время, в течение которого могли успеть
+                    // отменить задачу (кнопкой или закрыв экран)
+                    if(taskController.isCanceled()) {
+                        final RuntimeException e = new RuntimeException("Task canceled");
+                        taskController.setStatusMsg("Task canceled", e);
+                        throw e;
                     }
 
                     ListExtractor.InfoItemsPage<StreamInfoItem> nextPage;
@@ -519,6 +553,12 @@ public class ContentLoader {
                     // или не встретим ролик, который уже был добавлен в базу
                     int page_n = 1;
                     while (!foundOld && nextPage.hasNextPage()) {
+                        if(taskController.isCanceled()) {
+                            final RuntimeException e = new RuntimeException("Task canceled");
+                            taskController.setStatusMsg("Task canceled", e);
+                            throw e;
+                        }
+
                         pageItems.clear();
                         videoItems.clear();
 
@@ -530,12 +570,23 @@ public class ContentLoader {
                         // ошибку вместо страницы
                         int retryCount = LOAD_PAGE_RETRY_COUNT;
                         while (!done && retryCount > 0) {
+                            if(taskController.isCanceled()) {
+                                final RuntimeException e = new RuntimeException("Task canceled");
+                                taskController.setStatusMsg("Task canceled", e);
+                                throw e;
+                            }
                             try {
                                 nextPage = extractor.getPage(nextPage.getNextPage());
                                 done = true;
                             } catch (IOException | ExtractionException e) {
                                 retryCount--;
                             }
+                        }
+
+                        if(taskController.isCanceled()) {
+                            final RuntimeException e = new RuntimeException("Task canceled");
+                            taskController.setStatusMsg("Task canceled", e);
+                            throw e;
                         }
 
                         if (done) {

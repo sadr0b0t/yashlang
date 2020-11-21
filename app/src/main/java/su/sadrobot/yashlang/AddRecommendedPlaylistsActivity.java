@@ -87,6 +87,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
     private State state = State.INITIAL_RECOMMENDED;
 
+    private ContentLoader.TaskController taskController;
     private int plToAddStartIndex = 0;
 
 
@@ -635,6 +636,14 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(taskController != null) {
+            taskController.cancel();
+        }
+    }
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -681,7 +690,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
         updateControlsVisibility();
 
         // канал или плейлист
-        final ContentLoader.TaskController taskController = new ContentLoader.TaskController();
+        taskController = new ContentLoader.TaskController();
         taskController.setTaskListener(new ContentLoader.TaskListener() {
             @Override
             public void onStart() {
@@ -737,6 +746,11 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
                 // начинаем с индекса plToAddStartIndex (например, если продолжаем после ошибки)
                 for (; plToAddStartIndex < recommendedPlaylists.length; plToAddStartIndex++) {
+                    if(taskController.isCanceled()) {
+                        allOk = false;
+                        break;
+                    }
+
                     final PlaylistInfo plInfo = recommendedPlaylists[plToAddStartIndex];
                     // подгрузим иконку плейлиста (хотя скорее всего она уже в кеше)
                     try {
@@ -789,11 +803,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                         // сообщение о том, что плейлист добавлен, например.
                         // (пользователь не будет часто добавлять плейлисты в этом диалоге, поэтому
                         // здесь это ок)
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
                     } catch (final InterruptedException e) {
                     }
                 }
-
                 if (allOk) {
                     // все добавили, выходим
                     AddRecommendedPlaylistsActivity.this.finish();

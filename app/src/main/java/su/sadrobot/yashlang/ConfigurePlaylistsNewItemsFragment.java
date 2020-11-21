@@ -115,9 +115,9 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
     }
 
     private State state = State.NEW_ITEMS_LIST_EMPTY;
-
     private boolean checkError = false;
 
+    private ContentLoader.TaskController taskController;
     private int plToUpdateStartIndex = 0;
     private int addedThisTime = 0;
 
@@ -274,6 +274,15 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
         // будет не очень правильно грузить сеть проверкой всех плейлистов каждый
         // раз, когда мы заходим в настройки - есть и кнопка
         //updateVideoListBg();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(taskController != null) {
+            taskController.cancel();
+        }
     }
 
     private void updateControlsVisibility() {
@@ -511,7 +520,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
 
     private void addNewItemsBg() {
         // канал или плейлист
-        final ContentLoader.TaskController taskController = new ContentLoader.TaskController();
+        taskController = new ContentLoader.TaskController();
         taskController.setTaskListener(new ContentLoader.TaskListener() {
             @Override
             public void onStart() {
@@ -569,6 +578,11 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
 
                 // начинаем с индекса plToUpdateStartIndex (например, если продолжаем после ошибки)
                 for (; plToUpdateStartIndex < allPlaylists.size(); plToUpdateStartIndex++) {
+                    if(taskController.isCanceled()) {
+                        allOk = false;
+                        break;
+                    }
+
                     final PlaylistInfo plInfo = allPlaylists.get(plToUpdateStartIndex);
                     // подгрузим иконку плейлиста (хотя скорее всего она уже в кеше)
                     try {

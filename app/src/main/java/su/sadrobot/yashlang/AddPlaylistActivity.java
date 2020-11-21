@@ -119,10 +119,10 @@ public class AddPlaylistActivity extends AppCompatActivity {
     }
 
     private State state = State.ITEMS_LIST_EMPTY;
-
     private boolean playlistLoadError = false;
 
     private PlaylistInfo loadedPlaylist = null;
+    private ContentLoader.TaskController taskController;
 
     private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
@@ -315,6 +315,15 @@ public class AddPlaylistActivity extends AppCompatActivity {
                 playlistAddProgressView.setVisibility(View.GONE);
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(taskController != null) {
+            taskController.cancel();
+        }
     }
 
     @Override
@@ -617,7 +626,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
         updateControlsVisibility();
 
         // канал или плейлист
-        final ContentLoader.TaskController taskController = new ContentLoader.TaskController();
+        taskController = new ContentLoader.TaskController();
         taskController.setTaskListener(new ContentLoader.TaskListener() {
             @Override
             public void onStart() {

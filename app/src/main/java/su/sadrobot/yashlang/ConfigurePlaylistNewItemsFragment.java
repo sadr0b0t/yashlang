@@ -110,13 +110,13 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     private Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
-    private VideoDatabase videodb;
 
     private PlaylistUpdateListener playlistUpdateListener;
 
 
     private long playlistId = PlaylistInfo.ID_NONE;
     private PlaylistInfo plInfo;
+    private ContentLoader.TaskController taskController;
 
     private enum State {
         NEW_ITEMS_LIST_EMPTY, NEW_ITEMS_LIST_LOAD_PROGRESS, NEW_ITEMS_LIST_LOAD_ERROR, NEW_ITEMS_LIST_LOADED,
@@ -124,7 +124,6 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     }
 
     private State state = State.NEW_ITEMS_LIST_EMPTY;
-
     private boolean checkError = false;
 
     private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
@@ -181,10 +180,6 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
 
 
         playlistId = super.getActivity().getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
-
-        // подключимся к базе один раз при создании активити,
-        // закрывать подключение в onDestroy
-        videodb = VideoDatabase.getDb(getContext());
     }
 
 
@@ -284,8 +279,8 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
 
-        if (videodb != null) {
-            videodb.close();
+        if(taskController != null) {
+            taskController.cancel();
         }
     }
 
@@ -393,7 +388,9 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
             @Override
             public void run() {
                 // информация из базы данных - загрузится быстро и без интернета
+                final VideoDatabase videodb = VideoDatabase.getDb(getContext());
                 plInfo = videodb.playlistInfoDao().getById(plId);
+                videodb.close();
 
                 handler.post(new Runnable() {
                     @Override
@@ -540,7 +537,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     private void addNewItemsBg() {
         final String playlistUrl = plInfo.getUrl();
         // канал или плейлист
-        final ContentLoader.TaskController taskController = new ContentLoader.TaskController();
+        taskController = new ContentLoader.TaskController();
         taskController.setTaskListener(new ContentLoader.TaskListener() {
             @Override
             public void onStart() {
