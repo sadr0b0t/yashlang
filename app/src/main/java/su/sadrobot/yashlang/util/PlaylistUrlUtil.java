@@ -118,4 +118,14 @@ public class PlaylistUrlUtil {
         // У нас иконки примерно 100x100 везде, но будем брать с запасом 240x240, чтобы хайрез
         return iconUrl.replace("=s48-", "=s240-");
     }
+
+    public static String fixYtVideoThumbSize(final String thumbUrl) {
+        // NewPipeExtractor возвращает иконку для видео такую:
+        // https://i.ytimg.com/vi/pevcwilRM8o/hqdefault.jpg?sqp=-oaymwEYCKgBEF5IVfKriqkDCwgBFQAAiEIYAXAB&rs=AOn4CLB8Bx4_LmDq7dowwMZPclW_qixhbQ
+        // на сайте ютюб эту же иконку даёт в таком варианте:
+        // https://i.ytimg.com/vi/pevcwilRM8o/mqdefault.jpg?sqp=-oaymwEYCKgBEF5IVfKriqkDCwgBFQAAiEIYAXAB&rs=AOn4CLB8Bx4_LmDq7dowwMZPclW_qixhbQ
+        // отличие только "hquedefault" и "mquedefault"
+        // второй вариант лучше 1-го, на телефоне маленький вариант еще ок, но на планшете уже не ок
+        return thumbUrl.replace("hquedefault", "mquedefault");
+    }
 }

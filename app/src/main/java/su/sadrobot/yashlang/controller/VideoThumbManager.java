@@ -34,6 +34,7 @@ import java.util.Map;
 
 import su.sadrobot.yashlang.R;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 
 public class VideoThumbManager {
     private static VideoThumbManager _instance;
@@ -47,8 +48,6 @@ public class VideoThumbManager {
     private VideoThumbManager() {
     }
 
-    private Map<String, Bitmap> thumbCache = new HashMap<String, Bitmap>();
-
     //private static final String THUMB_URL_TEMPLATE = "https://img.youtube.com/vi/%id%/sddefault.jpg";
     private static final String THUMB_URL_TEMPLATE = "https://img.youtube.com/vi/%id%/default.jpg";
 
@@ -58,8 +57,6 @@ public class VideoThumbManager {
     // http://img.youtube.com/vi/<insert-youtube-video-id-here>/sddefault.jpg
     // http://img.youtube.com/vi/<insert-youtube-video-id-here>/maxresdefault.jpg
 
-
-    private Bitmap defaultThumb = null;//BitmapFactory.decodeResource(R.drawable.bug1);
 
     public Bitmap loadBitmap(final String url) throws IOException {
 
@@ -128,14 +125,16 @@ public class VideoThumbManager {
      * чтобы было понятно, что произошло.
      *
      * Загрузить картинку с превью видео или вернуть картинку по умолчанию.
+     * @param context
      * @param vid
      * @return
      */
     public Bitmap loadVideoThumb(final Context context, final VideoItem vid) {
         Bitmap thumb = null;
         try {
-            //thumb = loadVideoThumb(vid.getYtId());
-            thumb = loadBitmap(vid.getThumbUrl());
+            // Будем грузить для роликов YouTube иконку большего размера (так будет лучше на планшетах),
+            // для PeerTube ссылка останется без изменений
+            thumb = loadBitmap(PlaylistUrlUtil.fixYtVideoThumbSize(vid.getThumbUrl()));
         } catch (IOException e) {
             //thumb = defaultThumb; // default thumb
             //e.printStackTrace();
