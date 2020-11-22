@@ -101,14 +101,14 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     PlaylistInfo.PlaylistType.PT_USER),
 
             // канал зачистил ролики на vidcommons.org, но на open.tube сохранилось зеркало
-            new PlaylistInfo("Cartoons!",
-                    "https://open.tube/video-channels/cartoons@vidcommons.org/videos",
-                    "https://open.tube/lazy-static/avatars/bce8cf0a-a74c-4e42-b58c-080e201d786b.jpg",
-                    PlaylistInfo.PlaylistType.PT_CHANNEL),
-            new PlaylistInfo("Bendito Machine",
-                    "https://open.tube/video-channels/bendito_machine@vidcommons.org/videos",
-                    "https://open.tube/lazy-static/avatars/93e2ae83-b98d-4c0b-9a0e-e2cce57d1e60.jpg",
-                    PlaylistInfo.PlaylistType.PT_CHANNEL),
+            // https://vidcommons.org/accounts/animation/videos
+            // но при этом на open.tube у этого канала постоянно меняется адрес иконки, а на
+            // vidcommons.org сам канал с иконкой сохранился, пропали только видео
+            new PlaylistInfo("Animation",
+                    "https://open.tube/accounts/animation@vidcommons.org/videos",
+                    //"https://open.tube/lazy-static/avatars/dd21503d-f183-4256-906d-8ce8cfdaf056.jpg",
+                    "https://vidcommons.org/lazy-static/avatars/5c481106-8156-4c43-af59-e308f4a3d37c.jpg",
+                    PlaylistInfo.PlaylistType.PT_USER),
 
             new PlaylistInfo("OpenMovies \uD83D\uDCFD",
                     "https://open.tube/accounts/openmovies/videos",
