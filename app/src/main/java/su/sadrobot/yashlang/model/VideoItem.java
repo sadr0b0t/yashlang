@@ -56,8 +56,6 @@ public class VideoItem {
      */
     public static int ID_NONE = 0;
 
-    public static int FAKE_TIMESTAMP_BLOCK_SIZE = 10000;
-
     // Id должен быть только long, иначе из метода @Insert не получится получить id вновь созданной записи
     // https://developer.android.com/training/data-storage/room/accessing-data#convenience-insert
     // If the @Insert method receives only 1 parameter, it can return a long, which is the new rowId

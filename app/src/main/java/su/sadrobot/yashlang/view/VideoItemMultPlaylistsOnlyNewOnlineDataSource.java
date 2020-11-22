@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.VideoDatabase;
@@ -195,7 +196,7 @@ public class VideoItemMultPlaylistsOnlyNewOnlineDataSource extends AbstractVideo
             } else if (loadedPage.hasNextPage()) {
                 // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
                 // ошибку вместо страницы
-                int retryCount = 3;
+                int retryCount = ConfigOptions.LOAD_PAGE_RETRY_COUNT;
                 while (!loadedNewPage && retryCount > 0) {
                     try {
                         loadedPage = extractor.getPage(loadedPage.getNextPage());

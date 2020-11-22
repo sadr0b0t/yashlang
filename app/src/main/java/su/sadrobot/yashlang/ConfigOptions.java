@@ -24,4 +24,12 @@ public class ConfigOptions {
     public static final boolean DEVEL_MODE_ON = false;
 
     public static final int RECOMMENDED_RANDOM_LIM = 200;
+
+    public static final int LOAD_PAGE_RETRY_COUNT = 3;
+
+    public static final int FAKE_TIMESTAMP_BLOCK_SIZE = 10000;
+
+    public static final int ADD_RECOMMENDED_PLAYLISTS_DELAY_MS = 800;
+
+    public static final int UPDATE_PLAYLISTS_DELAY_MS = 500;
 }

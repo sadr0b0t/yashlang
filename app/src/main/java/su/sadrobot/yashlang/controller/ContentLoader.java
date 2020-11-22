@@ -54,9 +54,6 @@ import static org.schabi.newpipe.extractor.ServiceList.YouTube;
 
 public class ContentLoader {
 
-    private static int LOAD_PAGE_RETRY_COUNT = 3;
-
-
     private static ContentLoader _instance;
 
     static {
@@ -343,7 +340,7 @@ public class ContentLoader {
                     }
 
                     int videoItemCount = 0;
-                    int fakeTimestamp = VideoItem.FAKE_TIMESTAMP_BLOCK_SIZE;
+                    int fakeTimestamp = ConfigOptions.FAKE_TIMESTAMP_BLOCK_SIZE;
 
                     final List<StreamInfoItem> pageItems = new ArrayList<StreamInfoItem>();
                     pageItems.addAll(nextPage.getItems());
@@ -386,7 +383,7 @@ public class ContentLoader {
                         boolean done = false;
                         // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
                         // ошибку вместо страницы
-                        int retryCount = LOAD_PAGE_RETRY_COUNT;
+                        int retryCount = ConfigOptions.LOAD_PAGE_RETRY_COUNT;
                         Exception retryEx = null;
                         while (!done && retryCount > 0) {
                             if(taskController.isCanceled()) {
@@ -400,7 +397,7 @@ public class ContentLoader {
                                 done = true;
                             } catch (Exception e) {
                                 taskController.setStatusMsg("Loading page-" + page_n + "..." +
-                                        "[retry: " + (LOAD_PAGE_RETRY_COUNT - retryCount + 1) + "]");
+                                        "[retry: " + (ConfigOptions.LOAD_PAGE_RETRY_COUNT - retryCount + 1) + "]");
                                 retryEx = e;
                                 retryCount--;
                             }
@@ -525,7 +522,7 @@ public class ContentLoader {
                         throw new RuntimeException(e);
                     }
 
-                    long fakeTimestamp = videodb.videoItemDao().getMaxFakeTimestamp(plId) + VideoItem.FAKE_TIMESTAMP_BLOCK_SIZE;
+                    long fakeTimestamp = videodb.videoItemDao().getMaxFakeTimestamp(plId) + ConfigOptions.FAKE_TIMESTAMP_BLOCK_SIZE;
                     final boolean plEnabled = videodb.playlistInfoDao().isEnabled(plId);
 
                     final List<StreamInfoItem> pageItems = new ArrayList<StreamInfoItem>();
@@ -568,7 +565,7 @@ public class ContentLoader {
                         boolean done = false;
                         // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
                         // ошибку вместо страницы
-                        int retryCount = LOAD_PAGE_RETRY_COUNT;
+                        int retryCount = ConfigOptions.LOAD_PAGE_RETRY_COUNT;
                         while (!done && retryCount > 0) {
                             if(taskController.isCanceled()) {
                                 final RuntimeException e = new RuntimeException("Task canceled");

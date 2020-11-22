@@ -803,7 +803,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                         // сообщение о том, что плейлист добавлен, например.
                         // (пользователь не будет часто добавлять плейлисты в этом диалоге, поэтому
                         // здесь это ок)
-                        Thread.sleep(100);
+                        Thread.sleep(ConfigOptions.ADD_RECOMMENDED_PLAYLISTS_DELAY_MS);
                     } catch (final InterruptedException e) {
                     }
                 }

@@ -627,7 +627,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                         // сообщение о том, что плейлист добавлен, например.
                         // (пользователь не будет часто добавлять плейлисты в этом диалоге, поэтому
                         // здесь это ок)
-                        Thread.sleep(500);
+                        Thread.sleep(ConfigOptions.UPDATE_PLAYLISTS_DELAY_MS);
                     } catch (final InterruptedException e) {
                     }
                 }
