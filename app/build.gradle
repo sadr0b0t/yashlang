@@ -72,7 +72,15 @@ dependencies {
 
     // NewPipe: youtube parser
     // https://github.com/TeamNewPipe/NewPipeExtractor
-    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.20.3"
+    // в 0.20.3 появился класс Instant, который появился в API level 26
+    // https://developer.android.com/reference/java/time/Instant.html
+    // У меня на планшете Самсунг Android 7.1.1 - это API level 25
+    // https://developer.android.com/studio/releases/platforms
+    // с NewPipeExtractor:v0.20.3 вылетает с ClassNotFound при добавлении плейлиста
+    // с NewPipeExtractor:v0.20.2 работает ок
+    // поэтому останемся пока на 0.20.2, по крайней мере пока не поломают Ютюб
+    // implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.20.3"
+    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.20.2"
 
     // google Exoplayer
     // https://github.com/google/ExoPlayer
