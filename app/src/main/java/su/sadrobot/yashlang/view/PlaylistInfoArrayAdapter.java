@@ -111,6 +111,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter {
             if(item.getThumbBitmap() != null) {
                 _holder.thumbImg.setImageBitmap(item.getThumbBitmap());
             } else {
+                _holder.thumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
                 thumbLoaderExecutor.execute(new Runnable() {
                     @Override
                     public void run() {

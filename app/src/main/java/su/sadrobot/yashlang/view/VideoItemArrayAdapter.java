@@ -162,6 +162,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
             if (item.getThumbBitmap() != null) {
                 holder.thumbImg.setImageBitmap(item.getThumbBitmap());
             } else {
+                holder.thumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
                 thumbLoaderExecutor.execute(new Runnable() {
                     @Override
                     public void run() {

@@ -215,6 +215,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             if (item.getThumbBitmap() != null) {
                 holder.thumbImg.setImageBitmap(item.getThumbBitmap());
             } else {
+                holder.thumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
                 thumbLoaderExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
