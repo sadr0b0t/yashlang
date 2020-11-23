@@ -184,15 +184,7 @@ public class ConfigurePlaylistsFragment extends Fragment {
                                             @Override
                                             public void run() {
                                                 final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsFragment.this.getContext());
-                                                // TODO: здесь замечательно пойдет метод с @Transaction в DAO
-                                                // https://developer.android.com/reference/android/arch/persistence/room/Transaction.html
-                                                videodb.runInTransaction(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        videodb.playlistInfoDao().setEnabled(item.getId(), isChecked);
-                                                        videodb.videoItemDao().setPlaylistEnabled(item.getId(), isChecked);
-                                                    }
-                                                });
+                                                videodb.playlistInfoDao().setEnabled(item.getId(), isChecked);
                                                 videodb.close();
 
                                                 // здесь тоже нужно обновить вручную, т.к. у нас в адаптере

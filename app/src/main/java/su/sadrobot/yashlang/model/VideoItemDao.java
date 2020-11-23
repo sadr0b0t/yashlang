@@ -93,9 +93,6 @@ public interface VideoItemDao {
     @Query("SELECT COUNT (_id) FROM video_item WHERE playlist_id = :playlistId")
     int countAllVideos(long playlistId);
 
-    @Query("UPDATE video_item SET enabled = :enabled WHERE playlist_id = :playlistId")
-    void setPlaylistEnabled(long playlistId, boolean enabled);
-
     @Query("UPDATE video_item SET blacklisted = :blacklisted WHERE _id = :id")
     void setBlacklisted(long id, boolean blacklisted);
 

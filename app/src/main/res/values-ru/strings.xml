@@ -74,4 +74,8 @@
     <string name="play_results_shuffle">Играть всё (перемешать)</string>
     <string name="play_in_playlist">Играть в плейлисте</string>
     <string name="play_in_playlist_shuffle">Играть в плейлисте (перемешать)</string>
+    <string name="tab_item_profiles">ПРОФИЛИ</string>
+    <string name="enable_all">Включить ВСЕ</string>
+    <string name="disable_all">Выключить ВСЕ</string>
+    <string name="disble_all_yt">Выключить все YouTube</string>
 </resources>

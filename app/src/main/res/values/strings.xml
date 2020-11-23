@@ -74,4 +74,8 @@
     <string name="play_results_shuffle">Play results (shuffle)</string>
     <string name="play_in_playlist">Play in playlist</string>
     <string name="play_in_playlist_shuffle">Play in playlist (shuffle)</string>
+    <string name="tab_item_profiles">PROFILES</string>
+    <string name="enable_all">Enable ALL</string>
+    <string name="disable_all">Disable ALL</string>
+    <string name="disble_all_yt">Disable all YouTube</string>
 </resources>

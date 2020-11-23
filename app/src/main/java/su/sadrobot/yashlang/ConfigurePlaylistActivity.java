@@ -164,16 +164,8 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             if (plInfo != null) {
-                                // TODO: здесь замечательно пойдет метод с @Transaction в DAO
-                                // https://developer.android.com/reference/android/arch/persistence/room/Transaction.html
                                 final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistActivity.this);
-                                videodb.runInTransaction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        videodb.playlistInfoDao().setEnabled(plInfo.getId(), isChecked);
-                                        videodb.videoItemDao().setPlaylistEnabled(plInfo.getId(), isChecked);
-                                    }
-                                });
+                                videodb.playlistInfoDao().setEnabled(plInfo.getId(), isChecked);
                                 videodb.close();
 
                                 // обновим кэш

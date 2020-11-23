@@ -48,6 +48,7 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
 
     private ConfigurePlaylistsFragment configurePlaylistsFrag;
     private ConfigurePlaylistsNewItemsFragment configurePlaylistsNewItemsFrag;
+    private ConfigurePlaylistsProfilesFragment configurePlaylistsProfilesFrag;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -67,19 +68,22 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
 
         configurePlaylistsFrag = new ConfigurePlaylistsFragment();
         configurePlaylistsNewItemsFrag = new ConfigurePlaylistsNewItemsFragment();
+        configurePlaylistsProfilesFrag = new ConfigurePlaylistsProfilesFragment();
 
         pager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public int getCount() {
-                return 2;
+                return 3;
             }
 
             @Override
             public Fragment getItem(int position) {
                 if (position == 0) {
                     return configurePlaylistsFrag;
-                } else {
+                } else if(position == 1) {
                     return configurePlaylistsNewItemsFrag;
+                } else {
+                    return configurePlaylistsProfilesFrag;
                 }
             }
 
@@ -87,8 +91,10 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
             public CharSequence getPageTitle(int position) {
                 if (position == 0) {
                     return getString(R.string.tab_item_playlists);
-                } else {
+                } else if(position == 1) {
                     return getString(R.string.tab_item_new);
+                } else {
+                    return getString(R.string.tab_item_profiles);
                 }
             }
         });

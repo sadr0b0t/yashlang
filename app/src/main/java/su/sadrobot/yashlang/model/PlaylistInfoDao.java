@@ -24,35 +24,72 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Transaction;
 
 import java.util.List;
 
 @Dao
-public interface PlaylistInfoDao {
+public abstract class PlaylistInfoDao {
     @Query("SELECT * FROM playlist_info")
-    List<PlaylistInfo> getAll();
+    public abstract List<PlaylistInfo> getAll();
 
     @Query("SELECT _id FROM playlist_info")
-    List<Long> getAllIds();
+    public abstract List<Long> getAllIds();
 
     @Query("SELECT * FROM playlist_info WHERE enabled")
-    List<PlaylistInfo> getEnabled();
+    public abstract List<PlaylistInfo> getEnabled();
 
     @Query("SELECT * FROM playlist_info WHERE _id = :id LIMIT 1")
-    PlaylistInfo getById(long id);
-
-    @Query("SELECT enabled FROM playlist_info WHERE _id = :id LIMIT 1")
-    boolean isEnabled(long id);
-
-    @Query("UPDATE playlist_info SET enabled = :enabled WHERE _id = :id")
-    void setEnabled(long id, boolean enabled);
+    public abstract PlaylistInfo getById(long id);
 
     @Query("SELECT * FROM playlist_info WHERE url LIKE :url LIMIT 1")
-    PlaylistInfo findByUrl(String url);
+    public abstract PlaylistInfo findByUrl(String url);
 
     @Insert
-    long insert(PlaylistInfo playlist);
+    public abstract long insert(PlaylistInfo playlist);
 
     @Delete
-    void delete(PlaylistInfo playlist);
+    public abstract void delete(PlaylistInfo playlist);
+
+    @Query("SELECT enabled FROM playlist_info WHERE _id = :id LIMIT 1")
+    public abstract boolean isEnabled(long id);
+
+    //
+    @Query("UPDATE video_item SET enabled = :enabled WHERE playlist_id = :playlistId")
+    protected abstract void setVideoItemsEnabled4Playlist(long playlistId, boolean enabled);
+
+    @Query("UPDATE video_item SET enabled = :enabled")
+    protected abstract void setVideoItemsEnabled4All(boolean enabled);
+
+    @Query("UPDATE video_item SET enabled = :enabled WHERE playlist_id IN " +
+            "(SELECT _id FROM playlist_info WHERE  type = 'YT_USER' OR type = 'YT_CHANNEL' OR type = 'YT_PLAYLIST')")
+    protected abstract void setVideoItemsEnabled4Yt(boolean enabled);
+    ///
+
+    @Query("UPDATE playlist_info SET enabled = :enabled WHERE _id = :id")
+    protected abstract void setPlaylistEnabled(long id, boolean enabled);
+
+    @Query("UPDATE playlist_info SET enabled = :enabled")
+    protected abstract void setPlaylistsEnabled4All(boolean enabled);
+
+    @Query("UPDATE playlist_info SET enabled = :enabled WHERE type = 'YT_USER' OR type = 'YT_CHANNEL' OR type = 'YT_PLAYLIST'")
+    protected abstract void setPlaylistsEnabled4Yt(boolean enabled);
+
+    @Transaction
+    public void setEnabled(long id, boolean enabled) {
+        setVideoItemsEnabled4Playlist(id, enabled);
+        setPlaylistEnabled(id, enabled);
+    }
+
+    @Transaction
+    public void setEnabled4All(boolean enabled) {
+        setVideoItemsEnabled4All(enabled);
+        setPlaylistsEnabled4All(enabled);
+    }
+
+    @Transaction
+    public void setEnabled4Yt(boolean enabled) {
+        setVideoItemsEnabled4Yt(enabled);
+        setPlaylistsEnabled4Yt(enabled);
+    }
 }
