@@ -103,7 +103,7 @@ Starred videos (faves) are starred (marked as fave) in the top right corner in t
 [<img src="doc/screens/v0.1.x/context-menu-3.png" width=200>](doc/screens/v0.1.x/context-menu-3.png)
 [<img src="doc/screens/v0.1.x/context-menu-5.png" width=200>](doc/screens/v0.1.x/context-menu-5.png)
 
-## In addition
+### In addition
 
 - Browse enabled playlists from main screen
 - Playlist profiles: combine playlists in groups and switch groups depending on watch context: Cartoons, Films, Edutainment, History, Analytics etc.
