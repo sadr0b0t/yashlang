@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 
 import org.schabi.newpipe.DownloaderTestImpl;
 import org.schabi.newpipe.extractor.NewPipe;
-import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 
 import java.io.IOException;
@@ -77,6 +76,10 @@ public class VideoItemMultPlaylistsOnlyNewOnlineDataSource extends AbstractVideo
 
     @Override
     public void loadInitial(@NonNull LoadInitialParams<String> params, @NonNull LoadInitialCallback<VideoItem> callback) {
+        if(playlistIds.size() == 0) {
+            return;
+        }
+
         currPlaylistIndex = 0;
         playlistId = playlistIds.get(currPlaylistIndex);
         boolean foundSome = false;
