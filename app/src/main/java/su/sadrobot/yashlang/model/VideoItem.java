@@ -42,9 +42,9 @@ import su.sadrobot.yashlang.util.TimestampConverter;
  */
 @Entity(tableName = "video_item",
         foreignKeys = @ForeignKey(entity = PlaylistInfo.class,
-        parentColumns = "_id",
-        childColumns = "playlist_id",
-        onDelete = ForeignKey.CASCADE),
+                parentColumns = "_id",
+                childColumns = "playlist_id",
+                onDelete = ForeignKey.CASCADE),
         indices=@Index(value="playlist_id"))
 public class VideoItem {
 
@@ -54,7 +54,7 @@ public class VideoItem {
      * чтобы сработал механизм autogenerate (поэтому ID_NONE=0, а не, например, -1).
      * Действующие id элементов в базе начинаются с 1.
      */
-    public static int ID_NONE = 0;
+    public static long ID_NONE = 0;
 
     // Id должен быть только long, иначе из метода @Insert не получится получить id вновь созданной записи
     // https://developer.android.com/training/data-storage/room/accessing-data#convenience-insert

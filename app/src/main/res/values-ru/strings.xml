@@ -78,4 +78,20 @@
     <string name="enable_all">Включить ВСЕ</string>
     <string name="disable_all">Выключить ВСЕ</string>
     <string name="disble_all_yt">Выключить все YouTube</string>
+    <string name="apply">Применить</string>
+    <string name="edit">Редактировать</string>
+    <string name="add_profile">Добавить профиль</string>
+    <string name="yashlang_edit_profile">YaShlang: редактировать профиль</string>
+    <string name="delete_profile_title">Удалить профиль: \'%s\'?</string>
+    <string name="profile_is_deleted">Профиль удален: \'%s\'</string>
+    <string name="delete_profile_message">Будут удалены настройки этого профиля. Плейлисты и видео не пострадают.</string>
+    <string name="new_profile_name">Новый профиль</string>
+    <string name="profile_name">имя профиля</string>
+    <string name="profile_is_saved">Профиль сохранен: \'%s\'</string>
+    <string name="add_to_enabled">Добавить к включенному</string>
+    <string name="applied_profile">Применили профиль: \'%s\'</string>
+    <string name="enabled_from_profile">Включили плейлисты из профиля: \'%s\'</string>
+    <string name="enabled_all">Включены ВСЕ плейлисты</string>
+    <string name="disabled_all">Выключеные ВСЕ плейлисты</string>
+    <string name="disabled_all_yt">Выключеные все плейлисты YouTube</string>
 </resources>

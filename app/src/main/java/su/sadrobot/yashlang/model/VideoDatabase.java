@@ -29,15 +29,17 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 
-@Database(entities = {VideoItem.class, PlaylistInfo.class}, version = 2)
+@Database(entities = {VideoItem.class, PlaylistInfo.class, Profile.class, ProfilePlaylists.class}, version = 3)
 public abstract class VideoDatabase extends RoomDatabase {
     public abstract VideoItemDao videoItemDao();
     public abstract PlaylistInfoDao playlistInfoDao();
+    public abstract ProfileDao profileDao();
 
     public static VideoDatabase getDb(Context context) {
         return Room.databaseBuilder(context,
                 VideoDatabase.class, "video-db")
                 .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_2_3)
                 //.fallbackToDestructiveMigration()
                 //.allowMainThreadQueries()
                 .build();
@@ -75,6 +77,30 @@ public abstract class VideoDatabase extends RoomDatabase {
             database.execSQL("ALTER TABLE video_item ADD COLUMN item_url TEXT");
             // https://www.sqlitetutorial.net/sqlite-string-functions/sqlite-concat/
             database.execSQL("UPDATE video_item SET item_url='https://www.youtube.com/watch?v=' || yt_id");
+        }
+    };
+
+    private static Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(final SupportSQLiteDatabase database) {
+            // CREATE TABLE profile (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT)
+            // CREATE TABLE profile_playlists (
+            //   _id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            //   profile_id INTEGER NOT NULL, playlist_id INTEGER NOT NULL,
+            //   FOREIGN KEY(profile_id) REFERENCES profile(_id) ON UPDATE NO ACTION ON DELETE CASCADE,
+            //   FOREIGN KEY(playlist_id) REFERENCES playlist_info(_id) ON UPDATE NO ACTION ON DELETE CASCADE )
+            // CREATE INDEX index_profile_playlists_profile_id ON profile_playlists (profile_id)
+            // CREATE INDEX index_profile_playlists_playlist_id ON profile_playlists (playlist_id)
+
+            database.execSQL("CREATE TABLE profile (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT)");
+            database.execSQL("CREATE TABLE profile_playlists (" +
+                    "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "profile_id INTEGER NOT NULL, playlist_id INTEGER NOT NULL, " +
+                    "FOREIGN KEY(profile_id) REFERENCES profile(_id) ON UPDATE NO ACTION ON DELETE CASCADE, " +
+                    "FOREIGN KEY(playlist_id) REFERENCES playlist_info(_id) ON UPDATE NO ACTION ON DELETE CASCADE)");
+
+            database.execSQL("CREATE INDEX index_profile_playlists_profile_id ON profile_playlists (profile_id)");
+            database.execSQL("CREATE INDEX index_profile_playlists_playlist_id ON profile_playlists (playlist_id)");
         }
     };
 }

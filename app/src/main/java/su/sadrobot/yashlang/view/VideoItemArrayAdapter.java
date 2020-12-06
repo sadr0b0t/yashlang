@@ -73,10 +73,10 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
             });
 
     public static class VideoItemViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTxt;
-        TextView durationTxt;
-        ImageView thumbImg;
-        Switch onoffSwitch;
+        final TextView nameTxt;
+        final TextView durationTxt;
+        final ImageView thumbImg;
+        final Switch onoffSwitch;
 
         public VideoItemViewHolder(final View itemView) {
             super(itemView);
@@ -192,7 +192,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
             } else {
                 holder.onoffSwitch.setVisibility(View.VISIBLE);
 
-                holder.onoffSwitch.setChecked(!item.isBlacklisted());
+                holder.onoffSwitch.setChecked(onItemSwitchListener.isItemChecked(item));
                 holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

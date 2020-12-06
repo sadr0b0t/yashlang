@@ -31,22 +31,30 @@ import java.util.List;
 
 @Dao
 public interface VideoItemDao {
-    // https://developer.android.com/topic/libraries/architecture/paging/
 
-    // Здесь и ниже логично использовать Factory<Long, VideoItem>
-    // вместо Factory<Integer, VideoItem>, но мы не можем так делать,
-    // т.к с Long генератор генерит некомпилируемый код.
-    // Впрочем, с Factory<Integer, VideoItem> при типе ID Long
-    // код тоже компилируется и работает, поэтому пока фиг с ним и так.
+    @Insert
+    long insert(VideoItem video);
 
-    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted ORDER BY name")
-    DataSource.Factory<Integer, VideoItem> getAllEnabledDs();
+    @Insert
+    long[] insertAll(VideoItem... vids);
+
+    @Delete
+    void delete(VideoItem vid);
 
     @Query("SELECT * FROM video_item WHERE _id = :id LIMIT 1")
     VideoItem getById(long id);
 
     @Query("SELECT * FROM video_item WHERE playlist_id = :plId AND item_url = :itemUrl LIMIT 1")
     VideoItem getByItemUrl(long plId, String itemUrl);
+
+    // https://developer.android.com/topic/libraries/architecture/paging/
+    // Здесь и ниже логично использовать Factory<Long, VideoItem>
+    // вместо Factory<Integer, VideoItem>, но мы не можем так делать,
+    // т.к с Long генератор генерит некомпилируемый код.
+    // Впрочем, с Factory<Integer, VideoItem> при типе ID Long
+    // код тоже компилируется и работает, поэтому пока фиг с ним и так.
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted ORDER BY name")
+    DataSource.Factory<Integer, VideoItem> getAllEnabledDs();
 
     @Query("SELECT * FROM video_item WHERE playlist_id = :playlistId ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistAllDs(long playlistId);
@@ -112,13 +120,4 @@ public interface VideoItemDao {
      */
     @Query("UPDATE video_item SET view_count = view_count + 1, last_viewed_date = datetime('now') WHERE _id = :id")
     void countView(long id);
-
-    @Insert
-    long insert(VideoItem video);
-
-    @Insert
-    long[] insertAll(VideoItem... vids);
-
-    @Delete
-    void delete(VideoItem vid);
 }

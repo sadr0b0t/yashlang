@@ -227,7 +227,7 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                 }
                 break;
-            case R.id.action_delete_playlist:
+            case R.id.action_delete:
                 new AlertDialog.Builder(ConfigurePlaylistActivity.this)
                         .setTitle(getString(R.string.delete_playlist_title))
                         .setMessage(getString(R.string.delete_playlist_message))

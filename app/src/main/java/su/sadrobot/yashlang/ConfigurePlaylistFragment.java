@@ -372,6 +372,11 @@ public class ConfigurePlaylistFragment extends Fragment {
                             }
                         });
                     }
+
+                    @Override
+                    public boolean isItemChecked(final VideoItem item) {
+                        return !item.isBlacklisted();
+                    }
                 });
         // если список пустой, показываем специальный экранчик с сообщением
         adapter.registerAdapterDataObserver(emptyListObserver);

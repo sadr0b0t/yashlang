@@ -20,19 +20,13 @@ package su.sadrobot.yashlang.model;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.graphics.Bitmap;
-
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "playlist_info")
-public class PlaylistInfo {
-
-    public enum PlaylistType {
-        YT_USER, YT_CHANNEL, YT_PLAYLIST, PT_USER, PT_CHANNEL, PT_PLAYLIST
-    }
+@Entity(tableName = "profile")
+public class Profile {
 
     /**
      * Значение поля id для элементов, не добавленных в базу. Это же значение
@@ -41,6 +35,10 @@ public class PlaylistInfo {
      * Действующие id элементов в базе начинаются с 1.
      */
     public static long ID_NONE = 0;
+
+    public static long ID_ENABLE_ALL = -1;
+    public static long ID_DISABLE_ALL = -2;
+    public static long ID_DISABLE_YT = -3;
 
     // Id должен быть только long, иначе из метода @Insert не получится получить id вновь созданной записи
     // https://developer.android.com/training/data-storage/room/accessing-data#convenience-insert
@@ -54,45 +52,14 @@ public class PlaylistInfo {
     @ColumnInfo(name = "name")
     private String name;
 
-    /**
-     * Url плейлиста на внешнем сервисе.
-     */
-    @ColumnInfo(name = "url")
-    private String url;
-
-    @ColumnInfo(name = "thumb_url")
-    private String thumbUrl;
-
-    @ColumnInfo(name = "type")
-    private String type;
-
-    @ColumnInfo(name = "enabled")
-    private boolean enabled;
-
-
-    // возможно, не очень красиво хранить здесь поля, не сохраняемые в базу,
-    // но более удобного способа отправлять объекты в адаптер списка прямиком из
-    // базы данных и при этом приклеплять к ним картинки, загружаемые по требованию
-    // из интернета, найти не представляется возможным
-    @Ignore
-    private Bitmap thumbBitmap;
-
-
-    public PlaylistInfo(final String name, final String url, final String thumbUrl, final String type) {
+    public Profile(final String name) {
         this.name = name;
-        this.url = url;
-        this.thumbUrl = thumbUrl;
-        this.type = type;
-        this.enabled = true;
     }
 
     @Ignore
-    public PlaylistInfo(final String name, final String url, final String thumbUrl, final PlaylistType type) {
+    public Profile(final long _id, final String name) {
+        this._id = _id;
         this.name = name;
-        this.url = url;
-        this.thumbUrl = thumbUrl;
-        this.type = type.name();
-        this.enabled = true;
     }
 
     public long getId() {
@@ -103,7 +70,6 @@ public class PlaylistInfo {
         this._id = _id;
     }
 
-
     public String getName() {
         return name;
     }
@@ -111,51 +77,6 @@ public class PlaylistInfo {
     public void setName(String name) {
         this.name = name;
     }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getThumbUrl() {
-        return thumbUrl;
-    }
-
-    public void setThumbUrl(String thumbUrl) {
-        this.thumbUrl = thumbUrl;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setType(PlaylistType type) {
-        this.type = type.name();
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public Bitmap getThumbBitmap() {
-        return thumbBitmap;
-    }
-
-    public void setThumbBitmap(Bitmap thumbBitmap) {
-        this.thumbBitmap = thumbBitmap;
-    }
-
 
     public String toString() {
         return name;

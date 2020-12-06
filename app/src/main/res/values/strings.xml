@@ -78,4 +78,20 @@
     <string name="enable_all">Enable ALL</string>
     <string name="disable_all">Disable ALL</string>
     <string name="disble_all_yt">Disable all YouTube</string>
+    <string name="apply">Apply</string>
+    <string name="edit">Edit</string>
+    <string name="add_profile">Add profile</string>
+    <string name="yashlang_edit_profile">YaShlang: edit profile</string>
+    <string name="delete_profile_title">Delete profile: \'%s\'?</string>
+    <string name="profile_is_deleted">Profiled is deleted: \'%s\'</string>
+    <string name="delete_profile_message">Settings for this profile would be deleted. Playlists and videos won\'t be affected at all.</string>
+    <string name="new_profile_name">New profile</string>
+    <string name="profile_name">profile name</string>
+    <string name="profile_is_saved">Profile is saved: \'%s\'</string>
+    <string name="add_to_enabled">Add to enabled</string>
+    <string name="applied_profile">Applied profile: \'%s\'</string>
+    <string name="enabled_from_profile">Enabled playlists from profile: \'%s\'</string>
+    <string name="enabled_all">Enabled ALL playlists</string>
+    <string name="disabled_all">Disabled ADD playlists</string>
+    <string name="disabled_all_yt">Disabled all YoutTube playlists</string>
 </resources>

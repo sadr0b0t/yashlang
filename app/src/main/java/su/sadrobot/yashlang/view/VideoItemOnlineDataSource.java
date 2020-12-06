@@ -55,12 +55,6 @@ public class VideoItemOnlineDataSource extends AbstractVideoItemOnlineDataSource
         this.playlistUrl = playlistUrl;
     }
 
-    @NonNull
-    @Override
-    public String getKey(@NonNull VideoItem item) {
-        return item.getItemUrl();
-    }
-
     @Override
     public void loadInitial(@NonNull LoadInitialParams<String> params, @NonNull LoadInitialCallback<VideoItem> callback) {
 

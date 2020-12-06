@@ -23,5 +23,6 @@ package su.sadrobot.yashlang.view;
 import android.widget.CompoundButton;
 
 public interface OnListItemSwitchListener<ItemType> {
-    void onItemCheckedChanged(CompoundButton buttonView, final int position, final ItemType item, boolean isChecked);
+    void onItemCheckedChanged(final CompoundButton buttonView, final int position, final ItemType item, final boolean isChecked);
+    boolean isItemChecked(final ItemType item);
 }

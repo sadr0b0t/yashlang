@@ -43,7 +43,7 @@ import su.sadrobot.yashlang.R;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 
-public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter {
+public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoArrayAdapter.PlaylistInfoViewHolder> {
 
     private Activity context;
     private List<PlaylistInfo> playlistInfos;
@@ -66,11 +66,11 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter {
                 }
             });
 
-    public class PlaylistInfoViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTxt;
-        TextView urlTxt;
-        ImageView thumbImg;
-        Switch onoffSwitch;
+    public static class PlaylistInfoViewHolder extends RecyclerView.ViewHolder {
+        final TextView nameTxt;
+        final TextView urlTxt;
+        final ImageView thumbImg;
+        final Switch onoffSwitch;
 
         public PlaylistInfoViewHolder(final View itemView) {
             super(itemView);
@@ -97,21 +97,20 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final PlaylistInfoViewHolder holder, final int position) {
         final PlaylistInfo item = playlistInfos.get(position);
-        final PlaylistInfoViewHolder _holder = (PlaylistInfoViewHolder)holder;
 
-        _holder.nameTxt.setText(item.getName());
-        _holder.urlTxt.setText(item.getUrl().replaceFirst(
+        holder.nameTxt.setText(item.getName());
+        holder.urlTxt.setText(item.getUrl().replaceFirst(
                 "https://", "").replaceFirst("www.",""));
         //_holder.name.setEnabled(item.isEnabled());
 
 
-        if (_holder.thumbImg != null) {
+        if (holder.thumbImg != null) {
             if(item.getThumbBitmap() != null) {
-                _holder.thumbImg.setImageBitmap(item.getThumbBitmap());
+                holder.thumbImg.setImageBitmap(item.getThumbBitmap());
             } else {
-                _holder.thumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
+                holder.thumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
                 thumbLoaderExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -129,20 +128,20 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter {
             }
         }
 
-        if(_holder.onoffSwitch != null) {
+        if(holder.onoffSwitch != null) {
             // обнулить слушателя событий выключателя:
             // вот это важно здесь здесь, иначе не оберешься трудноуловимых глюков
             // в списках с прокруткой
-            _holder.onoffSwitch.setOnCheckedChangeListener(null);
-            if(_holder.onoffSwitch != null && onItemSwitchListener == null) {
+            holder.onoffSwitch.setOnCheckedChangeListener(null);
+            if(holder.onoffSwitch != null && onItemSwitchListener == null) {
                 // вот так - не передали слушателя вкл/выкл - прячем кнопку
                 // немного не феншуй, зато пока не будем городить отдельный флаг
-                _holder.onoffSwitch.setVisibility(View.GONE);
+                holder.onoffSwitch.setVisibility(View.GONE);
             } else {
-                _holder.onoffSwitch.setVisibility(View.VISIBLE);
+                holder.onoffSwitch.setVisibility(View.VISIBLE);
 
-                _holder.onoffSwitch.setChecked(item.isEnabled());
-                _holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                holder.onoffSwitch.setChecked(onItemSwitchListener.isItemChecked(item));
+                holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if(onItemSwitchListener != null) {

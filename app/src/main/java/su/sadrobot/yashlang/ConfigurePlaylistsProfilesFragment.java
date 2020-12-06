@@ -20,9 +20,8 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,36 +30,37 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import su.sadrobot.yashlang.model.PlaylistInfo;
+import su.sadrobot.yashlang.model.Profile;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
-import su.sadrobot.yashlang.view.OnListItemSwitchListener;
-import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
+import su.sadrobot.yashlang.view.ProfileArrayAdapter;
 
 /**
  *
  */
 public class ConfigurePlaylistsProfilesFragment extends Fragment {
 
-    private Button enableAllBtn;
-    private Button disableAllBtn;
-    private Button disableYtBtn;
-
-    //
+    private Button newProfileBtn;
     private RecyclerView profileList;
 
+    private Handler handler = new Handler();
+
+    private LiveData<PagedList<Profile>> videoItemsLiveData;
 
     @Nullable
     @Override
@@ -73,62 +73,247 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        enableAllBtn = view.findViewById(R.id.enable_all_btn);
-        disableAllBtn = view.findViewById(R.id.disable_all_btn);
-        disableYtBtn = view.findViewById(R.id.disable_yt_btn);
-
+        newProfileBtn = view.findViewById(R.id.new_profile_btn);
 
         profileList = view.findViewById(R.id.profile_list);
 
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         profileList.setLayoutManager(linearLayoutManager);
+        profileList.addItemDecoration(new DividerItemDecoration(this.getContext(), DividerItemDecoration.VERTICAL));
 
-        enableAllBtn.setOnClickListener(new Button.OnClickListener() {
+        newProfileBtn.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
-                        videodb.playlistInfoDao().setEnabled4All(true);
-                        videodb.close();
+                        final Intent intent = new Intent(
+                                ConfigurePlaylistsProfilesFragment.this.getContext(),
+                                ConfigureProfileActivity.class);
+                        // новый профиль
+                        intent.putExtra(ConfigureProfileActivity.PARAM_PROFILE_ID, Profile.ID_NONE);
+                        startActivity(intent);
                     }
                 }).start();
             }
         });
-        disableAllBtn.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
-                        videodb.playlistInfoDao().setEnabled4All(false);
-                        videodb.close();
-                    }
-                }).start();
-            }
-        });
-        disableYtBtn.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
-                        videodb.playlistInfoDao().setEnabled4Yt(false);
-                        videodb.close();
-                    }
-                }).start();
-            }
-        });
-
-
-        setupProfileListAdapter();
     }
 
-    void setupProfileListAdapter() {
-        // TODO
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        setupProfileListArrayAdapter();
+    }
+
+
+    void setupProfileListArrayAdapter() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<Profile> items = new ArrayList<>();
+
+                // три ненастраиваемых профиля с жестким поведением не из базы данных
+                items.add(new Profile(Profile.ID_ENABLE_ALL, getString(R.string.enable_all).toUpperCase()));
+                items.add(new Profile(Profile.ID_DISABLE_ALL, getString(R.string.disable_all).toUpperCase()));
+                items.add(new Profile(Profile.ID_DISABLE_YT, getString(R.string.disble_all_yt).toUpperCase()));
+
+                // профили из базы данных
+                final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
+                items.addAll(videodb.profileDao().getAll());
+                videodb.close();
+
+                final List<Integer> listSeparators = new ArrayList<>();
+                listSeparators.add(3);
+
+                final ProfileArrayAdapter adapter = new ProfileArrayAdapter(items, listSeparators,
+                        new OnListItemClickListener<Profile>() {
+                            @Override
+                            public void onItemClick(final View view, final int position, final Profile profile) {
+                                final PopupMenu popup = new PopupMenu(ConfigurePlaylistsProfilesFragment.this.getContext(),
+                                        view);
+                                popup.getMenuInflater().inflate(R.menu.profile_actions, popup.getMenu());
+                                if (profile.getId() == Profile.ID_ENABLE_ALL ||
+                                        profile.getId() == Profile.ID_DISABLE_ALL ||
+                                        profile.getId() == Profile.ID_DISABLE_YT) {
+                                    popup.getMenu().removeItem(R.id.action_add_to_enabled);
+                                    popup.getMenu().removeItem(R.id.action_edit);
+                                    popup.getMenu().removeItem(R.id.action_delete);
+                                }
+                                popup.setOnMenuItemClickListener(
+                                        new PopupMenu.OnMenuItemClickListener() {
+                                            @Override
+                                            public boolean onMenuItemClick(final MenuItem item) {
+                                                switch (item.getItemId()) {
+                                                    case R.id.action_apply: {
+                                                        if (profile.getId() == Profile.ID_ENABLE_ALL) {
+                                                            new Thread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
+                                                                    videodb.playlistInfoDao().setEnabled4All(true);
+                                                                    videodb.close();
+                                                                }
+                                                            }).start();
+
+                                                            handler.post(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    Toast.makeText(
+                                                                            ConfigurePlaylistsProfilesFragment.this.getContext(),
+                                                                            getString(R.string.enabled_all),
+                                                                            Toast.LENGTH_LONG).show();
+                                                                }
+                                                            });
+                                                        } else if (profile.getId() == Profile.ID_DISABLE_ALL) {
+                                                            new Thread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
+                                                                    videodb.playlistInfoDao().setEnabled4All(false);
+                                                                    videodb.close();
+                                                                }
+                                                            }).start();
+
+                                                            handler.post(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    Toast.makeText(
+                                                                            ConfigurePlaylistsProfilesFragment.this.getContext(),
+                                                                            getString(R.string.disabled_all),
+                                                                            Toast.LENGTH_LONG).show();
+                                                                }
+                                                            });
+                                                        } else if (profile.getId() == Profile.ID_DISABLE_YT) {
+                                                            new Thread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
+                                                                    videodb.playlistInfoDao().setEnabled4Yt(false);
+                                                                    videodb.close();
+                                                                }
+                                                            }).start();
+
+                                                            handler.post(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    Toast.makeText(
+                                                                            ConfigurePlaylistsProfilesFragment.this.getContext(),
+                                                                            getString(R.string.disabled_all_yt),
+                                                                            Toast.LENGTH_LONG).show();
+                                                                }
+                                                            });
+                                                        } else {
+                                                            new Thread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    final VideoDatabase videodb = VideoDatabase.getDb(
+                                                                            ConfigurePlaylistsProfilesFragment.this.getContext());
+                                                                    final List<Long> plIds = videodb.profileDao().getProfilePlaylistsIds(profile.getId());
+                                                                    videodb.playlistInfoDao().enableOnlyPlaylists(plIds);
+                                                                    videodb.close();
+                                                                }
+                                                            }).start();
+
+                                                            handler.post(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    Toast.makeText(
+                                                                            ConfigurePlaylistsProfilesFragment.this.getContext(),
+                                                                            getString(R.string.applied_profile).replace("%s", profile.getName()),
+                                                                            Toast.LENGTH_LONG).show();
+                                                                }
+                                                            });
+                                                        }
+                                                        break;
+                                                    }
+                                                    case R.id.action_add_to_enabled: {
+                                                        new Thread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                final VideoDatabase videodb = VideoDatabase.getDb(
+                                                                        ConfigurePlaylistsProfilesFragment.this.getContext());
+                                                                final List<Long> plIds = videodb.profileDao().getProfilePlaylistsIds(profile.getId());
+                                                                videodb.playlistInfoDao().enableAlsoPlaylists(plIds);
+                                                                videodb.close();
+
+                                                                handler.post(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        Toast.makeText(
+                                                                                ConfigurePlaylistsProfilesFragment.this.getContext(),
+                                                                                getString(R.string.enabled_from_profile).replace("%s", profile.getName()),
+                                                                                Toast.LENGTH_LONG).show();
+                                                                    }
+                                                                });
+                                                            }
+                                                        }).start();
+                                                        break;
+                                                    }
+                                                    case R.id.action_edit: {
+                                                        final Intent intent = new Intent(
+                                                                ConfigurePlaylistsProfilesFragment.this.getContext(),
+                                                                ConfigureProfileActivity.class);
+                                                        intent.putExtra(ConfigureProfileActivity.PARAM_PROFILE_ID, profile.getId());
+                                                        startActivity(intent);
+                                                        break;
+                                                    }
+                                                    case R.id.action_delete: {
+                                                        new AlertDialog.Builder(ConfigurePlaylistsProfilesFragment.this.getContext())
+                                                                .setTitle(getString(R.string.delete_profile_title).replace("%s", profile.getName()))
+                                                                .setMessage(getString(R.string.delete_profile_message))
+                                                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                                                        new Thread(new Runnable() {
+                                                                            @Override
+                                                                            public void run() {
+                                                                                final VideoDatabase videodb = VideoDatabase.getDb(
+                                                                                        ConfigurePlaylistsProfilesFragment.this.getContext());
+                                                                                videodb.profileDao().delete(profile);
+                                                                                videodb.close();
+
+                                                                                handler.post(new Runnable() {
+                                                                                    @Override
+                                                                                    public void run() {
+                                                                                        Toast.makeText(
+                                                                                                ConfigurePlaylistsProfilesFragment.this.getContext(),
+                                                                                                getString(R.string.profile_is_deleted).replace("%s", profile.getName()),
+                                                                                                Toast.LENGTH_LONG).show();
+                                                                                    }
+                                                                                });
+                                                                                setupProfileListArrayAdapter();
+                                                                            }
+                                                                        }).start();
+
+                                                                    }
+                                                                })
+                                                                .setNegativeButton(android.R.string.no, null).show();
+                                                        break;
+                                                    }
+                                                }
+                                                return true;
+                                            }
+                                        }
+                                );
+                                popup.show();
+                            }
+
+                            @Override
+                            public boolean onItemLongClick(final View view, final int position, final Profile videoItem) {
+                                return false;
+                            }
+                        });
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        profileList.setAdapter(adapter);
+                    }
+                });
+            }
+        }).start();
     }
 }

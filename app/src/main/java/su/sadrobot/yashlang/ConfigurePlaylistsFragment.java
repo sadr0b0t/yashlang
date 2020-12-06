@@ -120,81 +120,89 @@ public class ConfigurePlaylistsFragment extends Fragment {
                 final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsFragment.this.getContext());
                 final List<PlaylistInfo> items = videodb.playlistInfoDao().getAll();
                 videodb.close();
+
+                final PlaylistInfoArrayAdapter adapter = new PlaylistInfoArrayAdapter(getActivity(), items,
+                        new OnListItemClickListener<PlaylistInfo>() {
+                            @Override
+                            public void onItemClick(final View view, final int position, final PlaylistInfo item) {
+                                final Intent intent = new Intent(ConfigurePlaylistsFragment.this.getContext(), ConfigurePlaylistActivity.class);
+                                intent.putExtra(ConfigurePlaylistActivity.PARAM_PLAYLIST_ID, item.getId());
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public boolean onItemLongClick(final View view, final int position, final PlaylistInfo plInfo) {
+
+                                // параметр Gravity.CENTER не работает (и появился еще только в API 19+),
+                                // работает только вариант Gravity.RIGHT
+                                //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
+                                final PopupMenu popup = new PopupMenu(ConfigurePlaylistsFragment.this.getContext(),
+                                        view.findViewById(R.id.playlist_name_txt));
+                                popup.getMenuInflater().inflate(R.menu.playlist_item_actions, popup.getMenu());
+                                popup.setOnMenuItemClickListener(
+                                        new PopupMenu.OnMenuItemClickListener() {
+                                            @Override
+                                            public boolean onMenuItemClick(final MenuItem item) {
+                                                switch (item.getItemId()) {
+                                                    case R.id.action_copy_playlist_name: {
+                                                        final ClipboardManager clipboard = (ClipboardManager)
+                                                                ConfigurePlaylistsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                                        final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
+                                                        clipboard.setPrimaryClip(clip);
+
+                                                        Toast.makeText(ConfigurePlaylistsFragment.this.getContext(),
+                                                                getString(R.string.copied) + ": " + plInfo.getName(),
+                                                                Toast.LENGTH_LONG).show();
+                                                        break;
+                                                    }
+                                                    case R.id.action_copy_playlist_url: {
+                                                        final ClipboardManager clipboard = (ClipboardManager)
+                                                                ConfigurePlaylistsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                                        final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
+                                                        clipboard.setPrimaryClip(clip);
+
+                                                        Toast.makeText(ConfigurePlaylistsFragment.this.getContext(),
+                                                                getString(R.string.copied) + ": " + plInfo.getUrl(),
+                                                                Toast.LENGTH_LONG).show();
+                                                        break;
+                                                    }
+                                                }
+                                                return true;
+                                            }
+                                        }
+                                );
+                                popup.show();
+                                return true;
+                            }
+                        },
+                        new OnListItemSwitchListener<PlaylistInfo>() {
+                            @Override
+                            public void onItemCheckedChanged(final CompoundButton buttonView, final int position, final PlaylistInfo item, final boolean isChecked) {
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsFragment.this.getContext());
+                                        videodb.playlistInfoDao().setEnabled(item.getId(), isChecked);
+                                        videodb.close();
+
+                                        // здесь тоже нужно обновить вручную, т.к. у нас в адаптере
+                                        // хранятся уже загруженные из базы объекты и просто так
+                                        // они сами себя не засинкают
+                                        item.setEnabled(isChecked);
+                                    }
+                                }).start();
+                            }
+
+                            @Override
+                            public boolean isItemChecked(final PlaylistInfo item) {
+                                return item.isEnabled();
+                            }
+                        });
+
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        playlistList.setAdapter(new PlaylistInfoArrayAdapter(getActivity(), items,
-                                new OnListItemClickListener<PlaylistInfo>() {
-                                    @Override
-                                    public void onItemClick(final View view, final int position, final PlaylistInfo item) {
-                                        final Intent intent = new Intent(ConfigurePlaylistsFragment.this.getContext(), ConfigurePlaylistActivity.class);
-                                        intent.putExtra(ConfigurePlaylistActivity.PARAM_PLAYLIST_ID, item.getId());
-                                        startActivity(intent);
-                                    }
-
-                                    @Override
-                                    public boolean onItemLongClick(final View view, final int position, final PlaylistInfo plInfo) {
-
-                                        // параметр Gravity.CENTER не работает (и появился еще только в API 19+),
-                                        // работает только вариант Gravity.RIGHT
-                                        //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
-                                        final PopupMenu popup = new PopupMenu(ConfigurePlaylistsFragment.this.getContext(),
-                                                view.findViewById(R.id.playlist_name_txt));
-                                        popup.getMenuInflater().inflate(R.menu.playlist_item_actions, popup.getMenu());
-                                        popup.setOnMenuItemClickListener(
-                                                new PopupMenu.OnMenuItemClickListener() {
-                                                    @Override
-                                                    public boolean onMenuItemClick(final MenuItem item) {
-                                                        switch (item.getItemId()) {
-                                                            case R.id.action_copy_playlist_name: {
-                                                                final ClipboardManager clipboard = (ClipboardManager)
-                                                                        ConfigurePlaylistsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                                                                final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
-                                                                clipboard.setPrimaryClip(clip);
-
-                                                                Toast.makeText(ConfigurePlaylistsFragment.this.getContext(),
-                                                                        getString(R.string.copied) + ": " + plInfo.getName(),
-                                                                        Toast.LENGTH_LONG).show();
-                                                                break;
-                                                            }
-                                                            case R.id.action_copy_playlist_url: {
-                                                                final ClipboardManager clipboard = (ClipboardManager)
-                                                                        ConfigurePlaylistsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                                                                final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
-                                                                clipboard.setPrimaryClip(clip);
-
-                                                                Toast.makeText(ConfigurePlaylistsFragment.this.getContext(),
-                                                                        getString(R.string.copied) + ": " + plInfo.getUrl(),
-                                                                        Toast.LENGTH_LONG).show();
-                                                                break;
-                                                            }
-                                                        }
-                                                        return true;
-                                                    }
-                                                }
-                                        );
-                                        popup.show();
-                                        return true;
-                                    }
-                                },
-                                new OnListItemSwitchListener<PlaylistInfo>() {
-                                    @Override
-                                    public void onItemCheckedChanged(final CompoundButton buttonView, final int position, final PlaylistInfo item, final boolean isChecked) {
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsFragment.this.getContext());
-                                                videodb.playlistInfoDao().setEnabled(item.getId(), isChecked);
-                                                videodb.close();
-
-                                                // здесь тоже нужно обновить вручную, т.к. у нас в адаптере
-                                                // хранятся уже загруженные из базы объекты и просто так
-                                                // они сами себя не засинкают
-                                                item.setEnabled(isChecked);
-                                            }
-                                        }).start();
-                                    }
-                                }));
+                        playlistList.setAdapter(adapter);
 
                         // если список пустой, показываем специальный экранчик с кнопками
                         // emptyListObserver здесь не сработает (т.к. у нас ArrayAdapter),
