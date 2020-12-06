@@ -113,7 +113,7 @@ The app would immediately start looking like the one on the above screens.
 
 You can switch off or delete unwanted playlists and channels in the settings.
 
-### In addition
+## In addition
 
 - Browse enabled playlists from main screen
 - Playlist profiles: combine playlists in groups and switch groups depending on watch context: Cartoons, Films, Edutainment, History, Analytics etc.
