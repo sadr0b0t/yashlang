@@ -175,9 +175,8 @@ public class BlacklistActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            final VideoDatabase videodb = VideoDatabase.getDb(BlacklistActivity.this);
-                                                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                            videodb.close();
+                                                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(BlacklistActivity.this).
+                                                                    playlistInfoDao().getById(videoItem.getPlaylistId());
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -204,9 +203,8 @@ public class BlacklistActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            final VideoDatabase videodb = VideoDatabase.getDb(BlacklistActivity.this);
-                                                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                            videodb.close();
+                                                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(BlacklistActivity.this).
+                                                                    playlistInfoDao().getById(videoItem.getPlaylistId());
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -243,9 +241,8 @@ public class BlacklistActivity extends AppCompatActivity {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                final VideoDatabase videodb = VideoDatabase.getDb(BlacklistActivity.this);
-                                videodb.videoItemDao().setBlacklisted(item.getId(), !isChecked);
-                                videodb.close();
+                                VideoDatabase.getDbInstance(BlacklistActivity.this).
+                                        videoItemDao().setBlacklisted(item.getId(), !isChecked);
 
                                 // здесь тоже нужно обновить вручную, т.к. у нас в адаптере
                                 // хранятся уже загруженные из базы объекты и просто так
@@ -274,9 +271,7 @@ public class BlacklistActivity extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final VideoDatabase videodb = VideoDatabase.getDb(BlacklistActivity.this);
-        final DataSource.Factory factory = videodb.videoItemDao().getBlacklistDs();
-        videodb.close();
+        final DataSource.Factory factory = VideoDatabase.getDbInstance(BlacklistActivity.this).videoItemDao().getBlacklistDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

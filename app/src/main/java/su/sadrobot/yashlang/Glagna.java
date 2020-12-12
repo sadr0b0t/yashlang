@@ -168,6 +168,8 @@ public class Glagna extends AppCompatActivity {
                 startActivity(new Intent(Glagna.this, AddRecommendedPlaylistsActivity.class));
             }
         });
+
+
     }
 
 
@@ -175,8 +177,16 @@ public class Glagna extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        //
         setupVideoListAdapter();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+
+        if (videoItemsLiveData != null) {
+            videoItemsLiveData.removeObservers(this);
+        }
     }
 
     private void setupVideoListAdapter() {
@@ -252,9 +262,8 @@ public class Glagna extends AppCompatActivity {
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    final VideoDatabase videodb = VideoDatabase.getDb(Glagna.this);
-                                                    final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                    videodb.close();
+                                                    final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
+                                                            Glagna.this).playlistInfoDao().getById(videoItem.getPlaylistId());
                                                     if(plInfo != null) {
                                                         handler.post(new Runnable() {
                                                             @Override
@@ -281,9 +290,8 @@ public class Glagna extends AppCompatActivity {
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    final VideoDatabase videodb = VideoDatabase.getDb(Glagna.this);
-                                                    final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                    videodb.close();
+                                                    final PlaylistInfo plInfo = VideoDatabase.getDbInstance(Glagna.this).
+                                                            playlistInfoDao().getById(videoItem.getPlaylistId());
                                                     if(plInfo != null) {
                                                         handler.post(new Runnable() {
                                                             @Override
@@ -317,9 +325,8 @@ public class Glagna extends AppCompatActivity {
                                                             new Thread(new Runnable() {
                                                                 @Override
                                                                 public void run() {
-                                                                    final VideoDatabase videodb = VideoDatabase.getDb(Glagna.this);
-                                                                    videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
-                                                                    videodb.close();
+                                                                    VideoDatabase.getDbInstance(Glagna.this).
+                                                                            videoItemDao().setBlacklisted(videoItem.getId(), true);
                                                                     // обновим кэш
                                                                     videoItem.setBlacklisted(true);
                                                                     handler.post(new Runnable() {
@@ -354,9 +361,7 @@ public class Glagna extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final VideoDatabase videodb = VideoDatabase.getDb(Glagna.this);
-        final DataSource.Factory factory = videodb.videoItemDao().recommendVideosDs();
-        videodb.close();
+        final DataSource.Factory factory = VideoDatabase.getDbInstance(this).videoItemDao().recommendVideosDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

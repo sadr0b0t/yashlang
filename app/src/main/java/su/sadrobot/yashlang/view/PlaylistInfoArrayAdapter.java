@@ -103,7 +103,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
         holder.nameTxt.setText(item.getName());
         holder.urlTxt.setText(item.getUrl().replaceFirst(
                 "https://", "").replaceFirst("www.",""));
-        //_holder.name.setEnabled(item.isEnabled());
+        // holder.name.setEnabled(item.isEnabled());
 
 
         if (holder.thumbImg != null) {

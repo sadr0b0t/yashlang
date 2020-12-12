@@ -55,11 +55,13 @@ dependencies {
     // android.support.design.widget.
     // implementation "com.android.support:design:${supportLibVersion}"
 
-    implementation 'androidx.paging:paging-runtime:2.1.0'
+    // Paging
+    // https://developer.android.com/topic/libraries/architecture/paging/
+    implementation 'androidx.paging:paging-runtime:2.1.2'
 
     // ROOM
     // https://developer.android.com/jetpack/androidx/releases/room
-    def room_version = "2.1.0"
+    def room_version = "2.2.5"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     // optional - RxJava support for Room

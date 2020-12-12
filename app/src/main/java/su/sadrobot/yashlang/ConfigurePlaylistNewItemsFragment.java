@@ -388,9 +388,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
             @Override
             public void run() {
                 // информация из базы данных - загрузится быстро и без интернета
-                final VideoDatabase videodb = VideoDatabase.getDb(getContext());
-                plInfo = videodb.playlistInfoDao().getById(plId);
-                videodb.close();
+                plInfo = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getById(plId);
 
                 handler.post(new Runnable() {
                     @Override

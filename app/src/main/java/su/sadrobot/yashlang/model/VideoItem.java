@@ -35,7 +35,7 @@ import java.util.Date;
 import su.sadrobot.yashlang.util.TimestampConverter;
 
 /**
- * Поля по большей части из StremInfoItem+InfoItem (то, что Newpipe загружает для
+ * Поля по большей части из StreamInfoItem+InfoItem (то, что Newpipe загружает для
  * элементов списка), расширенную информацию (например, описание description) пока
  * не сохраняем - во-первых, из-за экономии места, во-вторых, т.к. Newpipe их
  * сразу не тянет, в-третьих, пока незачем.
@@ -80,9 +80,6 @@ public class VideoItem {
 
     @ColumnInfo(name = "name")
     private String name;
-
-    //@ColumnInfo(name = "descr")
-    //private String descr;
 
     @ColumnInfo(name = "uploader")
     private String uploader;

@@ -184,9 +184,8 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
                 dbQueryExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        final VideoDatabase videodb = VideoDatabase.getDb(context);
-                        final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(item.getPlaylistId());
-                        videodb.close();
+                        final PlaylistInfo plInfo = VideoDatabase.getDbInstance(context).
+                                playlistInfoDao().getById(item.getPlaylistId());
                         item.setPlaylistInfo(plInfo);
                         if (plInfo != null) {
                             context.runOnUiThread(new Runnable() {

@@ -160,9 +160,8 @@ public class ConfigureProfileActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        final VideoDatabase videodb = VideoDatabase.getDb(ConfigureProfileActivity.this);
-                        final List<Long> allPlaylists = videodb.playlistInfoDao().getAllIds();
-                        videodb.close();
+                        final List<Long> allPlaylists = VideoDatabase.getDbInstance(
+                                ConfigureProfileActivity.this).playlistInfoDao().getAllIds();
 
                         checkedPlaylists.clear();
                         checkedPlaylists.addAll(allPlaylists);
@@ -198,9 +197,7 @@ public class ConfigureProfileActivity extends AppCompatActivity {
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            final VideoDatabase videodb = VideoDatabase.getDb(ConfigureProfileActivity.this);
-                                            videodb.profileDao().delete(profile);
-                                            videodb.close();
+                                            VideoDatabase.getDbInstance(ConfigureProfileActivity.this).profileDao().delete(profile);
 
                                             handler.post(new Runnable() {
                                                 @Override
@@ -259,14 +256,11 @@ public class ConfigureProfileActivity extends AppCompatActivity {
             @Override
             public void run() {
                 profile.setName(profileNameTxt.getText().toString());
-
-                final VideoDatabase videodb = VideoDatabase.getDb(ConfigureProfileActivity.this);
                 if(profileId == Profile.ID_NONE) {
-                    profileId = videodb.profileDao().insert(profile, checkedPlaylists);
+                    profileId = VideoDatabase.getDbInstance(ConfigureProfileActivity.this).profileDao().insert(profile, checkedPlaylists);
                 } else {
-                    videodb.profileDao().update(profile, checkedPlaylists);
+                    VideoDatabase.getDbInstance(ConfigureProfileActivity.this).profileDao().update(profile, checkedPlaylists);
                 }
-                videodb.close();
 
                 handler.post(new Runnable() {
                     @Override
@@ -291,11 +285,10 @@ public class ConfigureProfileActivity extends AppCompatActivity {
                     checkedPlaylists.clear();
                 } else {
                     // профиль есть в базе данных
-                    final VideoDatabase videodb = VideoDatabase.getDb(ConfigureProfileActivity.this);
+                    final VideoDatabase videodb = VideoDatabase.getDbInstance(ConfigureProfileActivity.this);
                     profile = videodb.profileDao().getById(profileId);
                     checkedPlaylists.clear();
                     checkedPlaylists.addAll(videodb.profileDao().getProfilePlaylistsIds(profileId));
-                    videodb.close();
                 }
 
                 handler.post(new Runnable() {
@@ -314,9 +307,7 @@ public class ConfigureProfileActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final VideoDatabase videodb = VideoDatabase.getDb(ConfigureProfileActivity.this);
-                final List<PlaylistInfo> items = videodb.playlistInfoDao().getAll();
-                videodb.close();
+                final List<PlaylistInfo> items = VideoDatabase.getDbInstance(ConfigureProfileActivity.this).playlistInfoDao().getAll();
 
                 final PlaylistInfoArrayAdapter adapter = new PlaylistInfoArrayAdapter(ConfigureProfileActivity.this, items,
                         new OnListItemClickListener<PlaylistInfo>() {

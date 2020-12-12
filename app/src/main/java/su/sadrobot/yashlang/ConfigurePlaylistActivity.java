@@ -138,9 +138,8 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistActivity.this);
-                    plInfo = videodb.playlistInfoDao().getById(playlistId);
-                    videodb.close();
+                    plInfo = VideoDatabase.getDbInstance(ConfigurePlaylistActivity.this).
+                            playlistInfoDao().getById(playlistId);
                 }
             }).start();
         }
@@ -164,9 +163,8 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             if (plInfo != null) {
-                                final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistActivity.this);
-                                videodb.playlistInfoDao().setEnabled(plInfo.getId(), isChecked);
-                                videodb.close();
+                                VideoDatabase.getDbInstance(ConfigurePlaylistActivity.this).
+                                        playlistInfoDao().setEnabled(plInfo.getId(), isChecked);
 
                                 // обновим кэш
                                 plInfo.setEnabled(isChecked);
@@ -196,9 +194,8 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistActivity.this);
-                            videodb.videoItemDao().setStarred(plInfo.getId(), !plInfo.isEnabled());
-                            videodb.close();
+                            VideoDatabase.getDbInstance(ConfigurePlaylistActivity.this).
+                                    videoItemDao().setStarred(plInfo.getId(), !plInfo.isEnabled());
                             // обновим кэш
                             plInfo.setEnabled(!plInfo.isEnabled());
                         }
@@ -239,10 +236,9 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistActivity.this);
+                                        final VideoDatabase videodb = VideoDatabase.getDbInstance(ConfigurePlaylistActivity.this);
                                         final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(playlistId);
                                         videodb.playlistInfoDao().delete(plInfo);
-                                        videodb.close();
 
                                         handler.post(new Runnable() {
                                             @Override

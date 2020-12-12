@@ -117,9 +117,7 @@ public class ConfigurePlaylistsFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsFragment.this.getContext());
-                final List<PlaylistInfo> items = videodb.playlistInfoDao().getAll();
-                videodb.close();
+                final List<PlaylistInfo> items = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getAll();
 
                 final PlaylistInfoArrayAdapter adapter = new PlaylistInfoArrayAdapter(getActivity(), items,
                         new OnListItemClickListener<PlaylistInfo>() {
@@ -177,13 +175,13 @@ public class ConfigurePlaylistsFragment extends Fragment {
                         },
                         new OnListItemSwitchListener<PlaylistInfo>() {
                             @Override
-                            public void onItemCheckedChanged(final CompoundButton buttonView, final int position, final PlaylistInfo item, final boolean isChecked) {
+                            public void onItemCheckedChanged(final CompoundButton buttonView, final int position,
+                                                             final PlaylistInfo item, final boolean isChecked) {
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsFragment.this.getContext());
-                                        videodb.playlistInfoDao().setEnabled(item.getId(), isChecked);
-                                        videodb.close();
+                                        VideoDatabase.getDbInstance(getContext()).
+                                                playlistInfoDao().setEnabled(item.getId(), isChecked);
 
                                         // здесь тоже нужно обновить вручную, т.к. у нас в адаптере
                                         // хранятся уже загруженные из базы объекты и просто так

@@ -264,9 +264,8 @@ public class PlaylistActivity extends AppCompatActivity {
             @Override
             public void run() {
                 // информация из базы данных - загрузится быстро и без интернета
-                final VideoDatabase videodb = VideoDatabase.getDb(PlaylistActivity.this);
-                plInfo = videodb.playlistInfoDao().getById(plId);
-                videodb.close();
+                final VideoDatabase videodb = VideoDatabase.getDbInstance(PlaylistActivity.this);
+                plInfo = VideoDatabase.getDbInstance(PlaylistActivity.this).playlistInfoDao().getById(plId);
                 final int plVideosCount = videodb.videoItemDao().countVideos(plId);
 
                 handler.post(new Runnable() {
@@ -369,9 +368,8 @@ public class PlaylistActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            final VideoDatabase videodb = VideoDatabase.getDb(PlaylistActivity.this);
-                                                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                            videodb.close();
+                                                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
+                                                                    PlaylistActivity.this).playlistInfoDao().getById(videoItem.getPlaylistId());
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -398,9 +396,8 @@ public class PlaylistActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            final VideoDatabase videodb = VideoDatabase.getDb(PlaylistActivity.this);
-                                                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                            videodb.close();
+                                                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
+                                                                    PlaylistActivity.this).playlistInfoDao().getById(videoItem.getPlaylistId());
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -434,9 +431,8 @@ public class PlaylistActivity extends AppCompatActivity {
                                                                     new Thread(new Runnable() {
                                                                         @Override
                                                                         public void run() {
-                                                                            final VideoDatabase videodb = VideoDatabase.getDb(PlaylistActivity.this);
-                                                                            videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
-                                                                            videodb.close();
+                                                                            VideoDatabase.getDbInstance(
+                                                                                    PlaylistActivity.this).videoItemDao().setBlacklisted(videoItem.getId(), true);
                                                                             // обновим кэш
                                                                             videoItem.setBlacklisted(true);
                                                                             handler.post(new Runnable() {
@@ -470,9 +466,8 @@ public class PlaylistActivity extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final VideoDatabase videodb = VideoDatabase.getDb(PlaylistActivity.this);
-        final DataSource.Factory factory = videodb.videoItemDao().getByPlaylistDs(plId, filterStr);
-        videodb.close();
+        final DataSource.Factory factory = VideoDatabase.getDbInstance(
+                PlaylistActivity.this).videoItemDao().getByPlaylistDs(plId, filterStr);
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

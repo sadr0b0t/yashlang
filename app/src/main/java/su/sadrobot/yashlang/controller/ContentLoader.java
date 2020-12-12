@@ -254,7 +254,7 @@ public class ContentLoader {
 
         final AtomicLong plId = new AtomicLong(PlaylistInfo.ID_NONE);
 
-        final VideoDatabase videodb = VideoDatabase.getDb(context);
+        final VideoDatabase videodb = VideoDatabase.getDbInstance(context);
         try {
             videodb.runInTransaction(new Runnable() {
                 @Override
@@ -441,7 +441,6 @@ public class ContentLoader {
             // нам все-таки нужно поймать здесь RuntimeException,
             // статус taskController уже выставлен внутри
         }
-        videodb.close();
         taskController.setRunning(false);
         return plId.get();
     }
@@ -477,7 +476,7 @@ public class ContentLoader {
         final int[] videoItemCount = {0};
 
 
-        final VideoDatabase videodb = VideoDatabase.getDb(context);
+        final VideoDatabase videodb = VideoDatabase.getDbInstance(context);
         try {
             videodb.runInTransaction(new Runnable() {
                 @Override
@@ -625,7 +624,6 @@ public class ContentLoader {
             // статус taskController уже выставлен внутри
         }
 
-        videodb.close();
         taskController.setRunning(false);
         return videoItemCount[0];
     }

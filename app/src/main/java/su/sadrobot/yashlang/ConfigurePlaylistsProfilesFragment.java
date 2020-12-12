@@ -120,9 +120,7 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
                 items.add(new Profile(Profile.ID_DISABLE_YT, getString(R.string.disble_all_yt).toUpperCase()));
 
                 // профили из базы данных
-                final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
-                items.addAll(videodb.profileDao().getAll());
-                videodb.close();
+                items.addAll(VideoDatabase.getDbInstance(getContext()).profileDao().getAll());
 
                 final List<Integer> listSeparators = new ArrayList<>();
                 listSeparators.add(3);
@@ -151,9 +149,8 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
                                                             new Thread(new Runnable() {
                                                                 @Override
                                                                 public void run() {
-                                                                    final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
-                                                                    videodb.playlistInfoDao().setEnabled4All(true);
-                                                                    videodb.close();
+                                                                    VideoDatabase.getDbInstance(getContext()).
+                                                                            playlistInfoDao().setEnabled4All(true);
                                                                 }
                                                             }).start();
 
@@ -170,9 +167,8 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
                                                             new Thread(new Runnable() {
                                                                 @Override
                                                                 public void run() {
-                                                                    final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
-                                                                    videodb.playlistInfoDao().setEnabled4All(false);
-                                                                    videodb.close();
+                                                                    VideoDatabase.getDbInstance(getContext()).
+                                                                            playlistInfoDao().setEnabled4All(false);
                                                                 }
                                                             }).start();
 
@@ -189,9 +185,8 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
                                                             new Thread(new Runnable() {
                                                                 @Override
                                                                 public void run() {
-                                                                    final VideoDatabase videodb = VideoDatabase.getDb(ConfigurePlaylistsProfilesFragment.this.getContext());
-                                                                    videodb.playlistInfoDao().setEnabled4Yt(false);
-                                                                    videodb.close();
+                                                                    VideoDatabase.getDbInstance(getContext()).
+                                                                            playlistInfoDao().setEnabled4Yt(false);
                                                                 }
                                                             }).start();
 
@@ -208,11 +203,9 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
                                                             new Thread(new Runnable() {
                                                                 @Override
                                                                 public void run() {
-                                                                    final VideoDatabase videodb = VideoDatabase.getDb(
-                                                                            ConfigurePlaylistsProfilesFragment.this.getContext());
+                                                                    final VideoDatabase videodb = VideoDatabase.getDbInstance(getContext());
                                                                     final List<Long> plIds = videodb.profileDao().getProfilePlaylistsIds(profile.getId());
                                                                     videodb.playlistInfoDao().enableOnlyPlaylists(plIds);
-                                                                    videodb.close();
                                                                 }
                                                             }).start();
 
@@ -232,11 +225,9 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
                                                         new Thread(new Runnable() {
                                                             @Override
                                                             public void run() {
-                                                                final VideoDatabase videodb = VideoDatabase.getDb(
-                                                                        ConfigurePlaylistsProfilesFragment.this.getContext());
+                                                                final VideoDatabase videodb = VideoDatabase.getDbInstance(getContext());
                                                                 final List<Long> plIds = videodb.profileDao().getProfilePlaylistsIds(profile.getId());
                                                                 videodb.playlistInfoDao().enableAlsoPlaylists(plIds);
-                                                                videodb.close();
 
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -270,10 +261,7 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
                                                                         new Thread(new Runnable() {
                                                                             @Override
                                                                             public void run() {
-                                                                                final VideoDatabase videodb = VideoDatabase.getDb(
-                                                                                        ConfigurePlaylistsProfilesFragment.this.getContext());
-                                                                                videodb.profileDao().delete(profile);
-                                                                                videodb.close();
+                                                                                VideoDatabase.getDbInstance(getContext()).profileDao().delete(profile);
 
                                                                                 handler.post(new Runnable() {
                                                                                     @Override

@@ -392,9 +392,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
             @Override
             public void run() {
                 // информация из базы данных - загрузится быстро и без интернета
-                final VideoDatabase videodb = VideoDatabase.getDb(getContext());
-                final List<Long> plIds = videodb.playlistInfoDao().getAllIds();
-                videodb.close();
+                final List<Long> plIds = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getAllIds();
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -570,9 +568,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final VideoDatabase videodb = VideoDatabase.getDb(getContext());
-                final List<PlaylistInfo> allPlaylists = videodb.playlistInfoDao().getAll();
-                videodb.close();
+                final List<PlaylistInfo> allPlaylists = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getAll();
 
                 boolean allOk = true;
 

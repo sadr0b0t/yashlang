@@ -188,9 +188,8 @@ public class HistoryActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            final VideoDatabase videodb = VideoDatabase.getDb(HistoryActivity.this);
-                                                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                            videodb.close();
+                                                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(HistoryActivity.this).
+                                                                    playlistInfoDao().getById(videoItem.getPlaylistId());
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -217,9 +216,8 @@ public class HistoryActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            final VideoDatabase videodb = VideoDatabase.getDb(HistoryActivity.this);
-                                                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                            videodb.close();
+                                                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(HistoryActivity.this).
+                                                                    playlistInfoDao().getById(videoItem.getPlaylistId());
                                                             if(plInfo != null) {
                                                                 handler.post(new Runnable() {
                                                                     @Override
@@ -253,9 +251,8 @@ public class HistoryActivity extends AppCompatActivity {
                                                                     new Thread(new Runnable() {
                                                                         @Override
                                                                         public void run() {
-                                                                            final VideoDatabase videodb = VideoDatabase.getDb(HistoryActivity.this);
-                                                                            videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
-                                                                            videodb.close();
+                                                                            VideoDatabase.getDbInstance(HistoryActivity.this).
+                                                                                    videoItemDao().setBlacklisted(videoItem.getId(), true);
                                                                             // обновим кэш
                                                                             videoItem.setBlacklisted(true);
                                                                             handler.post(new Runnable() {
@@ -289,9 +286,8 @@ public class HistoryActivity extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final VideoDatabase videodb = VideoDatabase.getDb(HistoryActivity.this);
-        final DataSource.Factory factory = videodb.videoItemDao().getHistoryOrderByLastViewedDs();
-        videodb.close();
+        final DataSource.Factory factory = VideoDatabase.getDbInstance(HistoryActivity.this).
+                videoItemDao().getHistoryOrderByLastViewedDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

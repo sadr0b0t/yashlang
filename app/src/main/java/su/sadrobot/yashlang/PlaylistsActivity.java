@@ -136,9 +136,8 @@ public class PlaylistsActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final VideoDatabase videodb = VideoDatabase.getDb(PlaylistsActivity.this);
-                final List<PlaylistInfo> items = videodb.playlistInfoDao().getEnabled();
-                videodb.close();
+                final List<PlaylistInfo> items = VideoDatabase.getDbInstance(PlaylistsActivity.this).
+                        playlistInfoDao().getEnabled();
                 handler.post(new Runnable() {
                     @Override
                     public void run() {

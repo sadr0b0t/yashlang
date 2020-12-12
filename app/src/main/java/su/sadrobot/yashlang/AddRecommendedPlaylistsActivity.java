@@ -775,9 +775,8 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     });
 
                     // проверим, что список еще не добавлен в базу
-                    final VideoDatabase videodb = VideoDatabase.getDb(AddRecommendedPlaylistsActivity.this);
-                    final PlaylistInfo existingPlInfo = videodb.playlistInfoDao().findByUrl(plInfo.getUrl());
-                    videodb.close();
+                    final PlaylistInfo existingPlInfo = VideoDatabase.getDbInstance(AddRecommendedPlaylistsActivity.this).
+                            playlistInfoDao().findByUrl(plInfo.getUrl());
                     if (existingPlInfo != null) {
                         handler.post(new Runnable() {
                             @Override

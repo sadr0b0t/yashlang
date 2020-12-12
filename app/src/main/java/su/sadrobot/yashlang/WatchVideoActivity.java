@@ -675,9 +675,8 @@ public class WatchVideoActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                    final VideoItem videoItem = videodb.videoItemDao().getById(videoId);
-                    videodb.close();
+                    final VideoItem videoItem = VideoDatabase.getDbInstance(
+                            WatchVideoActivity.this).videoItemDao().getById(videoId);
                     posMap.put(videoItem.getId(), currentVideoPosition);
 
                     handler.post(new Runnable() {
@@ -941,9 +940,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 if (_currentVideo != null) {
-                                    final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                                    videodb.videoItemDao().setStarred(_currentVideo.getId(), isChecked);
-                                    videodb.close();
+                                    VideoDatabase.getDbInstance(
+                                            WatchVideoActivity.this).videoItemDao().setStarred(_currentVideo.getId(), isChecked);
 
                                     // обновим кэш
                                     _currentVideo.setStarred(isChecked);
@@ -1041,9 +1039,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(_currentVideo.getPlaylistId());
-                            videodb.close();
+                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
+                                    WatchVideoActivity.this).playlistInfoDao().getById(_currentVideo.getPlaylistId());
                             if (plInfo != null) {
                                 handler.post(new Runnable() {
                                     @Override
@@ -1071,9 +1068,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(_currentVideo.getPlaylistId());
-                            videodb.close();
+                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
+                                    WatchVideoActivity.this).playlistInfoDao().getById(_currentVideo.getPlaylistId());
                             if (plInfo != null) {
                                 handler.post(new Runnable() {
                                     @Override
@@ -1111,9 +1107,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                                            videodb.videoItemDao().setBlacklisted(_currentVideo.getId(), true);
-                                            videodb.close();
+                                            VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                                                    videoItemDao().setBlacklisted(_currentVideo.getId(), true);
 
                                             // обновим кэш
                                             _currentVideo.setBlacklisted(true);
@@ -1316,9 +1311,8 @@ public class WatchVideoActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                    videodb.videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
-                    videodb.close();
+                    VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                            videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
                 }
             }).start();
         }
@@ -1338,9 +1332,8 @@ public class WatchVideoActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                    videodb.videoItemDao().setPausedAt(_currentVideo.getId(), 0);
-                    videodb.close();
+                    VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                            videoItemDao().setPausedAt(_currentVideo.getId(), 0);
                 }
             }).start();
         }
@@ -1386,9 +1379,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                 public void run() {
                     // посчитать просмотр (для ролика, загруженного из базы)
                     if (videoItem.getId() != VideoItem.ID_NONE) {
-                        final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                        videodb.videoItemDao().countView(videoItem.getId());
-                        videodb.close();
+                        VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                                videoItemDao().countView(videoItem.getId());
                     }
 
                     loadVideoItem(videoItem);
@@ -1570,9 +1562,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                                 // (может быть ситуация, когда мы переключились на видео с ранее
                                 // сохраненной позицией, а оно не загрузилось, тогда бы у нас
                                 // сбросилась старая сохраненная позиция, а это не хорошо)
-                                final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                                videodb.videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
-                                videodb.close();
+                                VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                                        videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
                             }
 
                             loadVideoItem(currentVideo);
@@ -1643,9 +1634,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                            videodb.close();
+                                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
+                                                    WatchVideoActivity.this).playlistInfoDao().getById(videoItem.getPlaylistId());
                                             if (plInfo != null) {
                                                 handler.post(new Runnable() {
                                                     @Override
@@ -1672,9 +1662,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                                     new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                                            final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                            videodb.close();
+                                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
+                                                    WatchVideoActivity.this).playlistInfoDao().getById(videoItem.getPlaylistId());
                                             if (plInfo != null) {
                                                 handler.post(new Runnable() {
                                                     @Override
@@ -1709,9 +1698,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                                                     new Thread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                                                            videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
-                                                            videodb.close();
+                                                            VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                                                                    videoItemDao().setBlacklisted(videoItem.getId(), true);
 
                                                             // обновим кэш
                                                             videoItem.setBlacklisted(true);
@@ -1759,9 +1747,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                final List<VideoItem> videoItems = videodb.videoItemDao().recommendVideos(ConfigOptions.RECOMMENDED_RANDOM_LIM);
-                videodb.close();
+                final List<VideoItem> videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                        videoItemDao().recommendVideos(ConfigOptions.RECOMMENDED_RANDOM_LIM);
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
@@ -1794,9 +1781,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                final List<VideoItem> videoItems = videodb.videoItemDao().searchVideosShuffle(searchStr, ConfigOptions.RECOMMENDED_RANDOM_LIM);
-                videodb.close();
+                final List<VideoItem> videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                        videoItemDao().searchVideosShuffle(searchStr, ConfigOptions.RECOMMENDED_RANDOM_LIM);
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
@@ -1829,9 +1815,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                final List<VideoItem> videoItems = videodb.videoItemDao().getStarredShuffle(ConfigOptions.RECOMMENDED_RANDOM_LIM);
-                videodb.close();
+                final List<VideoItem> videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                        videoItemDao().getStarredShuffle(ConfigOptions.RECOMMENDED_RANDOM_LIM);
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
@@ -1864,9 +1849,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                final List<VideoItem> videoItems = videodb.videoItemDao().getByPlaylistShuffle(playlistId, ConfigOptions.RECOMMENDED_RANDOM_LIM);
-                videodb.close();
+                final List<VideoItem> videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                        videoItemDao().getByPlaylistShuffle(playlistId, ConfigOptions.RECOMMENDED_RANDOM_LIM);
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
@@ -1927,9 +1911,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-        final DataSource.Factory factory = videodb.videoItemDao().searchVideosDs(searchStr);
-        videodb.close();
+        final DataSource.Factory factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                videoItemDao().searchVideosDs(searchStr);
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
@@ -1974,9 +1957,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-        final DataSource.Factory factory = videodb.videoItemDao().getStarredDs();
-        videodb.close();
+        final DataSource.Factory factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                videoItemDao().getStarredDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
@@ -2023,13 +2005,9 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         final DataSource.Factory factory;
         if(showAll) {
-            final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-            factory = videodb.videoItemDao().getByPlaylistAllDs(playlistId);
-            videodb.close();
+            factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).videoItemDao().getByPlaylistAllDs(playlistId);
         } else {
-            final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-            factory = videodb.videoItemDao().getByPlaylistDs(playlistId);
-            videodb.close();
+            factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).videoItemDao().getByPlaylistDs(playlistId);
         }
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
@@ -2175,9 +2153,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 // Initial page size to fetch can also be configured here too
                 final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-                final VideoDatabase videodb = VideoDatabase.getDb(WatchVideoActivity.this);
-                final List<Long> plIds = videodb.playlistInfoDao().getAllIds();
-                videodb.close();
+                final List<Long> plIds = VideoDatabase.getDbInstance(WatchVideoActivity.this).playlistInfoDao().getAllIds();
 
                 final DataSource.Factory factory =
                         new VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory(

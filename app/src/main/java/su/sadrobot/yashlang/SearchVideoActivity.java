@@ -69,7 +69,6 @@ public class SearchVideoActivity extends AppCompatActivity {
     private Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,6 +118,15 @@ public class SearchVideoActivity extends AppCompatActivity {
 
         // при пустой поисковой строке будет показывать все видео по алфавиту
         setupVideoListAdapter(null);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+
+        if (videoItemsLiveData != null) {
+            videoItemsLiveData.removeObservers(this);
+        }
     }
 
     @Override
@@ -244,9 +252,8 @@ public class SearchVideoActivity extends AppCompatActivity {
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    final VideoDatabase videodb = VideoDatabase.getDb(SearchVideoActivity.this);
-                                                    final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                    videodb.close();
+                                                    final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
+                                                            SearchVideoActivity.this).playlistInfoDao().getById(videoItem.getPlaylistId());
                                                     if(plInfo != null) {
                                                         handler.post(new Runnable() {
                                                             @Override
@@ -273,9 +280,8 @@ public class SearchVideoActivity extends AppCompatActivity {
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    final VideoDatabase videodb = VideoDatabase.getDb(SearchVideoActivity.this);
-                                                    final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                    videodb.close();
+                                                    final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
+                                                            SearchVideoActivity.this).playlistInfoDao().getById(videoItem.getPlaylistId());
                                                     if(plInfo != null) {
                                                         handler.post(new Runnable() {
                                                             @Override
@@ -309,9 +315,8 @@ public class SearchVideoActivity extends AppCompatActivity {
                                                             new Thread(new Runnable() {
                                                                 @Override
                                                                 public void run() {
-                                                                    final VideoDatabase videodb = VideoDatabase.getDb(SearchVideoActivity.this);
-                                                                    videodb.videoItemDao().setBlacklisted(videoItem.getId(), true);
-                                                                    videodb.close();
+                                                                    VideoDatabase.getDbInstance(SearchVideoActivity.this).
+                                                                            videoItemDao().setBlacklisted(videoItem.getId(), true);
                                                                     // обновим кэш
                                                                     videoItem.setBlacklisted(true);
                                                                     handler.post(new Runnable() {
@@ -342,18 +347,12 @@ public class SearchVideoActivity extends AppCompatActivity {
 
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
-
         final DataSource.Factory factory;
         if (sstr != null && !sstr.isEmpty()) {
-            final VideoDatabase videodb = VideoDatabase.getDb(SearchVideoActivity.this);
-            factory = videodb.videoItemDao().searchVideosDs(sstr);
-            videodb.close();
+            factory = VideoDatabase.getDbInstance(this).videoItemDao().searchVideosDs(sstr);
         } else {
-            final VideoDatabase videodb = VideoDatabase.getDb(SearchVideoActivity.this);
-            factory = videodb.videoItemDao().getAllEnabledDs();
-            videodb.close();
+            factory = VideoDatabase.getDbInstance(this).videoItemDao().getAllEnabledDs();
         }
-
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
         videoItemsLiveData.observe(this, new Observer<PagedList<VideoItem>>() {

@@ -75,9 +75,7 @@ public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDat
     public void loadInitial(@NonNull LoadInitialParams<String> params, @NonNull LoadInitialCallback<VideoItem> callback) {
 
         try {
-            VideoDatabase videodb = VideoDatabase.getDb(context);
-            final String playlistUrl = videodb.playlistInfoDao().getById(playlistId).getUrl();
-            videodb.close();
+            final String playlistUrl = VideoDatabase.getDbInstance(context).playlistInfoDao().getById(playlistId).getUrl();
 
             // Выкачать список видео с 1-й страницы канала
             NewPipe.init(DownloaderTestImpl.getInstance());
@@ -91,19 +89,14 @@ public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDat
             // загрузили страницу, проверим, есть ли на ней новые элементы
             final List<StreamInfoItem> pageNewItems = new ArrayList<StreamInfoItem>();
 
-            videodb = VideoDatabase.getDb(context);
             for (final StreamInfoItem item : loadedPage.getItems()) {
-                if (videodb.videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
+                if (VideoDatabase.getDbInstance(context).videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
                     pageNewItems.add(item);
                 } else {
                     foundOld = true;
                     break;
                 }
             }
-            // закроем базу здесь и откроем заново после того, как будет загружена
-            // следующая страница, чтобы не оставить ее открытой в случае какого-нибудь
-            // экспепнеша в процессе загрузки страницы
-            videodb.close();
 
             // можно обновлять список
             if(pageNewItems.size() > 0) {
@@ -147,19 +140,14 @@ public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDat
                 // загрузили страницу, проверим, есть ли на ней новые элементы
                 final List<StreamInfoItem> pageNewItems = new ArrayList<StreamInfoItem>();
 
-                final VideoDatabase videodb = VideoDatabase.getDb(context);
                 for (final StreamInfoItem item : loadedPage.getItems()) {
-                    if (videodb.videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
+                    if (VideoDatabase.getDbInstance(context).videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
                         pageNewItems.add(item);
                     } else {
                         foundOld = true;
                         break;
                     }
                 }
-                // закроем базу здесь и откроем заново после того, как будет загружена
-                // следующая страница, чтобы не оставить ее открытой в случае какого-нибудь
-                // экспепнеша в процессе загрузки страницы
-                videodb.close();
 
                 if(pageNewItems.size() > 0) {
                     final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(pageNewItems, playlistId);

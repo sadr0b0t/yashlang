@@ -31,18 +31,28 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(entities = {VideoItem.class, PlaylistInfo.class, Profile.class, ProfilePlaylists.class}, version = 3)
 public abstract class VideoDatabase extends RoomDatabase {
+    private static volatile VideoDatabase INSTANCE;
+
+
     public abstract VideoItemDao videoItemDao();
     public abstract PlaylistInfoDao playlistInfoDao();
     public abstract ProfileDao profileDao();
 
-    public static VideoDatabase getDb(Context context) {
-        return Room.databaseBuilder(context,
-                VideoDatabase.class, "video-db")
-                .addMigrations(MIGRATION_1_2)
-                .addMigrations(MIGRATION_2_3)
-                //.fallbackToDestructiveMigration()
-                //.allowMainThreadQueries()
-                .build();
+    public static VideoDatabase getDbInstance(final Context context) {
+        if (INSTANCE == null) {
+            synchronized (VideoDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                            VideoDatabase.class, "video-db")
+                            .addMigrations(MIGRATION_1_2)
+                            .addMigrations(MIGRATION_2_3)
+                            //.fallbackToDestructiveMigration()
+                            //.allowMainThreadQueries()
+                            .build();
+                }
+            }
+        }
+        return INSTANCE;
     }
 
     // Миграция при изменении структуры базы:
