@@ -94,4 +94,20 @@
     <string name="enabled_all">Включены ВСЕ плейлисты</string>
     <string name="disabled_all">Выключеные ВСЕ плейлисты</string>
     <string name="disabled_all_yt">Выключеные все плейлисты YouTube</string>
+    <string name="export_to_file">Экспортировать в файл</string>
+    <string name="export_playlist_list">Экспортрировать список плейлистов</string>
+    <string name="export_playlist_items">Экспортировать плейлисты с элементами</string>
+    <string name="export_starred">Экспортировать любимое</string>
+    <string name="export_only_enabled_playlists">только включенные плейлисты</string>
+    <string name="yashlang_export">YaShlang: экспорт</string>
+    <string name="export_data">Экспортировать данные</string>
+    <string name="export_playlist_items_names">имена роликов</string>
+    <string name="export_playlist_items_urls">адреса url роликов</string>
+    <string name="export_ytdl_script">скрипт youtube-dl</string>
+    <string name="saved_to_file">Сохранено в файл</string>
+    <string name="failed_to_save">Не получилось сохранить</string>
+    <string name="save_dir">Сохранять в каталог</string>
+    <string name="export_blacklist">Экспортировать черный список</string>
+    <string name="export_skip_blocked">без заблокированных</string>
+    <string name="export_markdown">Markdown</string>
 </resources>

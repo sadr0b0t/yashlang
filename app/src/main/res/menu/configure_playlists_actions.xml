@@ -7,4 +7,8 @@
     <item
         android:id="@+id/action_add_recommended"
         android:title="@string/add_recommended_playlists"/>
+
+    <item
+        android:id="@+id/action_export"
+        android:title="@string/export_data"/>
 </menu>

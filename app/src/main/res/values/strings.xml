@@ -94,4 +94,20 @@
     <string name="enabled_all">Enabled ALL playlists</string>
     <string name="disabled_all">Disabled ADD playlists</string>
     <string name="disabled_all_yt">Disabled all YoutTube playlists</string>
+    <string name="export_to_file">Export to file</string>
+    <string name="export_playlist_list">Export playlist list</string>
+    <string name="export_playlist_items">Export playlist items</string>
+    <string name="export_starred">Export starred</string>
+    <string name="export_only_enabled_playlists">only enabled playlists</string>
+    <string name="yashlang_export">YaShlang: export</string>
+    <string name="export_data">Export data</string>
+    <string name="export_playlist_items_names">playlist items names</string>
+    <string name="export_playlist_items_urls">playlist items urls</string>
+    <string name="export_ytdl_script">youtube-dl script</string>
+    <string name="saved_to_file">Saved to file</string>
+    <string name="failed_to_save">Failed to save</string>
+    <string name="save_dir">Save dir</string>
+    <string name="export_blacklist">Export blacklist</string>
+    <string name="export_skip_blocked">skip blocked</string>
+    <string name="export_markdown">Markdown</string>
 </resources>

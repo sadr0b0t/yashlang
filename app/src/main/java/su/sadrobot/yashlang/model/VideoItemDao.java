@@ -59,8 +59,14 @@ public interface VideoItemDao {
     @Query("SELECT * FROM video_item WHERE playlist_id = :playlistId ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistAllDs(long playlistId);
 
+    @Query("SELECT * FROM video_item WHERE playlist_id = :playlistId ORDER BY fake_timestamp DESC")
+    List<VideoItem> getByPlaylistAll(long playlistId);
+
     @Query("SELECT * FROM video_item WHERE playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistAllDs(long playlistId, String filterStr);
+
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY fake_timestamp DESC")
+    List<VideoItem> getByPlaylist(long playlistId);
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistDs(long playlistId);
@@ -81,10 +87,16 @@ public interface VideoItemDao {
     DataSource.Factory<Integer, VideoItem> getHistoryOrderByLastViewedDs();
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND starred ORDER BY starred_date DESC")
+    List<VideoItem> getStarred();
+
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND starred ORDER BY starred_date DESC")
     DataSource.Factory<Integer, VideoItem> getStarredDs();
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND starred ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> getStarredShuffle(int lim);
+
+    @Query("SELECT * FROM video_item WHERE blacklisted ORDER BY name")
+    List<VideoItem> getBlacklist();
 
     @Query("SELECT * FROM video_item WHERE blacklisted ORDER BY name")
     DataSource.Factory<Integer, VideoItem> getBlacklistDs();
