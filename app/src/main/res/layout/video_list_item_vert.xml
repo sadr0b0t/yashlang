@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/video_thumb_img"
         android:layout_width="196dp"
-        android:layout_height="110dp"
+        android:layout_height="110sp"
         android:layout_margin="5dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_yashlang_thumb" />

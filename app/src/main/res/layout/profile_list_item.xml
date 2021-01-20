@@ -14,7 +14,7 @@
     <TextView
         android:id="@+id/profile_name_txt"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="60sp"
         android:gravity="center"
         android:ellipsize="end"
         android:maxLines="2"
