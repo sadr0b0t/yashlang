@@ -249,10 +249,6 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     PlaylistInfo.PlaylistType.YT_USER),
 
             // много разных мультиков (в т.ч. с зачищенного союзмультифильма)
-            new PlaylistInfo("Дети",
-                    "https://www.youtube.com/channel/UCmLgLTTZgMA6NJPlJFeF92g",
-                    "https://yt3.ggpht.com/a/AATXAJzKiY6Zo17GSTg1biFDETEAGXw_sx_uX4C58O3_=s240-c-k-c0x00ffffff-no-rj",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
             new PlaylistInfo("Мультфильмы",
                     "https://www.youtube.com/channel/UCfuWYqd9Xqiwx_NwaSL3EbA",
                     "https://yt3.ggpht.com/a/AATXAJwVv0o3IXga7FpJgZfLyKzArMlOsSxdbHGGQgIJVA=s240-c-k-c0x00ffffff-no-rj",
@@ -453,16 +449,6 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 //                    "https://www.youtube.com/c/Stic",
 //                    "https://yt3.ggpht.com/a/AATXAJyNr6MZe5TwUhJeN9wKnqhBiBAwjnBKY9E0iug8=s240-c-k-c0x00ffffff-no-rj",
 //                    PlaylistInfo.PlaylistType.YT_USER),
-
-            // Разные мультики, хроника и еще клипы Виары в начале
-            new PlaylistInfo("Советские мультфильмы",
-                    "https://www.youtube.com/channel/UCWJs8oN4lpgPnKM_L-w5gCA",
-                    "https://yt3.ggpht.com/a/AATXAJxYnV0WpdYAHl2nnIC64dH8ZY8quSlnSYTE7RuK=s240-c-k-c0x00ffffff-no-rj",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
-            new PlaylistInfo("Интересный кинозал",
-                    "https://www.youtube.com/c/v1977",
-                    "https://yt3.ggpht.com/a/AATXAJyF9HvvJZXnJ8gmHYu-51Yo7CanuVvjkdQ1hit6uA=s240-c-k-c0x00ffffff-no-rj",
-                    PlaylistInfo.PlaylistType.YT_USER),
 
             // Телевидение - образование, научпоп, дети
             new PlaylistInfo("Телеканал Карусель",
