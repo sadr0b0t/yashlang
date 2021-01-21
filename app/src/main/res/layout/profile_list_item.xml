@@ -11,14 +11,28 @@
         android:layout_height="10dp"
         android:background="?android:attr/listDivider" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
     <TextView
         android:id="@+id/profile_name_txt"
-        android:layout_width="match_parent"
+        android:layout_width="0dip"
         android:layout_height="60sp"
+        android:layout_weight="1"
         android:gravity="center"
         android:ellipsize="end"
         android:maxLines="2"
         android:textColor="#000000"
         android:textSize="22sp" />
+
+    <ImageButton
+        android:id="@+id/profile_menu_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        style="?android:attr/actionOverflowButtonStyle"/>
+
+    </LinearLayout>
 
 </LinearLayout>

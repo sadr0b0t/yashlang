@@ -23,6 +23,7 @@ package su.sadrobot.yashlang.view;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -46,11 +47,13 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
 
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         final TextView nameTxt;
+        final ImageButton menuBtn;
         final View separatorView;
 
         public ProfileViewHolder(final View itemView) {
             super(itemView);
             nameTxt = itemView.findViewById(R.id.profile_name_txt);
+            menuBtn = itemView.findViewById(R.id.profile_menu_btn);
             separatorView = itemView.findViewById(R.id.separator);
         }
     }
@@ -97,6 +100,15 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
                     return onItemClickListener.onItemLongClick(view, position, item);
                 } else {
                     return false;
+                }
+            }
+        });
+
+        holder.menuBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(holder.menuBtn, position, item);
                 }
             }
         });
