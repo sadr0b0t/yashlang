@@ -105,6 +105,9 @@ public class VideoItem {
     @ColumnInfo(name = "view_count_ext")
     private long viewCountExt;
 
+    /**
+     * Продолжительность ролика (в секундах)
+     */
     @ColumnInfo(name = "duration")
     private long duration;
 
@@ -143,6 +146,9 @@ public class VideoItem {
     @TypeConverters({TimestampConverter.class})
     private Date lastViewedDate;
 
+    /**
+     * Прогресс просмотра видео (в миллисекундах)
+     */
     @ColumnInfo(name = "paused_at")
     private long pausedAt;
 

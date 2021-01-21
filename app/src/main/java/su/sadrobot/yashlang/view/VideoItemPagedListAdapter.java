@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -92,6 +93,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
         final TextView playlistTxt;
         final TextView durationTxt;
         final View starredView;
+        final ProgressBar watchProgress;
         final ImageView thumbImg;
         final Switch onoffSwitch;
 
@@ -101,6 +103,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             playlistTxt = itemView.findViewById(R.id.video_pl_txt);
             durationTxt = itemView.findViewById(R.id.video_duration_txt);
             starredView = itemView.findViewById(R.id.video_starred_view);
+            watchProgress = itemView.findViewById(R.id.video_progress);
             thumbImg = itemView.findViewById(R.id.video_thumb_img);
             onoffSwitch = itemView.findViewById(R.id.video_onoff_switch);
         }
@@ -214,6 +217,17 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
 
         if(holder.starredView != null) {
             holder.starredView.setVisibility(item.isStarred() ? View.VISIBLE : View.GONE);
+        }
+
+        if(holder.watchProgress != null) {
+            if(item.getDuration() > 0 && item.getPausedAt() > 5000) {
+                holder.watchProgress.setMax(100);
+                holder.watchProgress.setProgress( (int) ( ((float)item.getPausedAt() / ((float)item.getDuration()*1000.)) * 100. ) );
+
+                holder.watchProgress.setVisibility(View.VISIBLE);
+            } else {
+                holder.watchProgress.setVisibility(View.GONE);
+            }
         }
 
         if (holder.thumbImg != null) {

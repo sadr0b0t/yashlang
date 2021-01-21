@@ -26,6 +26,16 @@
             android:src="@android:drawable/btn_star_big_on"
             android:visibility="gone" />
 
+        <ProgressBar
+            android:id="@+id/video_progress"
+            android:layout_width="196dp"
+            android:layout_height="7dp"
+            android:layout_gravity="left|bottom"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
+            android:visibility="gone" />
+
     </FrameLayout>
 
     <LinearLayout
