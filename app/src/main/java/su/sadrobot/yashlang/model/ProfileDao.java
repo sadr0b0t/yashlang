@@ -47,29 +47,17 @@ public abstract class ProfileDao {
     @Query("SELECT * FROM profile WHERE _id = :id LIMIT 1")
     public abstract Profile getById(final long id);
 
-    // https://developer.android.com/topic/libraries/architecture/paging/
-    // Здесь и ниже логично использовать Factory<Long, Profile>
-    // вместо Factory<Integer, Profile>, но мы не можем так делать,
-    // т.к с Long генератор генерит некомпилируемый код.
-    // Впрочем, с Factory<Integer, Profile> при типе ID Long
-    // код тоже компилируется и работает, поэтому пока фиг с ним и так.
-    @Query("SELECT * FROM profile")
-    public abstract DataSource.Factory<Integer, Profile> getAllDs();
-
     @Query("SELECT * FROM profile")
     public abstract List<Profile> getAll();
 
-    @Query("SELECT playlist_id FROM profile_playlists WHERE profile_id = :id")
-    public abstract List<Long> getProfilePlaylistsIds(final long id);
+    @Query("SELECT playlist_id FROM profile_playlists WHERE profile_id = :profileId")
+    public abstract List<Long> getProfilePlaylistsIds(final long profileId);
+
+    @Query("SELECT * FROM playlist_info WHERE playlist_info._id IN (SELECT playlist_id FROM profile_playlists WHERE profile_id = :profileId)")
+    public abstract List<PlaylistInfo> getProfilePlaylists(final long profileId);
 
     @Query("INSERT INTO profile_playlists (profile_id, playlist_id) VALUES (:profileId, :playlistId)")
     public abstract void addPlaylistToProfile(final long profileId, final long playlistId);
-
-    @Query("DELETE FROM profile_playlists WHERE profile_id = :profileId AND playlist_id = :playlistId")
-    public abstract void removePlaylistFromProfile(final long profileId, final long playlistId);
-
-    @Query("UPDATE profile SET name = :name WHERE _id = :profileId")
-    public abstract void setName(final long profileId, final String name);
 
     @Query("DELETE FROM profile_playlists WHERE profile_id = :profileId")
     public abstract void clearProfile(final long profileId);

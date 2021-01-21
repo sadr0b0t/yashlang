@@ -49,6 +49,17 @@
             android:text="@string/export_playlist_list" />
 
         <Switch
+            android:id="@+id/export_profiles_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:checked="false"
+            android:text="@string/export_profiles" />
+
+        <Switch
             android:id="@+id/export_playlist_items_switch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

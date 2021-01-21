@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 
 import su.sadrobot.yashlang.model.PlaylistInfo;
+import su.sadrobot.yashlang.model.Profile;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
 
@@ -53,6 +54,7 @@ public class ExportDataActivity extends AppCompatActivity {
     private RadioButton exportYtdlScriptRadio;
 
     private Switch exportPlaylistListSwitch;
+    private Switch exportProfilesSwitch;
 
     private Switch exportPlaylistItemsSwitch;
     private Switch exportOnlyEnabledPlaylistsSwitch;
@@ -85,6 +87,7 @@ public class ExportDataActivity extends AppCompatActivity {
         exportYtdlScriptRadio = findViewById(R.id.export_ytdl_script_radio);
 
         exportPlaylistListSwitch = findViewById(R.id.export_playlist_list_switch);
+        exportProfilesSwitch = findViewById(R.id.export_profiles_switch);
         exportPlaylistItemsSwitch = findViewById(R.id.export_playlist_items_switch);
         exportOnlyEnabledPlaylistsSwitch = findViewById(R.id.export_only_enabled_playlists);
         exportSkipBlockedSwitch = findViewById(R.id.export_skip_blocked);
@@ -123,6 +126,13 @@ public class ExportDataActivity extends AppCompatActivity {
         });
 
         exportPlaylistListSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateControlsEnabledStates();
+            }
+        });
+
+        exportProfilesSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 updateControlsEnabledStates();
@@ -236,6 +246,7 @@ public class ExportDataActivity extends AppCompatActivity {
             exportYtdlScriptRadio.setEnabled(false);
 
             exportPlaylistListSwitch.setEnabled(false);
+            exportProfilesSwitch.setEnabled(false);
             exportPlaylistItemsSwitch.setEnabled(false);
             exportOnlyEnabledPlaylistsSwitch.setEnabled(false);
             exportSkipBlockedSwitch.setEnabled(false);
@@ -245,6 +256,7 @@ public class ExportDataActivity extends AppCompatActivity {
             exportBlacklistSwitch.setEnabled(false);
         } else {
             if (!exportPlaylistListSwitch.isChecked() &&
+                    !exportProfilesSwitch.isChecked() &&
                     !exportStarredSwitch.isChecked() &&
                     !exportBlacklistSwitch.isChecked() &&
                     (!exportPlaylistItemsSwitch.isChecked() ||
@@ -260,6 +272,7 @@ public class ExportDataActivity extends AppCompatActivity {
             exportYtdlScriptRadio.setEnabled(true);
 
             exportPlaylistListSwitch.setEnabled(!exportYtdlScriptRadio.isChecked());
+            exportProfilesSwitch.setEnabled(!exportYtdlScriptRadio.isChecked());
             exportPlaylistItemsSwitch.setEnabled(true);
             exportOnlyEnabledPlaylistsSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked());
             exportSkipBlockedSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked());
@@ -291,6 +304,27 @@ public class ExportDataActivity extends AppCompatActivity {
             stringBuilder.append("  \n");
         }
 
+        if (exportProfilesSwitch.isChecked() && !exportYtdlScriptRadio.isChecked()) {
+            stringBuilder.append("# Profiles").append("\n");
+
+            final List<Profile> profiles = VideoDatabase.getDbInstance(this).
+                    profileDao().getAll();
+            for(final Profile profile : profiles) {
+                stringBuilder.append("## ").append(profile.getName()).append("\n");
+                
+                final List<PlaylistInfo> playlists = VideoDatabase.getDbInstance(this).
+                        profileDao().getProfilePlaylists(profile.getId());
+
+                for (final PlaylistInfo plInfo : playlists) {
+                    stringBuilder.append("[").append(plInfo.getName()).append("]");
+                    stringBuilder.append("(").append(plInfo.getUrl()).append(")");
+                    stringBuilder.append("  \n");
+                }
+            }
+
+            stringBuilder.append("  \n");
+        }
+
         if (exportPlaylistItemsSwitch.isChecked()) {
             stringBuilder.append("# Playlists with items").append("\n");
 
@@ -308,7 +342,7 @@ public class ExportDataActivity extends AppCompatActivity {
                         VideoDatabase.getDbInstance(this).
                                 videoItemDao().getByPlaylist(plInfo.getId()) :
                         VideoDatabase.getDbInstance(this).
-                        videoItemDao().getByPlaylistAll(plInfo.getId());
+                                videoItemDao().getByPlaylistAll(plInfo.getId());
                 for (final VideoItem videoItem : videoItems) {
 
                     if (exportYtdlScriptRadio.isChecked()) {
