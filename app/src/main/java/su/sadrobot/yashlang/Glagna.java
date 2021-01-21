@@ -361,7 +361,8 @@ public class Glagna extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final DataSource.Factory factory = VideoDatabase.getDbInstance(this).videoItemDao().recommendVideosDs();
+        final DataSource.Factory factory = VideoDatabase.getDbInstance(this).
+                videoItemDao().recommendVideosDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

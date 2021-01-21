@@ -35,8 +35,8 @@
     <string name="add_to_blacklist">Блокировать</string>
     <string name="copy_playlist_url">Копировать адрес плейлиста</string>
     <string name="copy_video_url">Копировать адрес видео</string>
-    <string name="tab_item_playlist">ПЛЕЙЛИСТ</string>
-    <string name="tab_item_new">НОВОЕ</string>
+    <string name="tab_item_playlist">Плейлист</string>
+    <string name="tab_item_new">Новое</string>
     <string name="err_playlist_not_defined">ошибка: плейлист не определен</string>
     <string name="delete_playlist_title">Правда удалить плейлист?</string>
     <string name="delete_playlist_message">Ролики из этого списка также исчезнут из списка любимых и истории</string>
@@ -47,7 +47,7 @@
     <string name="copied">скопировано</string>
     <string name="blacklist_video_title">Блокировать видео?</string>
     <string name="blacklist_video_message">Видео будет добавлено в черный список. Перейдите в Настройки > Черный список, чтобы отменить.</string>
-    <string name="yashlang_add_recommended_playlists">YaShang: добавить рекомендованные каналы и плейлисты</string>
+    <string name="yashlang_add_recommended_playlists">YaShlang: добавить рекомендованные каналы и плейлисты</string>
     <string name="add_recommended_playlists">Добавить рекомендованные</string>
     <string name="skip">Пропустить</string>
     <string name="playlist_add_status_already_added">Плейлист уже добавлен, пропускаем</string>
@@ -64,7 +64,7 @@
     <string name="nothing_to_play">Нечего играть</string>
     <string name="pt_or_yt">(PeerTube или YT)</string>
     <string name="failed_to_load_new_items">Не получилось загрузить новые элементы</string>
-    <string name="tab_item_playlists">ПЛЕЙЛИСТЫ</string>
+    <string name="tab_item_playlists">Плейлисты</string>
     <string name="add_all">Добавить всё</string>
     <string name="added_n_items">Добавили %s элементов</string>
     <string name="no_items_in_playlist">В этом списке нет элементов</string>
@@ -74,7 +74,7 @@
     <string name="play_results_shuffle">Играть всё (перемешать)</string>
     <string name="play_in_playlist">Играть в плейлисте</string>
     <string name="play_in_playlist_shuffle">Играть в плейлисте (перемешать)</string>
-    <string name="tab_item_profiles">ПРОФИЛИ</string>
+    <string name="tab_item_profiles">Профили</string>
     <string name="enable_all">Включить ВСЕ</string>
     <string name="disable_all">Выключить ВСЕ</string>
     <string name="disble_all_yt">Выключить все YouTube</string>
@@ -95,7 +95,7 @@
     <string name="disabled_all">Выключеные ВСЕ плейлисты</string>
     <string name="disabled_all_yt">Выключеные все плейлисты YouTube</string>
     <string name="export_to_file">Экспортировать в файл</string>
-    <string name="export_playlist_list">Экспортрировать список плейлистов</string>
+    <string name="export_playlist_list">Экспортировать список плейлистов</string>
     <string name="export_playlist_items">Экспортировать плейлисты с элементами</string>
     <string name="export_starred">Экспортировать любимое</string>
     <string name="export_only_enabled_playlists">только включенные плейлисты</string>

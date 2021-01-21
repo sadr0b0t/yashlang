@@ -35,7 +35,7 @@
     <string name="add_to_blacklist">Block</string>
     <string name="copy_video_url">Copy video url</string>
     <string name="copy_playlist_url">Copy playlist url</string>
-    <string name="tab_item_playlist">PAYLIST</string>
+    <string name="tab_item_playlist">Playlist</string>
     <string name="tab_item_new">NEW</string>
     <string name="err_playlist_not_defined">error: playlist not defined</string>
     <string name="delete_playlist_title">Really delete playlist?</string>
@@ -64,7 +64,7 @@
     <string name="nothing_to_play">Nothing to play</string>
     <string name="pt_or_yt">(PeerTube or YT)</string>
     <string name="failed_to_load_new_items">Failed to load new items</string>
-    <string name="tab_item_playlists">PLAYLISTS</string>
+    <string name="tab_item_playlists">Playlists</string>
     <string name="add_all">Add all</string>
     <string name="added_n_items">Added %s items</string>
     <string name="no_items_in_playlist">No items in this playlist</string>
@@ -74,7 +74,7 @@
     <string name="play_results_shuffle">Play results (shuffle)</string>
     <string name="play_in_playlist">Play in playlist</string>
     <string name="play_in_playlist_shuffle">Play in playlist (shuffle)</string>
-    <string name="tab_item_profiles">PROFILES</string>
+    <string name="tab_item_profiles">Profiles</string>
     <string name="enable_all">Enable ALL</string>
     <string name="disable_all">Disable ALL</string>
     <string name="disble_all_yt">Disable all YouTube</string>
