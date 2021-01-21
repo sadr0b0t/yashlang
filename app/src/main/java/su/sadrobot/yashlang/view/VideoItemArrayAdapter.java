@@ -75,6 +75,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
     public static class VideoItemViewHolder extends RecyclerView.ViewHolder {
         final TextView nameTxt;
         final TextView durationTxt;
+        final View starredView;
         final ImageView thumbImg;
         final Switch onoffSwitch;
 
@@ -82,19 +83,10 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
             super(itemView);
             nameTxt = itemView.findViewById(R.id.video_name_txt);
             durationTxt = itemView.findViewById(R.id.video_duration_txt);
+            starredView = itemView.findViewById(R.id.video_starred_view);
             thumbImg = itemView.findViewById(R.id.video_thumb_img);
             onoffSwitch = itemView.findViewById(R.id.video_onoff_switch);
         }
-    }
-
-    public VideoItemArrayAdapter(final Activity context,
-                                 final List<VideoItem> videoItems,
-                                 final OnListItemClickListener<VideoItem> onItemClickListener,
-                                 final OnListItemSwitchListener<VideoItem> onItemSwitchListener) {
-        this.context = context;
-        this.videoItems = videoItems;
-        this.onItemClickListener = onItemClickListener;
-        this.onItemSwitchListener = onItemSwitchListener;
     }
 
     public VideoItemArrayAdapter(final Activity context,
@@ -156,6 +148,10 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
                             String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60))
                     : "[dur undef]";
             holder.durationTxt.setText(durStr);
+        }
+
+        if(holder.starredView != null) {
+            holder.starredView.setVisibility(item.isStarred() ? View.VISIBLE : View.GONE);
         }
 
         if (holder.thumbImg != null) {

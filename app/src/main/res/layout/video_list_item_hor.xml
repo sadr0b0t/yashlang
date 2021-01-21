@@ -28,6 +28,15 @@
             android:textColor="#FFFFFF"
             android:textSize="12sp" />
 
+        <ImageView
+            android:id="@+id/video_starred_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top"
+            android:layout_margin="2dp"
+            android:src="@android:drawable/btn_star_big_on"
+            android:visibility="gone" />
+
     </FrameLayout>
 
     <TextView

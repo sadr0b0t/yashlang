@@ -91,6 +91,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
         final TextView nameTxt;
         final TextView playlistTxt;
         final TextView durationTxt;
+        final View starredView;
         final ImageView thumbImg;
         final Switch onoffSwitch;
 
@@ -99,6 +100,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             nameTxt = itemView.findViewById(R.id.video_name_txt);
             playlistTxt = itemView.findViewById(R.id.video_pl_txt);
             durationTxt = itemView.findViewById(R.id.video_duration_txt);
+            starredView = itemView.findViewById(R.id.video_starred_view);
             thumbImg = itemView.findViewById(R.id.video_thumb_img);
             onoffSwitch = itemView.findViewById(R.id.video_onoff_switch);
         }
@@ -208,6 +210,10 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
                         String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60))
                     : "[dur undef]";
             holder.durationTxt.setText(durStr);
+        }
+
+        if(holder.starredView != null) {
+            holder.starredView.setVisibility(item.isStarred() ? View.VISIBLE : View.GONE);
         }
 
         if (holder.thumbImg != null) {
