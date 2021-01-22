@@ -235,6 +235,11 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://yt3.ggpht.com/a/AATXAJyCOIaEjOEwL53zL-_y2pcBxx-WDyB3Y6_AYeBz=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
 
+            new PlaylistInfo("Planeta Karapuz",
+                    "https://www.youtube.com/channel/UCGndH2dKiqPJ_iaqZMKWl9w",
+                    "https://yt3.ggpht.com/a/AATXAJzV0jrSWbXRF_hzJjShWiGCEtJp3Y0vS3NF2JtU=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+
             // Союзмультфильм удОлил со всех каналов все мультики почти
             // Канал ClassicCartoonsMedia закрыл доступ к советским мультфильмам Союзмультфильм
             // (более 1 тыс роликов ранее доступных на канале переведено в закрытый доступ)
@@ -257,9 +262,25 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/channel/UCGndH2dKiqPJ_iaqZMKWl9w",
                     "https://yt3.ggpht.com/a/AATXAJzV0jrSWbXRF_hzJjShWiGCEtJp3Y0vS3NF2JtU=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_CHANNEL),
+            new PlaylistInfo("Мультфильмы детям",
+                    "https://www.youtube.com/channel/UClV4TlbvwbL643zGnk9Cs8g",
+                    "https://yt3.ggpht.com/ytc/AAUvwnhycWHxU9syDkbqmgzcVmnV1TaTvt0GpFTjVJSGDw=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+            new PlaylistInfo("СОЮЗМУЛЬТФИЛЬМ +",
+                    "https://www.youtube.com/channel/UCT5azO0wt-hk1yYYUwaKXnw",
+                    "https://yt3.ggpht.com/ytc/AAUvwnhLY9u-TohyrddYUA5OHXvUClO7Hk4yjqJoqqpHjg=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+            new PlaylistInfo("Мульт _TV",
+                    "https://www.youtube.com/channel/UCd6CwAi4-9_k3Ooa8A66fzQ",
+                    "https://yt3.ggpht.com/ytc/AAUvwngYDL3syIx001-nlAsEXR4KeHkLEhnhO9PefZv3zQ=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
             new PlaylistInfo("Лучшие фантастические мультфильмы СССР",
                     "https://www.youtube.com/playlist?list=PLItHd89hEUs6Yo6AhKf8Q5UcT5h-0vlh-",
                     "https://i.ytimg.com/vi/7NdzkLgFLUw/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLC76_hDUW8qE_YbRcGYKSrM5uhn0A",
+                    PlaylistInfo.PlaylistType.YT_PLAYLIST),
+            new PlaylistInfo("Про Федора Стрельца мультфильм Мельница",
+                    "https://www.youtube.com/playlist?list=PLtKdhsLNywCB5IeMoN6yxHmvuxe-CyCzS",
+                    "https://i.ytimg.com/vi/KF0B5PeFRgU/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAUiCvWUerLx1u0LKqGtOVIRhtpPw",
                     PlaylistInfo.PlaylistType.YT_PLAYLIST),
 
 
@@ -350,6 +371,12 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/user/belarusfilmRV",
                     "https://yt3.ggpht.com/a/AGF-l78CYlekYxhAcGRkYtO8AQSVFlrhI7uLNwKBiw=s240-c-k-c0xffffffff-no-rj-mo",
                     PlaylistInfo.PlaylistType.YT_USER),
+
+            new PlaylistInfo("Кинокомпания \"СТВ\"",
+                    "https://www.youtube.com/c/CTBFilm",
+                    "https://yt3.ggpht.com/ytc/AAUvwngrNXgnofBYgto_IpSPharvCoF7VOSKkFiAGYieRw=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+
             new PlaylistInfo("RVISION: Советские фильмы",
                     "https://www.youtube.com/user/RVisionGorky",
                     "https://yt3.ggpht.com/a/AGF-l79HNmYEEnJXLGyCnf1kQPSM0TAQs_EKH762=s240-c-k-c0xffffffff-no-rj-mo",
@@ -366,11 +393,27 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/c/retrofilmi",
                     "https://yt3.ggpht.com/a/AATXAJyGNStjBuwdiVhQmP-7RDF8e2gGVlv2Zuw0HOY1gA=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
+            new PlaylistInfo(" Фильмография ",
+                    "https://www.youtube.com/user/Brajuc",
+                    "https://yt3.ggpht.com/ytc/AAUvwnh6vs5ZpEi6FlF5LB3vZV35dcC8P8xl5wztFOWi=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
 
             new PlaylistInfo("Советская фантастика.",
                     "https://www.youtube.com/playlist?list=PLT9f4X3_Znfo5fryLC0x6EWiuc3ebH5wJ",
                     "https://i.ytimg.com/vi/YFcKh6phfAo/hqdefault.jpg?sqp=-oaymwEXCPYBEIoBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBaSMUurhuhfEotCVYFsVp0chHw0Q",
                     PlaylistInfo.PlaylistType.YT_PLAYLIST),
+            new PlaylistInfo("Советская Фантастика.",
+                    "https://www.youtube.com/playlist?list=PL3NRUiFDBZrrHB55GhCYHS__Tt2ZBTF-k",
+                    "https://i.ytimg.com/vi/5aK0KP27iqg/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCy5mMnbvgnaqvsq1d5pke3kX7hDw",
+                    PlaylistInfo.PlaylistType.YT_PLAYLIST),
+            new PlaylistInfo("Фильмы Павла Клушанцева (1910–1999)",
+                    "https://www.youtube.com/playlist?list=PLaVercZoOg7fRFF95ilWCkiYq6eU3_BW9",
+                    "https://i.ytimg.com/vi/aIn1yqgn41Q/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDKK63VB1Zlp9bgamOl15YL-6V4WQ",
+                    PlaylistInfo.PlaylistType.YT_PLAYLIST),
+            new PlaylistInfo("Советская научная фантастика /USSR Sci-Fi/",
+                    "https://www.youtube.com/channel/UCZ1fLFyGpUafOg5TNwzQ0gQ",
+                    "https://yt3.ggpht.com/ytc/AAUvwnhx1F5Vx9q-qsWadwHzx-URPZbWNcoJ5O1zeQxrgw=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
             new PlaylistInfo("te1ex",
                     "https://www.youtube.com/channel/UC2eD6PqWYex9bW4Z89IgdXA",
                     "https://yt3.ggpht.com/a/AGF-l79qobzUSWp3_HKVVQLS7vEPVUSSo5xlzpBIsg=s240-c-k-c0xffffffff-no-rj-mo",
@@ -415,10 +458,22 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/user/kalamburVideo",
                     "https://yt3.ggpht.com/a/AATXAJyXXNq_bud5ECjqkAVXtzqD932wp-4eMzp6_6li=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
+            new PlaylistInfo("Осторожно Модерн",
+                            "https://www.youtube.com/channel/UCMI9obHNAipNDU7iSoPnu7Q",
+                            "https://yt3.ggpht.com/ytc/AAUvwniKUEwSkH8W_ATyHif6k6bxfp7R8OFiFGCfX6XI=s240-c-k-c0x00ffffff-no-rj",
+                            PlaylistInfo.PlaylistType.YT_CHANNEL),
+
+            // пока не буду добавлять, ~260 страниц, чуть меньше 9 тыс элементов
+//            new PlaylistInfo("Официальный канал КВН",
+//                            "https://www.youtube.com/user/kvn",
+//                            "https://yt3.ggpht.com/ytc/AAUvwnj8MU_hMZkidUlWWSC_rd9EirUI_X2mCJQScG-T8w=s240-c-k-c0x00ffffff-no-rj",
+//                            PlaylistInfo.PlaylistType.YT_USER),
+
             new PlaylistInfo("MoscowTheaters",
                     "https://www.youtube.com/user/MoscowTheaters",
                     "https://yt3.ggpht.com/ytc/AAUvwniYAKZQ0HhfbUpRx63-oMmyE512FubmF93sxfYt=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
+
 
             // История, телевидение
             new PlaylistInfo("Студия Самарафильм",
@@ -449,6 +504,12 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 //                    "https://www.youtube.com/c/Stic",
 //                    "https://yt3.ggpht.com/a/AATXAJyNr6MZe5TwUhJeN9wKnqhBiBAwjnBKY9E0iug8=s240-c-k-c0x00ffffff-no-rj",
 //                    PlaylistInfo.PlaylistType.YT_USER),
+
+            // Короткометражки
+            new PlaylistInfo("birchpunk",
+                    "https://www.youtube.com/channel/UCiQo406SKypmtAQXIHdZ6mA",
+                    "https://yt3.ggpht.com/ytc/AAUvwnibbXcde_WVeRDyUjBH8oX-TbcKHRket5OX6oOP=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
 
             // Телевидение - образование, научпоп, дети
             new PlaylistInfo("Телеканал Карусель",
