@@ -143,7 +143,7 @@ public class ConfigurePlaylistFragment extends Fragment {
         filterPlaylistInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
-                setupVideoListAdapter(playlistId, v.getText().toString());
+                setupVideoListAdapter(playlistId, v.getText().toString().trim());
 
                 return false;
             }
@@ -161,7 +161,7 @@ public class ConfigurePlaylistFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setupVideoListAdapter(playlistId, s.toString());
+                setupVideoListAdapter(playlistId, s.toString().trim());
             }
         });
 
@@ -231,10 +231,10 @@ public class ConfigurePlaylistFragment extends Fragment {
         }).start();
 
 
-        setupVideoListAdapter(plId, filterPlaylistInput.getText().toString());
+        setupVideoListAdapter(plId, filterPlaylistInput.getText().toString().trim());
     }
 
-    private void setupVideoListAdapter(final long plId, final String filterStr) {
+    private void setupVideoListAdapter(final long plId, final String sstr) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -377,8 +377,8 @@ public class ConfigurePlaylistFragment extends Fragment {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
         final DataSource.Factory factory;
-        if (filterStr != null && !filterStr.isEmpty()) {
-            factory = VideoDatabase.getDbInstance(getContext()).videoItemDao().getByPlaylistAllDs(plId, filterStr);
+        if (sstr != null && !sstr.isEmpty()) {
+            factory = VideoDatabase.getDbInstance(getContext()).videoItemDao().getByPlaylistAllDs(plId, sstr);
         } else {
             factory = VideoDatabase.getDbInstance(getContext()).videoItemDao().getByPlaylistAllDs(plId);
         }

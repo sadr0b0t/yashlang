@@ -143,7 +143,7 @@ public class PlaylistActivity extends AppCompatActivity {
         filterPlaylistInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
-                setupVideoListAdapter(playlistId, filterPlaylistInput.getText().toString());
+                setupVideoListAdapter(playlistId, v.getText().toString().trim());
 
                 return false;
             }
@@ -161,7 +161,7 @@ public class PlaylistActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setupVideoListAdapter(playlistId, s.toString());
+                setupVideoListAdapter(playlistId, s.toString().trim());
             }
         });
 
@@ -295,10 +295,10 @@ public class PlaylistActivity extends AppCompatActivity {
         }).start();
 
 
-        setupVideoListAdapter(plId, filterPlaylistInput.getText().toString());
+        setupVideoListAdapter(plId, filterPlaylistInput.getText().toString().trim());
     }
 
-    private void setupVideoListAdapter(final long plId, final String filterStr) {
+    private void setupVideoListAdapter(final long plId, final String sstr) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -467,7 +467,7 @@ public class PlaylistActivity extends AppCompatActivity {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
         final DataSource.Factory factory = VideoDatabase.getDbInstance(
-                PlaylistActivity.this).videoItemDao().getByPlaylistDs(plId, filterStr);
+                PlaylistActivity.this).videoItemDao().getByPlaylistDs(plId, sstr);
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

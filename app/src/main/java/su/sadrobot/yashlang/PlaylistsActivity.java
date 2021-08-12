@@ -134,7 +134,7 @@ public class PlaylistsActivity extends AppCompatActivity {
         filterPlaylistListInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
-                setupPlaylistInfoPagedListAdapter(v.getText().toString());
+                setupPlaylistInfoPagedListAdapter(v.getText().toString().trim());
 
                 return false;
             }
@@ -152,7 +152,7 @@ public class PlaylistsActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setupPlaylistInfoPagedListAdapter(s.toString());
+                setupPlaylistInfoPagedListAdapter(s.toString().trim());
             }
         });
     }
@@ -161,7 +161,7 @@ public class PlaylistsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString());
+        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim());
     }
 
     @Override

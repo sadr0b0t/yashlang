@@ -94,7 +94,7 @@ public class SearchVideoActivity extends AppCompatActivity {
         searchVideoInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
-                setupVideoListAdapter(searchVideoInput.getText().toString());
+                setupVideoListAdapter(v.getText().toString().trim());
 
                 return false;
             }
@@ -112,7 +112,7 @@ public class SearchVideoActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setupVideoListAdapter(s.toString());
+                setupVideoListAdapter(s.toString().trim());
             }
         });
 

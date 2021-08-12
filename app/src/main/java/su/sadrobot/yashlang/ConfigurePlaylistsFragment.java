@@ -138,7 +138,7 @@ public class ConfigurePlaylistsFragment extends Fragment {
         filterPlaylistListInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
-                setupPlaylistInfoPagedListAdapter(v.getText().toString());
+                setupPlaylistInfoPagedListAdapter(v.getText().toString().trim());
 
                 return false;
             }
@@ -156,7 +156,7 @@ public class ConfigurePlaylistsFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setupPlaylistInfoPagedListAdapter(s.toString());
+                setupPlaylistInfoPagedListAdapter(s.toString().trim());
             }
         });
 
