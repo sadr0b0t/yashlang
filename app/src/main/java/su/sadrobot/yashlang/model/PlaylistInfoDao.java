@@ -20,6 +20,7 @@ package su.sadrobot.yashlang.model;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import androidx.paging.DataSource;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -46,11 +47,23 @@ public abstract class PlaylistInfoDao {
     @Query("SELECT * FROM playlist_info")
     public abstract List<PlaylistInfo> getAll();
 
+    @Query("SELECT * FROM playlist_info")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllDs();
+
+    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%'")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%')")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledDs(String sstr);
+
     @Query("SELECT _id FROM playlist_info")
     public abstract List<Long> getAllIds();
 
     @Query("SELECT * FROM playlist_info WHERE enabled")
     public abstract List<PlaylistInfo> getEnabled();
+
+    @Query("SELECT * FROM playlist_info WHERE enabled")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledDs();
 
     @Query("SELECT enabled FROM playlist_info WHERE _id = :id LIMIT 1")
     public abstract boolean isEnabled(final long id);
