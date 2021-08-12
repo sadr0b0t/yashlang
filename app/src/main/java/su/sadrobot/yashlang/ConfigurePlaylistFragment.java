@@ -75,8 +75,9 @@ public class ConfigurePlaylistFragment extends Fragment {
     private TextView playlistUrlTxt;
     private TextView playlistSizeTxt;
 
-    private EditText filterPlaylistInput;
     private View emptyView;
+
+    private EditText filterPlaylistInput;
     private RecyclerView videoList;
 
     private Handler handler = new Handler();
@@ -90,11 +91,7 @@ public class ConfigurePlaylistFragment extends Fragment {
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
         private void checkIfEmpty() {
-            // считаем, что плейлист пустой только если в поле фильтра ничего не введено
-            final boolean listIsEmpty = filterPlaylistInput.getText().length() == 0 &&
-                    (videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0);
-            emptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
-            videoList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
+            updateControlsVisibility();
         }
 
         @Override
@@ -146,7 +143,7 @@ public class ConfigurePlaylistFragment extends Fragment {
         filterPlaylistInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
-                setupVideoListAdapter(playlistId, filterPlaylistInput.getText().toString());
+                setupVideoListAdapter(playlistId, v.getText().toString());
 
                 return false;
             }
@@ -173,9 +170,20 @@ public class ConfigurePlaylistFragment extends Fragment {
         updateVideoListBg();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    private void updateControlsVisibility() {
+        // считаем, что плейлист пустой только если в поле фильтра ничего не введено
+        final boolean listIsEmpty = filterPlaylistInput.getText().length() == 0 &&
+                (videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0);
+
+        if(listIsEmpty) {
+            emptyView.setVisibility(View.VISIBLE);
+            filterPlaylistInput.setVisibility(View.GONE);
+            videoList.setVisibility(View.GONE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+            filterPlaylistInput.setVisibility(View.VISIBLE);
+            videoList.setVisibility(View.VISIBLE);
+        }
     }
 
     public void updateVideoListBg() {
@@ -353,20 +361,8 @@ public class ConfigurePlaylistFragment extends Fragment {
                             public void run() {
                                 VideoDatabase.getDbInstance(getContext()).
                                         videoItemDao().setBlacklisted(item.getId(), !isChecked);
-
-                                // здесь тоже нужно обновить вручную, т.к. у нас в адаптере
-                                // хранятся уже загруженные из базы объекты и просто так
-                                // они сами себя не засинкают
-                                item.setBlacklisted(!isChecked);
                             }
                         }).start();
-
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                videoList.getAdapter().notifyDataSetChanged();
-                            }
-                        });
                     }
 
                     @Override

@@ -67,7 +67,7 @@ public class ConfigureProfileActivity extends AppCompatActivity {
     private EditText profileNameTxt;
 
     // Экран с пустым списком
-    private View playlistListEmptyView;
+    private View emptyView;
 
     //
     private RecyclerView playlistList;
@@ -87,7 +87,7 @@ public class ConfigureProfileActivity extends AppCompatActivity {
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
         private void checkIfEmpty() {
             final boolean listIsEmpty = playlistList.getAdapter() == null || playlistList.getAdapter().getItemCount() == 0;
-            playlistListEmptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
+            emptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
             playlistList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
         }
 
@@ -116,7 +116,7 @@ public class ConfigureProfileActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
 
         profileNameTxt = findViewById(R.id.profile_name_txt);
-        playlistListEmptyView = findViewById(R.id.playlist_list_empty_view);
+        emptyView = findViewById(R.id.empty_view);
         playlistList = findViewById(R.id.playlist_list);
 
         // https://developer.android.com/training/appbar
@@ -247,7 +247,7 @@ public class ConfigureProfileActivity extends AppCompatActivity {
     private void updateControlsVisibility() {
         // если список пустой, показываем специальный экранчик
         final boolean listIsEmpty = playlistList.getAdapter() == null || playlistList.getAdapter().getItemCount() == 0;
-        playlistListEmptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
+        emptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
         playlistList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
     }
 

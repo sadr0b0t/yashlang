@@ -243,21 +243,8 @@ public class BlacklistActivity extends AppCompatActivity {
                             public void run() {
                                 VideoDatabase.getDbInstance(BlacklistActivity.this).
                                         videoItemDao().setBlacklisted(item.getId(), !isChecked);
-
-                                // здесь тоже нужно обновить вручную, т.к. у нас в адаптере
-                                // хранятся уже загруженные из базы объекты и просто так
-                                // они сами себя не засинкают
-                                item.setBlacklisted(!isChecked);
                             }
                         }).start();
-
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //videoList.getAdapter().notifyDataSetChanged();
-                            }
-                        });
-
                     }
 
                     @Override
