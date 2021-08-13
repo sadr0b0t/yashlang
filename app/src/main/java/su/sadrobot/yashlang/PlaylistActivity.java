@@ -74,8 +74,11 @@ public class PlaylistActivity extends AppCompatActivity {
     private TextView playlistUrlTxt;
     private TextView playlistSizeTxt;
 
-    private EditText filterPlaylistInput;
+    // Экран с пустым списком
     private View emptyView;
+
+    //
+    private EditText filterPlaylistInput;
     private RecyclerView videoList;
 
     private Handler handler = new Handler();
@@ -90,11 +93,7 @@ public class PlaylistActivity extends AppCompatActivity {
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
         private void checkIfEmpty() {
-            // считаем, что плейлист пустой только если в поле фильтра ничего не введено
-            final boolean listIsEmpty = filterPlaylistInput.getText().length() == 0 &&
-                    (videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0);
-            emptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
-            videoList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
+            updateControlsVisibility();
         }
 
         @Override
@@ -248,6 +247,21 @@ public class PlaylistActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         finish();
         return true;
+    }
+
+    private void updateControlsVisibility() {
+        // считаем, что список пустой только если в поле фильтра ничего не введено
+        final boolean listIsEmpty = filterPlaylistInput.getText().length() == 0 &&
+                (videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0);
+        if(listIsEmpty) {
+            emptyView.setVisibility(View.VISIBLE);
+            filterPlaylistInput.setVisibility(View.GONE);
+            videoList.setVisibility(View.GONE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+            filterPlaylistInput.setVisibility(View.VISIBLE);
+            videoList.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updateVideoListBg() {
