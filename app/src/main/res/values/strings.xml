@@ -111,4 +111,7 @@
     <string name="export_skip_blocked">skip blocked</string>
     <string name="export_markdown">Markdown</string>
     <string name="export_profiles">Export profiles</string>
+    <string name="sort_by_name">Sort by name</string>
+    <string name="sort_by_time_added">Sort by time added</string>
+    <string name="sort_by_url">Sort by url</string>
 </resources>

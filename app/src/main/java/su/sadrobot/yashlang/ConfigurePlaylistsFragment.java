@@ -35,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,7 +70,9 @@ public class ConfigurePlaylistsFragment extends Fragment {
     private Button addRecommendedBtn;
 
     //
+    private View actionsView;
     private EditText filterPlaylistListInput;
+    private ImageButton sortBtn;
     private RecyclerView playlistList;
 
     private LiveData<PagedList<PlaylistInfo>> playlistInfosLiveData;
@@ -114,6 +117,8 @@ public class ConfigurePlaylistsFragment extends Fragment {
         emptyView = view.findViewById(R.id.empty_view);
         addRecommendedBtn = view.findViewById(R.id.add_recommended_btn);
 
+        actionsView = view.findViewById(R.id.actions_view);
+        sortBtn = view.findViewById(R.id.sort_btn);
         filterPlaylistListInput = view.findViewById(R.id.filter_playlist_list_input);
         playlistList = view.findViewById(R.id.playlist_list);
 
@@ -138,8 +143,8 @@ public class ConfigurePlaylistsFragment extends Fragment {
         filterPlaylistListInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
-                setupPlaylistInfoPagedListAdapter(v.getText().toString().trim());
-
+                setupPlaylistInfoPagedListAdapter(v.getText().toString().trim(),
+                        ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
                 return false;
             }
         });
@@ -156,29 +161,74 @@ public class ConfigurePlaylistsFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setupPlaylistInfoPagedListAdapter(s.toString().trim());
+                setupPlaylistInfoPagedListAdapter(s.toString().trim(),
+                        ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
             }
         });
 
-        setupPlaylistInfoPagedListAdapter(null);
+        sortBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // параметр Gravity.CENTER не работает (и появился еще только в API 19+),
+                // работает только вариант Gravity.RIGHT
+                //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
+                final PopupMenu popup = new PopupMenu(ConfigurePlaylistsFragment.this.getContext(),
+                        view.findViewById(R.id.sort_btn));
+                popup.getMenuInflater().inflate(R.menu.sort_playlists_actions, popup.getMenu());
+                popup.setOnMenuItemClickListener(
+                        new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                switch (item.getItemId()) {
+                                    case R.id.action_sort_by_name: {
+                                        ConfigOptions.setPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext(),
+                                                ConfigOptions.SortBy.NAME);
+                                        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_url: {
+                                        ConfigOptions.setPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext(),
+                                                ConfigOptions.SortBy.URL);
+                                        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_time_added: {
+                                        ConfigOptions.setPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext(),
+                                                ConfigOptions.SortBy.TIME_ADDED);
+                                        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
+                                        break;
+                                    }
+                                }
+                                return true;
+                            }
+                        }
+                );
+                popup.show();
+            }
+        });
+
+        setupPlaylistInfoPagedListAdapter(null, ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
     }
 
     private void updateControlsVisibility() {
         // считаем, что список пустой только если в поле фильтра ничего не введено
         final boolean listIsEmpty = filterPlaylistListInput.getText().length() == 0 &&
                 (playlistList.getAdapter() == null || playlistList.getAdapter().getItemCount() == 0);
-        if(listIsEmpty) {
+        if (listIsEmpty) {
             emptyView.setVisibility(View.VISIBLE);
-            filterPlaylistListInput.setVisibility(View.GONE);
+            actionsView.setVisibility(View.GONE);
             playlistList.setVisibility(View.GONE);
         } else {
             emptyView.setVisibility(View.GONE);
-            filterPlaylistListInput.setVisibility(View.VISIBLE);
+            actionsView.setVisibility(View.VISIBLE);
             playlistList.setVisibility(View.VISIBLE);
         }
     }
 
-    private void setupPlaylistInfoPagedListAdapter(final String sstr) {
+    private void setupPlaylistInfoPagedListAdapter(final String sstr, final ConfigOptions.SortBy sortBy) {
         if (playlistInfosLiveData != null) {
             playlistInfosLiveData.removeObservers(this);
         }
@@ -265,9 +315,21 @@ public class ConfigurePlaylistsFragment extends Fragment {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
         final DataSource.Factory factory;
         if (sstr != null && !sstr.isEmpty()) {
-            factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllDs(sstr);
+            if(sortBy == ConfigOptions.SortBy.NAME) {
+                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllSortByNameDs(sstr);
+            } else if(sortBy == ConfigOptions.SortBy.URL) {
+                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllSortByUrlDs(sstr);
+            } else {
+                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllDs(sstr);
+            }
         } else {
-            factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllDs();
+            if(sortBy == ConfigOptions.SortBy.NAME) {
+                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllSortByNameDs();
+            } else if(sortBy == ConfigOptions.SortBy.URL) {
+                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllSortByUrlDs();
+            } else {
+                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllDs();
+            }
         }
         playlistInfosLiveData = new LivePagedListBuilder(factory, config).build();
 

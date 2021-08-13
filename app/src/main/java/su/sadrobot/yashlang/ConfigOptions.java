@@ -20,7 +20,17 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 public class ConfigOptions {
+    private static final String SHARED_PREFERENCES_NAME = "yashlang.prefs";
+
+    // TIME_ADDED здесь, по сути, без сортировки, или сортировка по ID
+    public enum SortBy {
+        TIME_ADDED, NAME, URL
+    }
+
     public static final boolean DEVEL_MODE_ON = false;
 
     public static final int RECOMMENDED_RANDOM_LIM = 200;
@@ -32,4 +42,19 @@ public class ConfigOptions {
     public static final int ADD_RECOMMENDED_PLAYLISTS_DELAY_MS = 800;
 
     public static final int UPDATE_PLAYLISTS_DELAY_MS = 500;
+
+
+    private static final String PREF_PLAYLIST_SORT_BY = "PREF_PLAYLIST_SORT_BY";
+
+    public static SortBy getPlaylistsSortBy(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        // по умолчанию: TIME_ADDED (чтобы сохранить старое поведение)
+        return SortBy.valueOf(sp.getString(PREF_PLAYLIST_SORT_BY,SortBy.TIME_ADDED.name()));
+    }
+
+    public static void setPlaylistsSortBy(final Context context, final SortBy sortBy) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putString(PREF_PLAYLIST_SORT_BY, sortBy.name());
+        editor.commit();
+    }
 }

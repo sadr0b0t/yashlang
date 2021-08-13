@@ -41,6 +41,9 @@ public abstract class PlaylistInfoDao {
     @Query("SELECT * FROM playlist_info WHERE _id = :id LIMIT 1")
     public abstract PlaylistInfo getById(final long id);
 
+    @Query("SELECT _id FROM playlist_info")
+    public abstract List<Long> getAllIds();
+
     @Query("SELECT * FROM playlist_info WHERE url LIKE :url LIMIT 1")
     public abstract PlaylistInfo findByUrl(final String url);
 
@@ -50,20 +53,42 @@ public abstract class PlaylistInfoDao {
     @Query("SELECT * FROM playlist_info")
     public abstract DataSource.Factory<Integer, PlaylistInfo> getAllDs();
 
-    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%'")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllDs(String sstr);
+    @Query("SELECT * FROM playlist_info ORDER BY name")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllSortByNameDs();
 
-    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%')")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledDs(String sstr);
-
-    @Query("SELECT _id FROM playlist_info")
-    public abstract List<Long> getAllIds();
+    @Query("SELECT * FROM playlist_info ORDER BY url")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllSortByUrlDs();
 
     @Query("SELECT * FROM playlist_info WHERE enabled")
     public abstract List<PlaylistInfo> getEnabled();
 
     @Query("SELECT * FROM playlist_info WHERE enabled")
     public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledDs();
+
+    @Query("SELECT * FROM playlist_info WHERE enabled ORDER BY name")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledSortByNameDs();
+
+    @Query("SELECT * FROM playlist_info WHERE enabled ORDER BY url")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledSortByUrlDs();
+
+    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%'")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%' ORDER BY name")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllSortByNameDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%' ORDER BY url")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllSortByUrlDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%')")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%') ORDER BY name")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledSortByNameDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%') ORDER BY url")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledSortByUrlDs(String sstr);
+
 
     @Query("SELECT enabled FROM playlist_info WHERE _id = :id LIMIT 1")
     public abstract boolean isEnabled(final long id);
