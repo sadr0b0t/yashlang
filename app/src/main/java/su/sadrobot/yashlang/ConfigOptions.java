@@ -28,7 +28,7 @@ public class ConfigOptions {
 
     // TIME_ADDED здесь, по сути, без сортировки, или сортировка по ID
     public enum SortBy {
-        TIME_ADDED, NAME, URL
+        TIME_ADDED, NAME, URL, DURATION
     }
 
     public static final boolean DEVEL_MODE_ON = false;
@@ -44,17 +44,48 @@ public class ConfigOptions {
     public static final int UPDATE_PLAYLISTS_DELAY_MS = 500;
 
 
+    private static final String PREF_PLAYLISTS_SORT_BY = "PREF_PLAYLISTS_SORT_BY";
+
     private static final String PREF_PLAYLIST_SORT_BY = "PREF_PLAYLIST_SORT_BY";
+    /**
+     * true: ascending
+     * false: descending
+     */
+    private static final String PREF_PLAYLIST_SORT_DIR = "PREF_PLAYLIST_SORT_DIR";
 
     public static SortBy getPlaylistsSortBy(final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
         // по умолчанию: TIME_ADDED (чтобы сохранить старое поведение)
-        return SortBy.valueOf(sp.getString(PREF_PLAYLIST_SORT_BY,SortBy.TIME_ADDED.name()));
+        return SortBy.valueOf(sp.getString(PREF_PLAYLISTS_SORT_BY, SortBy.TIME_ADDED.name()));
     }
 
     public static void setPlaylistsSortBy(final Context context, final SortBy sortBy) {
         final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putString(PREF_PLAYLISTS_SORT_BY, sortBy.name());
+        editor.commit();
+    }
+
+    public static SortBy getPlaylistSortBy(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        // по умолчанию: TIME_ADDED+desc (чтобы сохранить старое поведение)
+        return SortBy.valueOf(sp.getString(PREF_PLAYLIST_SORT_BY, SortBy.TIME_ADDED.name()));
+    }
+
+    public static void setPlaylistSortBy(final Context context, final SortBy sortBy) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
         editor.putString(PREF_PLAYLIST_SORT_BY, sortBy.name());
+        editor.commit();
+    }
+
+    public static boolean getPlaylistSortDir(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        // по умолчанию: TIME_ADDED + desc (чтобы сохранить старое поведение)
+        return sp.getBoolean(PREF_PLAYLIST_SORT_DIR, false);
+    }
+
+    public static void setPlaylistSortDir(final Context context, final boolean asc) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putBoolean(PREF_PLAYLIST_SORT_DIR, asc);
         editor.commit();
     }
 }

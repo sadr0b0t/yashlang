@@ -111,7 +111,14 @@
     <string name="export_skip_blocked">без заблокированных</string>
     <string name="export_markdown">Markdown</string>
     <string name="export_profiles">Экспортировать профили</string>
+    <string name="sort_by">Порядок сортировки</string>
     <string name="sort_by_time_added">Сортировать по времени добавления</string>
     <string name="sort_by_name">Сортировать по имени</string>
     <string name="sort_by_url">Сортировать по url</string>
+    <string name="sort_by_name_asc">по имени (А → Я)</string>
+    <string name="sort_by_name_desc">по имени (Я → А)</string>
+    <string name="sort_by_time_added_asc">сначала старые</string>
+    <string name="sort_by_time_added_desc">сначала новые</string>
+    <string name="sort_by_duration_asc">сначала короткие</string>
+    <string name="sort_by_duration_desc">сначала длинные</string>
 </resources>

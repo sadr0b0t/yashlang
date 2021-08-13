@@ -80,14 +80,28 @@
             android:text="@string/no_items_in_playlist" />
     </LinearLayout>
 
-
-    <EditText
-        android:id="@+id/filter_playlist_input"
+    <LinearLayout
+        android:id="@+id/actions_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autoLink="web"
-        android:hint="@string/filter"
-        android:inputType="text" />
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/filter_playlist_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:autoLink="web"
+            android:hint="@string/filter"
+            android:inputType="text" />
+
+        <ImageButton
+            android:id="@+id/sort_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:borderlessButtonStyle"
+            android:src="@android:drawable/ic_menu_sort_alphabetically" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/video_list"

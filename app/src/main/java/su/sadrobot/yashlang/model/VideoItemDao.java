@@ -74,6 +74,24 @@ public interface VideoItemDao {
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistDs(long playlistId, String filterStr);
 
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY name ASC")
+    DataSource.Factory<Integer, VideoItem> getByPlaylistSortByNameAscDs(long playlistId, String filterStr);
+
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY name DESC")
+    DataSource.Factory<Integer, VideoItem> getByPlaylistSortByNameDescDs(long playlistId, String filterStr);
+
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY fake_timestamp ASC")
+    DataSource.Factory<Integer, VideoItem> getByPlaylistSortByTimeAddedAscDs(long playlistId, String filterStr);
+
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY fake_timestamp DESC")
+    DataSource.Factory<Integer, VideoItem> getByPlaylistSortByTimeAddedDescDs(long playlistId, String filterStr);
+
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY duration ASC")
+    DataSource.Factory<Integer, VideoItem> getByPlaylistSortByDurationAscDs(long playlistId, String filterStr);
+
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY duration DESC")
+    DataSource.Factory<Integer, VideoItem> getByPlaylistSortByDurationDescDs(long playlistId, String filterStr);
+
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> getByPlaylistShuffle(long playlistId, int lim);
 

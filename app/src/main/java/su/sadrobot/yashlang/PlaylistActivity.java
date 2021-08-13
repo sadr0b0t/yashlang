@@ -36,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -78,7 +79,9 @@ public class PlaylistActivity extends AppCompatActivity {
     private View emptyView;
 
     //
+    private View actionsView;
     private EditText filterPlaylistInput;
+    private ImageButton sortBtn;
     private RecyclerView videoList;
 
     private Handler handler = new Handler();
@@ -125,8 +128,11 @@ public class PlaylistActivity extends AppCompatActivity {
         playlistUrlTxt = findViewById(R.id.playlist_url_txt);
         playlistSizeTxt = findViewById(R.id.playlist_size_txt);
 
-        filterPlaylistInput = findViewById(R.id.filter_playlist_input);
         emptyView = findViewById(R.id.empty_view);
+
+        actionsView = findViewById(R.id.actions_view);
+        filterPlaylistInput = findViewById(R.id.filter_playlist_input);
+        sortBtn = findViewById(R.id.sort_btn);
         videoList = findViewById(R.id.video_list);
 
         // https://developer.android.com/training/appbar
@@ -142,7 +148,9 @@ public class PlaylistActivity extends AppCompatActivity {
         filterPlaylistInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
-                setupVideoListAdapter(playlistId, v.getText().toString().trim());
+                setupVideoListAdapter(playlistId, v.getText().toString().trim(),
+                        ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
+                        ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
 
                 return false;
             }
@@ -160,9 +168,96 @@ public class PlaylistActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setupVideoListAdapter(playlistId, s.toString().trim());
+                setupVideoListAdapter(playlistId, s.toString().trim(),
+                        ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
+                        ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
             }
         });
+
+
+        sortBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // параметр Gravity.CENTER не работает (и появился еще только в API 19+),
+                // работает только вариант Gravity.RIGHT
+                //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
+                final PopupMenu popup = new PopupMenu(PlaylistActivity.this,
+                        view.findViewById(R.id.sort_btn));
+                popup.getMenuInflater().inflate(R.menu.sort_playlist_actions, popup.getMenu());
+                popup.setOnMenuItemClickListener(
+                        new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                switch (item.getItemId()) {
+                                    case R.id.action_sort_by_name_asc: {
+                                        ConfigOptions.setPlaylistSortBy(PlaylistActivity.this,
+                                                ConfigOptions.SortBy.NAME);
+                                        ConfigOptions.setPlaylistSortDir(PlaylistActivity.this,
+                                                true);
+                                        setupVideoListAdapter(playlistId, filterPlaylistInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
+                                                ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_name_desc: {
+                                        ConfigOptions.setPlaylistSortBy(PlaylistActivity.this,
+                                                ConfigOptions.SortBy.NAME);
+                                        ConfigOptions.setPlaylistSortDir(PlaylistActivity.this,
+                                                false);
+                                        setupVideoListAdapter(playlistId, filterPlaylistInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
+                                                ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_time_added_asc: {
+                                        ConfigOptions.setPlaylistSortBy(PlaylistActivity.this,
+                                                ConfigOptions.SortBy.TIME_ADDED);
+                                        ConfigOptions.setPlaylistSortDir(PlaylistActivity.this,
+                                                true);
+                                        setupVideoListAdapter(playlistId, filterPlaylistInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
+                                                ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_time_added_desc: {
+                                        ConfigOptions.setPlaylistSortBy(PlaylistActivity.this,
+                                                ConfigOptions.SortBy.TIME_ADDED);
+                                        ConfigOptions.setPlaylistSortDir(PlaylistActivity.this,
+                                                false);
+                                        setupVideoListAdapter(playlistId, filterPlaylistInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
+                                                ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_duration_asc: {
+                                        ConfigOptions.setPlaylistSortBy(PlaylistActivity.this,
+                                                ConfigOptions.SortBy.DURATION);
+                                        ConfigOptions.setPlaylistSortDir(PlaylistActivity.this,
+                                                true);
+                                        setupVideoListAdapter(playlistId, filterPlaylistInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
+                                                ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_duration_desc: {
+                                        ConfigOptions.setPlaylistSortBy(PlaylistActivity.this,
+                                                ConfigOptions.SortBy.DURATION);
+                                        ConfigOptions.setPlaylistSortDir(PlaylistActivity.this,
+                                                false);
+                                        setupVideoListAdapter(playlistId, filterPlaylistInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
+                                                ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
+                                        break;
+                                    }
+                                }
+                                return true;
+                            }
+                        }
+                );
+                popup.show();
+            }
+        });
+
 
         playlistId = getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
 
@@ -255,11 +350,11 @@ public class PlaylistActivity extends AppCompatActivity {
                 (videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0);
         if(listIsEmpty) {
             emptyView.setVisibility(View.VISIBLE);
-            filterPlaylistInput.setVisibility(View.GONE);
+            actionsView.setVisibility(View.GONE);
             videoList.setVisibility(View.GONE);
         } else {
             emptyView.setVisibility(View.GONE);
-            filterPlaylistInput.setVisibility(View.VISIBLE);
+            actionsView.setVisibility(View.VISIBLE);
             videoList.setVisibility(View.VISIBLE);
         }
     }
@@ -308,11 +403,12 @@ public class PlaylistActivity extends AppCompatActivity {
             }
         }).start();
 
-
-        setupVideoListAdapter(plId, filterPlaylistInput.getText().toString().trim());
+        setupVideoListAdapter(plId, filterPlaylistInput.getText().toString().trim(),
+                ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
+                ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
     }
 
-    private void setupVideoListAdapter(final long plId, final String sstr) {
+    private void setupVideoListAdapter(final long plId, final String sstr, final ConfigOptions.SortBy sortBy, final boolean sortDirAsc) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -480,8 +576,32 @@ public class PlaylistActivity extends AppCompatActivity {
         // Initial page size to fetch can also be configured here too
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
-        final DataSource.Factory factory = VideoDatabase.getDbInstance(
-                PlaylistActivity.this).videoItemDao().getByPlaylistDs(plId, sstr);
+        final DataSource.Factory factory;
+        if(sortBy == ConfigOptions.SortBy.NAME) {
+            if (sortDirAsc) {
+                factory = VideoDatabase.getDbInstance(
+                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByNameAscDs(plId, sstr);
+            } else {
+                factory = VideoDatabase.getDbInstance(
+                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByNameDescDs(plId, sstr);
+            }
+        } else if(sortBy == ConfigOptions.SortBy.DURATION) {
+            if(sortDirAsc) {
+                factory = VideoDatabase.getDbInstance(
+                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByDurationAscDs(plId, sstr);
+            }else {
+                factory = VideoDatabase.getDbInstance(
+                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByDurationDescDs(plId, sstr);
+            }
+        } else { // TIME_ADDED
+            if(sortDirAsc) {
+                factory = VideoDatabase.getDbInstance(
+                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByTimeAddedAscDs(plId, sstr);
+            } else {
+                factory = VideoDatabase.getDbInstance(
+                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByTimeAddedDescDs(plId, sstr);
+            }
+        }
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

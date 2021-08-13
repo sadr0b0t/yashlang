@@ -111,7 +111,14 @@
     <string name="export_skip_blocked">skip blocked</string>
     <string name="export_markdown">Markdown</string>
     <string name="export_profiles">Export profiles</string>
+    <string name="sort_by">Sort order</string>
     <string name="sort_by_name">Sort by name</string>
     <string name="sort_by_time_added">Sort by time added</string>
     <string name="sort_by_url">Sort by url</string>
+    <string name="sort_by_name_asc">by name (A → Z)</string>
+    <string name="sort_by_name_desc">by name (Z → A)</string>
+    <string name="sort_by_time_added_asc">older first</string>
+    <string name="sort_by_time_added_desc">newer first</string>
+    <string name="sort_by_duration_asc">shorter first</string>
+    <string name="sort_by_duration_desc">longer first</string>
 </resources>

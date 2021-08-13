@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:title="@string/sort_by"
+        android:enabled="false"/>
+
+    <item
+        android:id="@+id/action_sort_by_time_added_desc"
+        android:title="@string/sort_by_time_added_desc"/>
+    <item
+        android:id="@+id/action_sort_by_time_added_asc"
+        android:title="@string/sort_by_time_added_asc"/>
+
+    <item
+        android:id="@+id/action_sort_by_name_asc"
+        android:title="@string/sort_by_name_asc"/>
+    <item
+        android:id="@+id/action_sort_by_name_desc"
+        android:title="@string/sort_by_name_desc"/>
+
+    <item
+        android:id="@+id/action_sort_by_duration_asc"
+        android:title="@string/sort_by_duration_asc"/>
+    <item
+        android:id="@+id/action_sort_by_duration_desc"
+        android:title="@string/sort_by_duration_desc"/>
+</menu>
