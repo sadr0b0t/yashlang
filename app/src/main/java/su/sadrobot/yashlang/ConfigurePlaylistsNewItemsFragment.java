@@ -35,6 +35,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -77,6 +78,8 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
     private ProgressBar checkProgress;
     private View checkErrorView;
     private TextView checkErrorTxt;
+    private RadioButton checkAllRadio;
+    private RadioButton checkOnlyEnabledRadio;
     private Button checkNewItemsBtn;
 
     // Новые элементы всех плейлистов
@@ -188,6 +191,8 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
         checkProgress = view.findViewById(R.id.check_progress);
         checkErrorView = view.findViewById(R.id.check_error_view);
         checkErrorTxt = view.findViewById(R.id.check_error_txt);
+        checkAllRadio = view.findViewById(R.id.check_all_radio);
+        checkOnlyEnabledRadio = view.findViewById(R.id.check_only_enabled_radio);
         checkNewItemsBtn = view.findViewById(R.id.check_new_items_btn);
 
 
@@ -299,6 +304,8 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                 checkErrorView.setVisibility(View.GONE);
                 checkProgress.setVisibility(View.INVISIBLE);
 
+                checkAllRadio.setEnabled(true);
+                checkOnlyEnabledRadio.setEnabled(true);
                 checkNewItemsBtn.setEnabled(true);
 
                 break;
@@ -314,6 +321,8 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                 checkErrorView.setVisibility(View.GONE);
                 checkProgress.setVisibility(View.VISIBLE);
 
+                checkAllRadio.setEnabled(false);
+                checkOnlyEnabledRadio.setEnabled(false);
                 checkNewItemsBtn.setEnabled(false);
 
                 break;
@@ -329,6 +338,8 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                 checkErrorView.setVisibility(View.VISIBLE);
                 checkProgress.setVisibility(View.GONE);
 
+                checkAllRadio.setEnabled(true);
+                checkOnlyEnabledRadio.setEnabled(true);
                 checkNewItemsBtn.setEnabled(true);
 
                 break;
@@ -392,7 +403,12 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
             @Override
             public void run() {
                 // информация из базы данных - загрузится быстро и без интернета
-                final List<Long> plIds = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getAllIds();
+                final List<Long> plIds;
+                if(checkAllRadio.isChecked()) {
+                    plIds = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getAllIds();
+                } else { // checkOnlyEnabledRadio.isChecked()
+                    plIds = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getEnabledIds();
+                }
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -568,7 +584,12 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final List<PlaylistInfo> allPlaylists = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getAll();
+                final List<PlaylistInfo> allPlaylists;
+                if(checkAllRadio.isChecked()) {
+                    allPlaylists = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getAll();
+                } else { // checkOnlyEnabledRadio.isChecked()
+                    allPlaylists = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getEnabled();
+                }
 
                 boolean allOk = true;
 

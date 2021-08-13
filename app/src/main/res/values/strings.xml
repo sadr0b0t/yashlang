@@ -121,4 +121,6 @@
     <string name="sort_by_time_added_desc">newer first</string>
     <string name="sort_by_duration_asc">shorter first</string>
     <string name="sort_by_duration_desc">longer first</string>
+    <string name="check_all_playlists">All playlists</string>
+    <string name="check_only_enabled_playlists">Only enabled</string>
 </resources>

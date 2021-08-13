@@ -121,4 +121,6 @@
     <string name="sort_by_time_added_desc">сначала новые</string>
     <string name="sort_by_duration_asc">сначала короткие</string>
     <string name="sort_by_duration_desc">сначала длинные</string>
+    <string name="check_all_playlists">Все плейлисты</string>
+    <string name="check_only_enabled_playlists">Только включенные</string>
 </resources>

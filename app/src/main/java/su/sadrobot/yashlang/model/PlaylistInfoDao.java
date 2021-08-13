@@ -44,6 +44,9 @@ public abstract class PlaylistInfoDao {
     @Query("SELECT _id FROM playlist_info")
     public abstract List<Long> getAllIds();
 
+    @Query("SELECT _id FROM playlist_info WHERE enabled")
+    public abstract List<Long> getEnabledIds();
+
     @Query("SELECT * FROM playlist_info WHERE url LIKE :url LIMIT 1")
     public abstract PlaylistInfo findByUrl(final String url);
 
