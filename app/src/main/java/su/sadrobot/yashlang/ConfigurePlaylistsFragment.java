@@ -118,8 +118,8 @@ public class ConfigurePlaylistsFragment extends Fragment {
         addRecommendedBtn = view.findViewById(R.id.add_recommended_btn);
 
         actionsView = view.findViewById(R.id.actions_view);
-        sortBtn = view.findViewById(R.id.sort_btn);
         filterPlaylistListInput = view.findViewById(R.id.filter_playlist_list_input);
+        sortBtn = view.findViewById(R.id.sort_btn);
         playlistList = view.findViewById(R.id.playlist_list);
 
         // set a LinearLayoutManager with default vertical orientation

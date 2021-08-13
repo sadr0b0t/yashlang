@@ -110,10 +110,9 @@ public class PlaylistsActivity extends AppCompatActivity {
         emptyView = findViewById(R.id.empty_view);
         addRecommendedBtn = findViewById(R.id.add_recommended_btn);
 
-
         actionsView = findViewById(R.id.actions_view);
-        sortBtn = findViewById(R.id.sort_btn);
         filterPlaylistListInput = findViewById(R.id.filter_playlist_list_input);
+        sortBtn = findViewById(R.id.sort_btn);
         playlistList = findViewById(R.id.playlist_list);
 
         // https://developer.android.com/training/appbar
@@ -121,7 +120,6 @@ public class PlaylistsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -305,7 +303,7 @@ public class PlaylistsActivity extends AppCompatActivity {
                 factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByNameDs(sstr);
             } else if(sortBy == ConfigOptions.SortBy.URL) {
                 factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByUrlDs(sstr);
-            } else {
+            } else { // TIME_ADDED (unsorted)
                 factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledDs(sstr);
             }
         } else {
@@ -313,7 +311,7 @@ public class PlaylistsActivity extends AppCompatActivity {
                 factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByNameDs();
             } else if(sortBy == ConfigOptions.SortBy.URL) {
                 factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByUrlDs();
-            } else {
+            } else { // TIME_ADDED (unsorted)
                 factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledDs();
             }
         }
