@@ -7,12 +7,23 @@
         android:enabled="false"/>
 
     <item
-        android:id="@+id/action_sort_by_name"
-        android:title="@string/sort_by_name"/>
+        android:id="@+id/action_sort_by_name_asc"
+        android:title="@string/sort_by_name_asc"/>
     <item
-        android:id="@+id/action_sort_by_url"
-        android:title="@string/sort_by_url"/>
+        android:id="@+id/action_sort_by_name_desc"
+        android:title="@string/sort_by_name_desc"/>
+
     <item
-        android:id="@+id/action_sort_by_time_added"
-        android:title="@string/sort_by_time_added"/>
+        android:id="@+id/action_sort_by_url_asc"
+        android:title="@string/sort_by_url_asc"/>
+    <item
+        android:id="@+id/action_sort_by_url_desc"
+        android:title="@string/sort_by_url_desc"/>
+
+    <item
+        android:id="@+id/action_sort_by_time_added_asc"
+        android:title="@string/sort_by_time_added_asc"/>
+    <item
+        android:id="@+id/action_sort_by_time_added_desc"
+        android:title="@string/sort_by_time_added_desc"/>
 </menu>

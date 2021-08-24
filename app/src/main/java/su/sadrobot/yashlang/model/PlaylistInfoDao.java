@@ -53,44 +53,80 @@ public abstract class PlaylistInfoDao {
     @Query("SELECT * FROM playlist_info")
     public abstract List<PlaylistInfo> getAll();
 
-    @Query("SELECT * FROM playlist_info")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllDs();
+    @Query("SELECT * FROM playlist_info ORDER BY _id ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllAscDs();
 
-    @Query("SELECT * FROM playlist_info ORDER BY name")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllSortByNameDs();
+    @Query("SELECT * FROM playlist_info ORDER BY _id DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllDescDs();
 
-    @Query("SELECT * FROM playlist_info ORDER BY url")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllSortByUrlDs();
+    @Query("SELECT * FROM playlist_info ORDER BY name ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllSortByNameAscDs();
+
+    @Query("SELECT * FROM playlist_info ORDER BY name DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllSortByNameDescDs();
+
+    @Query("SELECT * FROM playlist_info ORDER BY url ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllSortByUrlAscDs();
+
+    @Query("SELECT * FROM playlist_info ORDER BY url DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getAllSortByUrlDescDs();
 
     @Query("SELECT * FROM playlist_info WHERE enabled")
     public abstract List<PlaylistInfo> getEnabled();
 
-    @Query("SELECT * FROM playlist_info WHERE enabled")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledDs();
+    @Query("SELECT * FROM playlist_info WHERE enabled ORDER BY _id ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledAscDs();
 
-    @Query("SELECT * FROM playlist_info WHERE enabled ORDER BY name")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledSortByNameDs();
+    @Query("SELECT * FROM playlist_info WHERE enabled ORDER BY _id DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledDescDs();
 
-    @Query("SELECT * FROM playlist_info WHERE enabled ORDER BY url")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledSortByUrlDs();
+    @Query("SELECT * FROM playlist_info WHERE enabled ORDER BY name ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledSortByNameAscDs();
 
-    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%'")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllDs(String sstr);
+    @Query("SELECT * FROM playlist_info WHERE enabled ORDER BY name DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledSortByNameDescDs();
 
-    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%' ORDER BY name")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllSortByNameDs(String sstr);
+    @Query("SELECT * FROM playlist_info WHERE enabled ORDER BY url ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledSortByUrlAscDs();
 
-    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%' ORDER BY url")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllSortByUrlDs(String sstr);
+    @Query("SELECT * FROM playlist_info WHERE enabled ORDER BY url DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> getEnabledSortByUrlDescDs();
 
-    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%')")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledDs(String sstr);
+    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%' ORDER BY _id ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllAscDs(String sstr);
 
-    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%') ORDER BY name")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledSortByNameDs(String sstr);
+    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%' ORDER BY _id DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllDescDs(String sstr);
 
-    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%') ORDER BY url")
-    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledSortByUrlDs(String sstr);
+    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%' ORDER BY name ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllSortByNameAscDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%' ORDER BY name DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllSortByNameDescDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%' ORDER BY url ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllSortByUrlAscDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%' ORDER BY url DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchAllSortByUrlDescDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%') ORDER BY _id ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledAscDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%') ORDER BY _id DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledDescDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%') ORDER BY name ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledSortByNameAscDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%') ORDER BY name DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledSortByNameDescDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%') ORDER BY url ASC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledSortByUrlAscDs(String sstr);
+
+    @Query("SELECT * FROM playlist_info WHERE enabled AND (name LIKE '%'||:sstr||'%' OR url LIKE '%'||:sstr||'%') ORDER BY url DESC")
+    public abstract DataSource.Factory<Integer, PlaylistInfo> searchEnabledSortByUrlDescDs(String sstr);
 
 
     @Query("SELECT enabled FROM playlist_info WHERE _id = :id LIMIT 1")

@@ -136,7 +136,8 @@ public class PlaylistsActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
                 setupPlaylistInfoPagedListAdapter(v.getText().toString().trim(),
-                        ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this));
+                        ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this),
+                        ConfigOptions.getPlaylistsSortDir(PlaylistsActivity.this));
                 return false;
             }
         });
@@ -154,7 +155,8 @@ public class PlaylistsActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 setupPlaylistInfoPagedListAdapter(s.toString().trim(),
-                        ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this));
+                        ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this),
+                        ConfigOptions.getPlaylistsSortDir(PlaylistsActivity.this));
             }
         });
 
@@ -172,25 +174,64 @@ public class PlaylistsActivity extends AppCompatActivity {
                             @Override
                             public boolean onMenuItemClick(final MenuItem item) {
                                 switch (item.getItemId()) {
-                                    case R.id.action_sort_by_name: {
+                                    case R.id.action_sort_by_name_asc: {
                                         ConfigOptions.setPlaylistsSortBy(PlaylistsActivity.this,
                                                 ConfigOptions.SortBy.NAME);
+                                        ConfigOptions.setPlaylistsSortDir(PlaylistsActivity.this,
+                                                true);
                                         setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
-                                                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this));
+                                                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this),
+                                                ConfigOptions.getPlaylistsSortDir(PlaylistsActivity.this));
                                         break;
                                     }
-                                    case R.id.action_sort_by_url: {
+                                    case R.id.action_sort_by_name_desc: {
+                                        ConfigOptions.setPlaylistsSortBy(PlaylistsActivity.this,
+                                                ConfigOptions.SortBy.NAME);
+                                        ConfigOptions.setPlaylistsSortDir(PlaylistsActivity.this,
+                                                false);
+                                        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this),
+                                                ConfigOptions.getPlaylistsSortDir(PlaylistsActivity.this));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_url_asc: {
                                         ConfigOptions.setPlaylistsSortBy(PlaylistsActivity.this,
                                                 ConfigOptions.SortBy.URL);
+                                        ConfigOptions.setPlaylistsSortDir(PlaylistsActivity.this,
+                                                true);
                                         setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
-                                                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this));
+                                                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this),
+                                                ConfigOptions.getPlaylistsSortDir(PlaylistsActivity.this));
                                         break;
                                     }
-                                    case R.id.action_sort_by_time_added: {
+                                    case R.id.action_sort_by_url_desc: {
+                                        ConfigOptions.setPlaylistsSortBy(PlaylistsActivity.this,
+                                                ConfigOptions.SortBy.URL);
+                                        ConfigOptions.setPlaylistsSortDir(PlaylistsActivity.this,
+                                                false);
+                                        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this),
+                                                ConfigOptions.getPlaylistsSortDir(PlaylistsActivity.this));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_time_added_asc: {
                                         ConfigOptions.setPlaylistsSortBy(PlaylistsActivity.this,
                                                 ConfigOptions.SortBy.TIME_ADDED);
+                                        ConfigOptions.setPlaylistsSortDir(PlaylistsActivity.this,
+                                                true);
                                         setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
-                                                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this));
+                                                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this),
+                                                ConfigOptions.getPlaylistsSortDir(PlaylistsActivity.this));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_time_added_desc: {
+                                        ConfigOptions.setPlaylistsSortBy(PlaylistsActivity.this,
+                                                ConfigOptions.SortBy.TIME_ADDED);
+                                        ConfigOptions.setPlaylistsSortDir(PlaylistsActivity.this,
+                                                false);
+                                        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this),
+                                                ConfigOptions.getPlaylistsSortDir(PlaylistsActivity.this));
                                         break;
                                     }
                                 }
@@ -208,7 +249,8 @@ public class PlaylistsActivity extends AppCompatActivity {
         super.onResume();
 
         setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
-                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this));
+                ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this),
+                ConfigOptions.getPlaylistsSortDir(PlaylistsActivity.this));
     }
 
     @Override
@@ -232,7 +274,7 @@ public class PlaylistsActivity extends AppCompatActivity {
         }
     }
 
-    private void setupPlaylistInfoPagedListAdapter(final String sstr, final ConfigOptions.SortBy sortBy) {
+    private void setupPlaylistInfoPagedListAdapter(final String sstr, final ConfigOptions.SortBy sortBy, final boolean sortDirAsc) {
         if (playlistInfosLiveData != null) {
             playlistInfosLiveData.removeObservers(this);
         }
@@ -300,19 +342,43 @@ public class PlaylistsActivity extends AppCompatActivity {
         final DataSource.Factory factory;
         if (sstr != null && !sstr.isEmpty()) {
             if(sortBy == ConfigOptions.SortBy.NAME) {
-                factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByNameDs(sstr);
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByNameAscDs(sstr);
+                } else {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByNameDescDs(sstr);
+                }
             } else if(sortBy == ConfigOptions.SortBy.URL) {
-                factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByUrlDs(sstr);
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByUrlAscDs(sstr);
+                } else {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByUrlDescDs(sstr);
+                }
             } else { // TIME_ADDED (unsorted)
-                factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledDs(sstr);
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledAscDs(sstr);
+                } else {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledDescDs(sstr);
+                }
             }
         } else {
             if(sortBy == ConfigOptions.SortBy.NAME) {
-                factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByNameDs();
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByNameAscDs();
+                } else {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByNameDescDs();
+                }
             } else if(sortBy == ConfigOptions.SortBy.URL) {
-                factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByUrlDs();
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByUrlAscDs();
+                } else {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByUrlDescDs();
+                }
             } else { // TIME_ADDED (unsorted)
-                factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledDs();
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledAscDs();
+                } else {
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledDescDs();
+                }
             }
         }
 

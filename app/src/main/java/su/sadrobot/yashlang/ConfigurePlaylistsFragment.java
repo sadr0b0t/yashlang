@@ -144,7 +144,8 @@ public class ConfigurePlaylistsFragment extends Fragment {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
                 setupPlaylistInfoPagedListAdapter(v.getText().toString().trim(),
-                        ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
+                        ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()),
+                        ConfigOptions.getPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext()));
                 return false;
             }
         });
@@ -162,7 +163,8 @@ public class ConfigurePlaylistsFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 setupPlaylistInfoPagedListAdapter(s.toString().trim(),
-                        ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
+                        ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()),
+                        ConfigOptions.getPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext()));
             }
         });
 
@@ -180,25 +182,64 @@ public class ConfigurePlaylistsFragment extends Fragment {
                             @Override
                             public boolean onMenuItemClick(final MenuItem item) {
                                 switch (item.getItemId()) {
-                                    case R.id.action_sort_by_name: {
+                                    case R.id.action_sort_by_name_asc: {
                                         ConfigOptions.setPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext(),
                                                 ConfigOptions.SortBy.NAME);
+                                        ConfigOptions.setPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext(),
+                                                true);
                                         setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
-                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
+                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()),
+                                                ConfigOptions.getPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext()));
                                         break;
                                     }
-                                    case R.id.action_sort_by_url: {
+                                    case R.id.action_sort_by_name_desc: {
+                                        ConfigOptions.setPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext(),
+                                                ConfigOptions.SortBy.NAME);
+                                        ConfigOptions.setPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext(),
+                                                false);
+                                        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()),
+                                                ConfigOptions.getPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext()));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_url_asc: {
                                         ConfigOptions.setPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext(),
                                                 ConfigOptions.SortBy.URL);
+                                        ConfigOptions.setPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext(),
+                                                true);
                                         setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
-                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
+                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()),
+                                                ConfigOptions.getPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext()));
                                         break;
                                     }
-                                    case R.id.action_sort_by_time_added: {
+                                    case R.id.action_sort_by_url_desc: {
+                                        ConfigOptions.setPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext(),
+                                                ConfigOptions.SortBy.URL);
+                                        ConfigOptions.setPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext(),
+                                                false);
+                                        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()),
+                                                ConfigOptions.getPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext()));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_time_added_asc: {
                                         ConfigOptions.setPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext(),
                                                 ConfigOptions.SortBy.TIME_ADDED);
+                                        ConfigOptions.setPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext(),
+                                                true);
                                         setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
-                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
+                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()),
+                                                ConfigOptions.getPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext()));
+                                        break;
+                                    }
+                                    case R.id.action_sort_by_time_added_desc: {
+                                        ConfigOptions.setPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext(),
+                                                ConfigOptions.SortBy.TIME_ADDED);
+                                        ConfigOptions.setPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext(),
+                                                false);
+                                        setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
+                                                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()),
+                                                ConfigOptions.getPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext()));
                                         break;
                                     }
                                 }
@@ -210,7 +251,9 @@ public class ConfigurePlaylistsFragment extends Fragment {
             }
         });
 
-        setupPlaylistInfoPagedListAdapter(null, ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()));
+        setupPlaylistInfoPagedListAdapter(null,
+                ConfigOptions.getPlaylistsSortBy(ConfigurePlaylistsFragment.this.getContext()),
+                ConfigOptions.getPlaylistsSortDir(ConfigurePlaylistsFragment.this.getContext()));
     }
 
     private void updateControlsVisibility() {
@@ -228,7 +271,7 @@ public class ConfigurePlaylistsFragment extends Fragment {
         }
     }
 
-    private void setupPlaylistInfoPagedListAdapter(final String sstr, final ConfigOptions.SortBy sortBy) {
+    private void setupPlaylistInfoPagedListAdapter(final String sstr, final ConfigOptions.SortBy sortBy, final boolean sortDirAsc) {
         if (playlistInfosLiveData != null) {
             playlistInfosLiveData.removeObservers(this);
         }
@@ -316,19 +359,43 @@ public class ConfigurePlaylistsFragment extends Fragment {
         final DataSource.Factory factory;
         if (sstr != null && !sstr.isEmpty()) {
             if(sortBy == ConfigOptions.SortBy.NAME) {
-                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllSortByNameDs(sstr);
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllSortByNameAscDs(sstr);
+                } else {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllSortByNameDescDs(sstr);
+                }
             } else if(sortBy == ConfigOptions.SortBy.URL) {
-                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllSortByUrlDs(sstr);
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllSortByUrlAscDs(sstr);
+                } else {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllSortByUrlDescDs(sstr);
+                }
             } else {
-                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllDs(sstr);
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllAscDs(sstr);
+                } else {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().searchAllDescDs(sstr);
+                }
             }
         } else {
             if(sortBy == ConfigOptions.SortBy.NAME) {
-                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllSortByNameDs();
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllSortByNameAscDs();
+                } else {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllSortByNameDescDs();
+                }
             } else if(sortBy == ConfigOptions.SortBy.URL) {
-                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllSortByUrlDs();
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllSortByUrlAscDs();
+                } else {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllSortByUrlDescDs();
+                }
             } else {
-                factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllDs();
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllAscDs();
+                } else {
+                    factory = VideoDatabase.getDbInstance(this.getContext()).playlistInfoDao().getAllDescDs();
+                }
             }
         }
         playlistInfosLiveData = new LivePagedListBuilder(factory, config).build();

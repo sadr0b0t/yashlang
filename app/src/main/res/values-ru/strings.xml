@@ -112,9 +112,8 @@
     <string name="export_markdown">Markdown</string>
     <string name="export_profiles">Экспортировать профили</string>
     <string name="sort_by">Порядок сортировки</string>
-    <string name="sort_by_name">по имени</string>
-    <string name="sort_by_time_added">по времени добавления</string>
-    <string name="sort_by_url">по адресу url</string>
+    <string name="sort_by_url_asc">по адресу url (a → z)</string>
+    <string name="sort_by_url_desc">по адресу url (z → a)</string>
     <string name="sort_by_name_asc">по имени (А → Я)</string>
     <string name="sort_by_name_desc">по имени (Я → А)</string>
     <string name="sort_by_time_added_asc">сначала старые</string>

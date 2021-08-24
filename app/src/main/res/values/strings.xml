@@ -112,9 +112,8 @@
     <string name="export_markdown">Markdown</string>
     <string name="export_profiles">Export profiles</string>
     <string name="sort_by">Sort order</string>
-    <string name="sort_by_name">by name</string>
-    <string name="sort_by_time_added">by time added</string>
-    <string name="sort_by_url">by url</string>
+    <string name="sort_by_url_asc">by url (a → z)</string>
+    <string name="sort_by_url_desc">by url (z → a)</string>
     <string name="sort_by_name_asc">by name (A → Z)</string>
     <string name="sort_by_name_desc">by name (Z → A)</string>
     <string name="sort_by_time_added_asc">older first</string>

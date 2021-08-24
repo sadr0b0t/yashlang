@@ -45,6 +45,11 @@ public class ConfigOptions {
 
 
     private static final String PREF_PLAYLISTS_SORT_BY = "PREF_PLAYLISTS_SORT_BY";
+    /**
+     * true: ascending
+     * false: descending
+     */
+    private static final String PREF_PLAYLISTS_SORT_DIR = "PREF_PLAYLISTS_SORT_DIR";
 
     private static final String PREF_PLAYLIST_SORT_BY = "PREF_PLAYLIST_SORT_BY";
     /**
@@ -62,6 +67,18 @@ public class ConfigOptions {
     public static void setPlaylistsSortBy(final Context context, final SortBy sortBy) {
         final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
         editor.putString(PREF_PLAYLISTS_SORT_BY, sortBy.name());
+        editor.commit();
+    }
+
+    public static boolean getPlaylistsSortDir(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        // по умолчанию: TIME_ADDED + asc (чтобы сохранить старое поведение)
+        return sp.getBoolean(PREF_PLAYLISTS_SORT_DIR, true);
+    }
+
+    public static void setPlaylistsSortDir(final Context context, final boolean asc) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putBoolean(PREF_PLAYLISTS_SORT_DIR, asc);
         editor.commit();
     }
 
