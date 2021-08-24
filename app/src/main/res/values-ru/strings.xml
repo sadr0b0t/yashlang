@@ -123,4 +123,19 @@
     <string name="sort_by_duration_desc">сначала длинные</string>
     <string name="check_all_playlists">Все плейлисты</string>
     <string name="check_only_enabled_playlists">Только включенные</string>
+    <string name="yashlang_import_playlists">Yashlang: импортировать каналы и плейлисты</string>
+    <string name="import_data">Импортировать данные</string>
+    <string name="export_json">JSON</string>
+    <string name="yashlang_import">YaShlang: импорт</string>
+    <string name="export_to_clipboard">Экспортировать в буфер обмена</string>
+    <string name="load_file">Загрузить файл</string>
+    <string name="loaded_file">Загрузили файл</string>
+    <string name="failed_to_load">Не получилось загрузить</string>
+    <string name="json_file_path">путь до файла JSON</string>
+    <string name="json_file_path_with_playlists_data">Путь до файла JSON с данными плейлистов</string>
+    <string name="load_from_clipboard">Загрузить из буфера обмена</string>
+    <string name="loaded_from_clipboard_ok">Загрузили из буфера обмена: ок</string>
+    <string name="clipboard_is_empty">В буфере обмена пусто</string>
+    <string name="no_playlists_to_import">Нет плейлистов для импорта</string>
+    <string name="export_dir_location">Каталог для экспорта: %s</string>
 </resources>

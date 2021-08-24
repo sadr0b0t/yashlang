@@ -4,7 +4,7 @@ package su.sadrobot.yashlang;
  * Created by Anton Moiseev (sadr0b0t) in 2019.
  *
  * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
- * ConfigurePlaylistActivity.java is part of YaShlang.
+ * ExportDataActivity.java is part of YaShlang.
  *
  * YaShlang is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,20 +32,13 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
-import su.sadrobot.yashlang.model.PlaylistInfo;
-import su.sadrobot.yashlang.model.Profile;
-import su.sadrobot.yashlang.model.VideoDatabase;
-import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.controller.DataIO;
 
 /**
  *
@@ -52,12 +47,14 @@ public class ExportDataActivity extends AppCompatActivity {
 
     private RadioButton exportMarkdownRadio;
     private RadioButton exportYtdlScriptRadio;
+    private RadioButton exportJsonRadio;
 
     private Switch exportPlaylistListSwitch;
+    private Switch exportOnlyEnabledPlaylists1Switch;
     private Switch exportProfilesSwitch;
 
     private Switch exportPlaylistItemsSwitch;
-    private Switch exportOnlyEnabledPlaylistsSwitch;
+    private Switch exportOnlyEnabledPlaylists2Switch;
     private Switch exportSkipBlockedSwitch;
     private Switch exportPlaylistItemsNamesSwitch;
     private Switch exportPlaylistItemsUrlsSwitch;
@@ -72,10 +69,15 @@ public class ExportDataActivity extends AppCompatActivity {
     private TextView saveErrorTxt;
 
     private Button exportToFileBtn;
+    private Button exportToClipboardBtn;
 
     private Handler handler = new Handler();
 
-    private boolean isSaving = false;
+    private enum State {
+        INITIAL, DATA_EXPORT_PROGRESS, DATA_EXPORT_ERROR, DATA_EXPORT_OK
+    }
+
+    private State state = State.INITIAL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,11 +87,13 @@ public class ExportDataActivity extends AppCompatActivity {
 
         exportMarkdownRadio = findViewById(R.id.export_markdown_radio);
         exportYtdlScriptRadio = findViewById(R.id.export_ytdl_script_radio);
+        exportJsonRadio = findViewById(R.id.export_json_radio);
 
         exportPlaylistListSwitch = findViewById(R.id.export_playlist_list_switch);
+        exportOnlyEnabledPlaylists1Switch = findViewById(R.id.export_only_enabled_playlists1);
         exportProfilesSwitch = findViewById(R.id.export_profiles_switch);
         exportPlaylistItemsSwitch = findViewById(R.id.export_playlist_items_switch);
-        exportOnlyEnabledPlaylistsSwitch = findViewById(R.id.export_only_enabled_playlists);
+        exportOnlyEnabledPlaylists2Switch = findViewById(R.id.export_only_enabled_playlists2);
         exportSkipBlockedSwitch = findViewById(R.id.export_skip_blocked);
         exportPlaylistItemsNamesSwitch = findViewById(R.id.export_playlist_items_names);
         exportPlaylistItemsUrlsSwitch = findViewById(R.id.export_playlist_items_urls);
@@ -102,124 +106,217 @@ public class ExportDataActivity extends AppCompatActivity {
         savedOkTxt = findViewById(R.id.saved_ok_txt);
         saveErrorTxt = findViewById(R.id.save_error_txt);
 
-        exportToFileBtn = findViewById(R.id.export_btn);
+        exportToFileBtn = findViewById(R.id.export_to_file_btn);
+        exportToClipboardBtn = findViewById(R.id.export_to_clipboard_btn);
 
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //
-
-        updateControlsEnabledStates();
+        updateControlsStates();
 
         exportMarkdownRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateControlsEnabledStates();
+                updateControlsStates();
             }
         });
 
         exportYtdlScriptRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateControlsEnabledStates();
+                updateControlsStates();
+            }
+        });
+
+        exportJsonRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateControlsStates();
             }
         });
 
         exportPlaylistListSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateControlsEnabledStates();
+                updateControlsStates();
             }
         });
 
         exportProfilesSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateControlsEnabledStates();
+                updateControlsStates();
             }
         });
 
         exportPlaylistItemsSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateControlsEnabledStates();
+                updateControlsStates();
             }
         });
 
         exportPlaylistItemsNamesSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateControlsEnabledStates();
+                updateControlsStates();
             }
         });
 
         exportPlaylistItemsUrlsSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateControlsEnabledStates();
+                updateControlsStates();
             }
         });
 
         exportStarredSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateControlsEnabledStates();
+                updateControlsStates();
             }
         });
 
         exportBlacklistSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateControlsEnabledStates();
+                updateControlsStates();
             }
         });
 
         exportToFileBtn.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isSaving = true;
-                updateControlsEnabledStates();
-                saveProgress.setVisibility(View.VISIBLE);
-                savedOkTxt.setVisibility(View.GONE);
-                saveErrorTxt.setVisibility(View.GONE);
+                state = State.DATA_EXPORT_PROGRESS;
+                updateControlsStates();
 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             final String fileExt;
-                            if(exportMarkdownRadio.isChecked()) {
+                            if (exportMarkdownRadio.isChecked()) {
                                 fileExt = "md";
-                            } else if(exportYtdlScriptRadio.isChecked()) {
+                            } else if (exportYtdlScriptRadio.isChecked()) {
                                 fileExt = "sh";
+                            } else if (exportJsonRadio.isChecked()) {
+                                fileExt = "json";
                             } else {
                                 // never here
                                 fileExt = "txt";
                             }
-                            final String exportString = exportPlaylistsToMarkdownOrYtdlScript();
-                            final File file = saveToFile(ExportDataActivity.this, fileExt, exportString);
-                            isSaving = false;
+                            final String exportString;
+                            if (exportJsonRadio.isChecked()) {
+                                exportString = exportPlaylistsToJSON();
+                            } else {
+                                exportString = exportPlaylistsToMarkdownOrYtdlScript();
+                            }
+                            final File file = DataIO.saveToFile(ExportDataActivity.this, fileExt, exportString);
+
+                            state = State.DATA_EXPORT_OK;
 
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    updateControlsEnabledStates();
+                                    updateControlsStates();
                                     savedOkTxt.setText(getString(R.string.saved_to_file) + ": " + file.getName());
-                                    savedOkTxt.setVisibility(View.VISIBLE);
-                                    saveProgress.setVisibility(View.GONE);
+
+                                    Toast.makeText(ExportDataActivity.this,
+                                            getString(R.string.saved_to_file) + ": " + file.getName(),
+                                            Toast.LENGTH_LONG).show();
                                 }
                             });
-                        } catch (final IOException e) {
-                            isSaving = false;
+                        } catch (final Exception e) {
+                            state = State.DATA_EXPORT_ERROR;
 
-                            //e.printStackTrace();
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    updateControlsEnabledStates();
+                                    updateControlsStates();
                                     saveErrorTxt.setText(getString(R.string.failed_to_save) + ":\n" + e.getMessage());
-                                    saveErrorTxt.setVisibility(View.VISIBLE);
-                                    saveProgress.setVisibility(View.GONE);
+
+                                    Toast.makeText(ExportDataActivity.this,
+                                            getString(R.string.failed_to_save) + ":\n" + e.getMessage(),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                    }
+                }).start();
+            }
+        });
+
+        exportToClipboardBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                state = State.DATA_EXPORT_PROGRESS;
+                updateControlsStates();
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            final String label;
+                            if (exportMarkdownRadio.isChecked()) {
+                                label = "md";
+                            } else if (exportYtdlScriptRadio.isChecked()) {
+                                label = "sh";
+                            } else if (exportJsonRadio.isChecked()) {
+                                label = "json";
+                            } else {
+                                // never here
+                                label = "txt";
+                            }
+
+                            final String exportString;
+                            if (exportJsonRadio.isChecked()) {
+                                exportString = exportPlaylistsToJSON();
+                            } else {
+                                exportString = exportPlaylistsToMarkdownOrYtdlScript();
+                            }
+
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                    final ClipData clip = ClipData.newPlainText(label, exportString);
+                                    try {
+                                        clipboard.setPrimaryClip(clip);
+
+                                        state = State.DATA_EXPORT_OK;
+
+                                        updateControlsStates();
+                                        savedOkTxt.setText(getString(R.string.copied));
+
+                                        Toast.makeText(ExportDataActivity.this,
+                                                getString(R.string.copied),
+                                                Toast.LENGTH_LONG).show();
+                                    } catch (Exception e) {
+                                        // для JSON скорее всего поймаем TransactionTooLargeException
+                                        state = State.DATA_EXPORT_ERROR;
+
+                                        updateControlsStates();
+                                        saveErrorTxt.setText(getString(R.string.failed_to_save) + ":\n" + e.getMessage());
+
+                                        Toast.makeText(ExportDataActivity.this,
+                                                getString(R.string.failed_to_save) + ":\n" + e.getMessage(),
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
+                        } catch (final Exception e) {
+                            state = State.DATA_EXPORT_ERROR;
+
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    updateControlsStates();
+                                    saveErrorTxt.setText(getString(R.string.failed_to_save) + ":\n" + e.getMessage());
+
+                                    Toast.makeText(ExportDataActivity.this,
+                                            getString(R.string.failed_to_save) + ":\n" + e.getMessage(),
+                                            Toast.LENGTH_LONG).show();
                                 }
                             });
                         }
@@ -229,6 +326,8 @@ public class ExportDataActivity extends AppCompatActivity {
         });
 
         saveDirTxt.setText(this.getString(R.string.save_dir) + ": " + this.getExternalFilesDir(null).getAbsolutePath());
+
+        updateControlsStates();
     }
 
 
@@ -238,194 +337,149 @@ public class ExportDataActivity extends AppCompatActivity {
         return true;
     }
 
-    private void updateControlsEnabledStates() {
-        if(isSaving) {
+    private void updateControlsStates() {
+        if (state == State.INITIAL) {
+            saveProgress.setVisibility(View.GONE);
+            saveErrorTxt.setVisibility(View.GONE);
+            savedOkTxt.setVisibility(View.GONE);
+        } else if (state == State.DATA_EXPORT_PROGRESS) {
+            saveProgress.setVisibility(View.VISIBLE);
+            saveErrorTxt.setVisibility(View.GONE);
+            savedOkTxt.setVisibility(View.GONE);
+        } else if (state == State.DATA_EXPORT_ERROR) {
+            saveProgress.setVisibility(View.GONE);
+            saveErrorTxt.setVisibility(View.VISIBLE);
+            savedOkTxt.setVisibility(View.GONE);
+        } else if (state == State.DATA_EXPORT_OK) {
+            saveProgress.setVisibility(View.GONE);
+            saveErrorTxt.setVisibility(View.GONE);
+            savedOkTxt.setVisibility(View.VISIBLE);
+        }
+
+        if (state == State.DATA_EXPORT_PROGRESS) {
             exportToFileBtn.setEnabled(false);
+            exportToClipboardBtn.setEnabled(false);
 
             exportMarkdownRadio.setEnabled(false);
             exportYtdlScriptRadio.setEnabled(false);
+            exportJsonRadio.setEnabled(false);
 
             exportPlaylistListSwitch.setEnabled(false);
+            exportOnlyEnabledPlaylists1Switch.setEnabled(false);
             exportProfilesSwitch.setEnabled(false);
             exportPlaylistItemsSwitch.setEnabled(false);
-            exportOnlyEnabledPlaylistsSwitch.setEnabled(false);
+            exportOnlyEnabledPlaylists2Switch.setEnabled(false);
             exportSkipBlockedSwitch.setEnabled(false);
             exportPlaylistItemsNamesSwitch.setEnabled(false);
             exportPlaylistItemsUrlsSwitch.setEnabled(false);
             exportStarredSwitch.setEnabled(false);
             exportBlacklistSwitch.setEnabled(false);
         } else {
-            if (!exportPlaylistListSwitch.isChecked() &&
-                    !exportProfilesSwitch.isChecked() &&
-                    !exportStarredSwitch.isChecked() &&
-                    !exportBlacklistSwitch.isChecked() &&
-                    (!exportPlaylistItemsSwitch.isChecked() ||
-                            (!exportYtdlScriptRadio.isChecked() &&
-                                    !exportPlaylistItemsNamesSwitch.isChecked() &&
-                                    !exportPlaylistItemsUrlsSwitch.isChecked()))) {
-                exportToFileBtn.setEnabled(false);
-            } else {
-                exportToFileBtn.setEnabled(true);
-            }
-
             exportMarkdownRadio.setEnabled(true);
             exportYtdlScriptRadio.setEnabled(true);
+            exportJsonRadio.setEnabled(true);
 
-            exportPlaylistListSwitch.setEnabled(!exportYtdlScriptRadio.isChecked());
-            exportProfilesSwitch.setEnabled(!exportYtdlScriptRadio.isChecked());
-            exportPlaylistItemsSwitch.setEnabled(true);
-            exportOnlyEnabledPlaylistsSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked());
-            exportSkipBlockedSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked());
-            exportPlaylistItemsNamesSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked() && !exportYtdlScriptRadio.isChecked());
-            exportPlaylistItemsUrlsSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked() && !exportYtdlScriptRadio.isChecked());
-            exportStarredSwitch.setEnabled(true);
-            exportBlacklistSwitch.setEnabled(true);
+            if (exportMarkdownRadio.isChecked()) {
+                exportPlaylistListSwitch.setEnabled(true);
+                exportOnlyEnabledPlaylists1Switch.setEnabled(exportPlaylistListSwitch.isChecked());
+                exportProfilesSwitch.setEnabled(true);
+                exportPlaylistItemsSwitch.setEnabled(true);
+                exportOnlyEnabledPlaylists2Switch.setEnabled(exportPlaylistItemsSwitch.isChecked());
+                exportSkipBlockedSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked());
+                exportPlaylistItemsNamesSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked());
+                exportPlaylistItemsUrlsSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked());
+                exportStarredSwitch.setEnabled(true);
+                exportBlacklistSwitch.setEnabled(true);
+
+                if (exportPlaylistListSwitch.isChecked() ||
+                        exportProfilesSwitch.isChecked() ||
+                        exportStarredSwitch.isChecked() ||
+                        exportBlacklistSwitch.isChecked() ||
+                        (exportPlaylistItemsSwitch.isChecked() &&
+                                (exportPlaylistItemsNamesSwitch.isChecked() ||
+                                        exportPlaylistItemsUrlsSwitch.isChecked()))) {
+                    exportToFileBtn.setEnabled(true);
+                    exportToClipboardBtn.setEnabled(true);
+                } else {
+                    exportToFileBtn.setEnabled(false);
+                    exportToClipboardBtn.setEnabled(false);
+                }
+            } else if (exportYtdlScriptRadio.isChecked()) {
+                exportPlaylistListSwitch.setEnabled(false);
+                exportOnlyEnabledPlaylists1Switch.setEnabled(false);
+                exportProfilesSwitch.setEnabled(false);
+                exportPlaylistItemsSwitch.setEnabled(true);
+                exportOnlyEnabledPlaylists2Switch.setEnabled(exportPlaylistItemsSwitch.isChecked());
+                exportSkipBlockedSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked());
+                exportPlaylistItemsNamesSwitch.setEnabled(false);
+                exportPlaylistItemsUrlsSwitch.setEnabled(false);
+                exportStarredSwitch.setEnabled(true);
+                exportBlacklistSwitch.setEnabled(true);
+
+                if (exportStarredSwitch.isChecked() ||
+                        exportBlacklistSwitch.isChecked() ||
+                        exportPlaylistItemsSwitch.isChecked()) {
+                    exportToFileBtn.setEnabled(true);
+                    exportToClipboardBtn.setEnabled(true);
+                } else {
+                    exportToFileBtn.setEnabled(false);
+                    exportToClipboardBtn.setEnabled(false);
+                }
+            } else {// if(exportJsonRadio.isChecked()) {
+                exportPlaylistListSwitch.setEnabled(true);
+                exportOnlyEnabledPlaylists1Switch.setEnabled(exportPlaylistListSwitch.isChecked());
+                exportProfilesSwitch.setEnabled(true);
+                exportPlaylistItemsSwitch.setEnabled(true);
+                exportOnlyEnabledPlaylists2Switch.setEnabled(exportPlaylistItemsSwitch.isChecked());
+                exportSkipBlockedSwitch.setEnabled(exportPlaylistItemsSwitch.isChecked());
+                exportPlaylistItemsNamesSwitch.setEnabled(false);
+                exportPlaylistItemsUrlsSwitch.setEnabled(false);
+                exportStarredSwitch.setEnabled(true);
+                exportBlacklistSwitch.setEnabled(true);
+
+                if (exportPlaylistListSwitch.isChecked() ||
+                        exportProfilesSwitch.isChecked() ||
+                        exportStarredSwitch.isChecked() ||
+                        exportBlacklistSwitch.isChecked() ||
+                        (exportPlaylistItemsSwitch.isChecked() &&
+                                (exportPlaylistItemsNamesSwitch.isChecked() ||
+                                        exportPlaylistItemsUrlsSwitch.isChecked()))) {
+                    exportToFileBtn.setEnabled(true);
+                    exportToClipboardBtn.setEnabled(true);
+                } else {
+                    exportToFileBtn.setEnabled(false);
+                    exportToClipboardBtn.setEnabled(false);
+                }
+            }
         }
+    }
+
+    private String exportPlaylistsToJSON() throws Exception {
+        return DataIO.exportPlaylistsToJSON(
+                this,
+                exportPlaylistListSwitch.isChecked(),
+                exportOnlyEnabledPlaylists1Switch.isChecked(),
+                exportProfilesSwitch.isChecked(),
+                exportPlaylistItemsSwitch.isChecked(),
+                exportOnlyEnabledPlaylists2Switch.isChecked(),
+                exportSkipBlockedSwitch.isChecked(),
+                exportStarredSwitch.isChecked(),
+                exportBlacklistSwitch.isChecked()).toString();
     }
 
     private String exportPlaylistsToMarkdownOrYtdlScript() {
-        final StringBuilder stringBuilder = new StringBuilder();
-
-        if(exportYtdlScriptRadio.isChecked()) {
-            stringBuilder.append("#!/bin/sh").append("\n");
-        }
-
-        if (exportPlaylistListSwitch.isChecked() && !exportYtdlScriptRadio.isChecked()) {
-            stringBuilder.append("# Playlists").append("\n");
-
-            final List<PlaylistInfo> playlists = VideoDatabase.getDbInstance(this).
-                    playlistInfoDao().getAll();
-
-            for (final PlaylistInfo plInfo : playlists) {
-                stringBuilder.append("[").append(plInfo.getName()).append("]");
-                stringBuilder.append("(").append(plInfo.getUrl()).append(")");
-                stringBuilder.append("  \n");
-            }
-            stringBuilder.append("  \n");
-        }
-
-        if (exportProfilesSwitch.isChecked() && !exportYtdlScriptRadio.isChecked()) {
-            stringBuilder.append("# Profiles").append("\n");
-
-            final List<Profile> profiles = VideoDatabase.getDbInstance(this).
-                    profileDao().getAll();
-            for(final Profile profile : profiles) {
-                stringBuilder.append("## ").append(profile.getName()).append("\n");
-                
-                final List<PlaylistInfo> playlists = VideoDatabase.getDbInstance(this).
-                        profileDao().getProfilePlaylists(profile.getId());
-
-                for (final PlaylistInfo plInfo : playlists) {
-                    stringBuilder.append("[").append(plInfo.getName()).append("]");
-                    stringBuilder.append("(").append(plInfo.getUrl()).append(")");
-                    stringBuilder.append("  \n");
-                }
-            }
-
-            stringBuilder.append("  \n");
-        }
-
-        if (exportPlaylistItemsSwitch.isChecked()) {
-            stringBuilder.append("# Playlists with items").append("\n");
-
-            final List<PlaylistInfo> playlists = exportOnlyEnabledPlaylistsSwitch.isChecked() ?
-                    VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabled() :
-                    VideoDatabase.getDbInstance(this).playlistInfoDao().getAll();
-
-            for (final PlaylistInfo plInfo : playlists) {
-                stringBuilder.append("# ");
-                stringBuilder.append("[").append(plInfo.getName()).append("]");
-                stringBuilder.append("(").append(plInfo.getUrl()).append(")");
-                stringBuilder.append("\n");
-
-                final List<VideoItem> videoItems = exportSkipBlockedSwitch.isChecked() ?
-                        VideoDatabase.getDbInstance(this).
-                                videoItemDao().getByPlaylist(plInfo.getId()) :
-                        VideoDatabase.getDbInstance(this).
-                                videoItemDao().getByPlaylistAll(plInfo.getId());
-                for (final VideoItem videoItem : videoItems) {
-
-                    if (exportYtdlScriptRadio.isChecked()) {
-                        stringBuilder.append("youtube-dl " + videoItem.getItemUrl());
-                        stringBuilder.append("\n");
-                    } else if (exportPlaylistItemsNamesSwitch.isChecked() && exportPlaylistItemsUrlsSwitch.isChecked()) {
-                        stringBuilder.append("[").append(videoItem.getName()).append("]");
-                        stringBuilder.append("(").append(videoItem.getItemUrl()).append(")");
-                        stringBuilder.append("  \n");
-                    } else if (exportPlaylistItemsNamesSwitch.isChecked()) {
-                        stringBuilder.append(videoItem.getName());
-                        stringBuilder.append("  \n");
-                    } else if (exportPlaylistItemsUrlsSwitch.isChecked()) {
-                        stringBuilder.append(videoItem.getItemUrl());
-                        stringBuilder.append("  \n");
-                    }
-                }
-                stringBuilder.append("  \n");
-            }
-        }
-
-        if (exportStarredSwitch.isChecked()) {
-            stringBuilder.append("# Starred").append("\n");
-
-            final List<VideoItem> videoItems = VideoDatabase.getDbInstance(this).
-                    videoItemDao().getStarred();
-            for (final VideoItem videoItem : videoItems) {
-                if (exportYtdlScriptRadio.isChecked()) {
-                    stringBuilder.append("youtube-dl " + videoItem.getItemUrl());
-                    stringBuilder.append("\n");
-                } else {
-                    stringBuilder.append("[").append(videoItem.getName()).append("]");
-                    stringBuilder.append("(").append(videoItem.getItemUrl()).append(")");
-                    stringBuilder.append("  \n");
-                }
-            }
-            stringBuilder.append("  \n");
-        }
-
-        if (exportBlacklistSwitch.isChecked()) {
-            stringBuilder.append("# Blacklist").append("\n");
-
-            final List<VideoItem> videoItems = VideoDatabase.getDbInstance(this).
-                    videoItemDao().getBlacklist();
-            for (final VideoItem videoItem : videoItems) {
-                if (exportYtdlScriptRadio.isChecked()) {
-                    stringBuilder.append("youtube-dl " + videoItem.getItemUrl());
-                    stringBuilder.append("\n");
-                } else {
-                    stringBuilder.append("[").append(videoItem.getName()).append("]");
-                    stringBuilder.append("(").append(videoItem.getItemUrl()).append(")");
-                    stringBuilder.append("  \n");
-                }
-            }
-            stringBuilder.append("  \n");
-        }
-
-        return stringBuilder.toString();
-    }
-
-    private File saveToFile(final Context context, final String fileExt, final String contentStr) throws IOException {
-        // https://www.zoftino.com/saving-files-to-internal-storage-&-external-storage-in-android
-        // https://stackoverflow.com/questions/51565897/saving-files-in-android-for-beginners-internal-external-storage
-
-        // пользователь не сможет жмякать кнопку больше раза в секунду,
-        // поэтому идентификатор с секундной точностью можно считать уникальным
-        // (а даже если жмякнет, ничего страшного - перезапишет только что сохраненный файл)
-        final String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
-
-        final String fileName = "yashlang-video-db-%s.%ext".replace("%ext", fileExt).replace("%s", timestamp);
-
-        final File file = new File(context.getExternalFilesDir(null), fileName);
-        final FileWriter fw = new FileWriter(file);
-
-        System.out.println(file.getAbsolutePath());
-
-        try {
-            file.createNewFile();
-            fw.write(contentStr);
-            fw.flush();
-        } finally {
-            fw.close();
-        }
-        return file;
+        return DataIO.exportPlaylistsToMarkdownOrYtdlScript(
+                this,
+                exportYtdlScriptRadio.isChecked(),
+                exportPlaylistListSwitch.isChecked(),
+                exportOnlyEnabledPlaylists1Switch.isChecked(),
+                exportProfilesSwitch.isChecked(),
+                exportPlaylistItemsSwitch.isChecked(),
+                exportOnlyEnabledPlaylists2Switch.isChecked(),
+                exportSkipBlockedSwitch.isChecked(),
+                exportPlaylistItemsNamesSwitch.isChecked(),
+                exportPlaylistItemsUrlsSwitch.isChecked(),
+                exportStarredSwitch.isChecked(),
+                exportBlacklistSwitch.isChecked());
     }
 }

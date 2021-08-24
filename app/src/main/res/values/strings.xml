@@ -123,4 +123,19 @@
     <string name="sort_by_duration_desc">longer first</string>
     <string name="check_all_playlists">All playlists</string>
     <string name="check_only_enabled_playlists">Only enabled</string>
+    <string name="yashlang_import_playlists">YaShlang: import channels and playlists</string>
+    <string name="import_data">Import data</string>
+    <string name="export_json">JSON</string>
+    <string name="yashlang_import">YaShlang: import</string>
+    <string name="export_to_clipboard">Export to clipboard</string>
+    <string name="load_file">Load file</string>
+    <string name="loaded_file">Loaded file</string>
+    <string name="failed_to_load">Failed to load</string>
+    <string name="json_file_path">JSON file path</string>
+    <string name="json_file_path_with_playlists_data">JSON file path with playlists data</string>
+    <string name="load_from_clipboard">Load from clipboard</string>
+    <string name="loaded_from_clipboard_ok">Loaded from clipboard: ok</string>
+    <string name="clipboard_is_empty">Clipboard is empty</string>
+    <string name="no_playlists_to_import">No playlists to import</string>
+    <string name="export_dir_location">Export dir location: %s</string>
 </resources>

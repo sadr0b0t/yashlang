@@ -97,6 +97,16 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/yashlang_export"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".ImportDataActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/yashlang_import"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".ImportPlaylistsActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/yashlang_import_playlists"
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

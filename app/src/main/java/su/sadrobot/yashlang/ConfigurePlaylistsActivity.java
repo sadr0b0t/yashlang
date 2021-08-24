@@ -128,6 +128,9 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
             case R.id.action_add_recommended:
                 startActivity(new Intent(ConfigurePlaylistsActivity.this, AddRecommendedPlaylistsActivity.class));
                 break;
+            case R.id.action_import:
+                startActivity(new Intent(ConfigurePlaylistsActivity.this, ImportDataActivity.class));
+                break;
             case R.id.action_export:
                 startActivity(new Intent(ConfigurePlaylistsActivity.this, ExportDataActivity.class));
                 break;
