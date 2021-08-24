@@ -237,11 +237,6 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://yt3.ggpht.com/a/AATXAJyCOIaEjOEwL53zL-_y2pcBxx-WDyB3Y6_AYeBz=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
 
-            new PlaylistInfo("Planeta Karapuz",
-                    "https://www.youtube.com/channel/UCGndH2dKiqPJ_iaqZMKWl9w",
-                    "https://yt3.ggpht.com/a/AATXAJzV0jrSWbXRF_hzJjShWiGCEtJp3Y0vS3NF2JtU=s240-c-k-c0x00ffffff-no-rj",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
-
             // Союзмультфильм удОлил со всех каналов все мультики почти
             // Канал ClassicCartoonsMedia закрыл доступ к советским мультфильмам Союзмультфильм
             // (более 1 тыс роликов ранее доступных на канале переведено в закрытый доступ)
@@ -256,21 +251,9 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     PlaylistInfo.PlaylistType.YT_USER),
 
             // много разных мультиков (в т.ч. с зачищенного союзмультифильма)
-            new PlaylistInfo("Мультфильмы",
-                    "https://www.youtube.com/channel/UCfuWYqd9Xqiwx_NwaSL3EbA",
-                    "https://yt3.ggpht.com/a/AATXAJwVv0o3IXga7FpJgZfLyKzArMlOsSxdbHGGQgIJVA=s240-c-k-c0x00ffffff-no-rj",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
-            new PlaylistInfo("Planeta Karapuz",
-                    "https://www.youtube.com/channel/UCGndH2dKiqPJ_iaqZMKWl9w",
-                    "https://yt3.ggpht.com/a/AATXAJzV0jrSWbXRF_hzJjShWiGCEtJp3Y0vS3NF2JtU=s240-c-k-c0x00ffffff-no-rj",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
-            new PlaylistInfo("Мультфильмы детям",
-                    "https://www.youtube.com/channel/UClV4TlbvwbL643zGnk9Cs8g",
-                    "https://yt3.ggpht.com/ytc/AAUvwnhycWHxU9syDkbqmgzcVmnV1TaTvt0GpFTjVJSGDw=s240-c-k-c0x00ffffff-no-rj",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
-            new PlaylistInfo("СОЮЗМУЛЬТФИЛЬМ +",
-                    "https://www.youtube.com/channel/UCT5azO0wt-hk1yYYUwaKXnw",
-                    "https://yt3.ggpht.com/ytc/AAUvwnhLY9u-TohyrddYUA5OHXvUClO7Hk4yjqJoqqpHjg=s240-c-k-c0x00ffffff-no-rj",
+            new PlaylistInfo("Мультяшики",
+                    "https://www.youtube.com/channel/UC1shWzOsPcKAVDjJ9HnwKwQ",
+                    "https://yt3.ggpht.com/ytc/AAUvwnil1LMRGYrGDC9jHOmWvGgRbBEf8BYktntD4O_udw=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_CHANNEL),
             new PlaylistInfo("Мульт _TV",
                     "https://www.youtube.com/channel/UCd6CwAi4-9_k3Ooa8A66fzQ",
@@ -338,6 +321,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/c/Minuscule",
                     "https://yt3.ggpht.com/a/AATXAJwTzd2iNVMUstIV5eesp-lV28UQz2N4tsu1yMFvoA=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
+            new PlaylistInfo("Muzzy in Gondoland",
+                    "https://www.youtube.com/playlist?list=PLyQQKag6VcB5C6ZliX4j9Kcd91e0siUQE",
+                    "https://i.ytimg.com/vi/HrWHEXeElNY/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBiAh3I_1-A1H2kju88pGflGgwhsw",
+                    PlaylistInfo.PlaylistType.YT_PLAYLIST),
 
             new PlaylistInfo("Мифы Древней Греции",
                     "https://www.youtube.com/playlist?list=PLcUOA4FFMK6Os4O89ScOGO8jl13T-n1Bv",
@@ -377,7 +364,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
             new PlaylistInfo("Кинокомпания \"СТВ\"",
                     "https://www.youtube.com/c/CTBFilm",
                     "https://yt3.ggpht.com/ytc/AAUvwngrNXgnofBYgto_IpSPharvCoF7VOSKkFiAGYieRw=s240-c-k-c0x00ffffff-no-rj",
-                    PlaylistInfo.PlaylistType.YT_CHANNEL),
+                    PlaylistInfo.PlaylistType.YT_USER),
 
             new PlaylistInfo("RVISION: Советские фильмы",
                     "https://www.youtube.com/user/RVisionGorky",
@@ -395,10 +382,20 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://www.youtube.com/c/retrofilmi",
                     "https://yt3.ggpht.com/a/AATXAJyGNStjBuwdiVhQmP-7RDF8e2gGVlv2Zuw0HOY1gA=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
-            new PlaylistInfo(" Фильмография ",
+            new PlaylistInfo("Фильмография",
                     "https://www.youtube.com/user/Brajuc",
                     "https://yt3.ggpht.com/ytc/AAUvwnh6vs5ZpEi6FlF5LB3vZV35dcC8P8xl5wztFOWi=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
+            // некоторое количество старых вестернов с советским дубляжем, немного хроники, в начале личные видосы
+            new PlaylistInfo("Алексей Давыденков",
+                    "https://www.youtube.com/c/Alekcey66",
+                    "https://yt3.ggpht.com/ytc/AAUvwnivPkrSv7xfvee-08DA2xgFRoC80ZbDWKPxLLMpRg=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_USER),
+            // некоторое количество старых советских и зарубежных фильмов и мультиков
+            new PlaylistInfo("Борис Антонов Борис Антонов",
+                    "https://www.youtube.com/channel/UCevqAEdjChQJOug7-CPhjhg",
+                    "https://yt3.ggpht.com/ytc/AKedOLRkGDkKjrkma9Oxjcf7HiB-vshPRt79oOLIMw=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
 
             new PlaylistInfo("Советская фантастика.",
                     "https://www.youtube.com/playlist?list=PLT9f4X3_Znfo5fryLC0x6EWiuc3ebH5wJ",
