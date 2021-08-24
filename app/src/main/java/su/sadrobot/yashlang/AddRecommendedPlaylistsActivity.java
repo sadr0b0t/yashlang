@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
@@ -53,6 +54,7 @@ import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
+import su.sadrobot.yashlang.view.OnListItemSwitchListener;
 import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
 
 /**
@@ -459,9 +461,9 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://yt3.ggpht.com/a/AATXAJyXXNq_bud5ECjqkAVXtzqD932wp-4eMzp6_6li=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_USER),
             new PlaylistInfo("Осторожно Модерн",
-                            "https://www.youtube.com/channel/UCMI9obHNAipNDU7iSoPnu7Q",
-                            "https://yt3.ggpht.com/ytc/AAUvwniKUEwSkH8W_ATyHif6k6bxfp7R8OFiFGCfX6XI=s240-c-k-c0x00ffffff-no-rj",
-                            PlaylistInfo.PlaylistType.YT_CHANNEL),
+                    "https://www.youtube.com/channel/UCMI9obHNAipNDU7iSoPnu7Q",
+                    "https://yt3.ggpht.com/ytc/AAUvwniKUEwSkH8W_ATyHif6k6bxfp7R8OFiFGCfX6XI=s240-c-k-c0x00ffffff-no-rj",
+                    PlaylistInfo.PlaylistType.YT_CHANNEL),
 
             // пока не буду добавлять, ~260 страниц, чуть меньше 9 тыс элементов
 //            new PlaylistInfo("Официальный канал КВН",
@@ -553,6 +555,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://yt3.ggpht.com/a/AATXAJwnXFEoLRk3FgT_o_oGwjwJJdB_tiHW3Vh-PzBx=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_CHANNEL)
     };
+    private List<PlaylistInfo> playlistsToAdd = new ArrayList<>();
 
 
     @Override
@@ -592,54 +595,68 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     PlaylistInfo.PlaylistType.YT_USER));
         }
         final PlaylistInfoArrayAdapter recPlsAdapter = new PlaylistInfoArrayAdapter(this,
-                plList, new OnListItemClickListener<PlaylistInfo>() {
-            @Override
-            public void onItemClick(final View view, final int position, final PlaylistInfo item) {
-            }
+                plList,
+                new OnListItemClickListener<PlaylistInfo>() {
+                    @Override
+                    public void onItemClick(final View view, final int position, final PlaylistInfo item) {
+                    }
 
-            @Override
-            public boolean onItemLongClick(final View view, final int position, final PlaylistInfo plInfo) {
+                    @Override
+                    public boolean onItemLongClick(final View view, final int position, final PlaylistInfo plInfo) {
 
-                // параметр Gravity.CENTER не работает (и появился еще только в API 19+),
-                // работает только вариант Gravity.RIGHT
-                //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
-                final PopupMenu popup = new PopupMenu(AddRecommendedPlaylistsActivity.this,
-                        view.findViewById(R.id.playlist_name_txt));
-                popup.getMenuInflater().inflate(R.menu.playlist_item_actions, popup.getMenu());
-                popup.setOnMenuItemClickListener(
-                        new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(final MenuItem item) {
-                                switch (item.getItemId()) {
-                                    case R.id.action_copy_playlist_name: {
-                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                        final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
-                                        clipboard.setPrimaryClip(clip);
+                        // параметр Gravity.CENTER не работает (и появился еще только в API 19+),
+                        // работает только вариант Gravity.RIGHT
+                        //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
+                        final PopupMenu popup = new PopupMenu(AddRecommendedPlaylistsActivity.this,
+                                view.findViewById(R.id.playlist_name_txt));
+                        popup.getMenuInflater().inflate(R.menu.playlist_item_actions, popup.getMenu());
+                        popup.setOnMenuItemClickListener(
+                                new PopupMenu.OnMenuItemClickListener() {
+                                    @Override
+                                    public boolean onMenuItemClick(final MenuItem item) {
+                                        switch (item.getItemId()) {
+                                            case R.id.action_copy_playlist_name: {
+                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
+                                                clipboard.setPrimaryClip(clip);
 
-                                        Toast.makeText(AddRecommendedPlaylistsActivity.this,
-                                                getString(R.string.copied) + ": " + plInfo.getName(),
-                                                Toast.LENGTH_LONG).show();
-                                        break;
-                                    }
-                                    case R.id.action_copy_playlist_url: {
-                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                        final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
-                                        clipboard.setPrimaryClip(clip);
+                                                Toast.makeText(AddRecommendedPlaylistsActivity.this,
+                                                        getString(R.string.copied) + ": " + plInfo.getName(),
+                                                        Toast.LENGTH_LONG).show();
+                                                break;
+                                            }
+                                            case R.id.action_copy_playlist_url: {
+                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
+                                                clipboard.setPrimaryClip(clip);
 
-                                        Toast.makeText(AddRecommendedPlaylistsActivity.this,
-                                                getString(R.string.copied) + ": " + plInfo.getUrl(),
-                                                Toast.LENGTH_LONG).show();
-                                        break;
+                                                Toast.makeText(AddRecommendedPlaylistsActivity.this,
+                                                        getString(R.string.copied) + ": " + plInfo.getUrl(),
+                                                        Toast.LENGTH_LONG).show();
+                                                break;
+                                            }
+                                        }
+                                        return true;
                                     }
                                 }
-                                return true;
-                            }
-                        }
-                );
-                popup.show();
-                return true;
-            }
-        }, null);
+                        );
+                        popup.show();
+                        return true;
+                    }
+                },
+                new OnListItemSwitchListener<PlaylistInfo>() {
+                    @Override
+                    public void onItemCheckedChanged(final CompoundButton buttonView, final int position,
+                                                     final PlaylistInfo item, final boolean isChecked) {
+                        item.setEnabled(isChecked);
+                    }
+
+                    @Override
+                    public boolean isItemChecked(final PlaylistInfo item) {
+                        return item.isEnabled();
+                    }
+                });
+
         playlistList.setAdapter(recPlsAdapter);
 
         // кнопка "Назад" на акшенбаре
@@ -648,6 +665,12 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
         playlistsAddBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                playlistsToAdd.clear();
+                for (final PlaylistInfo plInfo : recommendedPlaylists) {
+                    if (plInfo.isEnabled()) {
+                        playlistsToAdd.add(plInfo);
+                    }
+                }
                 addPlaylistsBg();
             }
         });
@@ -678,7 +701,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
             }
         });
 
-        if(ConfigOptions.DEVEL_MODE_ON) {
+        if (ConfigOptions.DEVEL_MODE_ON) {
             fetchInfoOnline();
         }
     }
@@ -687,7 +710,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
 
-        if(taskController != null) {
+        if (taskController != null) {
             taskController.cancel();
         }
     }
@@ -699,7 +722,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
     }
 
     private void updateControlsVisibility() {
-        switch (state){
+        switch (state) {
             case INITIAL_RECOMMENDED:
                 recommendedPlaylistsView.setVisibility(View.VISIBLE);
                 playlistsAddProgressView.setVisibility(View.GONE);
@@ -758,7 +781,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         playlistAddStatusTxt.setText(taskController.getStatusMsg());
-                        if(taskController.getException() == null) {
+                        if (taskController.getException() == null) {
                             state = State.PLAYLIST_ADD_OK;
                         } else {
                             state = State.PLAYLIST_ADD_ERROR;
@@ -792,13 +815,13 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                 boolean allOk = true;
 
                 // начинаем с индекса plToAddStartIndex (например, если продолжаем после ошибки)
-                for (; plToAddStartIndex < recommendedPlaylists.length; plToAddStartIndex++) {
-                    if(taskController.isCanceled()) {
+                for (; plToAddStartIndex < playlistsToAdd.size(); plToAddStartIndex++) {
+                    if (taskController.isCanceled()) {
                         allOk = false;
                         break;
                     }
 
-                    final PlaylistInfo plInfo = recommendedPlaylists[plToAddStartIndex];
+                    final PlaylistInfo plInfo = playlistsToAdd.get(plToAddStartIndex);
                     // подгрузим иконку плейлиста (хотя скорее всего она уже в кеше)
                     try {
                         // иконка канала
@@ -869,7 +892,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                for(final PlaylistInfo plInfo : recommendedPlaylists) {
+                for (final PlaylistInfo plInfo : recommendedPlaylists) {
                     try {
                         final PlaylistInfo plInfo_ = ContentLoader.getInstance().getPlaylistInfo(plInfo.getUrl());
                         System.out.println(plInfo_.getName());
