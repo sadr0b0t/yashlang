@@ -37,6 +37,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.List;
 
 import su.sadrobot.yashlang.controller.DataIO;
@@ -146,6 +149,17 @@ public class ImportDataActivity extends AppCompatActivity {
                     public void run() {
                         try {
                             loadedFileContent = DataIO.loadFromUri(ImportDataActivity.this, contentUri);
+                            // здесь небольшой (возможно, временный) хак - если исходная строка
+                            // слишком длинная (например, если в файле сохранены списки роликов),
+                            // то её не получится передать в активити через интент, поэтому
+                            // возьмем здесь только необходимое - список плейлистов без роликов,
+                            // в таком случае строка будет достаточно короткой.
+                            final JSONObject jsonRoot = new JSONObject(loadedFileContent);
+                            final JSONArray jsonPlaylists = jsonRoot.getJSONArray("playlists");
+                            final JSONObject jsonRoot1 = new JSONObject();
+                            jsonRoot1.put("playlists", jsonPlaylists);
+                            loadedFileContent = jsonRoot1.toString();
+
                             loadedPlaylists = DataIO.loadPlaylistsFromJSON(loadedFileContent);
 
                             if(loadedPlaylists.size() > 0) {
@@ -201,6 +215,17 @@ public class ImportDataActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             try {
+                                // здесь небольшой (возможно, временный) хак - если исходная строка
+                                // слишком длинная (например, если в файле сохранены списки роликов),
+                                // то её не получится передать в активити через интент, поэтому
+                                // возьмем здесь только необходимое - список плейлистов без роликов,
+                                // в таком случае строка будет достаточно короткой.
+                                final JSONObject jsonRoot = new JSONObject(loadedFileContent);
+                                final JSONArray jsonPlaylists = jsonRoot.getJSONArray("playlists");
+                                final JSONObject jsonRoot1 = new JSONObject();
+                                jsonRoot1.put("playlists", jsonPlaylists);
+                                loadedFileContent = jsonRoot1.toString();
+
                                 loadedPlaylists = DataIO.loadPlaylistsFromJSON(loadedFileContent);
 
                                 if(loadedPlaylists.size() > 0) {
