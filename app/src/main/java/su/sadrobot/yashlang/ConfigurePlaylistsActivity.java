@@ -54,7 +54,7 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_view_playlist);
+        setContentView(R.layout.activity_configure_playlists);
 
         tabs = findViewById(R.id.tabs);
         pager = findViewById(R.id.pager);
