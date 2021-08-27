@@ -29,7 +29,7 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 
-@Database(entities = {VideoItem.class, PlaylistInfo.class, Profile.class, ProfilePlaylists.class}, version = 3)
+@Database(entities = {VideoItem.class, PlaylistInfo.class, Profile.class, ProfilePlaylists.class}, version = 4)
 public abstract class VideoDatabase extends RoomDatabase {
     private static volatile VideoDatabase INSTANCE;
 
@@ -46,6 +46,7 @@ public abstract class VideoDatabase extends RoomDatabase {
                             VideoDatabase.class, "video-db")
                             .addMigrations(MIGRATION_1_2)
                             .addMigrations(MIGRATION_2_3)
+                            .addMigrations(MIGRATION_3_4)
                             //.fallbackToDestructiveMigration()
                             //.allowMainThreadQueries()
                             .build();
@@ -111,6 +112,40 @@ public abstract class VideoDatabase extends RoomDatabase {
 
             database.execSQL("CREATE INDEX index_profile_playlists_profile_id ON profile_playlists (profile_id)");
             database.execSQL("CREATE INDEX index_profile_playlists_playlist_id ON profile_playlists (playlist_id)");
+        }
+    };
+
+    private static Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(final SupportSQLiteDatabase database) {
+            // API NewPipe раньше (как минимум в версии 0.20.2 - yashlang 0.6.0) возвращал
+            // адрес видео в виде (так плохо - это ссылка на json):
+            // https://open.tube/api/v1/videos/0e8f12de-da85-4f10-bb0b-673680e38f61
+            // а потом начала в виде (так хорошо - это ссылка на веб):
+            // https://open.tube/videos/watch/0e8f12de-da85-4f10-bb0b-673680e38f61
+            // Проблема в том, что старые ролики PeerTube сохранились в базе с неправильным
+            // адресом, а новые (начиная с версии 0.7.0) начнут сохраняться с правильным.
+            // Проблемы:
+            //   - адреса старых роликов будут копироваться неправильно в интерфейсе приложения
+            //   - разница в формате адресов ломает механизм определения новых роликов для плейлистов PeerTube
+            // Решение: обновить адреса роликов PeerTube в базе, схему базы не меняем.
+            // https://www.sqlitetutorial.net/sqlite-replace-function/
+            // SELECT * FROM video_item where item_url LIKE '%api/v1%'
+            // SELECT * FROM video_item where item_url LIKE '%videos/watch%'
+            // Проверял скрипт в Sqliteman
+            database.execSQL("UPDATE video_item SET item_url = REPLACE(item_url, '/api/v1/videos/', '/videos/watch/')");
+
+            // исправить ссылку на иконку плейлиста с лоуреза на нормальное качество (для совсем старых установок,
+            // новые уже и так сохраняются с качеством получше)
+            // по умолчанию ютюб предлагает вариант =s48-, какое-то время назад я заменял их на =s100-, потом остановился на =s240-
+            // и пока больше не планирую менять (если потребуют иконки еще больше, можно будет подменять строку на лету)
+            // вариант как было:
+            // https://yt3.ggpht.com/a/AATXAJyrcud4u0wZRamlOQyHYV0pREVXNpPFfgs9dYec0g=s48-c-k-c0x00ffffff-no-rj
+            // вариант как должно быть:
+            // https://yt3.ggpht.com/a/AATXAJyrcud4u0wZRamlOQyHYV0pREVXNpPFfgs9dYec0g=s240-c-k-c0x00ffffff-no-rj
+            // SELECT * FROM playlist_info WHERE (type='YT_USER' OR type='YT_CHANNEL') AND (thumb_url like '%=s48-%' OR thumb_url like '%=s100-%')
+            database.execSQL("UPDATE playlist_info SET thumb_url = REPLACE(thumb_url, '=s48-', '=s240-') WHERE type='YT_USER' OR type='YT_CHANNEL'");
+            database.execSQL("UPDATE playlist_info SET thumb_url = REPLACE(thumb_url, '=s100-', '=s240-') WHERE type='YT_USER' OR type='YT_CHANNEL'");
         }
     };
 }

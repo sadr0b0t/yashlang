@@ -723,6 +723,12 @@ public class ContentLoader {
         return extractor;
     }
 
+    /**
+     * Создать объект VideoItem из объекта StreamExtractor - на странице видео
+     * @param item
+     * @return
+     * @throws ParsingException
+     */
     public VideoItem extractVideoItem(final StreamExtractor item) throws ParsingException {
         final String itemUrl = item.getUrl();
         final String name = item.getName();
@@ -762,6 +768,11 @@ public class ContentLoader {
         return new VideoItem(playlistId, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl, enabled, fakeTimestamp);
     }
 
+    /**
+     * Создать объект VideoItem из объекта StreamInfoItem - ролик на странице списка роликов
+     * @param item
+     * @return
+     */
     public VideoItem extractVideoItem(final StreamInfoItem item) {
         final long playlistId = PlaylistInfo.ID_NONE;
         final String itemUrl = item.getUrl();

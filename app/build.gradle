@@ -1,15 +1,18 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId "su.sadrobot.yashlang"
         minSdkVersion 17
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 16
         versionName "0.7.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Required when setting minSdkVersion to 20 or lower
+        multiDexEnabled true
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -21,7 +24,12 @@ android {
     // для exoplayer 2.10.8 (> 2.7.3)
     // https://exoplayer.dev/hello-world.html
     // https://github.com/google/ExoPlayer/issues/5276
+    // и для поддержки старых андроидов с новым NewPipeExtractor
     compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
@@ -34,6 +42,15 @@ android {
 }
 
 dependencies {
+
+    // Support older Android < API=26 with newer NewPipeExtractor
+    // https://github.com/TeamNewPipe/NewPipeExtractor
+    // > Note: To use NewPipe Extractor in projects with a minSdkVersion below 26, API desugaring is required.
+    // https://developer.android.com/studio/write/java8-support#library-desugaring
+    // https://developer.android.com/studio/releases/gradle-plugin#updating-plugin
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -71,6 +88,13 @@ dependencies {
     // Test helpers
     //testImplementation "androidx.room:room-testing:$room_version"
 
+    // https://github.com/square/okhttp
+    // https://square.github.io/okhttp/changelog/
+    // Требуется для NewPipeExtractor с некоторых версий, без него компилируется,
+    // но не работает загрузка плейлистов дальше 2-й страницы
+    // 4.8.1 компилируется с текущими настройками проекта
+    // 4.9.0 - уже нет
+    implementation 'com.squareup.okhttp3:okhttp:4.8.1'
 
     // NewPipe: youtube parser
     // https://github.com/TeamNewPipe/NewPipeExtractor
@@ -81,8 +105,11 @@ dependencies {
     // с NewPipeExtractor:v0.20.3 вылетает с ClassNotFound при добавлении плейлиста
     // с NewPipeExtractor:v0.20.2 работает ок
     // поэтому останемся пока на 0.20.2, по крайней мере пока не поломают Ютюб
-    // implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.20.3"
-    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.20.2"
+    // implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.20.2"
+    // таки ютюб поломали, апгрейдимся
+    // (и дропать старые андроиды не обязательно - для этого есть coreLibraryDesugaringEnabled true)
+    // https://developer.android.com/studio/write/java8-support#library-desugaring
+    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.21.9"
 
     // google Exoplayer
     // https://github.com/google/ExoPlayer

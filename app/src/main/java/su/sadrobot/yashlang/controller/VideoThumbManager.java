@@ -149,7 +149,11 @@ public class VideoThumbManager {
     public Bitmap loadPlaylistThumb(final Context context, final String thumbUrl) {
         Bitmap thumb = null;
         try {
-            thumb = loadBitmap(thumbUrl);
+            // в базе данных и так сохраняется ссылка на большую иконку (=240-),
+            // но это может быть пригодится, если придется взять картинку еще больше
+            // (или, наоборот, поэкономит трафик и взять меньше) - сюда можно будет
+            // передавать нужный размер и подставлять его в url
+            thumb = loadBitmap(PlaylistUrlUtil.fixYtChannelAvatarSize(thumbUrl));
         } catch (IOException e) {
             //thumb = defaultThumb; // default thumb
         }

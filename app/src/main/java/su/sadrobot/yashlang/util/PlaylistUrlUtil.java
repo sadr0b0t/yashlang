@@ -88,11 +88,11 @@ public class PlaylistUrlUtil {
     }
 
     public static boolean isPtVideo(final String url) {
-        // например:
-        // https://peer.tube/api/v1/videos/a5bcc9ab-221c-4e25-afdb-88d837741b61
+        // например (ссылка на страницу в браузере):
+        // https://open.tube/videos/watch/0e8f12de-da85-4f10-bb0b-673680e38f61
 
         // https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html
-        return url.matches(".+/api/.+/videos/.+");
+        return url.matches(".+/videos/watch/.+");
     }
 
     /**
@@ -116,7 +116,7 @@ public class PlaylistUrlUtil {
         // В какой-то момент getAvatarUrl стал возвращать слишком маленькую иконку (s48)
         // (скорее всего, её такую возвращает ютюб, т.к. NewPipeExtractor парсит страницы)
         // У нас иконки примерно 100x100 везде, но будем брать с запасом 240x240, чтобы хайрез
-        return iconUrl.replace("=s48-", "=s240-");
+        return iconUrl.replace("=s48-", "=s240-").replace("=s100-", "=s240-");
     }
 
     public static String fixYtVideoThumbSize(final String thumbUrl) {
