@@ -114,5 +114,5 @@ dependencies {
     // google Exoplayer
     // https://github.com/google/ExoPlayer
     // https://exoplayer.dev/
-    implementation 'com.google.android.exoplayer:exoplayer:2.11.8'
+    implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
 }

@@ -73,7 +73,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:keepScreenOn="true"
-        app:player_layout_id="@layout/exo_simple_player_view"
+        app:player_layout_id="@layout/exo_player_view"
         app:resize_mode="fit"
         app:show_timeout="45000"
         app:surface_type="texture_view" />

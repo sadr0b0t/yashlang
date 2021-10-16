@@ -53,16 +53,12 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -185,7 +181,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     private VideoItem currentVideo;
     // для функции перехода на следующее видео
     private int currentVideoPosition = -1;
-    private Map<Long, Integer> posMap = new HashMap<>();
+    private final Map<Long, Integer> posMap = new HashMap<>();
 
     private Stack<VideoItem> playbackHistory = new Stack<>();
 
@@ -218,7 +214,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     // здесь:
     //   - конструктор ThreadPoolExecutor с LinkedBlockingQueue взял из Executors.newSingleThreadExecutor
     //   - ThreadPoolExecutor.execute вызывает queue.offer, а не queue.add, поэтому переопределяем его
-    private ExecutorService videoLoadingExecutor =
+    private final ExecutorService videoLoadingExecutor =
             new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>() {
                         @Override
@@ -228,7 +224,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                         }
                     });
 
-    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
@@ -338,7 +334,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
 
         // Плеер
-        final SimpleExoPlayer exoPlayer = ExoPlayerFactory.newSimpleInstance(this);
+        final SimpleExoPlayer exoPlayer = new SimpleExoPlayer.Builder(this).build();
         videoDataSourceFactory = new DefaultDataSourceFactory(this,
                 Util.getUserAgent(this, "yashlang"));
 
@@ -379,56 +375,33 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         });
 
-        //videoPlayerView.setControlDispatcher(new DefaultControlDispatcher() {
-        videoPlayerControlView.setControlDispatcher(new DefaultControlDispatcher() {
+        // https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Player.Listener.html
+        exoPlayer.addListener(new Player.Listener() {
             @Override
-            public boolean dispatchSetPlayWhenReady(final Player player, final boolean playWhenReady) {
-                // https://stackoverflow.com/questions/47731779/detect-pause-resume-in-exoplayer
-                // определить, что пользователь кникнул на паузу
-                if (playWhenReady) {
-                    // Play button clicked
-                } else {
-                    // Paused button clicked
+            public void onPlayWhenReadyChanged(boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
+                // сохранить текущее состояние, если плеер встал на паузу
+                if (!playWhenReady) {
                     saveVideoCurrPos();
                 }
-                return super.dispatchSetPlayWhenReady(player, playWhenReady);
             }
 
             @Override
-            public boolean dispatchSeekTo(final Player player, final int windowIndex, final long positionMs) {
-                saveVideoCurrPos();
-                return super.dispatchSeekTo(player, windowIndex, positionMs);
-            }
-        });
-
-        exoPlayer.addListener(new Player.EventListener() {
-
-            @Override
-            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
-            }
-
-            @Override
-            public void onLoadingChanged(boolean isLoading) {
-
+            public void onPositionDiscontinuity(Player.PositionInfo oldPosition, Player.PositionInfo newPosition, @Player.DiscontinuityReason int reason) {
+                // сохранить текущее состояние, если текущее место проигрывания поменялось
+                // по внешней причине, а не в процессе проигрывания
+                // (например, пользователь кликнул на ползунке плеера)
+                if(reason == Player.DISCONTINUITY_REASON_SEEK) {
+                    // Сохранять только в том случае, если переход по действию пользователя (DISCONTINUITY_REASON_SEEK).
+                    // При переключении ролика на новый будет вызвано событие DISCONTINUITY_REASON_REMOVE
+                    // с новой позицией newPosition равной 0 (её точно нельзя сохранять).
+                    // Насчет других возможных вариантов - с ними пока не встречался, если потребуется, добавим.
+                    saveVideoCurrPos();
+                }
             }
 
             @Override
-            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                if (playbackState == Player.STATE_ENDED && playWhenReady) {
-                    // если playWhenReady=true (это произойдет, если ролик доиграл до конца сам),
-                    // то сюда можем попасть два раза подряд для одного и того же ролика:
-                    // 1-й раз, когда ролик закончил проигрывание
-                    // 2-й раз, если после этого произошло событие onPause (выключен экран телефона
-                    // или экран приложения перестал быть активным)
-                    // При этом:
-                    // - первый раз playWhenReady=true, на второй раз playWhenReady=false
-                    // - если мы еще раз вызовем событие onPause, то 3-й раз сюда уже не попадем
-                    // - если событие onPause произойдет во время проигрывания ролика, то мы сюда
-                    // не попадем.
-                    // Поэтому будем идти по этой ветке (загружать следующий ролик после завершения
-                    // предыдущего только тогда, когда playWhenReady==true)
-
+            public void onPlaybackStateChanged(int playbackState) {
+                if (playbackState == Player.STATE_ENDED) {
                     // ролик завершился - переходим к следующему
                     // TODO: сделайть экран с таймаутом секунд на 10, прогрессбаром и кнопкой
                     // перейти сейчас, отменить, играть заново текущий.
@@ -457,17 +430,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onRepeatModeChanged(int repeatMode) {
-
-            }
-
-            @Override
-            public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-
-            }
-
-            @Override
-            public void onPlayerError(final ExoPlaybackException error) {
+            public void onPlayerError(final PlaybackException error) {
                 //  здесь для предотвращения деградации после вот этого коммита
                 //  https://github.com/sadr0b0t/yashlang/commit/b89c415ba3d71a0ac81c40f5d54b7fad249eac27
                 //  применим логику:
@@ -524,21 +487,6 @@ public class WatchVideoActivity extends AppCompatActivity {
                         }
                     }
                 });
-            }
-
-            @Override
-            public void onPositionDiscontinuity(int reason) {
-
-            }
-
-            @Override
-            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-
-            }
-
-            @Override
-            public void onSeekProcessed() {
-
             }
         });
 
@@ -843,28 +791,6 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         });
 
-        //videoPlayerView.setControlDispatcher(new DefaultControlDispatcher() {
-        videoPlayerControlView.setControlDispatcher(new DefaultControlDispatcher() {
-            @Override
-            public boolean dispatchSetPlayWhenReady(final Player player, final boolean playWhenReady) {
-                // https://stackoverflow.com/questions/47731779/detect-pause-resume-in-exoplayer
-                // определить, что пользователь кникнул на паузу
-                if (playWhenReady) {
-                    // Play button clicked
-                } else {
-                    // Paused button clicked
-                    saveVideoCurrPos();
-                }
-                return super.dispatchSetPlayWhenReady(player, playWhenReady);
-            }
-
-            @Override
-            public boolean dispatchSeekTo(final Player player, final int windowIndex, final long positionMs) {
-                saveVideoCurrPos();
-                return super.dispatchSeekTo(player, windowIndex, positionMs);
-            }
-        });
-
         // Панель ошибки загрузки видео
         videoPlayerErrorView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -982,11 +908,9 @@ public class WatchVideoActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        // экран ушел на задний план:
-        // поставить на паузу,
+        // экран ушел на задний план: поставить на паузу
+        // (текущая позиция будет сохранена в обработчике события постановки на паузу)
         videoPlayerView.getPlayer().setPlayWhenReady(false);
-        // сохранить текущую позицию
-        saveVideoCurrPos();
     }
 
     @Override
@@ -1484,7 +1408,8 @@ public class WatchVideoActivity extends AppCompatActivity {
     private void playVideoStream(final String streamUrl, final long seekTo, final boolean paused) {
         if (streamUrl == null) {
             // остановить проигрывание текущего ролика, если был загружен
-            videoPlayerView.getPlayer().stop(true);
+            videoPlayerView.getPlayer().stop();
+            videoPlayerView.getPlayer().clearMediaItems();
         } else {
             // https://exoplayer.dev/
             // https://github.com/google/ExoPlayer
@@ -1498,7 +1423,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             final Uri mp4VideoUri = Uri.parse(streamUrl);
             final MediaSource videoSource = new ProgressiveMediaSource.Factory(videoDataSourceFactory)
-                    .createMediaSource(mp4VideoUri);
+                    .createMediaSource(MediaItem.fromUri(mp4VideoUri));
 
             // Поставим на паузу старое видео, пока готовим новое
             if (videoPlayerView.getPlayer().getPlaybackState() != Player.STATE_ENDED) {
@@ -1510,8 +1435,9 @@ public class WatchVideoActivity extends AppCompatActivity {
                 videoPlayerView.getPlayer().setPlayWhenReady(false);
             }
 
-            // Prepare the player with the source.
-            ((SimpleExoPlayer) videoPlayerView.getPlayer()).prepare(videoSource);
+            // Prepare the player with the source
+            ((SimpleExoPlayer) videoPlayerView.getPlayer()).setMediaSource(videoSource);
+            videoPlayerView.getPlayer().prepare();
 
             // Укажем текущую позицию сразу при загрузке видео
             // (в коментах что-то пишут что-то про датасорсы, которые поддерживают или не поддерживают
