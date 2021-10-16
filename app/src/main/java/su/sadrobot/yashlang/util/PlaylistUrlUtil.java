@@ -54,9 +54,16 @@ public class PlaylistUrlUtil {
         // https://peer.tube/accounts/animation@vidcommons.org/videos
         // в конец могут попасть параметры:
         // https://peertube.ch/accounts/gabyweber/videos?a-state=42
+        //
+        // вариант с сокращением:
+        // https://github.com/Chocobozzz/PeerTube/releases/tag/v3.3.0-rc.1
+        // https://github.com/sadr0b0t/yashlang/issues/109
+        // старый вариант: https://mult.sadrobot.su/accounts/sadrobot/videos
+        // новый вариант: https://mult.sadrobot.su/a/sadrobot/videos
 
         // https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html
-        return url.matches(".+/accounts/.+/videos(\\?.+)?");
+        return url.matches(".+/accounts/.+/videos(\\?.+)?") ||
+                url.matches(".+/a/.+/videos(\\?.+)?");
     }
 
     public static boolean isPtChannel(final String url) {
@@ -65,9 +72,16 @@ public class PlaylistUrlUtil {
         // https://peer.tube/video-channels/cartoons@vidcommons.org/videos
         // в конец могут попасть параметры:
         // https://peer.tube/video-channels/root_channel@yunopeertube.myddns.me/videos?a-state=42
+        //
+        // вариант c сокращением:
+        // https://github.com/Chocobozzz/PeerTube/releases/tag/v3.3.0-rc.1
+        // https://github.com/sadr0b0t/yashlang/issues/109
+        // старый вариант: https://mult.sadrobot.su/video-channels/miscmults/videos
+        // новый вариант: https://mult.sadrobot.su/c/miscmults/videos
 
         // https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html
-        return url.matches(".+/video-channels/.+/videos(\\?.+)?");
+        return url.matches(".+/video-channels/.+/videos(\\?.+)?") ||
+                url.matches(".+/c/.+/videos(\\?.+)?");
     }
 
     public static boolean isPtPlaylist(final String url) {
