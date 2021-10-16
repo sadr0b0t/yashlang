@@ -1,4 +1,4 @@
-Online YouTube video player for Android with local playlists and whitelisted recommendations
+Online PeerTube and YouTube video player for Android with local playlists and whitelisted recommendations
 
 * Add fave channels and playlists
 * Switch off videos inside added playlists if you don't like them
