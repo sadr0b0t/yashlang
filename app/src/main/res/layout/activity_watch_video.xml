@@ -102,12 +102,30 @@
                     android:src="@drawable/exo_controls_next" />
             </LinearLayout>
 
-            <com.google.android.exoplayer2.ui.PlayerControlView
-                android:id="@+id/video_player_control_view"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                app:controller_layout_id="@layout/exo_player_custom_control_view" />
+                android:orientation="horizontal">
+
+                <com.google.android.exoplayer2.ui.PlayerControlView
+                    android:id="@+id/video_player_control_view"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:controller_layout_id="@layout/exo_player_custom_control_view" />
+
+                <TextView
+                    android:id="@+id/video_quality_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|center_vertical"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="12dp"
+                    android:background="#000000"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView

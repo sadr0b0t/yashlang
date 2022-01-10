@@ -33,12 +33,16 @@ import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.playlist.PlaylistExtractor;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
+import org.schabi.newpipe.extractor.stream.AudioStream;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
+import org.schabi.newpipe.extractor.stream.VideoStream;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -636,39 +640,39 @@ public class ContentLoader {
         return extractVideoItem(extractor);
     }
 
-    public String extractDefaultStreamUrl(final String itemUrl) throws ExtractionException, IOException {
+    /**
+     * Потоки видео и аудио для ролика.
+     * Потоки видео отсортированы по качеству от лучших к худшим.
+     *
+     * @param itemUrl
+     * @return
+     * @throws ExtractionException
+     * @throws IOException
+     */
+    public StreamHelper.StreamSources extractStreams(final String itemUrl) throws ExtractionException, IOException {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
         NewPipe.init(DownloaderTestImpl.getInstance());
         final StreamExtractor extractor = getStreamExtractor(itemUrl);
         extractor.fetchPage();
 
-        // взять стрим 1-й с списке (скорее всего это стрим с наименьшим качеством - обычно это 360p mp4)
-        final String streamUrl = extractor.getVideoStreams().size() > 0 ?
-                extractor.getVideoStreams().get(0).getUrl() : null;
-
-        return streamUrl;
-    }
-
-    public String extractStreamUrl(final String itemUrl) throws ExtractionException, IOException {
-        // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubeStreamExtractorDefaultTest.java
-        NewPipe.init(DownloaderTestImpl.getInstance());
-        final StreamExtractor extractor = getStreamExtractor(itemUrl);
-        extractor.fetchPage();
-
-        // выбирать стрим с наилучшим качеством (в конце списка)
+        final List<VideoStream> _vidStreams = new ArrayList<>();
         // обычно getVideoStreams возвращает всего два варианта потоков: mp4 360p и mp4 720p,
+        // иногда еще 144p, в любом случае низкое или среднее качество
         // другие варианты качества (в т.ч. hd - 1080p mp4 или webm) нужно извлекать через getVideoOnlyStreams,
         // а аудио, судя по всему, гнать отдельным потоком
-        final String streamUrl = extractor.getVideoStreams().size() > 0 ?
-                extractor.getVideoStreams().get(extractor.getVideoStreams().size() - 1).getUrl() : null;
-//        for (final VideoStream stream : extractor.getVideoStreams()) {
-//            System.out.println(stream.getResolution() + " " + stream.getFormat().getName() + " " + stream.getFormat().getMimeType() + " " + stream.getFormat().getSuffix());
-//        }
-//        for (final VideoStream stream : extractor.getVideoOnlyStreams()) {
-//            System.out.println(stream.getResolution() + " " + stream.getFormat().getName() + " " + stream.getFormat().getMimeType() + " " + stream.getFormat().getSuffix());
-//        }
+        _vidStreams.addAll(extractor.getVideoStreams());
+        _vidStreams.addAll(extractor.getVideoOnlyStreams());
 
-        return streamUrl;
+        Collections.sort(_vidStreams, new Comparator<VideoStream>() {
+            @Override
+            public int compare(final VideoStream vs1, final VideoStream vs2) {
+                return Integer.valueOf(vs1.getResolution().replace("p", "")).compareTo(
+                        Integer.valueOf(vs2.getResolution().replace("p", "")));
+            }
+        });
+        Collections.reverse(_vidStreams);
+
+        return new StreamHelper.StreamSources(_vidStreams, extractor.getAudioStreams());
     }
 
     public ListExtractor<StreamInfoItem> getListExtractor(final String plUrl) throws ExtractionException {

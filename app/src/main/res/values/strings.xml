@@ -137,4 +137,6 @@
     <string name="clipboard_is_empty">Clipboard is empty</string>
     <string name="no_playlists_to_import">No playlists to import</string>
     <string name="export_dir_location">Export dir location: %s</string>
+    <string name="quality">Quality</string>
+    <string name="no_streams_for_video_item">No streams for this video</string>
 </resources>

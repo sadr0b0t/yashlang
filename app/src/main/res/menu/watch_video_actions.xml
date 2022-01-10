@@ -22,6 +22,9 @@
         android:id="@+id/action_blacklist"
         android:title="@string/add_to_blacklist"/>
     <item
+        android:id="@+id/action_quality"
+        android:title="@string/quality"/>
+    <item
         android:id="@+id/action_reload"
         android:title="@string/reload"/>
 </menu>

@@ -52,12 +52,14 @@ import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Ignore;
 
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -65,6 +67,8 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
+import org.schabi.newpipe.extractor.stream.AudioStream;
+import org.schabi.newpipe.extractor.stream.VideoStream;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -77,6 +81,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
+import su.sadrobot.yashlang.controller.StreamHelper;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
@@ -159,9 +164,9 @@ public class WatchVideoActivity extends AppCompatActivity {
         EMPTY, LOADED, LOADING, ERROR
     }
 
-
     private PlayerView videoPlayerView;
     private PlayerControlView videoPlayerControlView;
+    private TextView videoQualityTxt;
     private ImageButton prevVideoBtn;
     private ImageButton nextVideoBtn;
 
@@ -179,11 +184,11 @@ public class WatchVideoActivity extends AppCompatActivity {
     private com.google.android.exoplayer2.upstream.DataSource.Factory videoDataSourceFactory;
 
     private VideoItem currentVideo;
+
     // для функции перехода на следующее видео
     private int currentVideoPosition = -1;
     private final Map<Long, Integer> posMap = new HashMap<>();
-
-    private Stack<VideoItem> playbackHistory = new Stack<>();
+    private final Stack<VideoItem> playbackHistory = new Stack<>();
 
     private boolean stateFullscreen = false;
 
@@ -258,6 +263,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         videoPlayerView = findViewById(R.id.video_player_view);
         videoPlayerControlView = findViewById(R.id.video_player_control_view);
+        videoQualityTxt = findViewById(R.id.video_quality_txt);
         prevVideoBtn = findViewById(R.id.prev_video_btn);
         nextVideoBtn = findViewById(R.id.next_video_btn);
 
@@ -438,55 +444,30 @@ public class WatchVideoActivity extends AppCompatActivity {
                 //   поток высокого качества, то попробовать загрузить другой поток низкого качества
                 //   (который предлагает YouTube первым в списке по умолчанию)
                 // - если же это уже и так был поток низкого качества, то показать ошибку
-                // TODO: всю эту логику можно отработать в текущем потоке (thread) без обращения в интернет,
-                // если кэшировать в VideoItem адрес не одного потока (stream), но и всех доступных потоков (stream)
-                final VideoItem _currentVideo = currentVideo;
-                videoLoadingExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (_currentVideo == currentVideo) {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (_currentVideo == currentVideo) {
-                                        setPlayerState(PlayerState.LOADING, null);
-                                    }
-                                }
-                            });
-                            boolean tryAnotherStream = false;
-                            try {
-                                final String defaultStreamUrl = ContentLoader.getInstance().extractDefaultStreamUrl(_currentVideo.getItemUrl());
-                                if (_currentVideo.getVideoStreamUrl() != null &&
-                                        !_currentVideo.getVideoStreamUrl().equals(defaultStreamUrl)) {
-                                    _currentVideo.setVideoStreamUrl(defaultStreamUrl);
-                                    tryAnotherStream = true;
-                                    handler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (_currentVideo == currentVideo) {
-                                                setPlayerState(PlayerState.LOADING, null);
-                                                playVideoStream(defaultStreamUrl, _currentVideo.getPausedAt(),
-                                                        !WatchVideoActivity.this.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED));
-                                            }
-                                        }
-                                    });
-                                }
-                            } catch (Exception e) {
-                            }
-
-                            if (!tryAnotherStream) {
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (_currentVideo == currentVideo) {
-                                            setPlayerState(PlayerState.ERROR, error.getMessage());
-                                        }
-                                    }
-                                });
-                            }
-                        }
+                setPlayerState(PlayerState.LOADING, null);
+                boolean tryAnotherStream = false;
+                try {
+                    final StreamHelper.StreamPair nextPlaybackStreams = StreamHelper.getNextPlaybackStream(
+                            currentVideo.getStreamSources().getVideoStreams(),
+                            currentVideo.getStreamSources().getAudioStreams(), currentVideo.getPlaybackStreams().getVideoStream());
+                    if (currentVideo.getPlaybackStreams().getVideoStream() != null &&
+                            nextPlaybackStreams.getVideoStream() != null &&
+                            !nextPlaybackStreams.getVideoStream().getUrl().equals(currentVideo.getPlaybackStreams().getVideoStream().getUrl())) {
+                        currentVideo.setPlaybackStreams(nextPlaybackStreams);
+                        tryAnotherStream = true;
+                        setPlayerState(PlayerState.LOADING, null);
+                        playVideoStream(
+                                currentVideo.getPlaybackStreams().getVideoStream().getUrl(),
+                                (currentVideo.getPlaybackStreams().getAudioStream() != null ? currentVideo.getPlaybackStreams().getAudioStream().getUrl() : null),
+                                currentVideo.getPausedAt(),
+                                !WatchVideoActivity.this.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED));
                     }
-                });
+                } catch (Exception e) {
+                }
+
+                if (!tryAnotherStream) {
+                    setPlayerState(PlayerState.ERROR, error.getMessage());
+                }
             }
         });
 
@@ -512,6 +493,13 @@ public class WatchVideoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 hideNavigationBar();
                 toggleFullscreen();
+            }
+        });
+
+        videoQualityTxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionQuality();
             }
         });
 
@@ -684,6 +672,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         videoPlayerView = findViewById(R.id.video_player_view);
         videoPlayerControlView = findViewById(R.id.video_player_control_view);
+        videoQualityTxt = findViewById(R.id.video_quality_txt);
         prevVideoBtn = findViewById(R.id.prev_video_btn);
         nextVideoBtn = findViewById(R.id.next_video_btn);
 
@@ -815,6 +804,13 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         });
 
+        videoQualityTxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionQuality();
+            }
+        });
+
         // Рекомендации
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
@@ -830,10 +826,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         //updateControlsVisibility();
 
         // показать информацию о ролике
-        if (currentVideo != null) {
-            getSupportActionBar().setTitle(currentVideo.getName());
-            getSupportActionBar().setSubtitle(currentVideo.getUploader());
-        }
+        updateControlsValues();
 
         // видео загружено, загружается или ошибка
         setPlayerState(playerState, videoLoadErrorMsg);
@@ -1065,6 +1058,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                             .setNegativeButton(android.R.string.no, null).show();
                 }
                 break;
+
+            case R.id.action_quality:
+                actionQuality();
+                break;
             case R.id.action_reload:
                 actionReload();
                 break;
@@ -1105,7 +1102,11 @@ public class WatchVideoActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Показываем или скрываем элементы управления в зависимости от текущих обстоятельств
+     */
     private void updateControlsVisibility() {
+        // в первую очередь определим, в полноэкранном режиме или не полноэкранном режиме
         if (stateFullscreen) {
             prevVideoBtn.setVisibility(View.GONE);
             nextVideoBtn.setVisibility(View.GONE);
@@ -1113,8 +1114,37 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             getSupportActionBar().hide();
 
-            //videoPlayerView.hideController();
-            videoPlayerControlView.hide();
+            // сам плеер и элементы управления
+            switch (playerState) {
+                case EMPTY:
+                case ERROR:
+                    //setFullscreen(false);
+                    // в режиме FULLSCREEN мы сюда попасть не должы
+                    break;
+
+                case LOADING:
+                    videoPlayerView.setVisibility(View.GONE);
+                    videoPlayerControlView.setVisibility(View.INVISIBLE);
+                    videoQualityTxt.setVisibility(View.VISIBLE);
+                    videoPlayerLoadingView.setVisibility(View.VISIBLE);
+                    videoPlayerErrorView.setVisibility(View.GONE);
+
+                    break;
+
+                case LOADED:
+                    videoPlayerView.setVisibility(View.VISIBLE);
+
+                    // если делать так, то статус играть/пауза не будет обновляться
+                    //videoPlayerControlView.setVisibility(View.GONE);
+                    videoPlayerControlView.hide();
+
+                    videoQualityTxt.setVisibility(View.GONE);
+
+                    videoPlayerLoadingView.setVisibility(View.GONE);
+                    videoPlayerErrorView.setVisibility(View.GONE);
+
+                    break;
+            }
         } else {
             if (videoList.getAdapter() == null || videoList.getAdapter().getItemCount() < 2) {
                 prevVideoBtn.setVisibility(View.GONE);
@@ -1151,12 +1181,76 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             getSupportActionBar().show();
 
-            if (playerState == PlayerState.LOADED) {
-                videoPlayerControlView.show();
+            // сам плеер и элементы управления
+            switch (playerState) {
+                case EMPTY:
+                    //setFullscreen(false);
+
+                    // обычно этот экран не видно никогда
+                    videoPlayerView.setVisibility(View.INVISIBLE);
+                    videoPlayerControlView.setVisibility(View.GONE);
+                    videoQualityTxt.setVisibility(View.GONE);
+                    videoPlayerLoadingView.setVisibility(View.GONE);
+                    videoPlayerErrorView.setVisibility(View.GONE);
+
+                    break;
+
+                case ERROR:
+                    //setFullscreen(false);
+
+                    videoPlayerView.setVisibility(View.GONE);
+                    videoPlayerControlView.setVisibility(View.GONE);
+                    videoQualityTxt.setVisibility(View.GONE);
+                    videoPlayerLoadingView.setVisibility(View.GONE);
+                    videoPlayerErrorView.setVisibility(View.VISIBLE);
+
+                    break;
+
+                case LOADING:
+                    videoPlayerView.setVisibility(View.GONE);
+                    videoPlayerControlView.setVisibility(View.INVISIBLE);
+                    videoQualityTxt.setVisibility(View.INVISIBLE);
+                    videoPlayerLoadingView.setVisibility(View.VISIBLE);
+                    videoPlayerErrorView.setVisibility(View.GONE);
+
+                    break;
+
+                case LOADED:
+                    videoPlayerView.setVisibility(View.VISIBLE);
+
+                    // если делать так, то статус играть/пауза не будет обновляться
+                    //videoPlayerControlView.setVisibility(View.VISIBLE);
+                    videoPlayerControlView.show();
+
+                    videoQualityTxt.setVisibility(View.VISIBLE);
+
+                    videoPlayerLoadingView.setVisibility(View.GONE);
+                    videoPlayerErrorView.setVisibility(View.GONE);
+
+                    break;
             }
         }
     }
 
+    private void updateControlsValues() {
+        if (currentVideo != null) {
+            getSupportActionBar().setTitle(currentVideo.getName());
+            getSupportActionBar().setSubtitle(currentVideo.getUploader());
+
+            if (currentVideo.getPlaybackStreams() != null && currentVideo.getPlaybackStreams().getVideoStream() != null) {
+                videoQualityTxt.setText(currentVideo.getPlaybackStreams().getVideoStream().getResolution());
+            } else {
+                videoQualityTxt.setText("");
+            }
+        } else {
+            getSupportActionBar().setTitle("");
+            getSupportActionBar().setSubtitle("");
+            videoQualityTxt.setText("");
+        }
+
+        prevVideoBtn.setEnabled(playbackHistory.size() > 1);
+        videoLoadErrorTxt.setText(videoLoadErrorMsg);
+    }
 
     private void setFullscreen(final boolean fullscreen) {
         stateFullscreen = fullscreen;
@@ -1175,49 +1269,15 @@ public class WatchVideoActivity extends AppCompatActivity {
         this.playerState = playerState;
         videoLoadErrorMsg = playerState == PlayerState.ERROR ? errorMsg : "";
 
-        switch (playerState) {
-            case EMPTY:
-                setFullscreen(false);
+        updateControlsValues();
 
-                // обычно этот экран не видно никогда
-                videoPlayerView.setVisibility(View.INVISIBLE);
-                videoPlayerControlView.setVisibility(View.GONE);
-                videoPlayerLoadingView.setVisibility(View.GONE);
-                videoPlayerErrorView.setVisibility(View.GONE);
-
-                break;
-
-            case ERROR:
-                setFullscreen(false);
-
-                videoPlayerView.setVisibility(View.GONE);
-                videoPlayerControlView.setVisibility(View.GONE);
-                videoPlayerLoadingView.setVisibility(View.GONE);
-                videoPlayerErrorView.setVisibility(View.VISIBLE);
-
-                break;
-
-            case LOADING:
-                videoPlayerView.setVisibility(View.GONE);
-                videoPlayerControlView.setVisibility(View.INVISIBLE);
-                videoPlayerLoadingView.setVisibility(View.VISIBLE);
-                videoPlayerErrorView.setVisibility(View.GONE);
-
-                break;
-
-            case LOADED:
-                videoPlayerView.setVisibility(View.VISIBLE);
-                if (!stateFullscreen) {
-                    videoPlayerControlView.setVisibility(View.VISIBLE);
-                }
-
-                videoPlayerLoadingView.setVisibility(View.GONE);
-                videoPlayerErrorView.setVisibility(View.GONE);
-
-                break;
+        if (playerState == PlayerState.EMPTY || playerState == PlayerState.ERROR) {
+            setFullscreen(false);
+            // будет вызвано внутри setFullscreen
+            // updateControlsVisibility();
+        } else {
+            updateControlsVisibility();
         }
-
-        videoLoadErrorTxt.setText(videoLoadErrorMsg);
     }
 
     /**
@@ -1275,24 +1335,20 @@ public class WatchVideoActivity extends AppCompatActivity {
             saveVideoCurrPos();
         }
         // остановим старое видео, если оно играло
-        playVideoStream(null, 0, false);
+        playVideoStream(null, null, 0, false);
 
         // загружаем новое видео
         setPlayerState(PlayerState.LOADING, null);
 
         currentVideo = videoItem;
         currentVideoPosition = posMap.containsKey(videoItem.getId()) ? posMap.get(videoItem.getId()) : -1;
+        // можно было бы переместить в updateControlsValues, но не обязательно, т.к. это скролл логично делать
+        // один раз во время выбора нового ролика, а не каждый раз при обновлении состояния экрана
         if (currentVideoPosition != -1) {
             videoList.scrollToPosition(currentVideoPosition);
         }
         if (videoItem != null) {
             playbackHistory.push(videoItem);
-            prevVideoBtn.setEnabled(playbackHistory.size() > 1);
-            updateControlsVisibility();
-
-            // показать информацию о ролике
-            getSupportActionBar().setTitle(videoItem.getName());
-            getSupportActionBar().setSubtitle(videoItem.getUploader());
 
             // обновить меню - в onCreateOptionsMenu()
             invalidateOptionsMenu();
@@ -1311,6 +1367,11 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
             });
         }
+
+        // новый текущий ролик - обновить состояние элементов управления
+        updateControlsVisibility();
+        // показать информацию о ролике
+        updateControlsValues();
     }
 
     /**
@@ -1326,7 +1387,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 // для начала остановим проигрывание текущего видео,
                 // чтобы оно не играло в фоне во время загрузки
                 // (если его не остановили перед этим)
-                playVideoStream(null, 0, false);
+                playVideoStream(null, null, 0, false);
 
                 // теперь покажем экран загрузки
                 setPlayerState(PlayerState.LOADING, null);
@@ -1337,17 +1398,20 @@ public class WatchVideoActivity extends AppCompatActivity {
         // "загружаем", т.е. создать новый фоновый поток внутри handler.post выше. Но, если handler.post
         // отправляет задачи в синхронную очередь для выполнения одна за одной, то задача в handler.post
         // ниже будет выполнена в любом случае после задачи handler.post выше, поэтому проблемы
-        //
         try {
             // загрузить поток видео
-            final String vidStreamUrl = ContentLoader.getInstance().extractStreamUrl(videoItem.getItemUrl());
-            videoItem.setVideoStreamUrl(vidStreamUrl);
+            final StreamHelper.StreamSources streamSources = ContentLoader.getInstance().extractStreams(videoItem.getItemUrl());
+            final StreamHelper.StreamPair playbackStreams = StreamHelper.getNextPlaybackStream(
+                    streamSources.getVideoStreams(), streamSources.getAudioStreams(), null);
+            videoItem.setStreamSources(streamSources);
+            videoItem.setPlaybackStreams(playbackStreams);
+
             // пока загружали информацию о видео, пользователь мог кликнуть на загрузку нового ролика,
             // в этом случае уже нет смысла загружать в плеер этот ролик на долю секунды
             // или на то время, пока загружается новый ролик, поэтому здесь просто ничего не делаем,
             // а плеер останется в статусе "LOADING" до тех пор, пока не будет загружен новый ролик
             if (videoItem == currentVideo) {
-                if (vidStreamUrl != null) {
+                if (videoItem.getPlaybackStreams().getVideoStream() != null) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1361,8 +1425,14 @@ public class WatchVideoActivity extends AppCompatActivity {
                             // и если не является, то загружать видео, но не начинать его проигрывание
                             // сразу после загрузки.
                             // https://github.com/sadr0b0t/yashlang/issues/4
+
+                            updateControlsValues();
+
                             try {
-                                playVideoStream(vidStreamUrl, videoItem.getPausedAt(),
+                                playVideoStream(
+                                        videoItem.getPlaybackStreams().getVideoStream().getUrl(),
+                                        (videoItem.getPlaybackStreams().getAudioStream() != null ? videoItem.getPlaybackStreams().getAudioStream().getUrl() : null),
+                                        videoItem.getPausedAt(),
                                         !WatchVideoActivity.this.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED));
                             } catch (Exception ex) {
                                 // в принципе, мы сюда не должны попасть никогда. Возможно, был повод
@@ -1379,6 +1449,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            updateControlsValues();
                             setPlayerState(PlayerState.ERROR, getString(R.string.err_video_stream_url_null));
                         }
                     });
@@ -1400,12 +1471,15 @@ public class WatchVideoActivity extends AppCompatActivity {
      * Собственно, запустить на проигрывание видеопоток по известному адресу
      *
      * @param streamUrl адрес потока видео (должен быть с форматом ExoPlayer),
+     *                  может содержать или не содержать дорожку аудио
      *                  если null, остановить проигрывание текущего ролика, если он уже был загружен
+     * @param audioStreamUrl адрес потока аудио. Нужен, если у потока видео нет дорожки аудио.
+     *                  Отправить null, если у потока видео есть совмещенная дорожка аудио.
      * @param seekTo    начать проигрывание с указанной позиции
      * @param paused    false: начать проигрывание сразу после загрузки;
      *                  true: загрузить поток и поставить на паузу
      */
-    private void playVideoStream(final String streamUrl, final long seekTo, final boolean paused) {
+    private void playVideoStream(final String streamUrl, final String audioStreamUrl, final long seekTo, final boolean paused) {
         if (streamUrl == null) {
             // остановить проигрывание текущего ролика, если был загружен
             videoPlayerView.getPlayer().stop();
@@ -1424,6 +1498,18 @@ public class WatchVideoActivity extends AppCompatActivity {
             final Uri mp4VideoUri = Uri.parse(streamUrl);
             final MediaSource videoSource = new ProgressiveMediaSource.Factory(videoDataSourceFactory)
                     .createMediaSource(MediaItem.fromUri(mp4VideoUri));
+            final MediaSource mediaSource;
+            if(audioStreamUrl == null) {
+                mediaSource = videoSource;
+            } else {
+                // совместить дорожку аудио и видео
+                // https://stackoverflow.com/questions/58404056/exoplayer-play-an-audio-stream-and-a-video-stream-synchronously
+
+                final Uri mp3AudioUri = Uri.parse(audioStreamUrl);
+                final MediaSource audioSource = new ProgressiveMediaSource.Factory(videoDataSourceFactory)
+                        .createMediaSource(MediaItem.fromUri(mp3AudioUri));
+                mediaSource = new MergingMediaSource(videoSource, audioSource);
+            }
 
             // Поставим на паузу старое видео, пока готовим новое
             if (videoPlayerView.getPlayer().getPlaybackState() != Player.STATE_ENDED) {
@@ -1436,7 +1522,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
 
             // Prepare the player with the source
-            ((SimpleExoPlayer) videoPlayerView.getPlayer()).setMediaSource(videoSource);
+            ((SimpleExoPlayer) videoPlayerView.getPlayer()).setMediaSource(mediaSource);
             videoPlayerView.getPlayer().prepare();
 
             // Укажем текущую позицию сразу при загрузке видео
@@ -1455,6 +1541,88 @@ public class WatchVideoActivity extends AppCompatActivity {
             videoPlayerView.getPlayer().setPlayWhenReady(!paused);
 
             setPlayerState(PlayerState.LOADED, null);
+        }
+    }
+
+    /**
+     * Выбрать видеопоток для текущего ролика
+     */
+    private void actionQuality() {
+        if (currentVideo != null) {
+            if (currentVideo.getStreamSources() != null && currentVideo.getStreamSources().getVideoStreams().size() > 0) {
+                final List<VideoStream> _vidStreams = currentVideo.getStreamSources().getVideoStreams();
+                final PopupMenu popup = new PopupMenu(WatchVideoActivity.this, videoQualityTxt);
+                int streamId = 0;
+                for(VideoStream stream : _vidStreams) {
+                    popup.getMenu().add(Menu.NONE, streamId, Menu.NONE,
+                            stream.getResolution() + (stream.getQuality() != null ? " (" + stream.getQuality() + ") " : " ") + stream.getFormat().getName());
+                    streamId++;
+                }
+
+                popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                    @Override
+                    public void onDismiss(PopupMenu menu) {
+                        // Прячем панель навигации, т.к. при выборе меню она появляется опять.
+                        hideNavigationBar();
+                    }
+                });
+
+                popup.setOnMenuItemClickListener(
+                        new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
+                                // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
+                                final VideoItem _currentVideo = currentVideo;
+                                final long _currentPos = videoPlayerView.getPlayer().getCurrentPosition();
+                                // для текущего кэша, да
+                                if (currentVideo != null && playerState == PlayerState.LOADED) {
+                                    currentVideo.setPausedAt(_currentPos);
+                                }
+
+                                setPlayerState(PlayerState.LOADING, null);
+                                // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
+                                // видео заново - обе операции в фоновом потоке
+                                videoLoadingExecutor.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // если за время запуска потока видео успели переключить, всё отменяем
+                                        if (_currentVideo == currentVideo) {
+                                            if(_currentVideo.getId() != VideoItem.ID_NONE) {
+                                                if (playerState == PlayerState.LOADED) {
+                                                    // сохраним текущую позицию только в том случае, если ролик был загружен
+                                                    // (может быть ситуация, когда мы переключились на видео с ранее
+                                                    // сохраненной позицией, а оно не загрузилось, тогда бы у нас
+                                                    // сбросилась старая сохраненная позиция, а это не хорошо)
+                                                    VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                                                            videoItemDao().setPausedAt(_currentVideo.getId(), _currentPos);
+                                                }
+                                            }
+
+                                            handler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    final VideoStream videoStream = _currentVideo.getStreamSources().getVideoStreams().get(item.getItemId());
+                                                    final StreamHelper.StreamPair newPlaybackStreams = StreamHelper.getPlaybackStreamPair(videoStream, _currentVideo.getStreamSources().getAudioStreams());
+                                                    _currentVideo.setPlaybackStreams(newPlaybackStreams);
+                                                    playVideoStream(
+                                                            _currentVideo.getPlaybackStreams().getVideoStream().getUrl(),
+                                                            (_currentVideo.getPlaybackStreams().getAudioStream() != null ? _currentVideo.getPlaybackStreams().getAudioStream().getUrl() : null),
+                                                            _currentVideo.getPausedAt(),
+                                                            !WatchVideoActivity.this.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED));
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+
+                                return true;
+                            }
+                        });
+                popup.show();
+            } else {
+                Toast.makeText(this, R.string.no_streams_for_video_item, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

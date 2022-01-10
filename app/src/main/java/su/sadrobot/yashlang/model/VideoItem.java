@@ -32,6 +32,7 @@ import androidx.room.TypeConverters;
 
 import java.util.Date;
 
+import su.sadrobot.yashlang.controller.StreamHelper;
 import su.sadrobot.yashlang.util.TimestampConverter;
 
 /**
@@ -218,9 +219,16 @@ public class VideoItem {
     @Ignore
     private PlaylistInfo playlistInfo;
 
-    // кэш - адрес потока видео, загруженный для этого ролика в последний раз
+
+    // потоки видео и аудио
+    // все доступные для текущего ролика потоки
     @Ignore
-    private String videoStreamUrl;
+    private StreamHelper.StreamSources streamSources;
+    // кэш - адрес потока видео, загруженный для этого ролика в последний раз
+    // кэш - адрес потока аудио, загруженный для этого ролика в последний раз
+    // (может быть null, если поток видео содержал дорожку аудион)
+    @Ignore
+    private StreamHelper.StreamPair playbackStreams;
 
     // конструктор для ROOM - создаёт объекты из базы данных
     public VideoItem(long playlistId, String itemUrl, String ytId, String name, String uploader,
@@ -428,11 +436,19 @@ public class VideoItem {
         this.playlistInfo = playlistInfo;
     }
 
-    public String getVideoStreamUrl() {
-        return videoStreamUrl;
+    public StreamHelper.StreamSources getStreamSources() {
+        return streamSources;
     }
 
-    public void setVideoStreamUrl(String videoStreamUrl) {
-        this.videoStreamUrl = videoStreamUrl;
+    public void setStreamSources(StreamHelper.StreamSources streamSources) {
+        this.streamSources = streamSources;
+    }
+
+    public StreamHelper.StreamPair getPlaybackStreams() {
+        return playbackStreams;
+    }
+
+    public void setPlaybackStreams(StreamHelper.StreamPair playbackStreams) {
+        this.playbackStreams = playbackStreams;
     }
 }

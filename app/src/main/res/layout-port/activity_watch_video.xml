@@ -67,6 +67,19 @@
             android:layout_marginTop="30dp" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/video_quality_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="#000000"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp" />
+
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/video_player_view"
         android:layout_width="match_parent"

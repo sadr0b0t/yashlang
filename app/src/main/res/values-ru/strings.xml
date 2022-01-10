@@ -137,4 +137,6 @@
     <string name="clipboard_is_empty">В буфере обмена пусто</string>
     <string name="no_playlists_to_import">Нет плейлистов для импорта</string>
     <string name="export_dir_location">Каталог для экспорта: %s</string>
+    <string name="quality">Качество</string>
+    <string name="no_streams_for_video_item">Для ролика не найдено потоков видео</string>
 </resources>
