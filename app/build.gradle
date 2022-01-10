@@ -109,7 +109,7 @@ dependencies {
     // таки ютюб поломали, апгрейдимся
     // (и дропать старые андроиды не обязательно - для этого есть coreLibraryDesugaringEnabled true)
     // https://developer.android.com/studio/write/java8-support#library-desugaring
-    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.21.9"
+    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.21.12"
 
     // google Exoplayer
     // https://github.com/google/ExoPlayer
