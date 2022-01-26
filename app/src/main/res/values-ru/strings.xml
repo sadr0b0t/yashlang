@@ -139,4 +139,14 @@
     <string name="export_dir_location">Каталог для экспорта: %s</string>
     <string name="quality">Качество</string>
     <string name="no_streams_for_video_item">Для ролика не найдено потоков видео</string>
+    <string name="configure_moar">Больше настроек</string>
+    <string name="tab_item_video_quality">Качество видео</string>
+    <string name="yashlang_configure_moar">YaShlang: больше настроек</string>
+    <string name="vid_stream_select_max_res">Максимальное качество</string>
+    <string name="vid_stream_select_min_res">Минимальное качество</string>
+    <string name="vid_stream_select_custom">Выбранное качество</string>
+    <string name="vid_stream_select_last_chosen">Последнее выбранное (на экране плеера)</string>
+    <string name="vid_stream_prefer_higher">более высокое качество</string>
+    <string name="vid_stream_prefer_lower">более низкое качество</string>
+    <string name="vid_stream_prefer_if_not_available">Если не доступно, предпочитать</string>
 </resources>

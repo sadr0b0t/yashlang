@@ -666,8 +666,10 @@ public class ContentLoader {
         Collections.sort(_vidStreams, new Comparator<VideoStream>() {
             @Override
             public int compare(final VideoStream vs1, final VideoStream vs2) {
-                return Integer.valueOf(vs1.getResolution().replace("p", "")).compareTo(
-                        Integer.valueOf(vs2.getResolution().replace("p", "")));
+                // отсортируем по качеству (численно) по убыванию
+                // (для порядка можно еще и по формату - по алфавиту, но пока вроде незачем)
+                return Integer.valueOf(vs1.getResolution().replaceAll("p.*", "")).compareTo(
+                        Integer.valueOf(vs2.getResolution().replaceAll("p.*", "")));
             }
         });
         Collections.reverse(_vidStreams);

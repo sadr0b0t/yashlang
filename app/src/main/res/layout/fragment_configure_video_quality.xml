@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="40dp"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/vid_stream_select_max_res_radio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:checked="true"
+                android:text="@string/vid_stream_select_max_res" />
+
+            <RadioButton
+                android:id="@+id/vid_stream_select_min_res_radio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:text="@string/vid_stream_select_min_res" />
+
+            <RadioButton
+                android:id="@+id/vid_stream_select_custom_radio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:text="@string/vid_stream_select_custom" />
+
+            <Spinner
+                android:id="@+id/vid_stream_custom_res_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:background="@android:drawable/btn_dropdown"
+                android:spinnerMode="dropdown" />
+
+            <TextView
+                android:id="@+id/vid_stream_select_custom_prefer_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:text="@string/vid_stream_prefer_if_not_available"/>
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/vid_stream_select_custom_prefer_higher_res_radio"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/vid_stream_prefer_higher" />
+
+                <RadioButton
+                    android:id="@+id/vid_stream_select_custom_prefer_lower_res_radio"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/vid_stream_prefer_lower" />
+            </RadioGroup>
+
+            <RadioButton
+                android:id="@+id/vid_stream_select_last_chosen_radio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:text="@string/vid_stream_select_last_chosen" />
+
+            <TextView
+                android:id="@+id/vid_stream_last_res_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:textColor="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/vid_stream_select_last_prefer_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:text="@string/vid_stream_prefer_if_not_available"/>
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/vid_stream_select_last_prefer_higher_res_radio"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/vid_stream_prefer_higher" />
+
+                <RadioButton
+                    android:id="@+id/vid_stream_select_last_prefer_lower_res_radio"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/vid_stream_prefer_lower" />
+            </RadioGroup>
+
+        </RadioGroup>
+
+    </LinearLayout>
+</ScrollView>

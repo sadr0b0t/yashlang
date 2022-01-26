@@ -52,7 +52,6 @@ import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Ignore;
 
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
@@ -67,7 +66,6 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
-import org.schabi.newpipe.extractor.stream.AudioStream;
 import org.schabi.newpipe.extractor.stream.VideoStream;
 
 import java.io.IOException;
@@ -407,7 +405,9 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             @Override
             public void onPlaybackStateChanged(int playbackState) {
-                if (playbackState == Player.STATE_ENDED) {
+                if (playbackState == Player.STATE_READY) {
+                    setPlayerState(PlayerState.LOADED, null);
+                } else if (playbackState == Player.STATE_ENDED) {
                     // ролик завершился - переходим к следующему
                     // TODO: сделайть экран с таймаутом секунд на 10, прогрессбаром и кнопкой
                     // перейти сейчас, отменить, играть заново текущий.
@@ -448,6 +448,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 boolean tryAnotherStream = false;
                 try {
                     final StreamHelper.StreamPair nextPlaybackStreams = StreamHelper.getNextPlaybackStream(
+                            WatchVideoActivity.this,
                             currentVideo.getStreamSources().getVideoStreams(),
                             currentVideo.getStreamSources().getAudioStreams(), currentVideo.getPlaybackStreams().getVideoStream());
                     if (currentVideo.getPlaybackStreams().getVideoStream() != null &&
@@ -455,6 +456,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                             !nextPlaybackStreams.getVideoStream().getUrl().equals(currentVideo.getPlaybackStreams().getVideoStream().getUrl())) {
                         currentVideo.setPlaybackStreams(nextPlaybackStreams);
                         tryAnotherStream = true;
+                        // показать прогресс загрузки потока
                         setPlayerState(PlayerState.LOADING, null);
                         playVideoStream(
                                 currentVideo.getPlaybackStreams().getVideoStream().getUrl(),
@@ -1125,7 +1127,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 case LOADING:
                     videoPlayerView.setVisibility(View.GONE);
                     videoPlayerControlView.setVisibility(View.INVISIBLE);
-                    videoQualityTxt.setVisibility(View.VISIBLE);
+                    videoQualityTxt.setVisibility(View.GONE);
                     videoPlayerLoadingView.setVisibility(View.VISIBLE);
                     videoPlayerErrorView.setVisibility(View.GONE);
 
@@ -1209,7 +1211,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 case LOADING:
                     videoPlayerView.setVisibility(View.GONE);
                     videoPlayerControlView.setVisibility(View.INVISIBLE);
-                    videoQualityTxt.setVisibility(View.INVISIBLE);
+                    videoQualityTxt.setVisibility(View.VISIBLE);
                     videoPlayerLoadingView.setVisibility(View.VISIBLE);
                     videoPlayerErrorView.setVisibility(View.GONE);
 
@@ -1402,7 +1404,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             // загрузить поток видео
             final StreamHelper.StreamSources streamSources = ContentLoader.getInstance().extractStreams(videoItem.getItemUrl());
             final StreamHelper.StreamPair playbackStreams = StreamHelper.getNextPlaybackStream(
-                    streamSources.getVideoStreams(), streamSources.getAudioStreams(), null);
+                    this, streamSources.getVideoStreams(), streamSources.getAudioStreams(), null);
             videoItem.setStreamSources(streamSources);
             videoItem.setPlaybackStreams(playbackStreams);
 
@@ -1540,7 +1542,9 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
             videoPlayerView.getPlayer().setPlayWhenReady(!paused);
 
-            setPlayerState(PlayerState.LOADED, null);
+            // статус LOADED хорошо убирать после загрузки потока перед началом проигрывания
+            // (произошло событие onPlaybackStateChanged:Player.STATE_READY)
+            //setPlayerState(PlayerState.LOADED, null);
         }
     }
 
@@ -1603,6 +1607,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                                                 @Override
                                                 public void run() {
                                                     final VideoStream videoStream = _currentVideo.getStreamSources().getVideoStreams().get(item.getItemId());
+                                                    // сохраним выбранное вручную качество в настройки
+                                                    ConfigOptions.setVideoStreamLastSelectedRes(WatchVideoActivity.this, videoStream.getResolution());
                                                     final StreamHelper.StreamPair newPlaybackStreams = StreamHelper.getPlaybackStreamPair(videoStream, _currentVideo.getStreamSources().getAudioStreams());
                                                     _currentVideo.setPlaybackStreams(newPlaybackStreams);
                                                     playVideoStream(

@@ -14,4 +14,8 @@
     <item
         android:id="@+id/action_export"
         android:title="@string/export_data"/>
+
+    <item
+        android:id="@+id/action_configure_moar"
+        android:title="@string/configure_moar"/>
 </menu>

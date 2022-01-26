@@ -31,6 +31,27 @@ public class ConfigOptions {
         TIME_ADDED, NAME, URL, DURATION
     }
 
+    /**
+     * Стратегия выбора разрешения при проигрывании ролика:
+     * MAX_RES - максимальное из доступных,
+     * MIN_RES - минимальное из доступных,
+     * CUSTOM_RES - выбранное в настройках,
+     * LAST_CHOSEN - последнее выбранное на экране проигрывания ролика
+     */
+    public enum VideoStreamSelectStrategy {
+        MAX_RES, MIN_RES, CUSTOM_RES, LAST_CHOSEN
+    }
+
+    /**
+     * Предпочтения при автоматическом выборе разрешения: если не доступно указанное разрашение,
+     * предпочитать:
+     * HIGHER_RES - более высокое, чем указанное, из доступных,
+     * LOWER_RES - более низкое, чем указанное, из доступных
+     */
+    public enum VideoStreamSelectPreferRes {
+        HIGHER_RES, LOWER_RES
+    }
+
     public static final boolean DEVEL_MODE_ON = false;
 
     public static final int RECOMMENDED_RANDOM_LIM = 200;
@@ -43,8 +64,15 @@ public class ConfigOptions {
 
     public static final int UPDATE_PLAYLISTS_DELAY_MS = 500;
 
+    public static final String[] VIDEO_RESOLUTIONS = {
+            "1080p", "720p", "480p", "360p", "240p", "144p"
+    };
+
+    // среднее качество, доступно почти всегда
+    public static final String DEFAULT_VIDEO_RESOLUTION = "480p";
 
     private static final String PREF_PLAYLISTS_SORT_BY = "PREF_PLAYLISTS_SORT_BY";
+
     /**
      * true: ascending
      * false: descending
@@ -52,11 +80,33 @@ public class ConfigOptions {
     private static final String PREF_PLAYLISTS_SORT_DIR = "PREF_PLAYLISTS_SORT_DIR";
 
     private static final String PREF_PLAYLIST_SORT_BY = "PREF_PLAYLIST_SORT_BY";
+
     /**
      * true: ascending
      * false: descending
      */
     private static final String PREF_PLAYLIST_SORT_DIR = "PREF_PLAYLIST_SORT_DIR";
+
+    /**
+     * VideoStreamSelectStrategy: MAX_RES, MIN_RES, CUSTOM_RES, LAST_CHOSEN
+     */
+    private static final String PREF_VIDEO_STREAM_SELECT_STRATEGY = "PREF_VIDEO_STREAM_SELECT_STRATEGY";
+
+    private static final String PREF_VIDEO_STREAM_CUSTOM_RES = "PREF_VIDEO_STREAM_CUSTOM_RES";
+
+    private static final String PREF_VIDEO_STREAM_LAST_SELECTED_RES = "PREF_VIDEO_STREAM_LAST_SELECTED_RES";
+
+    /**
+     * VideoStreamSelectPreferRes: HIGHER_RES, LOWER_RES
+     */
+    private static final String PREF_VIDEO_STREAM_SELECT_CUSTOM_PREFER_RES = "PREF_VIDEO_STREAM_SELECT_CUSTOM_PREFER_RES";
+
+    /**
+     * VideoStreamSelectPreferRes: HIGHER_RES, LOWER_RES
+     */
+    private static final String PREF_VIDEO_STREAM_SELECT_LAST_PREFER_RES = "PREF_VIDEO_STREAM_SELECT_LAST_PREFER_RES";
+
+
 
     public static SortBy getPlaylistsSortBy(final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
@@ -103,6 +153,64 @@ public class ConfigOptions {
     public static void setPlaylistSortDir(final Context context, final boolean asc) {
         final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
         editor.putBoolean(PREF_PLAYLIST_SORT_DIR, asc);
+        editor.commit();
+    }
+
+    public static VideoStreamSelectStrategy getVideoStreamSelectStrategy(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        // по умолчанию: MAX_RES
+        return VideoStreamSelectStrategy.valueOf(sp.getString(PREF_VIDEO_STREAM_SELECT_STRATEGY, VideoStreamSelectStrategy.MAX_RES.name()));
+    }
+
+    public static void setVideoStreamSelectStrategy(final Context context, final VideoStreamSelectStrategy strategy) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putString(PREF_VIDEO_STREAM_SELECT_STRATEGY, strategy.name());
+        editor.commit();
+    }
+
+    public static String getVideoStreamCustomRes(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        // по умолчанию: среднее качество, доступно почти всегда
+        return sp.getString(PREF_VIDEO_STREAM_CUSTOM_RES, DEFAULT_VIDEO_RESOLUTION);
+    }
+
+    public static void setVideoStreamCustomRes(final Context context, final String resolution) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putString(PREF_VIDEO_STREAM_CUSTOM_RES, resolution);
+        editor.commit();
+    }
+
+    public static String getVideoStreamLastSelectedRes(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        // по умолчанию: среднее качество, доступно почти всегда
+        return sp.getString(PREF_VIDEO_STREAM_LAST_SELECTED_RES, DEFAULT_VIDEO_RESOLUTION);
+    }
+
+    public static void setVideoStreamLastSelectedRes(final Context context, final String resolution) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putString(PREF_VIDEO_STREAM_LAST_SELECTED_RES, resolution);
+        editor.commit();
+    }
+
+    public static VideoStreamSelectPreferRes getVideoStreamSelectCustomPreferRes(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        return VideoStreamSelectPreferRes.valueOf(sp.getString(PREF_VIDEO_STREAM_SELECT_CUSTOM_PREFER_RES, VideoStreamSelectPreferRes.HIGHER_RES.name()));
+    }
+
+    public static void setVideoStreamSelectCustomPreferRes(final Context context, final VideoStreamSelectPreferRes preferRes) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putString(PREF_VIDEO_STREAM_SELECT_CUSTOM_PREFER_RES, preferRes.name());
+        editor.commit();
+    }
+
+    public static VideoStreamSelectPreferRes getVideoStreamSelectLastPreferRes(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        return VideoStreamSelectPreferRes.valueOf(sp.getString(PREF_VIDEO_STREAM_SELECT_LAST_PREFER_RES, VideoStreamSelectPreferRes.HIGHER_RES.name()));
+    }
+
+    public static void setVideoStreamSelectLastPreferRes(final Context context, final VideoStreamSelectPreferRes preferRes) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putString(PREF_VIDEO_STREAM_SELECT_LAST_PREFER_RES, preferRes.name());
         editor.commit();
     }
 }

@@ -107,6 +107,11 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/yashlang_import_playlists"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".ConfigureMoarActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/yashlang_configure_moar"
+            android:theme="@style/CustomToolbarTheme" />
     </application>
 
 </manifest>

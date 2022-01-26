@@ -139,4 +139,14 @@
     <string name="export_dir_location">Export dir location: %s</string>
     <string name="quality">Quality</string>
     <string name="no_streams_for_video_item">No streams for this video</string>
+    <string name="configure_moar">More settings</string>
+    <string name="tab_item_video_quality">Video quality</string>
+    <string name="yashlang_configure_moar">YaShlang: more settings</string>
+    <string name="vid_stream_select_max_res">Max resolution</string>
+    <string name="vid_stream_select_min_res">Min resolution</string>
+    <string name="vid_stream_select_custom">Custom resolution</string>
+    <string name="vid_stream_select_last_chosen">Last chosen (on player screen)</string>
+    <string name="vid_stream_prefer_higher">higher resolution</string>
+    <string name="vid_stream_prefer_lower">lower resolution</string>
+    <string name="vid_stream_prefer_if_not_available">If not available, prefer</string>
 </resources>
