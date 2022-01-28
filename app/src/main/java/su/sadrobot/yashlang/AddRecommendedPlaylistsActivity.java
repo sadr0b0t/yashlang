@@ -46,13 +46,16 @@ import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
+import su.sadrobot.yashlang.view.ListItemCheckedProvider;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.OnListItemSwitchListener;
 import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
@@ -83,11 +86,11 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
 
     private enum State {
-        INITIAL_RECOMMENDED,
+        LOAD_INITIAL_RECOMMENDED, INITIAL_RECOMMENDED,
         PLAYLIST_ADD_PROGRESS, PLAYLIST_ADD_ERROR, PLAYLIST_ADD_OK
     }
 
-    private State state = State.INITIAL_RECOMMENDED;
+    private State state = State.LOAD_INITIAL_RECOMMENDED;
 
     private ContentLoader.TaskController taskController;
     private int plToAddStartIndex = 0;
@@ -552,6 +555,10 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                     "https://yt3.ggpht.com/a/AATXAJwnXFEoLRk3FgT_o_oGwjwJJdB_tiHW3Vh-PzBx=s240-c-k-c0x00ffffff-no-rj",
                     PlaylistInfo.PlaylistType.YT_CHANNEL)
     };
+
+    // плейлисты из списка рекомендованных, которые уже есть в локальной базе данных
+    private Set<PlaylistInfo> playlistsInDb = new HashSet<>();
+
     private List<PlaylistInfo> playlistsToAdd = new ArrayList<>();
 
 
@@ -582,79 +589,6 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         playlistList.setLayoutManager(linearLayoutManager);
-
-        final List<PlaylistInfo> plList = new ArrayList<>();
-        Collections.addAll(plList, recommendedPlaylists);
-        if (ConfigOptions.DEVEL_MODE_ON) {
-            plList.add(new PlaylistInfo("Фонд Рабочей Академии",
-                    "https://www.youtube.com/user/fondrabakademii",
-                    "https://yt3.ggpht.com/a/AGF-l78g2YdH_JzOK91UMTfXqI4CYR2IxMHxSnFhyw=s240-c-k-c0xffffffff-no-rj-mo",
-                    PlaylistInfo.PlaylistType.YT_USER));
-        }
-        final PlaylistInfoArrayAdapter recPlsAdapter = new PlaylistInfoArrayAdapter(this,
-                plList,
-                new OnListItemClickListener<PlaylistInfo>() {
-                    @Override
-                    public void onItemClick(final View view, final int position, final PlaylistInfo item) {
-                    }
-
-                    @Override
-                    public boolean onItemLongClick(final View view, final int position, final PlaylistInfo plInfo) {
-
-                        // параметр Gravity.CENTER не работает (и появился еще только в API 19+),
-                        // работает только вариант Gravity.RIGHT
-                        //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
-                        final PopupMenu popup = new PopupMenu(AddRecommendedPlaylistsActivity.this,
-                                view.findViewById(R.id.playlist_name_txt));
-                        popup.getMenuInflater().inflate(R.menu.playlist_item_actions, popup.getMenu());
-                        popup.setOnMenuItemClickListener(
-                                new PopupMenu.OnMenuItemClickListener() {
-                                    @Override
-                                    public boolean onMenuItemClick(final MenuItem item) {
-                                        switch (item.getItemId()) {
-                                            case R.id.action_copy_playlist_name: {
-                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                                final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
-                                                clipboard.setPrimaryClip(clip);
-
-                                                Toast.makeText(AddRecommendedPlaylistsActivity.this,
-                                                        getString(R.string.copied) + ": " + plInfo.getName(),
-                                                        Toast.LENGTH_LONG).show();
-                                                break;
-                                            }
-                                            case R.id.action_copy_playlist_url: {
-                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                                final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
-                                                clipboard.setPrimaryClip(clip);
-
-                                                Toast.makeText(AddRecommendedPlaylistsActivity.this,
-                                                        getString(R.string.copied) + ": " + plInfo.getUrl(),
-                                                        Toast.LENGTH_LONG).show();
-                                                break;
-                                            }
-                                        }
-                                        return true;
-                                    }
-                                }
-                        );
-                        popup.show();
-                        return true;
-                    }
-                },
-                new OnListItemSwitchListener<PlaylistInfo>() {
-                    @Override
-                    public void onItemCheckedChanged(final CompoundButton buttonView, final int position,
-                                                     final PlaylistInfo item, final boolean isChecked) {
-                        item.setEnabled(isChecked);
-                    }
-
-                    @Override
-                    public boolean isItemChecked(final PlaylistInfo item) {
-                        return item.isEnabled();
-                    }
-                });
-
-        playlistList.setAdapter(recPlsAdapter);
 
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -698,9 +632,7 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
             }
         });
 
-        if (ConfigOptions.DEVEL_MODE_ON) {
-            fetchInfoOnline();
-        }
+        loadPlaylistsBg();
     }
 
     @Override
@@ -720,6 +652,11 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
     private void updateControlsVisibility() {
         switch (state) {
+            case LOAD_INITIAL_RECOMMENDED:
+                recommendedPlaylistsView.setVisibility(View.INVISIBLE);
+                playlistsAddProgressView.setVisibility(View.GONE);
+
+                break;
             case INITIAL_RECOMMENDED:
                 recommendedPlaylistsView.setVisibility(View.VISIBLE);
                 playlistsAddProgressView.setVisibility(View.GONE);
@@ -750,6 +687,139 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
 
                 break;
         }
+    }
+
+    private void loadPlaylistsBg() {
+        this.state = State.LOAD_INITIAL_RECOMMENDED;
+        updateControlsVisibility();
+
+        // здесь нужно в фоне обратиться к базе данных, чтобы определить, добавлен плейлист
+        // в локальную базу или нет (чтобы для добавленных рисовать галочку вместо переключателя
+        // и не добавлять их еще раз)
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<PlaylistInfo> plList = new ArrayList<>();
+                Collections.addAll(plList, recommendedPlaylists);
+                if (ConfigOptions.DEVEL_MODE_ON) {
+                    plList.add(new PlaylistInfo("Фонд Рабочей Академии",
+                            "https://www.youtube.com/user/fondrabakademii",
+                            "https://yt3.ggpht.com/a/AGF-l78g2YdH_JzOK91UMTfXqI4CYR2IxMHxSnFhyw=s240-c-k-c0xffffffff-no-rj-mo",
+                            PlaylistInfo.PlaylistType.YT_USER));
+
+                    plList.add(new PlaylistInfo("proletariantv",
+                            "https://video.ploud.fr/a/proletariantv/videos",
+                            "https://video.ploud.fr/lazy-static/avatars/f0f4e02e-91e7-437c-9c35-b9d34177818b.jpg",
+                            PlaylistInfo.PlaylistType.PT_USER));
+                }
+
+                if (ConfigOptions.DEVEL_MODE_ON) {
+                    fetchInfoOnline();
+                }
+
+                // фоновый поток нужен здесь, т.к. обращаемя к базе данных
+                // пробежим по всем плейлистам и соберем те, которые уже есть в локальное базе данных
+                playlistsInDb.clear();
+                for(PlaylistInfo plInfo : recommendedPlaylists) {
+                    final PlaylistInfo existingPlInfo = VideoDatabase.getDbInstance(AddRecommendedPlaylistsActivity.this).
+                            playlistInfoDao().findByUrl(plInfo.getUrl());
+                    if(existingPlInfo != null) {
+                        // добавлять второй раз не надо
+                        // включить обратно не получится, т.к. переключалка для этих плейлистов
+                        // будет скрыта
+                        plInfo.setEnabled(false);
+                        playlistsInDb.add(plInfo);
+                    }
+                }
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final PlaylistInfoArrayAdapter recPlsAdapter = new PlaylistInfoArrayAdapter(AddRecommendedPlaylistsActivity.this,
+                                plList,
+                                new OnListItemClickListener<PlaylistInfo>() {
+                                    @Override
+                                    public void onItemClick(final View view, final int position, final PlaylistInfo item) {
+                                    }
+
+                                    @Override
+                                    public boolean onItemLongClick(final View view, final int position, final PlaylistInfo plInfo) {
+
+                                        // параметр Gravity.CENTER не работает (и появился еще только в API 19+),
+                                        // работает только вариант Gravity.RIGHT
+                                        //final PopupMenu popup = new PopupMenu(ConfigurePlaylistsActivity.this, view, Gravity.CENTER);
+                                        final PopupMenu popup = new PopupMenu(AddRecommendedPlaylistsActivity.this,
+                                                view.findViewById(R.id.playlist_name_txt));
+                                        popup.getMenuInflater().inflate(R.menu.playlist_item_actions, popup.getMenu());
+                                        popup.setOnMenuItemClickListener(
+                                                new PopupMenu.OnMenuItemClickListener() {
+                                                    @Override
+                                                    public boolean onMenuItemClick(final MenuItem item) {
+                                                        switch (item.getItemId()) {
+                                                            case R.id.action_copy_playlist_name: {
+                                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                                final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
+                                                                clipboard.setPrimaryClip(clip);
+
+                                                                Toast.makeText(AddRecommendedPlaylistsActivity.this,
+                                                                        getString(R.string.copied) + ": " + plInfo.getName(),
+                                                                        Toast.LENGTH_LONG).show();
+                                                                break;
+                                                            }
+                                                            case R.id.action_copy_playlist_url: {
+                                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                                                final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
+                                                                clipboard.setPrimaryClip(clip);
+
+                                                                Toast.makeText(AddRecommendedPlaylistsActivity.this,
+                                                                        getString(R.string.copied) + ": " + plInfo.getUrl(),
+                                                                        Toast.LENGTH_LONG).show();
+                                                                break;
+                                                            }
+                                                        }
+                                                        return true;
+                                                    }
+                                                }
+                                        );
+                                        popup.show();
+                                        return true;
+                                    }
+                                },
+                                new OnListItemSwitchListener<PlaylistInfo>() {
+                                    @Override
+                                    public void onItemCheckedChanged(final CompoundButton buttonView, final int position,
+                                                                     final PlaylistInfo item, final boolean isChecked) {
+                                        item.setEnabled(isChecked);
+                                    }
+
+                                    @Override
+                                    public boolean isItemChecked(final PlaylistInfo item) {
+                                        return item.isEnabled();
+                                    }
+
+                                    @Override
+                                    public boolean showItemCheckbox(final PlaylistInfo item) {
+                                        return !playlistsInDb.contains(item);
+                                    }
+                                },
+                                new ListItemCheckedProvider<PlaylistInfo>() {
+                                    @Override
+                                    public boolean isItemChecked(final PlaylistInfo item) {
+                                        return playlistsInDb.contains(item);
+                                    }
+                                });
+
+                        playlistList.setAdapter(recPlsAdapter);
+
+                        AddRecommendedPlaylistsActivity.this.state = State.INITIAL_RECOMMENDED;
+                        updateControlsVisibility();
+
+                    }
+                });
+            }
+        }).start();
+
+
     }
 
     private void addPlaylistsBg() {
@@ -875,7 +945,13 @@ public class AddRecommendedPlaylistsActivity extends AppCompatActivity {
                 }
                 if (allOk) {
                     // все добавили, выходим
-                    AddRecommendedPlaylistsActivity.this.finish();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(AddRecommendedPlaylistsActivity.this, R.string.done_importing, Toast.LENGTH_SHORT).show();
+                            AddRecommendedPlaylistsActivity.this.finish();
+                        }
+                    });
                 }
             }
         }).start();

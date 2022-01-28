@@ -49,6 +49,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
     private List<PlaylistInfo> playlistInfos;
     private OnListItemClickListener<PlaylistInfo> onItemClickListener;
     private OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener;
+    private ListItemCheckedProvider<PlaylistInfo> itemCheckedProvider;
 
     //private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
 
@@ -71,6 +72,8 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
         final TextView urlTxt;
         final ImageView thumbImg;
         final Switch onoffSwitch;
+        final View checkedView;
+
 
         public PlaylistInfoViewHolder(final View itemView) {
             super(itemView);
@@ -78,6 +81,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
             urlTxt = itemView.findViewById(R.id.playlist_url_txt);
             thumbImg = itemView.findViewById(R.id.playlist_thumb_img);
             onoffSwitch = itemView.findViewById(R.id.playlist_onoff_switch);
+            checkedView = itemView.findViewById(R.id.playlist_checked_view);
         }
     }
 
@@ -88,6 +92,17 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
         this.playlistInfos = playlistInfos;
         this.onItemClickListener = onItemClickListener;
         this.onItemSwitchListener = onItemSwitchListener;
+    }
+
+    public PlaylistInfoArrayAdapter(final Activity context, final List<PlaylistInfo> playlistInfos,
+                                    final OnListItemClickListener<PlaylistInfo> onItemClickListener,
+                                    final OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener,
+                                    final ListItemCheckedProvider<PlaylistInfo> itemCheckedProvider) {
+        this.context = context;
+        this.playlistInfos = playlistInfos;
+        this.onItemClickListener = onItemClickListener;
+        this.onItemSwitchListener = onItemSwitchListener;
+        this.itemCheckedProvider = itemCheckedProvider;
     }
 
     @Override
@@ -102,12 +117,10 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
 
         holder.nameTxt.setText(item.getName());
         holder.urlTxt.setText(item.getUrl().replaceFirst(
-                "https://", "").replaceFirst("www.",""));
-        // holder.name.setEnabled(item.isEnabled());
-
+                "https://", "").replaceFirst("www.", ""));
 
         if (holder.thumbImg != null) {
-            if(item.getThumbBitmap() != null) {
+            if (item.getThumbBitmap() != null) {
                 holder.thumbImg.setImageBitmap(item.getThumbBitmap());
             } else {
                 holder.thumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
@@ -128,12 +141,12 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
             }
         }
 
-        if(holder.onoffSwitch != null) {
+        if (holder.onoffSwitch != null) {
             // обнулить слушателя событий выключателя:
             // вот это важно здесь здесь, иначе не оберешься трудноуловимых глюков
             // в списках с прокруткой
             holder.onoffSwitch.setOnCheckedChangeListener(null);
-            if(holder.onoffSwitch != null && onItemSwitchListener == null) {
+            if (onItemSwitchListener == null || !onItemSwitchListener.showItemCheckbox(item)) {
                 // вот так - не передали слушателя вкл/выкл - прячем кнопку
                 // немного не феншуй, зато пока не будем городить отдельный флаг
                 holder.onoffSwitch.setVisibility(View.GONE);
@@ -144,7 +157,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
                 holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if(onItemSwitchListener != null) {
+                        if (onItemSwitchListener != null) {
                             onItemSwitchListener.onItemCheckedChanged(buttonView, position, item, isChecked);
                         }
                     }
@@ -152,10 +165,22 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
             }
         }
 
+        if (holder.checkedView != null) {
+            if (itemCheckedProvider != null && itemCheckedProvider.isItemChecked(item)) {
+                holder.checkedView.setVisibility(View.VISIBLE);
+                holder.nameTxt.setEnabled(false);
+                holder.urlTxt.setEnabled(false);
+            } else {
+                holder.checkedView.setVisibility(View.GONE);
+                holder.nameTxt.setEnabled(true);
+                holder.urlTxt.setEnabled(true);
+            }
+        }
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                if(onItemClickListener != null) {
+                if (onItemClickListener != null) {
                     onItemClickListener.onItemClick(view, position, item);
                 }
             }
@@ -164,7 +189,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(final View view) {
-                if(onItemClickListener != null) {
+                if (onItemClickListener != null) {
                     return onItemClickListener.onItemLongClick(view, position, item);
                 } else {
                     return false;

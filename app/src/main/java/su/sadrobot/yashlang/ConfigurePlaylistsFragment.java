@@ -350,6 +350,11 @@ public class ConfigurePlaylistsFragment extends Fragment {
                     public boolean isItemChecked(final PlaylistInfo item) {
                         return item.isEnabled();
                     }
+
+                    @Override
+                    public boolean showItemCheckbox(final PlaylistInfo item) {
+                        return true;
+                    }
                 });
         // если список пустой, показываем специальный экранчик с кнопками
         adapter.registerAdapterDataObserver(emptyListObserver);

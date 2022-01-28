@@ -251,6 +251,11 @@ public class BlacklistActivity extends AppCompatActivity {
                     public boolean isItemChecked(final VideoItem item) {
                         return !item.isBlacklisted();
                     }
+
+                    @Override
+                    public boolean showItemCheckbox(final VideoItem item) {
+                        return true;
+                    }
                 });
         // если список пустой, показываем специальный экранчик с сообщением
         adapter.registerAdapterDataObserver(emptyListObserver);

@@ -1,7 +1,7 @@
 package su.sadrobot.yashlang.view;
 
 /*
- * Created by Anton Moiseev (sadr0b0t) in 2019.
+ * Created by Anton Moiseev (sadr0b0t) in 2021.
  *
  * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
  * OnListItemSwitchListener.java is part of YaShlang.
@@ -22,8 +22,6 @@ package su.sadrobot.yashlang.view;
 
 import android.widget.CompoundButton;
 
-public interface OnListItemSwitchListener<ItemType> {
-    void onItemCheckedChanged(final CompoundButton buttonView, final int position, final ItemType item, final boolean isChecked);
+public interface ListItemCheckedProvider<ItemType> {
     boolean isItemChecked(final ItemType item);
-    boolean showItemCheckbox(final ItemType item);
 }

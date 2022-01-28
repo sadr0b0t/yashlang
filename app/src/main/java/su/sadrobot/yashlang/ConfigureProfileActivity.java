@@ -372,6 +372,11 @@ public class ConfigureProfileActivity extends AppCompatActivity {
                             public boolean isItemChecked(final PlaylistInfo item) {
                                 return checkedPlaylists.contains(item.getId());
                             }
+
+                            @Override
+                            public boolean showItemCheckbox(final PlaylistInfo item) {
+                                return true;
+                            }
                         });
 
                 handler.post(new Runnable() {

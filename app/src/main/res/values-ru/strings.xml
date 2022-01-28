@@ -149,4 +149,5 @@
     <string name="vid_stream_prefer_higher">более высокое качество</string>
     <string name="vid_stream_prefer_lower">более низкое качество</string>
     <string name="vid_stream_prefer_if_not_available">Если не доступно, предпочитать</string>
+    <string name="done_importing">Импортировали что было</string>
 </resources>

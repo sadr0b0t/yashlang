@@ -54,6 +54,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
     private Activity context;
     private OnListItemClickListener<PlaylistInfo> onItemClickListener;
     private OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener;
+    private ListItemCheckedProvider<PlaylistInfo> itemCheckedProvider;
 
     //private ExecutorService dbQueryExecutor = Executors.newFixedThreadPool(10);
     //private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
@@ -65,7 +66,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
     // иконок через интернет, но для обращение к базе данных тоже так сделаем)
 
     // код создания ThreadPool из Executors.newFixedThreadPool(10)
-    private ExecutorService dbQueryExecutor = new ThreadPoolExecutor(10, 10, 0L,TimeUnit.MILLISECONDS,
+    private ExecutorService dbQueryExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingDeque<Runnable>() {
                 @Override
                 public Runnable take() throws InterruptedException {
@@ -74,19 +75,20 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
             });
 
     // код создания ThreadPool из Executors.newFixedThreadPool(10)
-    private ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L,TimeUnit.MILLISECONDS,
-                    new LinkedBlockingDeque<Runnable>() {
-        @Override
-        public Runnable take() throws InterruptedException {
-            return super.takeLast();
-        }
-    });
+    private ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingDeque<Runnable>() {
+                @Override
+                public Runnable take() throws InterruptedException {
+                    return super.takeLast();
+                }
+            });
 
     public static class PlaylistInfoViewHolder extends RecyclerView.ViewHolder {
         final TextView nameTxt;
         final TextView urlTxt;
         final ImageView thumbImg;
         final Switch onoffSwitch;
+        final View checkedView;
 
         public PlaylistInfoViewHolder(final View itemView) {
             super(itemView);
@@ -94,6 +96,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
             urlTxt = itemView.findViewById(R.id.playlist_url_txt);
             thumbImg = itemView.findViewById(R.id.playlist_thumb_img);
             onoffSwitch = itemView.findViewById(R.id.playlist_onoff_switch);
+            checkedView = itemView.findViewById(R.id.playlist_checked_view);
         }
     }
 
@@ -120,6 +123,17 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
         this.onItemSwitchListener = onItemSwitchListener;
     }
 
+    public PlaylistInfoPagedListAdapter(final Activity context,
+                                        final OnListItemClickListener<PlaylistInfo> onItemClickListener,
+                                        final OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener,
+                                        final ListItemCheckedProvider<PlaylistInfo> itemCheckedProvider) {
+        super(DIFF_CALLBACK);
+        this.context = context;
+        this.onItemClickListener = onItemClickListener;
+        this.onItemSwitchListener = onItemSwitchListener;
+        this.itemCheckedProvider = itemCheckedProvider;
+    }
+
     @Override
     public PlaylistInfoViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_info_list_item, parent, false);
@@ -132,12 +146,10 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
 
         holder.nameTxt.setText(item.getName());
         holder.urlTxt.setText(item.getUrl().replaceFirst(
-                "https://", "").replaceFirst("www.",""));
-        // holder.name.setEnabled(item.isEnabled());
-
+                "https://", "").replaceFirst("www.", ""));
 
         if (holder.thumbImg != null) {
-            if(item.getThumbBitmap() != null) {
+            if (item.getThumbBitmap() != null) {
                 holder.thumbImg.setImageBitmap(item.getThumbBitmap());
             } else {
                 holder.thumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
@@ -158,12 +170,12 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
             }
         }
 
-        if(holder.onoffSwitch != null) {
+        if (holder.onoffSwitch != null) {
             // обнулить слушателя событий выключателя:
             // вот это важно здесь здесь, иначе не оберешься трудноуловимых глюков
             // в списках с прокруткой
             holder.onoffSwitch.setOnCheckedChangeListener(null);
-            if(holder.onoffSwitch != null && onItemSwitchListener == null) {
+            if (onItemSwitchListener == null) {
                 // вот так - не передали слушателя вкл/выкл - прячем кнопку
                 // немного не феншуй, зато пока не будем городить отдельный флаг
                 holder.onoffSwitch.setVisibility(View.GONE);
@@ -174,7 +186,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
                 holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if(onItemSwitchListener != null) {
+                        if (onItemSwitchListener != null) {
                             onItemSwitchListener.onItemCheckedChanged(buttonView, position, item, isChecked);
                         }
                     }
@@ -182,10 +194,22 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
             }
         }
 
+        if (holder.checkedView != null) {
+            if (itemCheckedProvider != null && itemCheckedProvider.isItemChecked(item)) {
+                holder.checkedView.setVisibility(View.VISIBLE);
+                holder.nameTxt.setEnabled(false);
+                holder.urlTxt.setEnabled(false);
+            } else {
+                holder.checkedView.setVisibility(View.GONE);
+                holder.nameTxt.setEnabled(true);
+                holder.urlTxt.setEnabled(true);
+            }
+        }
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                if(onItemClickListener != null) {
+                if (onItemClickListener != null) {
                     onItemClickListener.onItemClick(view, position, item);
                 }
             }
@@ -194,7 +218,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(final View view) {
-                if(onItemClickListener != null) {
+                if (onItemClickListener != null) {
                     return onItemClickListener.onItemLongClick(view, position, item);
                 } else {
                     return false;
