@@ -293,6 +293,9 @@ public class PlaylistActivity extends AppCompatActivity {
                             ((VideoItemPagedListAdapter)videoList.getAdapter()).getItem(0).getId());
                     intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
                     intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, playlistId);
+                    intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, filterPlaylistInput.getText().toString().trim());
+                    intent.putExtra(WatchVideoActivity.PARAM_SORT_BY, ConfigOptions.getPlaylistSortBy(PlaylistActivity.this).name());
+                    intent.putExtra(WatchVideoActivity.PARAM_SORT_DIR_ASCENDING, ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
                     startActivity(intent);
                 } else {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
@@ -306,6 +309,7 @@ public class PlaylistActivity extends AppCompatActivity {
                     intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
                     intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, playlistId);
                     intent.putExtra(WatchVideoActivity.PARAM_SHUFFLE, true);
+                    intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, filterPlaylistInput.getText().toString());
                     startActivity(intent);
                 } else {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
@@ -440,6 +444,9 @@ public class PlaylistActivity extends AppCompatActivity {
                                                 intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
                                                 intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
                                                 intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
+                                                intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, filterPlaylistInput.getText().toString().trim());
+                                                intent.putExtra(WatchVideoActivity.PARAM_SORT_BY, ConfigOptions.getPlaylistSortBy(PlaylistActivity.this).name());
+                                                intent.putExtra(WatchVideoActivity.PARAM_SORT_DIR_ASCENDING, ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
                                                 startActivity(intent);
                                                 break;
                                             }
@@ -449,6 +456,7 @@ public class PlaylistActivity extends AppCompatActivity {
                                                 intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
                                                 intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
                                                 intent.putExtra(WatchVideoActivity.PARAM_SHUFFLE, true);
+                                                intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, filterPlaylistInput.getText().toString());
                                                 startActivity(intent);
                                                 break;
                                             }

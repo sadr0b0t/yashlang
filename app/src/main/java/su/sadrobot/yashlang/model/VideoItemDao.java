@@ -95,6 +95,9 @@ public interface VideoItemDao {
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> getByPlaylistShuffle(long playlistId, int lim);
 
+    @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY RANDOM() LIMIT :lim")
+    List<VideoItem> getByPlaylistShuffle(long playlistId, String filterStr, int lim);
+
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND name LIKE '%'||:sstr||'%' ORDER BY name")
     DataSource.Factory<Integer, VideoItem> searchVideosDs(String sstr);
 

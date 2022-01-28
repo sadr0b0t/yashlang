@@ -115,8 +115,9 @@ public class WatchVideoActivity extends AppCompatActivity {
     public static final String PARAM_RECOMMENDATIONS_MODE = "PARAM_RECOMMENDATIONS_MODE";
 
     /**
-     * Строка поиска для списка рекомендаций в режиме "результат поиска по запросу"
-     * (PARAM_RECOMMENDATIONS_MODE=RecommendationsMode.SEARCH_STR).
+     * Строка поиска для списка рекомендаций в режиме "результат поиска по запросу" или
+     * фильтр плейлиста в режиме "плейлист по идентификатору"
+     * (PARAM_RECOMMENDATIONS_MODE=RecommendationsMode.SEARCH_STR или RecommendationsMode.PLAYLIST_ID).
      * Список рекомендаций - все видео, найденные в базе по поисковой строке.
      *
      */
@@ -150,6 +151,19 @@ public class WatchVideoActivity extends AppCompatActivity {
      */
     public static final String PARAM_SHUFFLE = "PARAM_SHUFFLE";
 
+    /**
+     * Сортировать рекомендации: ConfigOptions.SortBy: TIME_ADDED, NAME, DURATION
+     * (в режиме PLAYLIST_ID)
+     * По умолчанию: false
+     */
+    public static final String PARAM_SORT_BY = "PARAM_SORT_BY";
+
+    /**
+     * Сортировать рекомендации по возрастанию или по убыванию: true/false
+     * (в режиме PLAYLIST_ID)
+     * По умолчанию: false (сортировать по убыванию)
+     */
+    public static final String PARAM_SORT_DIR_ASCENDING = "PARAM_SORT_DIR_ASCENDING";
 
     /**
      * Режимы для списка рекомендаций
@@ -560,6 +574,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                 final long playlistId = super.getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
                 final boolean showAll = super.getIntent().getBooleanExtra(PARAM_SHOW_ALL, false);
                 final boolean shuffle = super.getIntent().getBooleanExtra(PARAM_SHUFFLE, false);
+                final String searchStr = super.getIntent().getStringExtra(PARAM_SEARCH_STR);
+                final ConfigOptions.SortBy sortBy = super.getIntent().hasExtra(PARAM_SORT_BY) ?
+                        ConfigOptions.SortBy.valueOf(super.getIntent().getStringExtra(PARAM_SORT_BY)) : null;
+                final boolean sortDirAsc = super.getIntent().getBooleanExtra(PARAM_SORT_DIR_ASCENDING, false);
 
                 if(!shuffle) {
                     // будем считать, что в случае в режиме "играть плейлист" мы выбираем для
@@ -570,9 +588,9 @@ public class WatchVideoActivity extends AppCompatActivity {
                     // posMap.put(videoItem.getId(), currentVideoPosition))
                     currentVideoPosition = 0;
 
-                    setupVideoListPlaylistPagedListAdapter(playlistId, showAll);
+                    setupVideoListPlaylistPagedListAdapter(playlistId, showAll, searchStr, sortBy, sortDirAsc);
                 } else {
-                    setupVideoListPlaylistShuffleArrayAdapter(playlistId);
+                    setupVideoListPlaylistShuffleArrayAdapter(playlistId, searchStr);
                 }
 
                 break;
@@ -1947,12 +1965,18 @@ public class WatchVideoActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void setupVideoListPlaylistShuffleArrayAdapter(final long playlistId) {
+    private void setupVideoListPlaylistShuffleArrayAdapter(final long playlistId, final String searchStr) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final List<VideoItem> videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
-                        videoItemDao().getByPlaylistShuffle(playlistId, ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                final List<VideoItem> videoItems;
+                if(searchStr != null) {
+                    videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                            videoItemDao().getByPlaylistShuffle(playlistId, searchStr, ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                } else {
+                    videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
+                            videoItemDao().getByPlaylistShuffle(playlistId, ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                }
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
@@ -2074,7 +2098,10 @@ public class WatchVideoActivity extends AppCompatActivity {
         videoList.setAdapter(adapter);
     }
 
-    private void setupVideoListPlaylistPagedListAdapter(final long playlistId, final boolean showAll) {
+    private void setupVideoListPlaylistPagedListAdapter(
+            final long playlistId, final boolean showAll,
+            final String searchStr,
+            final ConfigOptions.SortBy sortBy, final boolean sortDirAsc) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -2107,9 +2134,39 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         final DataSource.Factory factory;
         if(showAll) {
-            factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).videoItemDao().getByPlaylistAllDs(playlistId);
+            if (searchStr != null && !searchStr.isEmpty()) {
+                factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).videoItemDao().getByPlaylistAllDs(playlistId, searchStr);
+            } else {
+                factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).videoItemDao().getByPlaylistAllDs(playlistId);
+            }
         } else {
-            factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).videoItemDao().getByPlaylistDs(playlistId);
+            if(sortBy == null) {
+                factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).videoItemDao().getByPlaylistDs(playlistId);
+            } else if(sortBy == ConfigOptions.SortBy.NAME) {
+                if (sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(
+                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByNameAscDs(playlistId, searchStr);
+                } else {
+                    factory = VideoDatabase.getDbInstance(
+                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByNameDescDs(playlistId, searchStr);
+                }
+            } else if(sortBy == ConfigOptions.SortBy.DURATION) {
+                if(sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(
+                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByDurationAscDs(playlistId, searchStr);
+                }else {
+                    factory = VideoDatabase.getDbInstance(
+                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByDurationDescDs(playlistId, searchStr);
+                }
+            } else { // TIME_ADDED
+                if(sortDirAsc) {
+                    factory = VideoDatabase.getDbInstance(
+                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByTimeAddedAscDs(playlistId, searchStr);
+                } else {
+                    factory = VideoDatabase.getDbInstance(
+                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByTimeAddedDescDs(playlistId, searchStr);
+                }
+            }
         }
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
