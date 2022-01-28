@@ -455,6 +455,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                             nextPlaybackStreams.getVideoStream() != null &&
                             !nextPlaybackStreams.getVideoStream().getUrl().equals(currentVideo.getPlaybackStreams().getVideoStream().getUrl())) {
                         currentVideo.setPlaybackStreams(nextPlaybackStreams);
+                        updateControlsValues();
                         tryAnotherStream = true;
                         // показать прогресс загрузки потока
                         setPlayerState(PlayerState.LOADING, null);
@@ -1611,6 +1612,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                                                     ConfigOptions.setVideoStreamLastSelectedRes(WatchVideoActivity.this, videoStream.getResolution());
                                                     final StreamHelper.StreamPair newPlaybackStreams = StreamHelper.getPlaybackStreamPair(videoStream, _currentVideo.getStreamSources().getAudioStreams());
                                                     _currentVideo.setPlaybackStreams(newPlaybackStreams);
+                                                    updateControlsValues();
                                                     playVideoStream(
                                                             _currentVideo.getPlaybackStreams().getVideoStream().getUrl(),
                                                             (_currentVideo.getPlaybackStreams().getAudioStream() != null ? _currentVideo.getPlaybackStreams().getAudioStream().getUrl() : null),
