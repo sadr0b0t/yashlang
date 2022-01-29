@@ -53,5 +53,6 @@
         android:layout_weight="0"
         android:layout_marginRight="2dp"
         android:textSize="28sp"
+        android:enabled="false"
         android:text="✓" />
 </LinearLayout>

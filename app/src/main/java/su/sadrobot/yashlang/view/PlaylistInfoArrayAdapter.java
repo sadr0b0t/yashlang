@@ -119,62 +119,62 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
         holder.urlTxt.setText(item.getUrl().replaceFirst(
                 "https://", "").replaceFirst("www.", ""));
 
-        if (holder.thumbImg != null) {
-            if (item.getThumbBitmap() != null) {
-                holder.thumbImg.setImageBitmap(item.getThumbBitmap());
-            } else {
-                holder.thumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
-                thumbLoaderExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        final Bitmap thumb =
-                                VideoThumbManager.getInstance().loadPlaylistThumb(context, item.getThumbUrl());
-                        item.setThumbBitmap(thumb);
-                        context.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                PlaylistInfoArrayAdapter.this.notifyDataSetChanged();
-                            }
-                        });
-                    }
-                });
-            }
-        }
-
-        if (holder.onoffSwitch != null) {
-            // обнулить слушателя событий выключателя:
-            // вот это важно здесь здесь, иначе не оберешься трудноуловимых глюков
-            // в списках с прокруткой
-            holder.onoffSwitch.setOnCheckedChangeListener(null);
-            if (onItemSwitchListener == null || !onItemSwitchListener.showItemCheckbox(item)) {
-                // вот так - не передали слушателя вкл/выкл - прячем кнопку
-                // немного не феншуй, зато пока не будем городить отдельный флаг
-                holder.onoffSwitch.setVisibility(View.GONE);
-            } else {
-                holder.onoffSwitch.setVisibility(View.VISIBLE);
-
-                holder.onoffSwitch.setChecked(onItemSwitchListener.isItemChecked(item));
-                holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (onItemSwitchListener != null) {
-                            onItemSwitchListener.onItemCheckedChanged(buttonView, position, item, isChecked);
+        if (item.getThumbBitmap() != null) {
+            holder.thumbImg.setImageBitmap(item.getThumbBitmap());
+        } else {
+            holder.thumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
+            thumbLoaderExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    final Bitmap thumb =
+                            VideoThumbManager.getInstance().loadPlaylistThumb(context, item.getThumbUrl());
+                    item.setThumbBitmap(thumb);
+                    context.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            PlaylistInfoArrayAdapter.this.notifyDataSetChanged();
                         }
-                    }
-                });
-            }
+                    });
+                }
+            });
         }
 
-        if (holder.checkedView != null) {
-            if (itemCheckedProvider != null && itemCheckedProvider.isItemChecked(item)) {
-                holder.checkedView.setVisibility(View.VISIBLE);
-                holder.nameTxt.setEnabled(false);
-                holder.urlTxt.setEnabled(false);
-            } else {
-                holder.checkedView.setVisibility(View.GONE);
-                holder.nameTxt.setEnabled(true);
-                holder.urlTxt.setEnabled(true);
-            }
+        if (onItemSwitchListener != null) {
+            holder.nameTxt.setEnabled(onItemSwitchListener.isItemChecked(item));
+            holder.urlTxt.setEnabled(onItemSwitchListener.isItemChecked(item));
+            holder.checkedView.setEnabled(onItemSwitchListener.isItemChecked(item));
+        } else {
+            holder.nameTxt.setEnabled(item.isEnabled());
+            holder.urlTxt.setEnabled(item.isEnabled());
+            holder.checkedView.setEnabled(item.isEnabled());
+        }
+
+        // обнулить слушателя событий выключателя:
+        // вот это важно здесь, иначе не оберешься трудноуловимых глюков в списках с прокруткой
+        holder.onoffSwitch.setOnCheckedChangeListener(null);
+        if (onItemSwitchListener == null || !onItemSwitchListener.showItemCheckbox(item)) {
+            // вот так - не передали слушателя вкл/выкл - прячем кнопку
+            // немного не феншуй, зато пока не будем городить отдельный флаг
+            holder.onoffSwitch.setVisibility(View.GONE);
+        } else {
+            holder.onoffSwitch.setVisibility(View.VISIBLE);
+
+            holder.onoffSwitch.setChecked(onItemSwitchListener.isItemChecked(item));
+            holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (onItemSwitchListener != null) {
+                        onItemSwitchListener.onItemCheckedChanged(buttonView, position, item, isChecked);
+                        notifyDataSetChanged();
+                    }
+                }
+            });
+        }
+
+        if (itemCheckedProvider != null && itemCheckedProvider.isItemChecked(item)) {
+            holder.checkedView.setVisibility(View.VISIBLE);
+        } else {
+            holder.checkedView.setVisibility(View.GONE);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
