@@ -26,6 +26,8 @@ import android.content.SharedPreferences;
 public class ConfigOptions {
     private static final String SHARED_PREFERENCES_NAME = "yashlang.prefs";
 
+    public static final String RECOMMENDED_PLAYLISTS_RES_PATH = "/su/sadrobot/yashlang/data/recommended-playlists.json";
+
     // TIME_ADDED здесь, по сути, без сортировки, или сортировка по ID
     public enum SortBy {
         TIME_ADDED, NAME, URL, DURATION

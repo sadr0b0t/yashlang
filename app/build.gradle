@@ -39,17 +39,27 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    // без этой записи приложение не сможет найти и загрузить ресурсы - файл json, например
+    // (как в режиме десктопа из DataIOTest, так и при запуске на устройстве).
+    // (по ссылке немного не так настроено)
+    // https://blog.codetitans.pl/post/howto-assets-android-unittest/
+    sourceSets {
+        main {
+            resources {
+                srcDirs 'src/main/assets'
+            }
+        }
+    }
 }
 
 dependencies {
-
     // Support older Android < API=26 with newer NewPipeExtractor
     // https://github.com/TeamNewPipe/NewPipeExtractor
     // > Note: To use NewPipe Extractor in projects with a minSdkVersion below 26, API desugaring is required.
     // https://developer.android.com/studio/write/java8-support#library-desugaring
     // https://developer.android.com/studio/releases/gradle-plugin#updating-plugin
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
-
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
@@ -115,4 +125,19 @@ dependencies {
     // https://github.com/google/ExoPlayer
     // https://exoplayer.dev/
     implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
+
+
+    // Это для запуска DataIOTest без андроида на десктопе, чтобы избежать ошибки
+    // java.lang.RuntimeException: Stub! из реализации JSONObject из android-xx.jar
+    // Но просто так всё равно запустить не получится, т.к. android-xx.jar в класпасе
+    // будет всегда выше, чем любая библиотека отсюда
+    // Чтобы запустить и не получить ошибку, нужно внутри файла .idea/modules/app/yashlang.app.iml переместить запись
+    // <orderEntry type="jdk" jdkName="Android API 29 Platform" jdkType="Android SDK" />
+    // ниже аналогичных записей, относящихся к тестам (конкретно, "org.json:json") вручную
+    // и делать это каждый раз при перезапуске среды или при изменении build.gradle здесь
+    // https://stackoverflow.com/questions/22863845/how-to-configure-the-order-of-libraries-in-the-classpath-for-android-studio
+    // там же по ссылке предлгаюат написать код, который будет это делать автоматом (пока нах)
+    // и еще здесь другое решение через какой-то App Engine, которого у меня, скорее всего, нет и нах он нужен
+    // https://stackoverflow.com/questions/31698510/can-i-force-the-order-of-dependencies-in-my-classpath-with-gradle
+    testImplementation 'org.json:json:20171018'
 }

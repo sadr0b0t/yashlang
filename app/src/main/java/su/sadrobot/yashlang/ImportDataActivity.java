@@ -276,7 +276,6 @@ public class ImportDataActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final Intent intent = new Intent(ImportDataActivity.this, ImportPlaylistsActivity.class);
                 intent.putExtra(ImportPlaylistsActivity.PARAM_PLAYLISTS_JSON, loadedFileContent);
-
                 startActivity(intent);
             }
         });

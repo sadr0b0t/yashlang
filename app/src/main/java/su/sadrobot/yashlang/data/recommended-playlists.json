@@ -1,0 +1,1546 @@
+{
+  "playlists": [
+    {
+      "name": "Cartoons!",
+      "url": "https:\\/\\/vidcommons.org\\/video-channels\\/cartoons\\/videos",
+      "type": "PT_CHANNEL",
+      "thumb_url": "https:\\/\\/vidcommons.org\\/lazy-static\\/avatars\\/8431c1e3-1ef4-44cb-a3c7-b838cc60fa1e.jpg"
+    },
+    {
+      "name": "OpenMovies 📽",
+      "url": "https:\\/\\/open.tube\\/accounts\\/openmovies\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/open.tube\\/lazy-static\\/avatars\\/a5a7dff0-27ed-4079-9a91-165a30fb5532.jpg"
+    },
+    {
+      "name": "СМОТРИМ. Русские мультфильмы",
+      "url": "https:\\/\\/youtube.com\\/channel\\/UCU06hfFzcBjQl9-Ih2SvpoQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJx6USDdXfA-KpuB2fnZb71AwDf-FrrFM0gf9SVxkw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Киножурнал Ералаш",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/eralash",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyrcud4u0wZRamlOQyHYV0pREVXNpPFfgs9dYec0g=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Спокойной ночи, малыши!",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCoVS2PU1QJpXrO9oTyke2cw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyIF7hVughnJNsNX2dP-eno8aZqB4eROHBEBcEF=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Гора самоцветов (Mountain of Gems)",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCexc-emEni9lvU5jbTqLEkw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJx-00JBHbHJEOBtsjV470TyDB-2VBLZLq2m7DQV0A=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "TVSmeshariki",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/TVSmeshariki",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxs28QpiT10nFIri3x0GPTcI36sgkkhTUVq6XVYyw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Малышарики",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/malyshariki",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyQZYqZ7qX4g_jh9nKhoFESAbEobUb8iLAB0OO8gw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Маша и Медведь",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/MashaMedvedTV",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwajiGUSU-XbNdpRRJ19VOZgTau53_hiWeGIFP5PQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Везуха! \\/ LUCKY!",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/VezuhaTV",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzL0taPlhAKljOVDxytTqkzvjm9VcEKCh467ttt=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Fixiki",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/fixiki",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJw0P592ZMPs7XcqwOGPwud033lYjJP1WAlineUvhg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Лунтик",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/luntik",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyVWXneCE7S5Ajw3w8V93Jsx9SfAPHdDuXdk5PBMQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Барбоскины",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/barboskinyonline",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwXuqcyOX1d5m0SK_3aGQDYvuCUNmJQTp1Cg8M93Q=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Белка и Стрелка",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/BelkaiStrelkaTV",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzwki_bJdaDKYCRB7sxAhv2JfU2EtEMI7AyT7Ak=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Три Кота",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCBZNnwQOBirwpeWncqTj_KQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxCV4vup0-vMjQKxNnW08VyTaTFWaANTKgwByzh=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Фееринки",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/Feerinki",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJymGprV35Gc9fiDHfYbMre7UJXyLUL0w8K-rhWs=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Сказочный Патруль",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC_T5XbinlhZfQ9reWLAGjxw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwaO6CVjY5-f3W326XUjIxiYNrAldxM9bEIeJip=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Ангел Бэби",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCGc6IG2eIhFa5vu2QtRz69g",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwlsJTeu094JtXx9zrTk9HHumtskBSKJVaTlPHo=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Новаторы (мультфильм)",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/NovatoryMult",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJz5UyZkhTYF75ba9JAIrYSyetDiAfo5yrtssAV28A=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Поросенок - сериал студии \"Пилот\"",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/pigletseries",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwuFf-s0gilVdaa-Tra5n1stn0pzsNEIuUK3vn9=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Студия Пилот - Фильмы для взрослых",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCjUys-_zDFCFOub0KXTRfiQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwE-8G5S5p2OBgqaELxrUIS581xDV29xVsNTg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Unknown Soviet cartoons 1939-1942",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PL7DB3215F59FB91BE",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/2pXUlfN59GM\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLB54kZ485prQsIKV86diKaLjOwBkg"
+    },
+    {
+      "name": "Мульт",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/kanalmult",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwyQdAsaS_XEqp5l6iSDGSKyqqz-3XgK2jrlBmiBQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "ANI",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCn98L71jY8M_K4gR8tevQtQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyFac96LJdfdbwm6p57pB7IxuxJN4yMd6e0IuJj1A=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "MetronomeFilmsComp",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/MetronomeFilmsComp",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyCOIaEjOEwL53zL-_y2pcBxx-WDyB3Y6_AYeBz=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Союзмультфильм",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/Soyuzmultfilm",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxZuJCvh4_p_zuVvZpit2zZ4TBK2FeBvjbHrdmF-g=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мультики студии Союзмультфильм",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/ClassicCartoonsMedia",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyDqjA8_jn0yoHn3JhyzdHlH_7bbBcG-GE4gQ8Q3Q=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Дети",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCmLgLTTZgMA6NJPlJFeF92g",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzKiY6Zo17GSTg1biFDETEAGXw_sx_uX4C58O3_=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мультфильмы",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCfuWYqd9Xqiwx_NwaSL3EbA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwVv0o3IXga7FpJgZfLyKzArMlOsSxdbHGGQgIJVA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Студия Диафильм",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCmFS6kwGK_ewWGLM6Kedjrw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJx5kRDv3zUNvBD0SxZXq0C1NVMAr-AAMX1OX0VAkg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Все Самые Лучшие Диафильмы и мультфильмы",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/DiafilmyMultfilmy",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwre_bV4gNmA7ZbgoxSBO2JemLHlzGbrnBSSsXvXg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Губка Боб Квадратные Штаны | Все Серии | Nickelodeon Россия",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLBTgeBUAoPL3MOem4yPmMN-z8e74dcaFT",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/hF3SPkkNLHU\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCdgpNTtY1c_5cj6zR9OlplRw9jMA"
+    },
+    {
+      "name": "Свинка Пеппа Русский - Официальный канал",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/PeppaPigRUS",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJy7nFTPfNP3SBIx9jQ2gZztpwH0D5tSJbUx2N03=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Peppa Pig - Official Channel",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/peppapig",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJz2Mp-hik97LLAcGmvZy0TvoRzheUjn9rliXuQW5Q=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Маленькое королевство Бена и Холли - Pусский",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/BenHollyRUS",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJx97F7sEeOUm3EuyQbkbRYau7dznc48SaBuagernQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Анимационные сериалы",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/KanalDisneyCartoons",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJw8y6JXryHGNALfFyw9AWeKCASVmLFnDW5winSllA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мифы Древней Греции",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLcUOA4FFMK6Os4O89ScOGO8jl13T-n1Bv",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/Qg0ACKG8yq0\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLDYED-2G2DWZkaF-0fQ_A0Zt_PYNg"
+    },
+    {
+      "name": "FSUE Mosfilm cinema concern",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/mosfilm",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwFsod9EQtHfkEod23drqHnAAoo5AehD0NKV0h9=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мосфильм - для детей",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/MosfilmForKids",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwPEIA26tSEzQaAcIO9IhvPb9-Rjfkmg_hvlsV7=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "LFV",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/LenfilmVideo",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwgJeNQm_UgDnxM9h2xcHsl-WG3F3lNdgc-_fnnxw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Odesa Film Studio",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/OdessAnimationStudio",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJykcVTSYdvAdZJ1HNPkCzXGZ6jVPZHA0aqKlgpKC0s=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Все советские фильмы киностудии «Беларусьфильм»",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/belarusfilmRV",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzhvIJSd_FkVuY2gAnwf4vdjQAyuCz0z7gO8rIb=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "All soviet movies on RVISION",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/RVisionGorky",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJy8XBcHR99pjFM7wPpImCjV65OdAXynRCRWEQ7P=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Классика советского кино (официальный канал)",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/ClassicFilmRVisionTV",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxUt9ERIjT-IagVJ4cNqXINHBJhLIodubu6A7Y_0Q=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "RVISION: Фильмы и сериалы",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/RVisionChannel\\/",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxsyKVxC4NKsqb1glTO0VbR2OLo_xptzYP1AOo5=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Советская фантастика.",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLT9f4X3_Znfo5fryLC0x6EWiuc3ebH5wJ",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/YFcKh6phfAo\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLBmKWzVXD02Y40MpySkrHAEGhRnXg"
+    },
+    {
+      "name": "te1ex",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC2eD6PqWYex9bW4Z89IgdXA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyqn-BGftDHSusAdgfa1rCgXdXtU_CzFV4FitKv=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "НаучФильм",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCmxvI8c0l6EiMlmlT5EGgjQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzmSl4RbTGh1a2c4C__Z5gu-7dBL2nnQBG1y3cB=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Центрнаучфильм",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLpQN9JX87qrk70dGehlt-9mCOETA8f0gB",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/DPgfwfmIdlY\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLDK0an4nzfsTnDLcpudt8hf5JlsVA"
+    },
+    {
+      "name": "Фильмы киностудии Центрнаучфильм (ЦНФ)",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLX9DLhODFdBihVNRHvkGhQJSv6IwQtbGo",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/7miKYIP5FAQ\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLBy7gkuyHQ3F41VAyx7U4IoPuXiSw"
+    },
+    {
+      "name": "Обучающие Видео",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCZeBpzAG7iQKVcS60x2Q0sQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyyk14LH-UHON4Uvz5xCAIJ3zbNvNBFOGgkbrTz=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Учебные документальные фильмы СССР.",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLfmFpq8sdXGo1Ow-BYKLMkS1uu6V-gpNg",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/QNPsvXhx798\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLAXKcWyaVP1BcmMva0T0i5JHU0l3Q"
+    },
+    {
+      "name": "Киножурнал Фитиль (официальный канал)",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/FitilOfficial",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzCGj_NfdkcKpBxLreMn3HApka_M4g89JAYKQ_Z=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Маски-шоу",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCVgBv2Q-V2S7UgeonH4Pg0w",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJy3V0P0Mr_2R18YRSbhm11dVwUF_Y92PskOtTaL=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Gorodok TV",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/GorodokTV",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwWC-ZdpF4vMOUTXD_-PYrrWYHi0qPdjO4H6UEdUg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Киностудия Самарафильм",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCLBOPmSYOdq6C5HRlq3Ki5w",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJz3Dwm6gto3vPu_E4Psas8gnPTH_9lUxcsEYWGK=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Советское телевидение. ГОСТЕЛЕРАДИОФОНД России",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/gtrftv",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzRnIyB3c_jQzRe48NsNJfdbCBW3-F3Wg9i25f4=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Classic TV Channel",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCNCAEXQK6M8wU0kOcFa6gng",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxATE9pRoGhJ6OxkE-xv80LreHme2q2dWz02uue=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Интересный кинозал",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/v1977",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyF9HvvJZXnJ8gmHYu-51Yo7CanuVvjkdQ1hit6uA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Фонд Рабочей Академии",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC4Y0FKHve0VoiAq_4Ybx-bg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJx26dDRWJiz0CrzH779njpfMvMq4OLQ5-UdRbbaiw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Len. Ru",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCtYm_PM6vQVfRdSgBqg6ksQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJz-OuWWwxPImSzo7H_i0VkFgnxq_6cedISf7p7noQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Dmitry Puchkov",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCWnNKC1wrH_NXAXc5bhbFnA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyFjO_oXb2os5QLXwLie3tWjQh-Od-cpIj9h9Ic0fw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Клим Жуков",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCIyLQ6cL0eWj1jT6oyy148w",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzSG7PqmFDjKzF_e2wvAI-vFdyLKJYajpfBSJZs=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Remi Meisner",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCxgEewDhCeTZIZhCvqhaI3g",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxi8UIM0gwBMPrNPq-ZyeQlS0fNUF7sDmvr0DxW=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "День ТВ",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCZNKg6NI7mah4i3dE6m0oYw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwsK1tmpBn7RY3YnUnjRqs-ov9vFs7SfPvzXH9K4g=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Evgeniy Ivanov",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCJ7t7adkbj7jOxFQknLNeDQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJy_utWXCXLx-YPtbRNEaZjXv0r_3Puw6GKyxtsE-Q=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Blender",
+      "url": "https:\\/\\/vidcommons.org\\/accounts\\/blender@video.blender.org\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/vidcommons.org\\/lazy-static\\/avatars\\/b7eec5ba-6e25-4a13-ad34-331c1ecd4c08.png"
+    },
+    {
+      "name": "Игрули TV",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCLF4cpVpZJF830G1tAsM_cA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzGQ7nxUMpRruvL89KiXjtitXJtGj6D_xWadnBFPA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Красное Радио Фонда рабочей академии",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC3-_-08ej4Vqtm5gc_LSkIQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJz6vemSgbUaXAXaBx_55YbfD59NHA7xLQfhm2UZ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Stic",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCxuZxDGdf0_Hn7ickTbrDBw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyNr6MZe5TwUhJeN9wKnqhBiBAwjnBKY9E0iug8=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Цифровая История",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCmNDf2w5wy9m61bq7IqmWZg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzapmzze17Ca1ZNhEb3CgIbJZUPFojv99d9OeI5=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Держать курс",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCSxkOyMUNEwrGH6AT7SG3BQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJz6on1MQIclJZUygr3OsevDXC4lIar0Oz2R0WJAVA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "History Lab",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UClCTOKrNGBcXwVFFTENXAoQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxXCtXaWJwu_YDZtw9s7Jn67vKo2ExSpLpZZ3oA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Hello Origami",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC8lnmTA5u9sfqbHtDeNClAQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzEHZqpqaNyh1V_ZCR6WDkgMYFtrUS8TTB6qsbu=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "films",
+      "url": "https:\\/\\/vidcommons.org\\/accounts\\/films\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/vidcommons.org\\/lazy-static\\/avatars\\/bb912df2-a136-4590-96a2-e5de06db9ccd.jpg"
+    },
+    {
+      "name": "Bendito Machine",
+      "url": "https:\\/\\/vidcommons.org\\/video-channels\\/bendito_machine\\/videos",
+      "type": "PT_CHANNEL",
+      "thumb_url": "https:\\/\\/vidcommons.org\\/lazy-static\\/avatars\\/04beedea-5da9-4c6d-9f6d-b8d4dfac535c.jpg"
+    },
+    {
+      "name": "Animation",
+      "url": "https:\\/\\/vidcommons.org\\/accounts\\/animation\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/vidcommons.org\\/lazy-static\\/avatars\\/5c481106-8156-4c43-af59-e308f4a3d37c.jpg"
+    },
+    {
+      "name": "Тележурнал Каламбур",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCmBfnAKRLTATDvsvBpcz2cQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyXXNq_bud5ECjqkAVXtzqD932wp-4eMzp6_6li=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Calambur Group ©",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCIqjNrRFn2CjkCZ5Fdi08Mw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzETE3AzilTNG6uaSJzdHjdXR3wresxhQQBghvZ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "proletariantv",
+      "url": "peertube.stream\\/accounts\\/proletariantv@video.ploud.fr\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/peertube.stream\\/lazy-static\\/avatars\\/5ee2efdb-c81e-4d9a-b45d-575e61e964b1.jpg"
+    },
+    {
+      "name": "Царевны",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCUWktU9yc1kitioCNS-U6hw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxIfhN__Zmwd6Mrj97u4jg-d0n1uZGfwe9JBz0khw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Советские фантастические мультфильмы",
+      "url": "https:\\/\\/m.youtube.com\\/playlist?list=PLPocbTuDlawfm8tsDpdKldmwL-pc_sl8k",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/5oqrCIG6MZo\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCjgGRv147UgriGpW3uQ1iKiwpwgQ"
+    },
+    {
+      "name": "Лучшие фантастические мультфильмы СССР",
+      "url": "https:\\/\\/m.youtube.com\\/playlist?list=PLItHd89hEUs6Yo6AhKf8Q5UcT5h-0vlh-",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/7NdzkLgFLUw\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLD8SvKZW8ltJa2st4dIKDZkci7Gaw"
+    },
+    {
+      "name": "Flix Snip",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCZ6wcN1xELKhOzplwv0auNw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxz7uxSGcYBPeFM07e_Tc_5WZJanCeF5rMCJg_3=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Группа АЛЬЯНС",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCXDztadGcR-rCfzJt_LjljA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzFVH8dqjryuimG6zcvJ4JHM6iDnFv-TAZBBUKz8w=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Владимир Высоцкий",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCqeDJCdc-tVWTK1z21Vb4IQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxxafGOOulZ3jtbS0Fbe-b7_0_iBUQYDD-2pYxK=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Лучшие детские сказки! Аудиосказки! Слушать!",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCDSdnhIkczZ-M6uGGzVTvzw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwXkNiZNM0ZkAYZ3ULGI3IhjEaA4Moz1g3GYqG7SQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Soviet films \\/ Cinema of the USSR",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCD-FvRlkWHk2sLtvJaXUb7A",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyGNStjBuwdiVhQmP-7RDF8e2gGVlv2Zuw0HOY1gA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Фильмы с тифлокомментариями",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCS6mPrNK6OMNreYg11U4b_w",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzqrdeSmw7m9y_o3iUrrJi_e-rlxvxZYTK74aYY=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "МультиПульти.",
+      "url": "https:\\/\\/m.youtube.com\\/channel\\/UCpB_SVj-eVyBVlsfEw7NkXQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJy9-EQtiXcuyMfa1RgynC1FzVAeuplgoFMGdVzQig=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "AlwaysAsking",
+      "url": "https:\\/\\/tilvids.com\\/accounts\\/alwaysasking\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/tilvids.com\\/lazy-static\\/avatars\\/9245b5e8-b3a3-4e39-b5ca-96221e4f8590.jpg"
+    },
+    {
+      "name": "Athena Productions",
+      "url": "https:\\/\\/tilvids.com\\/accounts\\/athenaproductions\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/tilvids.com\\/lazy-static\\/avatars\\/0db97e76-05fc-4479-8b25-20c9606e1118.jpg"
+    },
+    {
+      "name": "Queen Guinevere",
+      "url": "https:\\/\\/tilvids.com\\/accounts\\/queen_guinevere\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/tilvids.com\\/client\\/assets\\/images\\/default-avatar.png"
+    },
+    {
+      "name": "Penney Pixels",
+      "url": "https:\\/\\/m.youtube.com\\/channel\\/UCpzHE1Jo-_Igft69WVschaA\\/about",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJy7du3MO5i3AlcNGbr9Aj4gNvUAygT6BerSpPFF=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "8 bit",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLPH3bb5LFPZiKRZ8MPJvtMkAkNZGgJVPQ",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/sVGuwEeQKtE\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCGXLndA1_h1bfLAp8pF28-zQ0s9Q"
+    },
+    {
+      "name": "Мультяшики",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC1shWzOsPcKAVDjJ9HnwKwQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxgh4kBz1vmcXJiMW34GGMo-yg70LGv0kPXTxOv-w=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Russion world of Gamball",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCPtmGxwjKDxob4bL2nqRlLg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJziQT2om0jYqkPJTkaEBJwA37l0jwcGVWJYZgRw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Приключения Мишек Гамми",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCSu9ARNfOkCvrkL8ryxzuEg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxsj_TEAEpi2vJmrZiDhNuTvPP2w_gGHurjxzxG=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "мультcериал Мишки Гамми cartoons gummy bears",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCSeLIc_-BkmHhUHPyHo5HNQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJy-y12o9PfSUYFdfm617m3tp1g3iL9nqUCt__9f=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мишки гамми",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLj-dyor3_vHF8Wfmtyqsq1AKUqNpKK66b",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/8opyyIPCZhw\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLDCJP1m-DdFo-ekVLSmlWQZ6k_iUQ"
+    },
+    {
+      "name": "мишки гамми",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLsE7jdaALgSTOHODr14dWpH-iDBcf-C-7",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/Z2XLE9ZNVgc\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLBUk_A4R9UfIrJYbPmpYkTJa1k0Dw"
+    },
+    {
+      "name": "Slopes Game Room",
+      "url": "tilvids.com\\/accounts\\/slopesgameroom\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/tilvids.com\\/lazy-static\\/avatars\\/581e8663-6834-4fd4-972c-dd34ca31407c.jpg"
+    },
+    {
+      "name": "Дарвиновский музей",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC0I4VnqZNLttX3BC0P7c1wQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJx2TDS_I0_pTZu-oUiD4J3BhR03Ly4Ot0E9nl-JIw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Дарвиновский музей Дети",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCFuc62jJlyvNW8YlHc89gDQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyruHA7WVC68hZ5g47m5wNh2r16g6UwaI4ugdtI=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "В мире животных",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC-zzTUrk6tBL3Ex20os3jng",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxbUnXR4WUYEpr6kJUk_hQxlApPuqE2TpbhzvU=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "名古屋市教育委員会 指導室",
+      "url": "https:\\/\\/youtube.com\\/channel\\/UCrsm5k1G8a3C_8V6vvG4eZA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJz0AJkbiUKk_MgCk4B67IwajGdw37BH8oKhPw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Planeta Karapuz",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCGndH2dKiqPJ_iaqZMKWl9w",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzV0jrSWbXRF_hzJjShWiGCEtJp3Y0vS3NF2JtU=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "DoDoDo!",
+      "url": "https:\\/\\/m.youtube.com\\/channel\\/UCj6Sw4w8c2b2GXBcAKM0CPA\\/videos",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxb08qcv_XbxZ8Jv25S0T_8BvL7VhZOLYSPViIy=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Республиканская библиотека для детей г. Донецк",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC502GWL3TLi7Gp2ypFKQoYA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyA_GTcf_RMKsf7Qh3uFvXnRDmbxY5Q74y0L4hy=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Советские мультфильмы",
+      "url": "https:\\/\\/m.youtube.com\\/channel\\/UCWJs8oN4lpgPnKM_L-w5gCA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxYnV0WpdYAHl2nnIC64dH8ZY8quSlnSYTE7RuK=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Академия Смыслов Lobbyo",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCCWUurfuoWhXkFpjNZkLc-A",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxSqyHUtZJHbBm5FHSQ5ZALYZu2pycA6X-_woDV_g=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "ВЕКТОР",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC1Tmbq7lhtb-6CYCenvkxwQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJy4MaV3VypmkqvVmWzCEDmOV_3ORd2OoLPIyssEIA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Аудиокниги Русская классика для больших и маленьких",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCFXqyNz0gQvcEwHaeOafINg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJx0n3HaVimIBp_K3rczxr6YpaEuImWFcI7CIWsy=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Сказочник",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCnu6yEMRmmidQTN4E4CNhJw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzZAOUKMiS4Z9f-n5tXIebx6IGtX0pVtDXmIL5u=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "archy13",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCUgH1BGxEZWQILt6e1JscIg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwwlE7p4hNwo1yJvvXKLTPsdmb1xbvhK-fuaQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Константин Сёмин",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC2qoLqo8RuV4P_88yhHCZIg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJzKk9AcRlKf7N6GWBl2KXRMrULLONbhkkZ0zEQAUg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "OldGoodCartoons",
+      "url": "https:\\/\\/open.tube\\/accounts\\/olddaycartoons\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/open.tube\\/lazy-static\\/avatars\\/679a4755-914a-48e4-83a9-f47f12445b2f.png"
+    },
+    {
+      "name": "Три богатыря",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/TriBogatirya",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwngRn4X-CM7QSKZcBOG3cCeAqJrE3VJB7qe-paINPg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Царевны",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/tsarevny",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxIfhN__Zmwd6Mrj97u4jg-d0n1uZGfwe9JBz0khw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Лучшие фантастические мультфильмы СССР",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLItHd89hEUs6Yo6AhKf8Q5UcT5h-0vlh-",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/7NdzkLgFLUw\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLD8SvKZW8ltJa2st4dIKDZkci7Gaw"
+    },
+    {
+      "name": "Minuscule",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/Minuscule",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJwTzd2iNVMUstIV5eesp-lV28UQz2N4tsu1yMFvoA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "RVISION: Фильмы и сериалы",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/RVisionChannel",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxsyKVxC4NKsqb1glTO0VbR2OLo_xptzYP1AOo5=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Soviet films \\/ Cinema of the USSR",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/retrofilmi",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyGNStjBuwdiVhQmP-7RDF8e2gGVlv2Zuw0HOY1gA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Тележурнал Каламбур",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/kalamburVideo",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyXXNq_bud5ECjqkAVXtzqD932wp-4eMzp6_6li=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "CAROUSEL TV CHANNEL",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/tvkarusel",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxCk3tckKhWYSQmbQoWX0Vejzi4cdngoA0bR8ps=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Science",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/NaukaTV",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJxCxKX8Rfv9A481SgY7idXoeCfQmEkeuJYI-Obpjg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Origami Russia",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/OrigamiRussia",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJyFCTszn2UgcOldTEDIF52Y_8gcGe2FUUN62L-4JA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Hello Origami",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/HelloOrigami",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhkyXWXbL-6aaT1cSfuDwwyNaTi6vXarWv5-3Et=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Origami with Jo Nakashima",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/JoNakashimaBR",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/a\\/AATXAJz_8dnTDY6lyMqn-j8ndGAfmxprfPUseZPLmMSsMNI=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Золотая коллекция русского кино",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCOVlL3Oo72Sr6jLXA-Dvzag",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwniyFZxBH0NUsmMALvmpCp2LTB56W5tpwtlCcKEs=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Cartoons!",
+      "url": "https:\\/\\/vidcommons.org\\/video-channels\\/cartoons\\/videos",
+      "type": "PT_CHANNEL",
+      "thumb_url": "https:\\/\\/vidcommons.org\\/lazy-static\\/avatars\\/8431c1e3-1ef4-44cb-a3c7-b838cc60fa1e.jpg"
+    },
+    {
+      "name": "Cyberpunk 2077",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC4zyoIAzmdsgpDZQfO1-lSA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnj_luY7M1Ps1THwD3jjpBGCK3IQD7xSl8VN8TQLlw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "MoscowTheaters",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/MoscowTheaters",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwniYAKZQ0HhfbUpRx63-oMmyE512FubmF93sxfYt=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "123 Easy Paper Crafts 5 minute paper craft",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCXUH2dmTnXMSxmJfp4-LT8A",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwni9tEgb_f7urCIwMc1UQMxTJDyCaoOzxWbbG4Tc=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мульт _TV",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCd6CwAi4-9_k3Ooa8A66fzQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwngYDL3syIx001-nlAsEXR4KeHkLEhnhO9PefZv3zQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "birchpunk",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCiQo406SKypmtAQXIHdZ6mA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnibbXcde_WVeRDyUjBH8oX-TbcKHRket5OX6oOP=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Официальный канал КВН",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCSZ69a-0I1RRdNssyttBFcA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnj8MU_hMZkidUlWWSC_rd9EirUI_X2mCJQScG-T8w=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Animation",
+      "url": "https:\\/\\/open.tube\\/accounts\\/animation@vidcommons.org\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/open.tube\\/lazy-static\\/avatars\\/dd21503d-f183-4256-906d-8ce8cfdaf056.jpg"
+    },
+    {
+      "name": "Советское радио. ГОСТЕЛЕРАДИОФОНД России",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCM6oyrdQzBf-egEmlkJyQNg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhzHuBK28S7DxNTqvK1XChbwDw3tuBbkAlcVaMb=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "ТО «420»",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCvNby-vCYhCZEp7gGFGNtBg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjMGh8Kvl35FqRhwKVNfgavr45wjRkV07l7p1Cx=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Хрустим",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLUdp93fQBkQjrsnua_ahyyDg3D1MtNIRs",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/kPy9rXh-MXg\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLBJXqTNsTIcp0i1dB1IJK5F7SidSQ"
+    },
+    {
+      "name": "Сергей Васильев",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC-VkZ_0ANBarB0Jp41r-RFg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhiE7gCAqdXVQk_2IrS2P7Ad8-grl60T50Il-nZhA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Алексей Давыденков",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC2Hz7Dhr4kNDspNhpcvjUkg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnivPkrSv7xfvee-08DA2xgFRoC80ZbDWKPxLLMpRg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Осторожно Модерн",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCMI9obHNAipNDU7iSoPnu7Q",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwniKUEwSkH8W_ATyHif6k6bxfp7R8OFiFGCfX6XI=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Fry's Video",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCN8xaOP1NvU93pLI7cuFaDg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwngGM4B2zZdq9okfr6pXxPj-gD79gqNKnm8StA-y=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Гризли",
+      "url": "https:\\/\\/m.youtube.com\\/channel\\/UCDCN4xdUFtOkRnr3Xk1umCg\\/videos",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjRUPCKzRDCSSE5RC8H2msW6PUiDGPhROPEUpCd1A=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "The Raccoons",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCWL5LZqVs0Da-Xiy9dXYVOw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwngPGdGA7tA7nACXNpbUnorfR62ER3spupJrP7I9=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Muzzy in Gondoland",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLyQQKag6VcB5C6ZliX4j9Kcd91e0siUQE",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/MQTyuWYEdGk\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLC4UMm-UcUyycdWCvkYOkCyqaErdw"
+    },
+    {
+      "name": "Про Федора Стрельца мультфильм Мельница",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLtKdhsLNywCB5IeMoN6yxHmvuxe-CyCzS",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/KF0B5PeFRgU\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLA5UupxQX8nN5r6dWIpZk-lmfElnA"
+    },
+    {
+      "name": "TacticMedia",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCgGquprM-QtQbIixXvfpovw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwniTJQZfxA7lKPRWmCD1LdgGhlPQI2MlYV1UgGIc2A=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Игорь Быстров",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCvm57udh2tTCozrH683vmLw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwniilOD18CqNdEeZxAd4ZCm4UTC7PYsCQJN0IEFu-A=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Фильмография",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC2Ruz0n_BxbdBS-u8shiS2g",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnh6vs5ZpEi6FlF5LB3vZV35dcC8P8xl5wztFOWi=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Советская научная фантастика \\/USSR Sci-Fi\\/",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCZ1fLFyGpUafOg5TNwzQ0gQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhx1F5Vx9q-qsWadwHzx-URPZbWNcoJ5O1zeQxrgw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Фильмы Павла Клушанцева (1910–1999)",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLaVercZoOg7fRFF95ilWCkiYq6eU3_BW9",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/aIn1yqgn41Q\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCHgscbOb_1PZz62ZmGB-4sk9U4-g"
+    },
+    {
+      "name": "FILMSTER",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCOD2veMoMj5jy6K0pGt55Bw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwngRCuFEU2kMz6VsRQboP2H4NoYayLiqkrWVyKA1=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "FILMSTER",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCVGWGFBxM5mmqNq7hyVdmnQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwng_GXzCVvZmsCUhSUPZJyvrvv6kJmklH7PPkDsI=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "FILMSTER",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCPPi_gInYfTwqq0bEZvqZFQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwngOk6_Y4TjL3zYSv9insFjrxtyRo62FvT7FKSvd=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "FILMSTER",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCEbFg3Xr72urk58lPLFkiVA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhmEqZ0lwAej2F7OLYwBGxc8bQannpBF9VW2zuz=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мультики",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCy79cK-57oPgzP1PhjkFVKA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwng62C0RXC2EaYB7tx6TtSkByrztXNLau9f0sA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мир Мультфильмов",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCSqq9bs9SvjTCesCtek-jyA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjwhwmLxvPwPCTP0YDMGbEuonZRNlYh_09JRYhp=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Плохой сигнал",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC3VDbjQ1hnY4zSRHgAfAK-A",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjL8x5IceS0uSlITZO1I1R8Zyjnn6Otl0bUG9qq2Q=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "PANDORA",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCVfrS1hQiDwmZVY2GvNGbuw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwniTFqSB-hOXa56Rv4TsOkYXFJ6KUo6naQxd0ifQNw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Советская Фантастика",
+      "url": "https:\\/\\/m.youtube.com\\/playlist?list=PL3NRUiFDBZrrHB55GhCYHS__Tt2ZBTF-k",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/5aK0KP27iqg\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCY4a3w_0cmbw6mijSQcalZ-RxO3w"
+    },
+    {
+      "name": "Multiclub",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC6gmwLm1XO9U26RA_JSJIBw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnieKI_dXsxtUizZ7C79kYjwQUJlxFlH4hYmXcA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мультфильмы детям",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UClV4TlbvwbL643zGnk9Cs8g",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhycWHxU9syDkbqmgzcVmnV1TaTvt0GpFTjVJSGDw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Евгений Платонов",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCI96-V-jeVLQtZ2GcvOZ-XA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhq6PM8rJwPU8CaPifoO9hXhbuCqIUh7Liu9mlL=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Chemistry – easy",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCRzZSz5JlSfN6Ba164vqVCg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjQEomwtYa2SUWimwlj65xtRKqRX1UxlacyzVh2_A=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "dimanenator",
+      "url": "https:\\/\\/youtube.com\\/user\\/dimanenator",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnh1jkniy1a-Zygx-_sChSmdx42VGg6yVku2NA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "\"СОЮЗМУЛЬТФИЛЬМ +\"",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCT5azO0wt-hk1yYYUwaKXnw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhLY9u-TohyrddYUA5OHXvUClO7Hk4yjqJoqqpHjg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Кинокомпания \"СТВ\"",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/CTBFilm",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwngrNXgnofBYgto_IpSPharvCoF7VOSKkFiAGYieRw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Фильмография",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/Brajuc",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnh6vs5ZpEi6FlF5LB3vZV35dcC8P8xl5wztFOWi=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Советская Фантастика",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PL3NRUiFDBZrrHB55GhCYHS__Tt2ZBTF-k",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/5aK0KP27iqg\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCY4a3w_0cmbw6mijSQcalZ-RxO3w"
+    },
+    {
+      "name": "Официальный канал КВН",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/kvn",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnj8MU_hMZkidUlWWSC_rd9EirUI_X2mCJQScG-T8w=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мультики студии Союзмультфильм",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCrlFHstLFNA_HsIV7AveNzA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwngvx2vQJpzbvB05T9Xzkuipmmp3jClBv8ti-ympaw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Союзмультфильм",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCHS2LM1n3f5cyL-ebgkqyLw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhYCMJoY7eqp-EgxsiuA8OI1fdbPDB0EWUmpTQkqA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Союз мультфильм для малышей",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLZYFY0pM63g-HVMuZQm_73PX2XwGUdIsh",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/MWwILW7ebTs\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCxY7VHKc26J4hgEDqFZA5oY2XOPg"
+    },
+    {
+      "name": "Смотреть мультфильмы для детей Russian cartoons Мультфильмы +для детей смотреть онлайн Russian cartoons",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PL_1GmbeNjO6MsX2R4oTT5J7MoY3uOjPvi",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/QvGUWCZ4nSo\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLA6Fk8ktTEW1b8e9KkEPzy-sK54Wg"
+    },
+    {
+      "name": "Союзмультфильм",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCRamiHFYsCdWPOzs3exwrZQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnh4b_Pf2UTLF8J1Ly4KVh8eePs9xunidsqsz0HH=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Рики",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCif9J_f4J3TTvGvCDD3eXSA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjUp5r5QXDmHGdbzcJw_eONxE4_uKRYZdsXH7drjA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Public Domain",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC2nLpe8cLnobPorMpVM-6wA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjgKKn_JaboEwxFut424u6zHd1lbj1eRK03-KTP=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Союздетмультфильм",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCQ7GdnZlJtVLtEqeRjHHr8Q",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwngwC086QJDnKe7-yHLaj3ifGPRSWqaYWqN18gzbgg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Союзмультфильм",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCRamiHFYsCdWPOzs3exwrZQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnh4b_Pf2UTLF8J1Ly4KVh8eePs9xunidsqsz0HH=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Новогодние советские мультфильмы. Подборка без рекламы!",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PL4JNldASPcsC7FfE43qnbeNBhHJt_NP8j",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/xZkXod9IvD4\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLAHvPuPIqcT_CuGXo35iFWunhLJog"
+    },
+    {
+      "name": "Мультфильмы",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCtV9MJJh8uErNje2amzl4DA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwniIb0paTDNQm0lkdf5hixnoVCkxabdAa73ZAkWYGQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Мультики студии Союзмультфильм",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCxkz71_7UjIx-Mlsud6-VlQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjYFBIOhSaVhJNRGwaXQrR_evpXXlhb5LvD09xI=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Galaxy Мультфильмов",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UClkj5KhINymLgxS7_1UDGDw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjRaBsdgrTfAPRq3jucSLI8D7HizuZV54ESSgkx=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "SadoraKids",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCpboZ3ZE7wozFtIp-JhL5NQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjo6vRy9xUr66mooY-LeD2RkA1suoFMG--AUKPW=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Russian Animation eus347 subtitles resurrected",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC9_pMHQC0YUHFah9ahN8hOg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhcyoaNrewcbPvmYaeoT4Jfaz1bgIIo3RdBukzA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Кино. Мульт",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC_Q8UdVqZMfVTiFZY8GTpvg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhi7nOMZGQk_pgpB0hZc8Nm5UE56D8rCwFARlz2=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "БЕЛФИН Роботикс",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCdW-uyoCTN7Aj8Tfii46KRg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhhO-ZXHy_FYvygVUIAaN9xrcGjFRAZVjQq7519kQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "sadr0b0t",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCPgR-omAVHH3mQqSHX33-OA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnglcn3vo5A-9oKYSBqTPAQYvdL_q8YLrSMXSQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Официальный канал КВН",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCSZ69a-0I1RRdNssyttBFcA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwniArYR7tiXWnOil3D7kcOY7rukx6KE5nSykqcWy2Q=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Epic Ambience",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCuMNFQnMYICjY-RslrhKakw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnhMmL6SbrScw_dkavl89Xc179iTNCKkWqnBcVA7SA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Пятый канал Россия",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC-qQJ-PiW3wfNhfxL0tQD9Q",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjqLK88Gczdz3NpM3zcq-4OcTVWB_-6HZOTUz0IUw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "СССР-2061",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCUgH1BGxEZWQILt6e1JscIg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjUc4TBceOQoX-oPezjX8mRBi8DA1tZALvohAFG=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "ALINA DIY SLIME",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC0DjkLTUP_6vijsToo5NagQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwniQZfCyywLSh7B7wPVGzNa8s2AXLEXeWL-UDKpe=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Information Group (IGCP)",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCvZP9yiAae1HNgXdLYbq9Pg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnjRqsV6pk_c3WRf4GZPORqfMBJWz9J-2W4b5iKh=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "The Classic Muppet Show Clips and Episodes",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCEpXcjiiCFDi6-8rB8DHFQA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwngKLVS9Pt_wgHuE50k6aXyqjFwfOaqEX03RazFj=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Гора Фрегглов все серии все сезоны",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PL1jvL2p3QDqtoZJM5KD3Hs9lv-jsmKqCI",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/9X-fxiMrtZc\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLDtDJm9LYzIIxKw5sibzyP3jOIzrg"
+    },
+    {
+      "name": "IanHubert",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCbmxZRQk-X0p-TOxd6PEYJA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwnh-Dp1fPWeSxZQ8E_FjyA3iqwYGisHqEI6hgW8s=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Filmegator",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCZnNNrFA_CcVDZLg6GGd2MA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AAUvwniFm8vNnorjhHzTyVdieibxf_tTnp76hdO59IiU=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Ivan Filimonov",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/IvanFilimonov",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLT1OrBpe-LlB1qahOSMjLuNyjzk4DJc052LTtj3ww=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Алексей Давыденков",
+      "url": "https:\\/\\/www.youtube.com\\/c\\/Alekcey66",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLRCCpbGtxJhJE8u0uL-LF6sN1S3Ari8kbbe2HJo7w=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "sadrobot",
+      "url": "https:\\/\\/mult.sadrobot.su\\/accounts\\/sadrobot\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/mult.sadrobot.su\\/client\\/assets\\/images\\/default-avatar.png"
+    },
+    {
+      "name": "KREOSAN",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCUllb83Lugbka-rvF6Nutxg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLRAmDawPNt7ryrLuLpJAu9pmrdRf6ml-C5sIsTjsQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "KREOSAN English",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UClUZos7yKYtrmr0-azaD8pw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLQjDtXb6SV4Yrf1T9LLTNndHsv9_B_of5VgCTnHWA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "GalileoRU",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCpNzWUlO6PVb_v7chefBnig",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLTclnAbAmnvguyXaoBAFuvMy4L99JiRG0H-q6uu=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Первый Народный",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCGBzy_Y8qIdWcVbIbrXMWOg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLTwQpbx9xSd_R1gy4nAJ80Ydq7vWWbqKc7_gOsb=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "BOOM GAME",
+      "url": "https:\\/\\/youtube.com\\/channel\\/UCBqrQHzYAL-ym8vzy6F4jpw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLSVf6pkGwWMcsxbWLHpHQkxUkgLgkhApzL7kt1N7w=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "SUREN",
+      "url": "https:\\/\\/youtube.com\\/c\\/SUREN_VIDEO\\/",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLSak4mqSqmOIohpY7g5JOm7DxBCkRuk-o-Bwesd=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Подводная одиссея команды Кусто",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLtOGU-uSZqNqC9GGX2KECohMmetlgXWWR",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/_oVfvqDXics\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCfcajv-Wo2cLI6cpJcxpod0yo59Q"
+    },
+    {
+      "name": "sadrobot",
+      "url": "https:\\/\\/mult.sadrobot.su\\/accounts\\/sadrobot\\/videos",
+      "type": "PT_USER",
+      "thumb_url": "https:\\/\\/mult.sadrobot.su\\/client\\/assets\\/images\\/default-avatar.png"
+    },
+    {
+      "name": "Детское Радио",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCZiSK33_DbYN0wjIyGTxHBA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLT3is0VinNrUm717fxCkbKCJ_20rBVGj5m8vZWP=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Masyanya Kuvaeva",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCnRR-BtJ7dL3azi2XC09JBA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLS4r6bChWLz_FEDVY5VMOVjeOdoKGIz--GUt4biCw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Terset Brayan",
+      "url": "https:\\/\\/m.youtube.com\\/channel\\/UC7FPDeOL5tSU-Su1M9dP7yw\\/",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLTSSScYX4EdEoAwe5-DMGY6tJhJP5A_2Hj25UKY=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Mariinsky Theatre",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC_FF5Ob7uOYKjtq7kyurt2w",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLQ0zHgqypt94CY3qQH-BVLKvNK_qgHJI8sygTkQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Телеканал ТЕАТР",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC5gnQg1VVWeP3YLtCneaZnw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLRmZokh_qPV_kLeARyXt88lov6D4hFi35aJOHn7=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Театр Маяковского",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCyAz6Ir6iDWc03uEA-XWzYQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLREiP9YUlOk2W8aeqjHtlqwKbmXAz3ponCY0lTi=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Театр Тинчурина",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCOrFi6WZQ6sliSK53FHKY5Q",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLR8zUGePI-356AkNS1VmRo95VPAZ_i-VYrAxMx2=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Пермский академический Театр-Театр",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCzgDN8gTiO7HBQiy-fJXPtQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLQKLDchP78LU2VIu6Eu9I6xwdudLS3paECIkhRUIg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Камал Театры Камаловский театр",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCVXqpOewT2OV1b5RRu_gE8w",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLSsGy0X58gHNPNGX_jyz5FK3OOILL59CroBJ-WHGA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Театр Олега Табакова",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCA9ktKx5RlNWpbuUP-7yOGA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLQ9k6ViGpdNAC8XYaneYe6SKQ4mtu2tzwTbrL3Lkw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Александринский театр",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCwxDW4SwIgdjnUeSKvimlrg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLSIrhncV41RKh8HFggodn9BADtkv3bX5toq2dY99Q=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Малый театр России",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCVr68Rg_LO23eGS0RX1bTeA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLRS_3RDsrCMfR2z6lCOWQAQ1raQSPhu8QOB8t11Xw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Спектакли Малого театра",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLdqkQDBHyTeLsZwmodlllbU8nqG3qAePd",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/BhtyKZAMsrY\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCG9dBr-io7VYJzQMcnsK1BT-RX8A"
+    },
+    {
+      "name": "Театр Драмы",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC97_cO-PDIPh7tdhQ-hblEQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLS2miiD6RXHwgrXI_4G-UwtWjxMIlRc7sydAC-P=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Спектакли Театра Сатиры",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PL40OiiJw6-gfDnuoTYH_1e_8M0I2GC6_a",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/5W12WHnW7wM\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCEfGbjxvR_X33bIMXIZibakfqqNg"
+    },
+    {
+      "name": "Театр Вахтангова",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCzTkk_1tc8db1IhoZMz0fuQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLT77OF__Lrso5hyNM92VI8kpzJRRbUnoi-nWW5M=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Театр Афанасьева",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCXq9Bbdm3sgeCzwI7YnSZgQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLT5KBnQOAIijrI878zT9eYuHMZ1CJ7yJhYT1SY8ZQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Театр им. Вахтангова, все спектакли",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLKqWXdw_WgSKbnR19sexY2q4HPteJdE4y",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/mBBZ7wyXg14\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCKn3_bwF23__5Ii9c0z9ns19s6nQ"
+    },
+    {
+      "name": "Советские фильмы и спектакли. ГОСТЕЛЕРАДИОФОНД",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC7FDlGcSUqeSZHh1LRMM1OQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLS7bfTt8cWHX53HuDhRrLvZqEoF37TvjS0_X36L=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Театральные Спектакли",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCvzWxJ_Ku6t7CUKrEErU6Vw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLRx3DOkOaUPIMuvoxkg_lYm11C1rbgoaYbaG16q=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Исторические спектакли на радио СССР",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCDMMSt5HilNKXdn82pA26NA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLRGhSZV0vgYcC82T9xN_TfrK74AXVnXS1v0zhpx=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "спектакли СССР",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLtsb1e1G2VkmIL99jmz-a67nHrw3GUPeJ",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/PjpdYms3luQ\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLDTp1JM7MIQFJBWXq26v4i3HktByg"
+    },
+    {
+      "name": "Супер ...спектакли",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLH9evww5uH5yMTYRo3iW46m4sLaJ8BCWd",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/nlJAAjNbUOY\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLDcWyrLHpzG2oeBW3WKS73JrXAHNw"
+    },
+    {
+      "name": "Спектакли\\/Фильмы.СССР.",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLcBKhpbx_yQBIM1R64Ijat4ynJTNqHmT9",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/Le2nvGRSH5g\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLAI_toMuwNve9PBbCnMAv0XUL6loQ"
+    },
+    {
+      "name": "Спектакли СССР",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLDcDiDQH_3C2Y4DKLxURE1aABDHFf8Rz0",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/C_sI7FmDJQo\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLDSdbufuTUOdnR4zjTcTQSBQdOILw"
+    },
+    {
+      "name": "Лучшие спектакли",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLs6OEVh4TyhAGhvDftAGrKlQUyAR6Jh4m",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/9VsztUgOVGQ\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLC3LHdU0liBo1WmFNcSGSqg4gpr2A"
+    },
+    {
+      "name": "БДТ спектакли",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLr2xhv6oeCx6zwRc5B45f5ME_fd4tVPEQ",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/0X3L-9CQOEs\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLDi9DVInKZL1UZ3UEb63hwKyQ3mUw"
+    },
+    {
+      "name": "BDHchoir",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UClw3Ct-DpyhINYZnbk0VfVA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLSg-F0HybjJw0u4kOli-xQ9Lp7vBdUiMFygReon=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Ленинец",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCp6-f_xMLf75jFfREzIIsLw",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLR63SSJRB8uqGfPRvPofH4GT3VZbhXMppN8t9V9=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Киностудия Горького",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCO4955GoiqlIB0yyybBx6KQ",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLT7PJGkjLfNKuAdSHIyf3lW5mRPhisCRnYDWVQn=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Эпицентр кино",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCNdr8FS_GIOn_SnFGfXMDDA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/Yn8m6pWfA__E1QCJLPnN34bQGXZM6OS78BVRDaC8OgKfGOT6DmA_o-gfDk-IE--ayGQbIQ73lHA=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Рижская киностудия - советские фильмы",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLE6LTBN-twJ5df3IT8aasND_S70OksfmF",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/_3oyy3Ofc-I\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLAPvTz_zV0035B6vpnax_wcBQkQEg"
+    },
+    {
+      "name": "СКАЗКИ  ФИЛЬМЫ",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLbqctdB4RyNFKxGVLzrCkUz3lMIHutrM4",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/Dv0Cqn0puWo\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLB9ia0nesyeVuezi4v1arxtHhq4SQ"
+    },
+    {
+      "name": "Польские любимые фильмы на русском",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PLopE4IpWmXB-Xk5pasMlVRxckty18sYFu",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/atRTfOxolj0\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCmbGNZd41GYEV0MvNQQ8NglSOrEA"
+    },
+    {
+      "name": "TromaMovies",
+      "url": "https:\\/\\/www.youtube.com\\/user\\/Tromamovies",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLT-RbosOaXdbfjsexPclVkkbvS6sAnVjT8qRXQH=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Loom Planet",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCy1D4WGprdBxv0FaC6IH-wg",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLSOqcjuP4ByT2aVJ8_ymwoPUzA6kdkewV-42idMdw=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Alexey Grishchenko",
+      "url": "https:\\/\\/youtube.com\\/channel\\/UCYvnYotu4eX_NkThp2XTclg\\/",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLRn7zcnJ9uBH8eKpBnO8QOfEOWE-GXAr00aXrq9gQ=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Вычислительная техника в СССР",
+      "url": "https:\\/\\/youtube.com\\/playlist?list=PLqIPhAkTREH_ExmWznREVeypXYYnPHCxm",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/p36SaN87A3I\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLD68NSdw0uyvlCV5mW95_j9LxDJ9g"
+    },
+    {
+      "name": "BBC Reel",
+      "url": "https:\\/\\/youtube.com\\/c\\/BBCReel\\/videos",
+      "type": "YT_USER",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLTI7q9fhW9ZFH0ZW7Ft1scpfNoTBvbW14SDotMO=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "KULIK",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCK9lZ2lHRBgx2LOcqPifukA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLSsktvN4bLK3qdypqB9K-GLHvHh8pW6T7IdViqE7Q=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Фильмы",
+      "url": "https:\\/\\/www.youtube.com\\/playlist?list=PL2UIDaZt5MIuIHbT4yKL1fZnlhmkGKo0G",
+      "type": "YT_PLAYLIST",
+      "thumb_url": "https:\\/\\/i.ytimg.com\\/vi\\/vWtOqPGWtkw\\/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLAA1-j2cqM47Xm_EGMAXIwfv3kEQw"
+    },
+    {
+      "name": "Алиса знает, что делать!",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCVxnRXD4OC0GtsLLqVR-upA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLTlItiPlH9gj3u_A1ldKh9mwpOGf0VTGKY7C_wI=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Алиса знает что делать",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UC2n3j3mrfKOqW4YzHwAqNTA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLQqR-rvYw4O0oqlddSKRMnLAt09wsXJxM48vMX2=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Алиса ТВ",
+      "url": "https:\\/\\/www.youtube.com\\/channel\\/UCe47gDNFHYyW4pQIzQiTiEA",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLQD8jCTZaqjluV6qLDZ4fH-bHVcNkMpD5ZcCFeAGg=s240-c-k-c0x00ffffff-no-rj"
+    },
+    {
+      "name": "Черепашки Ниндзя",
+      "url": "https:\\/\\/youtube.com\\/channel\\/UCH8Muc0W_2mwNEzPQ1-yMMA\\/",
+      "type": "YT_CHANNEL",
+      "thumb_url": "https:\\/\\/yt3.ggpht.com\\/ytc\\/AKedOLTHrbFmiUG1A5bPdveXx5WrSH8csKGji7axWIPN=s240-c-k-c0x00ffffff-no-rj"
+    }
+  ]
+}

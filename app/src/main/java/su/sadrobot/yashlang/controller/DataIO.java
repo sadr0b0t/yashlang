@@ -33,6 +33,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -202,8 +204,8 @@ public class DataIO {
 
                 jsonPlInfo.put("name", plInfo.getName());
                 jsonPlInfo.put("url", plInfo.getUrl());
-                jsonPlInfo.put("type", plInfo.getType());
                 jsonPlInfo.put("thumb_url", plInfo.getThumbUrl());
+                jsonPlInfo.put("type", plInfo.getType());
 
                 jsonPlaylists.put(jsonPlInfo);
             }
@@ -230,8 +232,8 @@ public class DataIO {
 
                     jsonPlInfo.put("name", plInfo.getName());
                     jsonPlInfo.put("url", plInfo.getUrl());
-                    jsonPlInfo.put("type", plInfo.getType());
                     jsonPlInfo.put("thumb_url", plInfo.getThumbUrl());
+                    jsonPlInfo.put("type", plInfo.getType());
 
                     jsonPlaylists.put(jsonPlInfo);
                 }
@@ -255,8 +257,8 @@ public class DataIO {
 
                 jsonPlInfo.put("name", plInfo.getName());
                 jsonPlInfo.put("url", plInfo.getUrl());
-                jsonPlInfo.put("type", plInfo.getType());
                 jsonPlInfo.put("thumb_url", plInfo.getThumbUrl());
+                jsonPlInfo.put("type", plInfo.getType());
 
                 final JSONArray jsonVideoItems = new JSONArray();
                 final List<VideoItem> videoItems = exportSkipBlocked ?
@@ -323,6 +325,26 @@ public class DataIO {
         return jsonRoot;
     }
 
+    public static JSONObject exportPlaylistsToJSON(final List<PlaylistInfo> playlists) throws JSONException {
+        final JSONObject jsonRoot = new JSONObject();
+
+        final JSONArray jsonPlaylists = new JSONArray();
+
+        for (final PlaylistInfo plInfo : playlists) {
+            final JSONObject jsonPlInfo = new JSONObject();
+
+            jsonPlInfo.put("name", plInfo.getName());
+            jsonPlInfo.put("url", plInfo.getUrl());
+            jsonPlInfo.put("thumb_url", plInfo.getThumbUrl());
+            jsonPlInfo.put("type", plInfo.getType());
+
+            jsonPlaylists.put(jsonPlInfo);
+        }
+
+        jsonRoot.put("playlists", jsonPlaylists);
+
+        return jsonRoot;
+    }
 
     public static List<PlaylistInfo> loadPlaylistsFromJSON(final String jsonString) throws JSONException {
         final List<PlaylistInfo> playlistList = new ArrayList<>();
@@ -332,12 +354,14 @@ public class DataIO {
         for (int i = 0; i < jsonPlaylists.length(); i++) {
             final JSONObject jsonPlaylist = jsonPlaylists.getJSONObject(i);
 
-            final PlaylistInfo plInfo = new PlaylistInfo(
-                    jsonPlaylist.getString("name"),
-                    jsonPlaylist.getString("url"),
-                    jsonPlaylist.getString("thumb_url"),
-                    jsonPlaylist.getString("type"));
-            playlistList.add(plInfo);
+            if(!jsonPlaylist.has("_ignore") || !jsonPlaylist.getBoolean("_ignore")) {
+                final PlaylistInfo plInfo = new PlaylistInfo(
+                        jsonPlaylist.getString("name"),
+                        jsonPlaylist.getString("url"),
+                        jsonPlaylist.getString("thumb_url"),
+                        jsonPlaylist.getString("type"));
+                playlistList.add(plInfo);
+            }
         }
 
         return playlistList;
@@ -389,6 +413,28 @@ public class DataIO {
             }
         }
         return fileContent.toString();
+    }
 
+    /**
+     *
+     * @param resPath например: "/su/sadrobot/yashlang/data/recommended-playlists.json"
+     * @return resource content as String
+     */
+    public static String loadFromResource(final String resPath) throws IOException {
+        final InputStream in = DataIO.class.getResourceAsStream(resPath);
+
+        // так лаконичней, но не для API level 17
+        // final String loadedFileContent = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8)).
+        //     lines().collect(Collectors.joining("\n"));
+
+        final StringBuilder textBuilder = new StringBuilder();
+        try (Reader reader = new BufferedReader(new InputStreamReader
+                (in, Charset.forName("UTF-8")))) {
+            int c;
+            while ((c = reader.read()) != -1) {
+                textBuilder.append((char) c);
+            }
+        }
+        return textBuilder.toString();
     }
 }
