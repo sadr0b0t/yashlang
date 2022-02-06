@@ -70,7 +70,7 @@ public class DataIOTest {
 
             final List<PlaylistInfo> loadedPlaylists = DataIO.loadPlaylistsFromJSON(loadedFileContent);
             for(PlaylistInfo plInfo : loadedPlaylists) {
-                System.out.println(plInfo.getName() + " " + plInfo.getUrl());
+                System.out.println(plInfo.getName() + " " + plInfo.getUrl() + " " + PlaylistInfo.PlaylistType.valueOf(plInfo.getType()).name());
             }
         } catch (JSONException | IOException e) {
             e.printStackTrace();
