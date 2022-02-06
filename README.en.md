@@ -2,7 +2,7 @@
 Online PeerTube and YouTube player for Android with local playlists and whitelisted recommendations  
 на русском: [README.md](README.md)
 
-<a href="https://f-droid.org/packages/su.sadrobot.yashlang/"><img src="https://f-droid.org/wiki/images/0/06/F-Droid-button_get-it-on.png"></a>
+<a href="https://f-droid.org/packages/su.sadrobot.yashlang/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-en.svg" alt="Get it on F-Droid" height=80></a>
 
 - Add fave channels and playlists
 - Switch off videos inside added playlists if you don't like them

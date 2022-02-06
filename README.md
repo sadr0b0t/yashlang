@@ -4,7 +4,7 @@ for English go to [README.en.md](README.en.md)
 
 Онлайн плеер PeerTube и YouTube с локальными плейлистами, каналами и рекомендациями.
 
-<a href="https://f-droid.org/packages/su.sadrobot.yashlang/"><img src="https://f-droid.org/wiki/images/0/06/F-Droid-button_get-it-on.png"></a>
+<a href="https://f-droid.org/packages/su.sadrobot.yashlang/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-en.svg" alt="Get it on F-Droid" height=80></a>
 
 - Добавляйте любимые каналы и плейлисты
 - Внутри добавленных плейлистов выключайте лишние ролики, если они вам не нужны
