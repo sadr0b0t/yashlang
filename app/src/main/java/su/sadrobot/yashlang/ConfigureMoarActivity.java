@@ -1,7 +1,7 @@
 package su.sadrobot.yashlang;
 
 /*
- * Created by Anton Moiseev (sadr0b0t) in 2019.
+ * Created by Anton Moiseev (sadr0b0t) in 2021.
  *
  * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
  * ConfigurePlaylistActivity.java is part of YaShlang.
@@ -20,13 +20,9 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -44,8 +40,6 @@ public class ConfigureMoarActivity extends AppCompatActivity {
     private TabLayout tabs;
     private ViewPager pager;
 
-    private Toolbar toolbar;
-
     private ConfigureVideoQualityFragment configureVideoQualityFrag;
 
     @Override
@@ -56,11 +50,7 @@ public class ConfigureMoarActivity extends AppCompatActivity {
 
         tabs = findViewById(R.id.tabs);
         pager = findViewById(R.id.pager);
-        toolbar = findViewById(R.id.toolbar);
 
-        // https://developer.android.com/training/appbar
-        // https://www.vogella.com/tutorials/AndroidActionBar/article.html#custom-views-in-the-action-bar
-        setSupportActionBar(toolbar);
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

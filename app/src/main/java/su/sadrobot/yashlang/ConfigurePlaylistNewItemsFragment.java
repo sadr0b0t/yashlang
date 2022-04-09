@@ -50,6 +50,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
+import su.sadrobot.yashlang.controller.TaskController;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
@@ -116,7 +117,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
 
     private long playlistId = PlaylistInfo.ID_NONE;
     private PlaylistInfo plInfo;
-    private ContentLoader.TaskController taskController;
+    private TaskController taskController;
 
     private enum State {
         NEW_ITEMS_LIST_EMPTY, NEW_ITEMS_LIST_LOAD_PROGRESS, NEW_ITEMS_LIST_LOAD_ERROR, NEW_ITEMS_LIST_LOADED,
@@ -535,8 +536,8 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     private void addNewItemsBg() {
         final String playlistUrl = plInfo.getUrl();
         // канал или плейлист
-        taskController = new ContentLoader.TaskController();
-        taskController.setTaskListener(new ContentLoader.TaskListener() {
+        taskController = new TaskController();
+        taskController.setTaskListener(new TaskController.TaskAdapter() {
             @Override
             public void onStart() {
                 handler.post(new Runnable() {
@@ -569,7 +570,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
             }
 
             @Override
-            public void onStatusChange(final String status, final Exception e) {
+            public void onStatusMsgChange(final String status, final Exception e) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {

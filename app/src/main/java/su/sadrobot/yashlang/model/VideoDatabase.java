@@ -29,7 +29,7 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 
-@Database(entities = {VideoItem.class, PlaylistInfo.class, Profile.class, ProfilePlaylists.class}, version = 4)
+@Database(entities = {VideoItem.class, PlaylistInfo.class, StreamCache.class, Profile.class, ProfilePlaylists.class}, version = 5)
 public abstract class VideoDatabase extends RoomDatabase {
     private static volatile VideoDatabase INSTANCE;
 
@@ -37,6 +37,7 @@ public abstract class VideoDatabase extends RoomDatabase {
     public abstract VideoItemDao videoItemDao();
     public abstract PlaylistInfoDao playlistInfoDao();
     public abstract ProfileDao profileDao();
+    public abstract StreamCacheDao streamCacheDao();
 
     public static VideoDatabase getDbInstance(final Context context) {
         if (INSTANCE == null) {
@@ -47,6 +48,7 @@ public abstract class VideoDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_1_2)
                             .addMigrations(MIGRATION_2_3)
                             .addMigrations(MIGRATION_3_4)
+                            .addMigrations(MIGRATION_4_5)
                             //.fallbackToDestructiveMigration()
                             //.allowMainThreadQueries()
                             .build();
@@ -146,6 +148,28 @@ public abstract class VideoDatabase extends RoomDatabase {
             // SELECT * FROM playlist_info WHERE (type='YT_USER' OR type='YT_CHANNEL') AND (thumb_url like '%=s48-%' OR thumb_url like '%=s100-%')
             database.execSQL("UPDATE playlist_info SET thumb_url = REPLACE(thumb_url, '=s48-', '=s240-') WHERE type='YT_USER' OR type='YT_CHANNEL'");
             database.execSQL("UPDATE playlist_info SET thumb_url = REPLACE(thumb_url, '=s100-', '=s240-') WHERE type='YT_USER' OR type='YT_CHANNEL'");
+        }
+    };
+
+    private static Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(final SupportSQLiteDatabase database) {
+            // SQL берем из schemas/su.sadrobot.yashlang.model.VideoDatabase.5.json
+            database.execSQL("CREATE TABLE IF NOT EXISTS stream_cache (" +
+                    "`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`video_id` INTEGER NOT NULL, " +
+                    "`stream_type` TEXT, " +
+                    "`stream_res` TEXT, " +
+                    "`stream_format` TEXT, " +
+                    "`stream_mime_type` TEXT, " +
+                    "`stream_format_suffix` TEXT, " +
+                    "`file_name` TEXT, " +
+                    "`stream_size` INTEGER NOT NULL, " +
+                    "`downloaded` INTEGER NOT NULL, " +
+                    "FOREIGN KEY(`video_id`) REFERENCES `video_item`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_stream_cache_video_id` ON stream_cache (`video_id`)");
+
+            database.execSQL("ALTER TABLE video_item ADD COLUMN has_offline INTEGER NOT NULL DEFAULT 0");
         }
     };
 }

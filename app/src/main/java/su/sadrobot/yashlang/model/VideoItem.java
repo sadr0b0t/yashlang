@@ -206,6 +206,13 @@ public class VideoItem {
     @ColumnInfo(name = "fake_timestamp")
     private long fakeTimestamp;
 
+    /**
+     * Has offline streams flag
+     * Флаг - имеет ли ролик локальные потоки для проигрывания оффлайн
+     */
+    @ColumnInfo(name = "has_offline")
+    private boolean hasOffline = false;
+
 
     // возможно, не очень красиво хранить здесь поля, не сохраняемые в базу,
     // но более удобного способа отправлять объекты в адаптер списка прямиком из
@@ -434,6 +441,14 @@ public class VideoItem {
 
     public void setPlaylistInfo(PlaylistInfo playlistInfo) {
         this.playlistInfo = playlistInfo;
+    }
+
+    public boolean isHasOffline() {
+        return hasOffline;
+    }
+
+    public void setHasOffline(boolean hasOffline) {
+        this.hasOffline = hasOffline;
     }
 
     public StreamHelper.StreamSources getStreamSources() {

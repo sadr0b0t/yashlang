@@ -134,6 +134,9 @@ public class ConfigurePlaylistsActivity extends AppCompatActivity {
             case R.id.action_export:
                 startActivity(new Intent(ConfigurePlaylistsActivity.this, ExportDataActivity.class));
                 break;
+            case R.id.action_video_cache:
+                startActivity(new Intent(ConfigurePlaylistsActivity.this, StreamCacheActivity.class));
+                break;
             case R.id.action_configure_moar:
                 startActivity(new Intent(ConfigurePlaylistsActivity.this, ConfigureMoarActivity.class));
                 break;

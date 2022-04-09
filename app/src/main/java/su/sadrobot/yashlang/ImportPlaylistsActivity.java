@@ -52,6 +52,7 @@ import java.util.Set;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.DataIO;
+import su.sadrobot.yashlang.controller.TaskController;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
@@ -95,7 +96,7 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
 
     private State state = State.INITIAL_RECOMMENDED;
 
-    private ContentLoader.TaskController taskController;
+    private TaskController taskController;
     private int plToAddStartIndex = 0;
 
 
@@ -363,8 +364,8 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
         updateControlsVisibility();
 
         // канал или плейлист
-        taskController = new ContentLoader.TaskController();
-        taskController.setTaskListener(new ContentLoader.TaskListener() {
+        taskController = new TaskController();
+        taskController.setTaskListener(new TaskController.TaskAdapter() {
             @Override
             public void onStart() {
                 handler.post(new Runnable() {
@@ -395,7 +396,7 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onStatusChange(final String status, final Exception e) {
+            public void onStatusMsgChange(final String status, final Exception e) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {

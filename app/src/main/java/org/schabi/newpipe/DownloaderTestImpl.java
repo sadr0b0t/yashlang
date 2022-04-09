@@ -2,6 +2,9 @@ package org.schabi.newpipe;
 
 // copy from here
 // https://github.com/TeamNewPipe/NewPipeExtractor/blob/v0.21.9/extractor/src/test/java/org/schabi/newpipe/downloader/DownloaderTestImpl.java
+// another option:
+// https://github.com/TeamNewPipe/NewPipe/blob/dev/app/src/main/java/org/schabi/newpipe/DownloaderImpl.java
+
 
 /*
  * Created by Christian Schabesberger on 28.01.16.
@@ -42,7 +45,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
 public final class DownloaderTestImpl extends Downloader {
-    private static final String USER_AGENT
+    public static final String USER_AGENT
             = "Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0";
     private static DownloaderTestImpl instance;
     private final OkHttpClient client;

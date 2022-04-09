@@ -2,55 +2,209 @@ package su.sadrobot.yashlang.controller;
 
 import android.content.Context;
 
+import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.stream.AudioStream;
 import org.schabi.newpipe.extractor.stream.VideoStream;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import su.sadrobot.yashlang.ConfigOptions;
+import su.sadrobot.yashlang.model.StreamCache;
+import su.sadrobot.yashlang.model.VideoDatabase;
+import su.sadrobot.yashlang.model.VideoItem;
 
 public class StreamHelper {
 
-    public static class StreamSources {
-        private List<VideoStream> videoStreams;
-        private List<AudioStream> audioStreams;
+    public static class StreamInfo {
 
-        public StreamSources(final List<VideoStream> videoStreams, final List<AudioStream> audioStreams) {
+        private StreamCache.StreamType streamType;
+
+        private boolean online;
+
+        private String resolution;
+
+        private String quality;
+
+        private String formatName;
+
+        private String formatMimeType;
+
+        private String formatSuffix;
+
+        private String url;
+
+        public StreamInfo(final VideoStream videoStream) {
+            this.online = true;
+            if(videoStream.isVideoOnly) {
+                this.streamType = StreamCache.StreamType.VIDEO;
+            } else {
+                this.streamType = StreamCache.StreamType.BOTH;
+            }
+            this.formatName = videoStream.getFormat().getName();
+            this.formatMimeType = videoStream.getFormat().getMimeType();
+            this.formatSuffix = videoStream.getFormat().getSuffix();
+            this.resolution = videoStream.getResolution();
+            this.quality = videoStream.getQuality();
+            this.url = videoStream.getUrl();
+        }
+
+        public StreamInfo(final AudioStream audioStream) {
+            this.online = true;
+            this.streamType = StreamCache.StreamType.AUDIO;
+            this.formatName = audioStream.getFormat().getName();
+            this.formatMimeType = audioStream.getFormat().getMimeType();
+            this.formatSuffix = audioStream.getFormat().getSuffix();
+            this.resolution = String.valueOf(audioStream.getBitrate());
+            this.quality = audioStream.getQuality();
+            this.url = audioStream.getUrl();
+        }
+
+        public StreamInfo(final Context context, final StreamCache streamCache) throws MalformedURLException {
+            this.online = false;
+            this.streamType = streamCache.getStreamTypeEnum();
+            this.formatName = streamCache.getStreamFormat();
+            this.formatMimeType = streamCache.getStreamMimeType();
+            this.formatSuffix = streamCache.getStreamFormatSuffix();
+            this.resolution = streamCache.getStreamRes();
+            this.url = StreamCacheFsManager.getFileForStream(context, streamCache).toURI().toURL().toString();
+        }
+
+        public StreamCache.StreamType getStreamType() {
+            return streamType;
+        }
+
+        public boolean isOnline() {
+            return online;
+        }
+
+        public String getResolution() {
+            return resolution;
+        }
+
+        public String getQuality() {
+            return quality;
+        }
+
+        public String getFormatName() {
+            return formatName;
+        }
+
+        public String getFormatMimeType() {
+            return formatMimeType;
+        }
+
+        public String getFormatSuffix() {
+            return formatSuffix;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+    }
+
+    public static class StreamSources {
+        private List<StreamInfo> videoStreams;
+        private List<StreamInfo> audioStreams;
+        public final List<Exception> problems = new ArrayList<>();
+
+        public StreamSources(final List<StreamInfo> videoStreams, final List<StreamInfo> audioStreams) {
             this.videoStreams = videoStreams;
             this.audioStreams = audioStreams;
         }
 
-        public List<VideoStream> getVideoStreams() {
+        public List<StreamInfo> getVideoStreams() {
             return videoStreams;
         }
 
-        public List<AudioStream> getAudioStreams() {
+        public List<StreamInfo> getAudioStreams() {
             return audioStreams;
         }
     }
 
     public static class StreamPair {
-        private VideoStream videoStream;
-        private AudioStream audioStream;
+        private StreamInfo videoStream;
+        private StreamInfo audioStream;
 
-        public StreamPair(final VideoStream videoStream, final AudioStream audioStream) {
+        public StreamPair(final StreamInfo videoStream, final StreamInfo audioStream) {
             this.videoStream = videoStream;
             this.audioStream = audioStream;
         }
 
-        public VideoStream getVideoStream() {
+        public StreamInfo getVideoStream() {
             return videoStream;
         }
 
-        public AudioStream getAudioStream() {
+        public StreamInfo getAudioStream() {
             return audioStream;
         }
     }
 
-    public static VideoStream getNextPlaybackStreamMaxRes(
-            final List<VideoStream> videoStreams,
-            final VideoStream currVideoStream) {
-        VideoStream _videoStream;
+    /**
+     * Добыть потоки для ролика - локальные (из базы данных) и онлайн (по url через NewPipeExtractor)
+     *
+     * @param context
+     * @param videoItem
+     * @return
+     */
+    public static StreamHelper.StreamSources fetchStreams(final Context context, final VideoItem videoItem) {
+        final List<StreamInfo> allVideoStreams = new ArrayList<>();
+        final List<StreamInfo> allAudioStreams = new ArrayList<>();
+        final List<Exception> problems = new ArrayList<>();
+
+        // получить локальные потоки (оффлайн)
+        final List<StreamCache> streamCacheList = VideoDatabase.getDbInstance(context).streamCacheDao().getFinishedForVideo(videoItem.getId());
+        for (final StreamCache streamCache : streamCacheList) {
+            try {
+                final StreamInfo streamInfo = new StreamInfo(context, streamCache);
+                if (streamCache.getStreamTypeEnum() != StreamCache.StreamType.AUDIO) {
+                    // VIDEO или BOTH
+                    allVideoStreams.add(streamInfo);
+                } else {
+                    allAudioStreams.add(streamInfo);
+                }
+            } catch (final MalformedURLException e) {
+                problems.add(e);
+            }
+        }
+
+        // получить онлайн-потоки
+        try {
+            StreamHelper.StreamSources onlineStreamSources = ContentLoader.getInstance().extractStreams(videoItem.getItemUrl());
+
+            allVideoStreams.addAll(onlineStreamSources.getVideoStreams());
+            allAudioStreams.addAll(onlineStreamSources.getAudioStreams());
+        } catch (ExtractionException | IOException e) {
+            problems.add(e);
+        }
+
+        final StreamHelper.StreamSources streamSources = new StreamSources(allVideoStreams, allAudioStreams);
+        streamSources.problems.addAll(problems);
+        return streamSources;
+    }
+
+    public static List<StreamInfo> toStreamInfoListFromVideoList(final List<VideoStream> videoStreams) {
+        final List<StreamInfo> _streams = new ArrayList<>();
+        for(VideoStream videoStream : videoStreams) {
+            _streams.add(new StreamInfo(videoStream));
+        }
+        return _streams;
+    }
+
+    public static List<StreamInfo> toStreamInfoListFromAudioList(final List<AudioStream> audioStreams) {
+        final List<StreamInfo> _streams = new ArrayList<>();
+        for(AudioStream audioStream : audioStreams) {
+            _streams.add(new StreamInfo(audioStream));
+        }
+        return _streams;
+    }
+
+    public static StreamInfo getNextPlaybackStreamMaxRes(
+            final List<StreamInfo> videoStreams,
+            final StreamInfo currVideoStream) {
+        StreamInfo _videoStream;
         if (currVideoStream == null) {
             // выбирать стрим с наилучшим качеством (в начале)
             _videoStream = videoStreams.size() > 0 ? videoStreams.get(0) : null;
@@ -67,10 +221,10 @@ public class StreamHelper {
         return _videoStream;
     }
 
-    public static VideoStream getNextPlaybackStreamMinRes(
-            final List<VideoStream> videoStreams,
-            final VideoStream currVideoStream) {
-        VideoStream _videoStream;
+    public static StreamInfo getNextPlaybackStreamMinRes(
+            final List<StreamInfo> videoStreams,
+            final StreamInfo currVideoStream) {
+        StreamInfo _videoStream;
         if (currVideoStream == null) {
             // выбирать стрим с наихудшим качеством (в конце)
             _videoStream = videoStreams.size() > 0 ? videoStreams.get(videoStreams.size() - 1) : null;
@@ -87,12 +241,12 @@ public class StreamHelper {
         return _videoStream;
     }
 
-    public static VideoStream getNextPlaybackStreamForRes(
+    public static StreamInfo getNextPlaybackStreamForRes(
             final String targetRes,
             final ConfigOptions.VideoStreamSelectPreferRes preferRes,
-            final List<VideoStream> videoStreams,
-            final VideoStream currVideoStream) {
-        VideoStream _videoStream;
+            final List<StreamInfo> videoStreams,
+            final StreamInfo currVideoStream) {
+        StreamInfo _videoStream;
         // https://ru.wikipedia.org/wiki/480p
         // разрешение может быть указано как 480p или 480p60 (60 - количество кадров в секунду)
         final int _targetRes = Integer.valueOf(targetRes.replaceAll("p.*", ""));
@@ -100,7 +254,7 @@ public class StreamHelper {
         // Преполагаем, что videoStreams уже отсортированы по качеству resolution (численно) по убыванию
         // (в начале списка наиболее высокое качество)
         if(currVideoStream == null) {
-            VideoStream streamWithTargetRes = null;
+            StreamInfo streamWithTargetRes = null;
 
             // Ищем поток с целевым качеством. Его в списке доступных разрешений может не быть.
             // В таком случае выбираем наиболее близкое к нему в зависимости от настроек:
@@ -110,7 +264,7 @@ public class StreamHelper {
                 // движемся по качеству от худшего к лучшим до тех пор, пока не найдем ролик с нужным разрешением или
                 // с разрешением больше, чем указано в настройках
                 for (int i = videoStreams.size() - 1; i >= 0; i--) {
-                    final VideoStream vidStream = videoStreams.get(i);
+                    final StreamInfo vidStream = videoStreams.get(i);
                     final int vidRes = Integer.valueOf(vidStream.getResolution().replace("p", ""));
                     if (vidRes >= _targetRes) {
                         streamWithTargetRes = vidStream;
@@ -130,7 +284,7 @@ public class StreamHelper {
                 // движемся по качеству от лучшего к худшим до тех пор, пока не найдем ролик с нужным разрешением или
                 // с разрешением меньше, чем указано в настройках
                 for (int i = 0; i < videoStreams.size(); i++) {
-                    final VideoStream vidStream = videoStreams.get(i);
+                    final StreamInfo vidStream = videoStreams.get(i);
                     final int vidRes = Integer.valueOf(vidStream.getResolution().replace("p", ""));
                     if (vidRes <= _targetRes) {
                         streamWithTargetRes = vidStream;
@@ -167,7 +321,7 @@ public class StreamHelper {
 
                 // движемся по качеству от худшего к лучшим
                 for (int i = videoStreams.size() - 1; i >= 0; i--) {
-                    final VideoStream vidStream = videoStreams.get(i);
+                    final StreamInfo vidStream = videoStreams.get(i);
                     final int vidRes = Integer.valueOf(vidStream.getResolution().replace("p", ""));
                     if (vidRes >= _targetRes) {
                         targetInd = i;
@@ -208,7 +362,7 @@ public class StreamHelper {
                 int targetInd = -1;
                 // движемся по качеству от лучшего к худшим
                 for (int i = 0; i < videoStreams.size(); i++) {
-                    final VideoStream vidStream = videoStreams.get(i);
+                    final StreamInfo vidStream = videoStreams.get(i);
                     final int vidRes = Integer.valueOf(vidStream.getResolution().replace("p", ""));
                     if (vidRes <= _targetRes) {
                         targetInd = i;
@@ -256,12 +410,9 @@ public class StreamHelper {
      */
     public static StreamPair getNextPlaybackStream(
             final Context context,
-            final List<VideoStream> videoStreams, final List<AudioStream> audioStreams,
-            final VideoStream currVideoStream) {
-        if (ConfigOptions.DEVEL_MODE_ON) {
-            printStreamsInfo(videoStreams, audioStreams);
-        }
-        VideoStream _videoStream;
+            final List<StreamInfo> videoStreams, final List<StreamInfo> audioStreams,
+            final StreamInfo currVideoStream) {
+        StreamInfo _videoStream;
         switch (ConfigOptions.getVideoStreamSelectStrategy(context)) {
             case MAX_RES:
                 _videoStream = getNextPlaybackStreamMaxRes(videoStreams, currVideoStream);
@@ -292,8 +443,36 @@ public class StreamHelper {
                 }
         }
 
-        final AudioStream _audioStream = _videoStream.isVideoOnly && audioStreams.size() > 0 ? audioStreams.get(0) : null;
+        final StreamInfo _audioStream = _videoStream.getStreamType() == StreamCache.StreamType.VIDEO && audioStreams.size() > 0 ? audioStreams.get(0) : null;
         return new StreamPair(_videoStream, _audioStream);
+    }
+
+    public static StreamInfo findPlaybackStream(
+            final StreamHelper.StreamSources streamSources,
+            final StreamCache.StreamType streamType,
+            final String resolution,
+            final String formatName) {
+        StreamInfo streamInfo = null;
+        if (streamType == StreamCache.StreamType.VIDEO || streamType == StreamCache.StreamType.BOTH) {
+            for (final StreamInfo _streamInfo : streamSources.getVideoStreams()) {
+                if (_streamInfo.getStreamType() == streamType &&
+                        _streamInfo.getResolution().equals(resolution) &&
+                        _streamInfo.getFormatName().equals(formatName)) {
+                    streamInfo = _streamInfo;
+                    break;
+                }
+            }
+        } else if (streamType == StreamCache.StreamType.AUDIO) {
+            for (final StreamInfo _streamInfo : streamSources.getAudioStreams()) {
+                if (_streamInfo.getStreamType() == streamType &&
+                        _streamInfo.getResolution().equals(resolution) &&
+                        _streamInfo.getFormatName().equals(formatName)) {
+                    streamInfo = _streamInfo;
+                    break;
+                }
+            }
+        }
+        return streamInfo;
     }
 
     /**
@@ -304,17 +483,8 @@ public class StreamHelper {
      * @param audioStreams
      * @return
      */
-    public static StreamPair getPlaybackStreamPair(final VideoStream videoStream, final List<AudioStream> audioStreams) {
-        final AudioStream _audioStream = videoStream.isVideoOnly && audioStreams.size() > 0 ? audioStreams.get(0) : null;
+    public static StreamPair getPlaybackStreamPair(final StreamInfo videoStream, final List<StreamInfo> audioStreams) {
+        final StreamInfo _audioStream = videoStream.getStreamType() == StreamCache.StreamType.VIDEO && audioStreams.size() > 0 ? audioStreams.get(0) : null;
         return new StreamPair(videoStream, _audioStream);
-    }
-
-    private static void printStreamsInfo(final List<VideoStream> videoStreams, final List<AudioStream> audioStreams) {
-        for (final VideoStream stream : videoStreams) {
-            System.out.println(stream.getResolution() + " " + stream.getFormat().getName() + " " + stream.getFormat().getMimeType() + " " + stream.getFormat().getSuffix());
-        }
-        for (final AudioStream stream : audioStreams) {
-            System.out.println(stream.getBitrate() + " " + stream.getFormat().getMimeType() + " " + stream.getFormat().getSuffix());
-        }
     }
 }

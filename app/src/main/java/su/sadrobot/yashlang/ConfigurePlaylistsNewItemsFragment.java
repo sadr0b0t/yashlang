@@ -53,6 +53,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
+import su.sadrobot.yashlang.controller.TaskController;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
@@ -120,7 +121,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
     private State state = State.NEW_ITEMS_LIST_EMPTY;
     private boolean checkError = false;
 
-    private ContentLoader.TaskController taskController;
+    private TaskController taskController;
     private int plToUpdateStartIndex = 0;
     private int addedThisTime = 0;
 
@@ -534,8 +535,8 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
 
     private void addNewItemsBg() {
         // канал или плейлист
-        taskController = new ContentLoader.TaskController();
-        taskController.setTaskListener(new ContentLoader.TaskListener() {
+        taskController = new TaskController();
+        taskController.setTaskListener(new TaskController.TaskAdapter() {
             @Override
             public void onStart() {
                 handler.post(new Runnable() {
@@ -565,7 +566,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
             }
 
             @Override
-            public void onStatusChange(final String status, final Exception e) {
+            public void onStatusMsgChange(final String status, final Exception e) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {

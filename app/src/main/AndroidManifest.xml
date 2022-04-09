@@ -111,7 +111,11 @@
             android:name=".ConfigureMoarActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/yashlang_configure_moar"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".StreamCacheActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/yashlang_stream_cache"
             android:theme="@style/CustomToolbarTheme" />
     </application>
-
 </manifest>

@@ -52,6 +52,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
+import su.sadrobot.yashlang.controller.TaskController;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoItem;
@@ -122,7 +123,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
     private boolean playlistLoadError = false;
 
     private PlaylistInfo loadedPlaylist = null;
-    private ContentLoader.TaskController taskController;
+    private TaskController taskController;
 
     private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
@@ -626,8 +627,8 @@ public class AddPlaylistActivity extends AppCompatActivity {
         updateControlsVisibility();
 
         // канал или плейлист
-        taskController = new ContentLoader.TaskController();
-        taskController.setTaskListener(new ContentLoader.TaskListener() {
+        taskController = new TaskController();
+        taskController.setTaskListener(new TaskController.TaskAdapter() {
             @Override
             public void onStart() {
                 handler.post(new Runnable() {
@@ -658,7 +659,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onStatusChange(final String status, final Exception e) {
+            public void onStatusMsgChange(final String status, final Exception e) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {

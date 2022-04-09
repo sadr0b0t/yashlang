@@ -119,7 +119,7 @@ dependencies {
     // таки ютюб поломали, апгрейдимся
     // (и дропать старые андроиды не обязательно - для этого есть coreLibraryDesugaringEnabled true)
     // https://developer.android.com/studio/write/java8-support#library-desugaring
-    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.21.13"
+    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.21.14"
 
     // google Exoplayer
     // https://github.com/google/ExoPlayer
@@ -140,4 +140,24 @@ dependencies {
     // и еще здесь другое решение через какой-то App Engine, которого у меня, скорее всего, нет и нах он нужен
     // https://stackoverflow.com/questions/31698510/can-i-force-the-order-of-dependencies-in-my-classpath-with-gradle
     testImplementation 'org.json:json:20171018'
+
+    // Для запуска StreamHelperTest.showSampleStreams не на устройстве
+    // (NewPipeExtractor за пределами андроида), зависимости берем отсюда:
+    // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/build.gradle
+
+    // nanojson, похоже, патченый - если брать ванильный, то будет вылетат экстрактер потоков на десктопе
+    // https://github.com/mmastrac/nanojson
+    //testImplementation group: 'com.grack', name: 'nanojson', version: '1.7'
+    testImplementation "com.github.TeamNewPipe:nanojson"
+
+    // Сами мозиловцы нормальный вариант подключить свою сраную библиотеку через gradle не дают
+    // https://github.com/mozilla/rhino
+    // нашел их где-то на мйевене и догадался вставить значения разрабочк:библиотека оттуда
+    // https://mvnrepository.com/artifact/org.mozilla/rhino
+    // плюс есть в зависимостях NewPipeExtractor
+    testImplementation 'org.mozilla:rhino:1.7.13'
+
+    // https://github.com/robinst/autolink-java
+    // (строку для подключения составил из данных maven, она же есть в зависимостях NewPipeExtractor)
+    testImplementation 'org.nibor.autolink:autolink:0.10.0'
 }

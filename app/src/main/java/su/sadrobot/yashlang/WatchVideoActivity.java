@@ -66,7 +66,6 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
-import org.schabi.newpipe.extractor.stream.VideoStream;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -83,6 +82,7 @@ import su.sadrobot.yashlang.controller.StreamHelper;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.service.StreamCacheDownloadService;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemArrayAdapter;
 import su.sadrobot.yashlang.view.VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory;
@@ -1083,6 +1083,9 @@ public class WatchVideoActivity extends AppCompatActivity {
             case R.id.action_quality:
                 actionQuality();
                 break;
+            case R.id.action_download:
+                actionDownload();
+                break;
             case R.id.action_reload:
                 actionReload();
                 break;
@@ -1419,9 +1422,10 @@ public class WatchVideoActivity extends AppCompatActivity {
         // "загружаем", т.е. создать новый фоновый поток внутри handler.post выше. Но, если handler.post
         // отправляет задачи в синхронную очередь для выполнения одна за одной, то задача в handler.post
         // ниже будет выполнена в любом случае после задачи handler.post выше, поэтому проблемы
-        try {
-            // загрузить поток видео
-            final StreamHelper.StreamSources streamSources = ContentLoader.getInstance().extractStreams(videoItem.getItemUrl());
+
+        // загрузить поток видео
+        final StreamHelper.StreamSources streamSources = StreamHelper.fetchStreams(this, videoItem);
+        if (streamSources.getVideoStreams().size() > 0) {
             final StreamHelper.StreamPair playbackStreams = StreamHelper.getNextPlaybackStream(
                     this, streamSources.getVideoStreams(), streamSources.getAudioStreams(), null);
             videoItem.setStreamSources(streamSources);
@@ -1476,12 +1480,15 @@ public class WatchVideoActivity extends AppCompatActivity {
                     });
                 }
             }
-        } catch (final ExtractionException | IOException e) {
+        } else {
             if (videoItem == currentVideo) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        setPlayerState(PlayerState.ERROR, e.getMessage());
+                        setPlayerState(
+                                PlayerState.ERROR,
+                                WatchVideoActivity.this.getString(R.string.no_playback_streams_for_video) +
+                                        (streamSources.problems.size() > 0 ? "\n" + streamSources.problems.get(0).getMessage() : ""));
                     }
                 });
             }
@@ -1573,12 +1580,14 @@ public class WatchVideoActivity extends AppCompatActivity {
     private void actionQuality() {
         if (currentVideo != null) {
             if (currentVideo.getStreamSources() != null && currentVideo.getStreamSources().getVideoStreams().size() > 0) {
-                final List<VideoStream> _vidStreams = currentVideo.getStreamSources().getVideoStreams();
+                final List<StreamHelper.StreamInfo> _vidStreams = currentVideo.getStreamSources().getVideoStreams();
                 final PopupMenu popup = new PopupMenu(WatchVideoActivity.this, videoQualityTxt);
                 int streamId = 0;
-                for(VideoStream stream : _vidStreams) {
-                    popup.getMenu().add(Menu.NONE, streamId, Menu.NONE,
-                            stream.getResolution() + (stream.getQuality() != null ? " (" + stream.getQuality() + ") " : " ") + stream.getFormat().getName());
+                for (final StreamHelper.StreamInfo stream : _vidStreams) {
+                    final String streamInfoStr = stream.getResolution() + (stream.getQuality() != null ?
+                            " (" + stream.getQuality() + ") " : " ") + stream.getFormatName() +
+                            (!stream.isOnline() ? " [" + WatchVideoActivity.this.getString(R.string.offline).toUpperCase()  + "]" : "");
+                    popup.getMenu().add(Menu.NONE, streamId, Menu.NONE, streamInfoStr);
                     streamId++;
                 }
 
@@ -1625,7 +1634,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                                             handler.post(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    final VideoStream videoStream = _currentVideo.getStreamSources().getVideoStreams().get(item.getItemId());
+                                                    final StreamHelper.StreamInfo videoStream = _currentVideo.getStreamSources().getVideoStreams().get(item.getItemId());
                                                     // сохраним выбранное вручную качество в настройки
                                                     ConfigOptions.setVideoStreamLastSelectedRes(WatchVideoActivity.this, videoStream.getResolution());
                                                     final StreamHelper.StreamPair newPlaybackStreams = StreamHelper.getPlaybackStreamPair(videoStream, _currentVideo.getStreamSources().getAudioStreams());
@@ -1648,6 +1657,29 @@ public class WatchVideoActivity extends AppCompatActivity {
                 popup.show();
             } else {
                 Toast.makeText(this, R.string.no_streams_for_video_item, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     * Загрузить видео для просмотра оффлайн.
+     */
+    private void actionDownload() {
+        if (currentVideo != null) {
+            if (currentVideo.getId() != VideoItem.ID_NONE) {
+                final VideoItem _currentVideo = currentVideo;
+                videoLoadingExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (_currentVideo.getPlaybackStreams() != null) {
+                            StreamCacheDownloadService.getInstance().queueForDownload(
+                                    WatchVideoActivity.this,
+                                    _currentVideo,
+                                    _currentVideo.getPlaybackStreams().getVideoStream(),
+                                    _currentVideo.getPlaybackStreams().getAudioStream());
+                        }
+                    }
+                });
             }
         }
     }

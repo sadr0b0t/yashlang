@@ -25,6 +25,9 @@
         android:id="@+id/action_quality"
         android:title="@string/quality"/>
     <item
+        android:id="@+id/action_download"
+        android:title="@string/download"/>
+    <item
         android:id="@+id/action_reload"
         android:title="@string/reload"/>
 </menu>

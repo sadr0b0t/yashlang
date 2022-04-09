@@ -28,6 +28,11 @@ public class ConfigOptions {
 
     public static final String RECOMMENDED_PLAYLISTS_RES_PATH = "/su/sadrobot/yashlang/data/recommended-playlists.json";
 
+    /**
+     * File cache_dir = new File(context.getExternalFilesDir(null), ConfigOptions.STREAM_CACHE_DIR_NAME);
+     */
+    public static final String STREAM_CACHE_DIR_NAME = "stream_cache";
+
     // TIME_ADDED здесь, по сути, без сортировки, или сортировка по ID
     public enum SortBy {
         TIME_ADDED, NAME, URL, DURATION

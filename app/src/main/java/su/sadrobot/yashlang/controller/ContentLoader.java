@@ -33,7 +33,6 @@ import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.playlist.PlaylistExtractor;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
-import org.schabi.newpipe.extractor.stream.AudioStream;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
@@ -69,72 +68,6 @@ public class ContentLoader {
     }
 
     private ContentLoader() {
-    }
-
-    public interface TaskListener {
-        void onStart();
-
-        void onFinish();
-
-        void onStatusChange(final String status, final Exception e);
-    }
-
-    public static class TaskController {
-        private boolean running = false;
-        private boolean canceled = false;
-        private String statusMsg = "";
-        private Exception exception;
-
-        private TaskListener taskListener;
-
-        public void setTaskListener(TaskListener taskListener) {
-            this.taskListener = taskListener;
-        }
-
-        public boolean isRunning() {
-            return running;
-        }
-
-        public void setRunning(boolean running) {
-            boolean changed = this.running != running;
-            this.running = running;
-            if (this.taskListener != null && changed) {
-                if (running) {
-                    this.taskListener.onStart();
-                } else {
-                    this.taskListener.onFinish();
-                }
-            }
-        }
-
-        public boolean isCanceled() {
-            return canceled;
-        }
-
-        public void cancel() {
-            canceled = true;
-        }
-
-        public void setStatusMsg(final String msg) {
-            setStatusMsg(msg, null);
-        }
-
-        public void setStatusMsg(final String msg, final Exception e) {
-            this.statusMsg = msg;
-            this.exception = e;
-
-            if (this.taskListener != null) {
-                taskListener.onStatusChange(msg, e);
-            }
-        }
-
-        public String getStatusMsg() {
-            return statusMsg;
-        }
-
-        public Exception getException() {
-            return exception;
-        }
     }
 
     /**
@@ -674,7 +607,9 @@ public class ContentLoader {
         });
         Collections.reverse(_vidStreams);
 
-        return new StreamHelper.StreamSources(_vidStreams, extractor.getAudioStreams());
+        return new StreamHelper.StreamSources(
+                StreamHelper.toStreamInfoListFromVideoList(_vidStreams),
+                StreamHelper.toStreamInfoListFromAudioList(extractor.getAudioStreams()));
     }
 
     public ListExtractor<StreamInfoItem> getListExtractor(final String plUrl) throws ExtractionException {
