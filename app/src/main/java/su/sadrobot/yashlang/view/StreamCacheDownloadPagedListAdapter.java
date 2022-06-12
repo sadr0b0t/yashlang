@@ -31,10 +31,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.paging.PagedListAdapter;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
-import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -51,16 +54,16 @@ import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.service.StreamCacheDownloadService;
 import su.sadrobot.yashlang.util.StringFormatUtil;
 
-public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArrayAdapter.StreamCacheViewHolder> {
+public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<StreamCache, StreamCacheDownloadPagedListAdapter.StreamCacheViewHolder> {
     // https://guides.codepath.com/android/Paging-Library-Guide
     // https://github.com/codepath/android_guides/wiki/Using-the-RecyclerView#using-with-listadapter
     // https://developer.android.com/reference/android/support/v7/recyclerview/extensions/ListAdapter.html
     // https://developer.android.com/topic/libraries/architecture/paging/
 
     private final Activity context;
-    private final List<StreamCacheDownloadService.CacheProgressItem> streamCacheItems;
-    private final OnListItemClickListener<StreamCacheDownloadService.CacheProgressItem> onItemClickListener;
-    private final OnListItemProgressControlListener<StreamCacheDownloadService.CacheProgressItem> onItemProgressControlListener;
+    private final StreamCacheDownloadService streamCacheDownloadService;
+    private final OnListItemClickListener<StreamCache> onItemClickListener;
+    private final OnListItemProgressControlListener<StreamCache> onItemProgressControlListener;
 
     // Извлекать задания на выполнение не в режиме очереди, а в режиме стека: последнее добавленное
     // задание отправляется на выполнение первым: этот режим лучше подходит при прокрутке списка, т.к.
@@ -85,6 +88,8 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
                     return super.takeLast();
                 }
             });
+
+    private final Timer progressUpdateTimer = new Timer();
 
     public static class StreamCacheViewHolder extends RecyclerView.ViewHolder {
         final ImageView thumbImg;
@@ -131,12 +136,31 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
         }
     }
 
-    public StreamCacheArrayAdapter(final Activity context,
-                                   final List<StreamCacheDownloadService.CacheProgressItem> streamCacheItems,
-                                   final OnListItemClickListener<StreamCacheDownloadService.CacheProgressItem> onItemClickListener,
-                                   final OnListItemProgressControlListener<StreamCacheDownloadService.CacheProgressItem> onItemProgressControlListener) {
+    private static final DiffUtil.ItemCallback<StreamCache> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<StreamCache>() {
+                @Override
+                public boolean areItemsTheSame(StreamCache oldItem, StreamCache newItem) {
+                    return oldItem.getId() == newItem.getId();
+                }
+
+                @Override
+                public boolean areContentsTheSame(StreamCache oldItem, StreamCache newItem) {
+                    return oldItem.getVideoId() == newItem.getVideoId() &&
+                            oldItem.getStreamType().equals(newItem.getStreamType()) &&
+                            oldItem.getStreamTypeEnum().equals(newItem.getStreamTypeEnum()) &&
+                            oldItem.getStreamFormat().equals(newItem.getStreamFormat()) &&
+                            oldItem.getStreamRes().equals(newItem.getStreamRes());
+                }
+            };
+
+    public StreamCacheDownloadPagedListAdapter(
+            final Activity context,
+            final StreamCacheDownloadService streamCacheDownloadService,
+            final OnListItemClickListener<StreamCache> onItemClickListener,
+            final OnListItemProgressControlListener<StreamCache> onItemProgressControlListener) {
+        super(DIFF_CALLBACK);
         this.context = context;
-        this.streamCacheItems = streamCacheItems;
+        this.streamCacheDownloadService = streamCacheDownloadService;
         this.onItemClickListener = onItemClickListener;
         this.onItemProgressControlListener = onItemProgressControlListener;
     }
@@ -150,18 +174,19 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
 
     @Override
     public void onBindViewHolder(@NonNull final StreamCacheViewHolder holder, final int position) {
-        final StreamCacheDownloadService.CacheProgressItem item = getItem(position);
+        final StreamCache item = getItem(position);
+        final TaskController taskController = streamCacheDownloadService.getTaskController(item);
         if (item == null) {
             return;
         }
 
-        item.downloadTaskController.setTaskListener(new TaskController.TaskAdapter() {
+        taskController.setTaskListener(new TaskController.TaskAdapter() {
             @Override
             public void onStart() {
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        StreamCacheArrayAdapter.this.notifyDataSetChanged();
+                        StreamCacheDownloadPagedListAdapter.this.notifyDataSetChanged();
                     }
                 });
             }
@@ -171,7 +196,7 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        StreamCacheArrayAdapter.this.notifyDataSetChanged();
+                        StreamCacheDownloadPagedListAdapter.this.notifyDataSetChanged();
                     }
                 });
             }
@@ -180,7 +205,7 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        StreamCacheArrayAdapter.this.notifyDataSetChanged();
+                        StreamCacheDownloadPagedListAdapter.this.notifyDataSetChanged();
                     }
                 });
             }
@@ -189,7 +214,7 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        StreamCacheArrayAdapter.this.notifyDataSetChanged();
+                        StreamCacheDownloadPagedListAdapter.this.notifyDataSetChanged();
                     }
                 });
             }
@@ -199,103 +224,124 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        holder.downloadStatusTxt.setText(item.downloadTaskController.getStatusMsg());
+                        holder.downloadStatusTxt.setText(taskController.getStatusMsg());
                     }
                 });
             }
 
+            private boolean progressChanged = false;
             @Override
             public void onProgressChange(long progress, long progressMax) {
-                context.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (item.streamCacheItem.isDownloaded()) {
-                            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_done));
-                        } else if (item.streamCacheItem.getStreamSize() == StreamCache.STREAM_SIZE_UNKNOWN) {
-                            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_init));
-                        } else if (item.downloadTaskController.getException() != null){
-                            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_error));
-                        } else if(!item.downloadTaskController.isRunning()) {
-                            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_paused));
-                        } else {
-                            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_progress));
+                // Если реагировать на каждое изменение прогресса, вся система встанет раком
+                // Поэтому будем обновлять прогресс следующим образом:
+                // - при изменении прогресса запускать таймер на 500 млс и только
+                // после этого обновлять интерфейс.
+                // - все промежуточные изменения прогресса, которые успеют произойти за это время,
+                // будут проигнорированы - при срабатывании таймера будет отображено последнее на
+                // этот момент значение.
+
+                if (!progressChanged) {
+                    progressChanged = true;
+
+                    final TimerTask progressUpdateTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            context.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (item.isDownloaded()) {
+                                        holder.downloadStateTxt.setText(context.getText(R.string.stream_state_done));
+                                    } else if (item.getStreamSize() == StreamCache.STREAM_SIZE_UNKNOWN) {
+                                        holder.downloadStateTxt.setText(context.getText(R.string.stream_state_init));
+                                    } else if (taskController.getException() != null){
+                                        holder.downloadStateTxt.setText(context.getText(R.string.stream_state_error));
+                                    } else if(!taskController.isRunning()) {
+                                        holder.downloadStateTxt.setText(context.getText(R.string.stream_state_paused));
+                                    } else {
+                                        holder.downloadStateTxt.setText(context.getText(R.string.stream_state_progress));
+                                    }
+
+                                    if (item.getStreamSize() != StreamCache.STREAM_SIZE_UNKNOWN && item.getStreamSize() > 0) {
+                                        holder.downloadProgressSizeView.setVisibility(View.VISIBLE);
+                                        holder.streamSizeTxt.setVisibility(View.VISIBLE);
+
+                                        holder.downloadProgressTxt.setText(StreamCacheFsManager.getDownloadedFileSize(context,
+                                                item) + " " + context.getString(R.string.unit_bytes));
+                                        final long streamSize = item.getStreamSize();
+                                        final String sizeStr = StringFormatUtil.formatFileSize(context, streamSize);
+                                        holder.streamSizeTxt.setText(sizeStr);
+                                    } else {
+                                        holder.downloadProgressSizeView.setVisibility(View.GONE);
+                                        holder.streamSizeTxt.setVisibility(View.GONE);
+                                    }
+
+                                    if (item.getStreamSize() != StreamCache.STREAM_SIZE_UNKNOWN && item.getStreamSize() > 0) {
+                                        holder.downloadProgress.setMax(100);
+                                        int progress;
+
+                                        if (taskController.getProgress() != TaskController.PROGRESS_UNDEFINED) {
+                                            progress = (int) ((double) taskController.getProgress() /
+                                                    (double) taskController.getProgressMax() * 100);
+                                        } else {
+                                            progress = (int) ((double) StreamCacheFsManager.getDownloadedFileSize(context, item) /
+                                                    (double) item.getStreamSize() * 100);
+                                        }
+
+                                        holder.downloadProgress.setProgress(progress);
+
+                                        holder.downloadProgress.setVisibility(View.VISIBLE);
+                                    } else {
+                                        holder.downloadProgress.setVisibility(View.INVISIBLE);
+                                    }
+
+                                    // прогресс обновили - сбросить флаг
+                                    progressChanged = false;
+                                }
+                            });
                         }
-
-
-                        if (item.streamCacheItem.getStreamSize() != StreamCache.STREAM_SIZE_UNKNOWN && item.streamCacheItem.getStreamSize() > 0) {
-                            holder.downloadProgressSizeView.setVisibility(View.VISIBLE);
-                            holder.streamSizeTxt.setVisibility(View.VISIBLE);
-
-                            holder.downloadProgressTxt.setText(StreamCacheFsManager.getDownloadedFileSize(context,
-                                    item.streamCacheItem) + " " + context.getString(R.string.unit_bytes));
-                            final long streamSize = item.streamCacheItem.getStreamSize();
-                            final String sizeStr = StringFormatUtil.formatFileSize(context, streamSize);
-                            holder.streamSizeTxt.setText(sizeStr);
-                        } else {
-                            holder.downloadProgressSizeView.setVisibility(View.GONE);
-                            holder.streamSizeTxt.setVisibility(View.GONE);
-                        }
-
-                        if (item.streamCacheItem.getStreamSize() != StreamCache.STREAM_SIZE_UNKNOWN && item.streamCacheItem.getStreamSize() > 0) {
-                            holder.downloadProgress.setMax(100);
-                            int progress;
-
-                            if(item.downloadTaskController.getProgress() != TaskController.PROGRESS_UNDEFINED) {
-                                progress = (int) ((double) item.downloadTaskController.getProgress() /
-                                        (double) item.downloadTaskController.getProgressMax() * 100);
-                            } else {
-                                progress = (int) ((double) StreamCacheFsManager.getDownloadedFileSize(context, item.streamCacheItem) /
-                                        (double) item.streamCacheItem.getStreamSize() * 100);
-                            }
-
-                            holder.downloadProgress.setProgress(progress);
-
-                            holder.downloadProgress.setVisibility(View.VISIBLE);
-                        } else {
-                            holder.downloadProgress.setVisibility(View.INVISIBLE);
-                        }
-                    }
-                });
+                    };
+                    progressUpdateTimer.schedule(progressUpdateTask, 500);
+                }
             }
         });
 
-        if (item.streamCacheItem.getVideoItem() != null) {
-            holder.nameTxt.setText(item.streamCacheItem.getVideoItem().getName());
+        if (item.getVideoItem() != null) {
+            holder.nameTxt.setText(item.getVideoItem().getName());
         } else {
             dbQueryExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    item.streamCacheItem.setVideoItem(VideoDatabase.getDbInstance(context).videoItemDao().getById(item.streamCacheItem.getVideoId()));
+                    item.setVideoItem(VideoDatabase.getDbInstance(context).videoItemDao().getById(item.getVideoId()));
                     context.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            StreamCacheArrayAdapter.this.notifyDataSetChanged();
+                            StreamCacheDownloadPagedListAdapter.this.notifyDataSetChanged();
                         }
                     });
                 }
             });
         }
 
-        if (item.streamCacheItem.getPlaylistInfo() != null) {
-            holder.playlistTxt.setText(item.streamCacheItem.getPlaylistInfo().getName());
+        if (item.getPlaylistInfo() != null) {
+            holder.playlistTxt.setText(item.getPlaylistInfo().getName());
         } else {
             dbQueryExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (item.streamCacheItem.getVideoItem() == null) {
-                        item.streamCacheItem.setVideoItem(VideoDatabase.getDbInstance(context).videoItemDao().getById(item.streamCacheItem.getVideoId()));
+                    if (item.getVideoItem() == null) {
+                        item.setVideoItem(VideoDatabase.getDbInstance(context).videoItemDao().getById(item.getVideoId()));
                     }
                     // проверка на тот случай, если все-таки не нашли VideoItem в базе данных
                     // (строго говоря, такой вариант невозможен, за это отвечает движок базы данных)
-                    if (item.streamCacheItem.getVideoItem() != null) {
+                    if (item.getVideoItem() != null) {
                         final PlaylistInfo plInfo = VideoDatabase.getDbInstance(context).
-                                playlistInfoDao().getById(item.streamCacheItem.getVideoItem().getPlaylistId());
-                        item.streamCacheItem.setPlaylistInfo(plInfo);
+                                playlistInfoDao().getById(item.getVideoItem().getPlaylistId());
+                        item.setPlaylistInfo(plInfo);
                         if (plInfo != null) {
                             context.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    StreamCacheArrayAdapter.this.notifyDataSetChanged();
+                                    StreamCacheDownloadPagedListAdapter.this.notifyDataSetChanged();
                                 }
                             });
                         }
@@ -304,39 +350,37 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
             });
         }
 
-        holder.fileNameTxt.setText(item.streamCacheItem.getFileName());
+        holder.fileNameTxt.setText(item.getFileName());
 
-        if (item.streamCacheItem.getStreamTypeEnum() == StreamCache.StreamType.BOTH) {
+        if (item.getStreamTypeEnum() == StreamCache.StreamType.BOTH) {
             holder.streamTypeTxt.setText(
                     StreamCache.StreamType.VIDEO.name() + "+" + StreamCache.StreamType.AUDIO);
         } else {
-            holder.streamTypeTxt.setText(item.streamCacheItem.getStreamType());
+            holder.streamTypeTxt.setText(item.getStreamType());
         }
 
-        holder.streamResTxt.setText(item.streamCacheItem.getStreamRes());
-        holder.streamFormatTxt.setText(item.streamCacheItem.getStreamFormat());
+        holder.streamResTxt.setText(item.getStreamRes());
+        holder.streamFormatTxt.setText(item.getStreamFormat());
 
-
-        if (item.streamCacheItem.isDownloaded()) {
+        if (item.isDownloaded()) {
             holder.downloadStateTxt.setText(context.getText(R.string.stream_state_done));
-        } else if (item.streamCacheItem.getStreamSize() == StreamCache.STREAM_SIZE_UNKNOWN) {
+        } else if (item.getStreamSize() == StreamCache.STREAM_SIZE_UNKNOWN) {
             holder.downloadStateTxt.setText(context.getText(R.string.stream_state_init));
-        } else if (item.downloadTaskController.getException() != null){
+        } else if (taskController.getException() != null){
             holder.downloadStateTxt.setText(context.getText(R.string.stream_state_error));
-        } else if(!item.downloadTaskController.isRunning()) {
+        } else if(!taskController.isRunning()) {
             holder.downloadStateTxt.setText(context.getText(R.string.stream_state_paused));
         } else {
             holder.downloadStateTxt.setText(context.getText(R.string.stream_state_progress));
         }
 
-
-        if (item.streamCacheItem.getStreamSize() != StreamCache.STREAM_SIZE_UNKNOWN && item.streamCacheItem.getStreamSize() > 0) {
+        if (item.getStreamSize() != StreamCache.STREAM_SIZE_UNKNOWN && item.getStreamSize() > 0) {
             holder.downloadProgressSizeView.setVisibility(View.VISIBLE);
             holder.streamSizeTxt.setVisibility(View.VISIBLE);
 
-            holder.downloadProgressTxt.setText(StreamCacheFsManager.getDownloadedFileSize(context, item.streamCacheItem) +
+            holder.downloadProgressTxt.setText(StreamCacheFsManager.getDownloadedFileSize(context, item) +
                     " " + context.getString(R.string.unit_bytes));
-            long streamSize = item.streamCacheItem.getStreamSize();
+            long streamSize = item.getStreamSize();
             final String sizeStr = StringFormatUtil.formatFileSize(context, streamSize);
             holder.streamSizeTxt.setText(sizeStr);
         } else {
@@ -344,16 +388,16 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
             holder.streamSizeTxt.setVisibility(View.GONE);
         }
 
-        if (item.streamCacheItem.getStreamSize() != StreamCache.STREAM_SIZE_UNKNOWN && item.streamCacheItem.getStreamSize() > 0) {
+        if (item.getStreamSize() != StreamCache.STREAM_SIZE_UNKNOWN && item.getStreamSize() > 0) {
             holder.downloadProgress.setMax(100);
             int progress;
 
-            if(item.downloadTaskController.getProgress() != TaskController.PROGRESS_UNDEFINED) {
-                progress = (int) ((double) item.downloadTaskController.getProgress() /
-                        (double) item.downloadTaskController.getProgressMax() * 100);
+            if (taskController.getProgress() != TaskController.PROGRESS_UNDEFINED) {
+                progress = (int) ((double) taskController.getProgress() /
+                        (double) taskController.getProgressMax() * 100);
             } else {
-                progress = (int) ((double) StreamCacheFsManager.getDownloadedFileSize(context, item.streamCacheItem) /
-                        (double) item.streamCacheItem.getStreamSize() * 100);
+                progress = (int) ((double) StreamCacheFsManager.getDownloadedFileSize(context, item) /
+                        (double) item.getStreamSize() * 100);
             }
 
             holder.downloadProgress.setProgress(progress);
@@ -366,14 +410,14 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
 
         if (ConfigOptions.DEVEL_MODE_ON) {
             holder.downloadStatusTxt.setVisibility(View.VISIBLE);
-            holder.downloadStatusTxt.setText(item.downloadTaskController.getStatusMsg());
+            holder.downloadStatusTxt.setText(taskController.getStatusMsg());
         }
 
         // по умолчанию кнопка "загрузить заново" скрыта
         holder.redownloadStreamBtn.setVisibility(View.GONE);
-        if (item.streamCacheItem.isDownloaded()) {
+        if (item.isDownloaded()) {
             // если стрим помечен как закачанный, проверить, на месте ли файл
-            final File cacheFile = StreamCacheFsManager.getFileForStream(context, item.streamCacheItem);
+            final File cacheFile = StreamCacheFsManager.getFileForStream(context, item);
             if (!cacheFile.exists()) {
                 holder.downloadErrorTxt.setVisibility(View.VISIBLE);
                 holder.downloadErrorTxt.setText(context.getString(R.string.stream_cache_file_missing));
@@ -383,35 +427,35 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
                 holder.redownloadStreamBtn.setVisibility(View.GONE);
             }
         } else {
-            if (item.downloadTaskController.getException() != null) {
-                holder.downloadErrorTxt.setText(item.downloadTaskController.getException().getClass().getName() + ": " +
-                        item.downloadTaskController.getException().getMessage());
+            if (taskController.getException() != null) {
+                holder.downloadErrorTxt.setText(taskController.getException().getClass().getName() + ": " +
+                        taskController.getException().getMessage());
                 holder.downloadErrorTxt.setVisibility(View.VISIBLE);
             } else {
                 holder.downloadErrorTxt.setVisibility(View.GONE);
             }
         }
 
-        if (item.streamCacheItem.getVideoItem() != null && item.streamCacheItem.getVideoItem().getThumbBitmap() != null) {
-            holder.thumbImg.setImageBitmap(item.streamCacheItem.getVideoItem().getThumbBitmap());
+        if (item.getVideoItem() != null && item.getVideoItem().getThumbBitmap() != null) {
+            holder.thumbImg.setImageBitmap(item.getVideoItem().getThumbBitmap());
         } else {
             holder.thumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
             thumbLoaderExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (item.streamCacheItem.getVideoItem() == null) {
-                        item.streamCacheItem.setVideoItem(VideoDatabase.getDbInstance(context).videoItemDao().getById(item.streamCacheItem.getVideoId()));
+                    if (item.getVideoItem() == null) {
+                        item.setVideoItem(VideoDatabase.getDbInstance(context).videoItemDao().getById(item.getVideoId()));
                     }
                     // проверка на тот случай, если все-таки не нашли VideoItem в базе данных
                     // (строго говоря, такой вариант невозможен, за это отвечает движок базы данных)
-                    if (item.streamCacheItem.getVideoItem() != null) {
+                    if (item.getVideoItem() != null) {
                         final Bitmap thumb =
-                                VideoThumbManager.getInstance().loadVideoThumb(context, item.streamCacheItem.getVideoItem());
-                        item.streamCacheItem.getVideoItem().setThumbBitmap(thumb);
+                                VideoThumbManager.getInstance().loadVideoThumb(context, item.getVideoItem());
+                        item.getVideoItem().setThumbBitmap(thumb);
                         context.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                StreamCacheArrayAdapter.this.notifyDataSetChanged();
+                                StreamCacheDownloadPagedListAdapter.this.notifyDataSetChanged();
                             }
                         });
                     }
@@ -420,24 +464,24 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
         }
 
         // сделать неактивной кнопку удаления, если закачка в процессе
-        if (item.streamCacheItem.isDownloaded() ||
-                item.downloadTaskController.getState() == TaskController.TaskState.WAIT ||
-                (item.downloadTaskController.getState() == TaskController.TaskState.ACTIVE && !item.downloadTaskController.isRunning())) {
+        if (item.isDownloaded() ||
+                taskController.getState() == TaskController.TaskState.WAIT ||
+                (taskController.getState() == TaskController.TaskState.ACTIVE && !taskController.isRunning())) {
             holder.deleteStreamBtn.setEnabled(true);
         } else {
             holder.deleteStreamBtn.setEnabled(false);
         }
 
-        if (item.streamCacheItem.isDownloaded()) {
+        if (item.isDownloaded()) {
             holder.downloadStartBtn.setVisibility(View.GONE);
             holder.downloadPauseBtn.setVisibility(View.GONE);
             holder.downloadStartPauseProgress.setVisibility(View.GONE);
         } else {
-            if (item.downloadTaskController.getState() == TaskController.TaskState.WAIT) {
+            if (taskController.getState() == TaskController.TaskState.WAIT) {
                 holder.downloadStartBtn.setVisibility(View.VISIBLE);
                 holder.downloadPauseBtn.setVisibility(View.GONE);
                 holder.downloadStartPauseProgress.setVisibility(View.GONE);
-            } else if (item.downloadTaskController.getState() == TaskController.TaskState.ENQUEUED) {
+            } else if (taskController.getState() == TaskController.TaskState.ENQUEUED) {
                 // кнопка "запустить" нажата (закачка добавлена в очередь), но загрузка еще не началась:
                 // - когда поток для загрзуки добавлен в очередь - ожидание загрузки других потоков
                 // может длиться довольно долго
@@ -446,13 +490,13 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
                 holder.downloadPauseBtn.setVisibility(View.VISIBLE);
                 holder.downloadStartPauseProgress.setVisibility(View.VISIBLE);
             } else { //item.downloadTaskController.getState() == TaskController.TaskState.ACTIVE
-                if (item.downloadTaskController.isRunning() && !item.downloadTaskController.isCanceled()) {
+                if (taskController.isRunning() && !taskController.isCanceled()) {
                     // Если isRunning и !isCanceled: значит закачка в процессе, пользователь не отменял,
                     //   показываем активную кнопку "пауза"
                     holder.downloadStartBtn.setVisibility(View.GONE);
                     holder.downloadPauseBtn.setVisibility(View.VISIBLE);
                     holder.downloadStartPauseProgress.setVisibility(View.GONE);
-                } else if (item.downloadTaskController.isRunning() && item.downloadTaskController.isCanceled()) {
+                } else if (taskController.isRunning() && taskController.isCanceled()) {
                     // Если isRunning и isCanceled: значит закачка была запущена, пользователь нажал "остановить",
                     //   но она еще не успела остановиться: показываем програсс смены состояния
                     //   (как вариант: кнопку "запустить", но не активную)
@@ -524,14 +568,5 @@ public class StreamCacheArrayAdapter extends RecyclerView.Adapter<StreamCacheArr
                 }
             }
         });
-    }
-
-    @Override
-    public int getItemCount() {
-        return streamCacheItems.size();
-    }
-
-    public StreamCacheDownloadService.CacheProgressItem getItem(int position) {
-        return streamCacheItems.get(position);
     }
 }

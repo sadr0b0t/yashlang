@@ -23,11 +23,9 @@ package su.sadrobot.yashlang;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,17 +38,14 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import su.sadrobot.yashlang.controller.StreamCacheManager;
 import su.sadrobot.yashlang.model.StreamCache;
 import su.sadrobot.yashlang.model.VideoDatabase;
-import su.sadrobot.yashlang.service.StreamCacheDownloadService;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.OnListItemProgressControlListener;
 import su.sadrobot.yashlang.view.StreamCachePagedListAdapter;
 
 
-/**
- *
- */
 public class StreamCacheFragment extends Fragment {
 
     private View emptyView;
@@ -84,7 +79,6 @@ public class StreamCacheFragment extends Fragment {
         }
     };
 
-    private final Handler handler = new Handler();
 
     @Nullable
     @Override
@@ -138,7 +132,7 @@ public class StreamCacheFragment extends Fragment {
 
                     @Override
                     public void onItemRedownloadClick(final View view, final int position, final StreamCache item) {
-                        StreamCacheDownloadService.getInstance().redownload(StreamCacheFragment.this.getContext(), item);
+                        StreamCacheManager.getInstance().redownload(StreamCacheFragment.this.getContext(), item);
                     }
 
                     @Override
@@ -150,23 +144,8 @@ public class StreamCacheFragment extends Fragment {
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                StreamCacheDownloadService.getInstance().delete(
-                                                        StreamCacheFragment.this.getContext(), item);
-
-                                                handler.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(StreamCacheFragment.this.getContext(),
-                                                                getString(R.string.stream_is_deleted),
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                });
-                                            }
-                                        }).start();
-
+                                        StreamCacheManager.getInstance().delete(
+                                                StreamCacheFragment.this.getContext(), item);
                                     }
                                 })
                                 .setNegativeButton(android.R.string.no, null).show();

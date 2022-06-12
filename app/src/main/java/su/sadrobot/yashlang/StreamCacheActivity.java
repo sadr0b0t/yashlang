@@ -40,12 +40,10 @@ import java.io.File;
 import java.util.List;
 
 import su.sadrobot.yashlang.controller.StreamCacheFsManager;
-import su.sadrobot.yashlang.service.StreamCacheDownloadService;
+import su.sadrobot.yashlang.controller.StreamCacheManager;
 import su.sadrobot.yashlang.util.StringFormatUtil;
 
-/**
- *
- */
+
 public class StreamCacheActivity extends AppCompatActivity {
     // https://developer.android.com/guide/components/fragments
     // https://developer.android.com/guide/navigation/navigation-swipe-view
@@ -151,12 +149,7 @@ public class StreamCacheActivity extends AppCompatActivity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                StreamCacheDownloadService.getInstance().deleteNotFinished(StreamCacheActivity.this);
-                            }
-                        }).start();
+                        StreamCacheManager.getInstance().deleteNotFinished(StreamCacheActivity.this);
                     }
                 })
                 .setNegativeButton(android.R.string.no, null).show();

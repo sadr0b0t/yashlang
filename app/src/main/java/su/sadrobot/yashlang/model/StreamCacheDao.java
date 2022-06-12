@@ -51,11 +51,11 @@ public abstract class StreamCacheDao {
     @Query("SELECT * FROM stream_cache WHERE downloaded ORDER BY video_id")
     public abstract DataSource.Factory<Integer, StreamCache> getFinishedDs();
 
-    @Query("SELECT * FROM stream_cache WHERE NOT downloaded LIMIT :lim")
-    public abstract List<StreamCache> getNotFinished(int lim);
-
     @Query("SELECT * FROM stream_cache WHERE NOT downloaded")
     public abstract List<StreamCache> getNotFinished();
+
+    @Query("SELECT * FROM stream_cache WHERE NOT downloaded")
+    public abstract DataSource.Factory<Integer, StreamCache> getNotFinishedDs();
 
     @Query("SELECT * FROM stream_cache WHERE video_id = :videoId AND downloaded")
     public abstract List<StreamCache> getFinishedForVideo(final long videoId);

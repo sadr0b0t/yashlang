@@ -11,6 +11,9 @@ import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.model.StreamCache;
 import su.sadrobot.yashlang.model.VideoDatabase;
 
+/**
+ * Всё, что связано с хранением кэша потоков в файловой системе.
+ */
 public class StreamCacheFsManager {
 
     private static final String PART_FILE_POSTFIX = ".part";

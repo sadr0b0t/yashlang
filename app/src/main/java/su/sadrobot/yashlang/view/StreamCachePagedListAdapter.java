@@ -148,9 +148,10 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
                 }
             };
 
-    public StreamCachePagedListAdapter(final Activity context,
-                                       final OnListItemClickListener<StreamCache> onItemClickListener,
-                                       final OnListItemProgressControlListener<StreamCache> onItemProgressControlListener) {
+    public StreamCachePagedListAdapter(
+            final Activity context,
+            final OnListItemClickListener<StreamCache> onItemClickListener,
+            final OnListItemProgressControlListener<StreamCache> onItemProgressControlListener) {
         super(DIFF_CALLBACK);
         this.context = context;
         this.onItemClickListener = onItemClickListener;
@@ -346,11 +347,5 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
                 }
             }
         });
-    }
-
-    // сделаем метод публичным
-    @Override
-    public StreamCache getItem(int position) {
-        return super.getItem(position);
     }
 }

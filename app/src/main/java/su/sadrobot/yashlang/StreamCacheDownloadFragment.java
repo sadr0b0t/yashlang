@@ -21,9 +21,14 @@ package su.sadrobot.yashlang;
  */
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,20 +38,23 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.paging.DataSource;
+import androidx.paging.LivePagedListBuilder;
+import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.List;
-
+import su.sadrobot.yashlang.controller.StreamCacheManager;
+import su.sadrobot.yashlang.model.StreamCache;
+import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.service.StreamCacheDownloadService;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.OnListItemProgressControlListener;
-import su.sadrobot.yashlang.view.StreamCacheArrayAdapter;
+import su.sadrobot.yashlang.view.StreamCacheDownloadPagedListAdapter;
 
 
-/**
- *
- */
 public class StreamCacheDownloadFragment extends Fragment {
 
     private Button startAllBtn;
@@ -54,7 +62,38 @@ public class StreamCacheDownloadFragment extends Fragment {
     private View emptyView;
     private RecyclerView streamList;
 
+    private StreamCacheDownloadService streamCacheDownloadService;
+    private ServiceConnection streamCacheDownloadServiceConnection;
+
     private final Handler handler = new Handler();
+
+    private LiveData<PagedList<StreamCache>> streamCacheItemsLiveData;
+
+    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+        // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
+        // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
+        // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
+        private void checkIfEmpty() {
+            final boolean listIsEmpty = streamList.getAdapter() == null || streamList.getAdapter().getItemCount() == 0;
+            emptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
+            streamList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
+        }
+
+        @Override
+        public void onChanged() {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+    };
 
     @Nullable
     @Override
@@ -89,25 +128,38 @@ public class StreamCacheDownloadFragment extends Fragment {
                 pauseAll();
             }
         });
+    }
 
-        // текущие элементы (при первом обращении будет пустой список)
-        setupStreamListAdapter(StreamCacheDownloadService.getInstance().getCacheProgressList());
+    @Override
+    public void onStart() {
+        super.onStart();
 
-        // обновлять список элементов при изменении списка закачек в сервисе
-        StreamCacheDownloadService.getInstance().setServiceListener(
-                new StreamCacheDownloadService.StreamCacheDownloadServiceListener() {
-                    @Override
-                    public void onCacheProgressListChange(final List<StreamCacheDownloadService.CacheProgressItem> cacheProgressList) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                setupStreamListAdapter(cacheProgressList);
-                            }
-                        });
-                    }
-                });
-        // загрузить список закачек - пока здесь
-        StreamCacheDownloadService.getInstance().initCacheProgressListBg(this.getContext());
+        streamCacheDownloadServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(final ComponentName name, final IBinder service) {
+                streamCacheDownloadService = ((StreamCacheDownloadService.StreamCacheDownloadServiceBinder)service).getService();
+
+                // текущие элементы (при первом обращении будет пустой список)
+                setupStreamListAdapter();
+            }
+
+            @Override
+            public void onServiceDisconnected(final ComponentName name) {
+                streamCacheDownloadService = null;
+            }
+        };
+
+        StreamCacheDownloadFragment.this.getContext().bindService(
+                new Intent(StreamCacheDownloadFragment.this.getContext(), StreamCacheDownloadService.class),
+                streamCacheDownloadServiceConnection,
+                Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        StreamCacheDownloadFragment.this.getContext().unbindService(streamCacheDownloadServiceConnection);
     }
 
     private void updateControlsVisibility() {
@@ -120,39 +172,44 @@ public class StreamCacheDownloadFragment extends Fragment {
         }
     }
 
-    private void setupStreamListAdapter(final List<StreamCacheDownloadService.CacheProgressItem> cacheProgressList) {
-        final StreamCacheArrayAdapter adapter = new StreamCacheArrayAdapter(
-                StreamCacheDownloadFragment.this.getActivity(),
-                cacheProgressList,
-                new OnListItemClickListener<StreamCacheDownloadService.CacheProgressItem>() {
-                    @Override
-                    public void onItemClick(final View view, final int position, final StreamCacheDownloadService.CacheProgressItem item) {
+    private void setupStreamListAdapter() {
+        if (streamCacheItemsLiveData != null) {
+            streamCacheItemsLiveData.removeObservers(this);
+        }
+        if (streamList.getAdapter() != null) {
+            streamList.getAdapter().unregisterAdapterDataObserver(emptyListObserver);
+        }
 
+        final StreamCacheDownloadPagedListAdapter adapter = new StreamCacheDownloadPagedListAdapter(
+                this.getActivity(),
+                streamCacheDownloadService,
+                new OnListItemClickListener<StreamCache>() {
+                    @Override
+                    public void onItemClick(final View view, final int position, final StreamCache streamCacheItem) {
                     }
 
                     @Override
-                    public boolean onItemLongClick(final View view, final int position, final StreamCacheDownloadService.CacheProgressItem item) {
+                    public boolean onItemLongClick(final View view, final int position, final StreamCache streamCacheItem) {
                         return true;
                     }
                 },
-                new OnListItemProgressControlListener<StreamCacheDownloadService.CacheProgressItem>() {
+                new OnListItemProgressControlListener<StreamCache>() {
                     @Override
-                    public void onItemProgressStartClick(final View view, final int position, final StreamCacheDownloadService.CacheProgressItem item) {
-                        StreamCacheDownloadService.getInstance().start(StreamCacheDownloadFragment.this.getContext(), item);
+                    public void onItemProgressStartClick(View view, int position, StreamCache item) {
+                        streamCacheDownloadService.start(StreamCacheDownloadFragment.this.getContext(), item);
                     }
 
                     @Override
-                    public void onItemProgressPauseClick(final View view, final int position, final StreamCacheDownloadService.CacheProgressItem item) {
-                        StreamCacheDownloadService.getInstance().pause(item);
+                    public void onItemProgressPauseClick(View view, int position, StreamCache item) {
+                        streamCacheDownloadService.pause(item);
                     }
 
                     @Override
-                    public void onItemRedownloadClick(final View view, final int position, final StreamCacheDownloadService.CacheProgressItem item) {
+                    public void onItemRedownloadClick(final View view, final int position, final StreamCache item) {
                     }
 
                     @Override
-                    public void onItemDeleteClick(final View view, final int position, final StreamCacheDownloadService.CacheProgressItem item) {
-
+                    public void onItemDeleteClick(final View view, final int position, final StreamCache item) {
                         new AlertDialog.Builder(StreamCacheDownloadFragment.this.getContext())
                                 .setTitle(getString(R.string.delete_stream_title))
                                 .setMessage(getString(R.string.delete_stream_message))
@@ -160,44 +217,51 @@ public class StreamCacheDownloadFragment extends Fragment {
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                // сначала поставим на паузу, если закачивается
-                                                StreamCacheDownloadService.getInstance().pause(item);
-                                                // todo: здесь будет правильно дождаться, когда поток будет точно остановлен
-                                                // чтобы не удалить файл, например, в момент записи
-                                                StreamCacheDownloadService.getInstance().delete(
-                                                        StreamCacheDownloadFragment.this.getContext(), item.streamCacheItem);
+                                        // сначала поставим на паузу, если закачивается
+                                        streamCacheDownloadService.pause(item);
+                                        // todo: здесь будет правильно дождаться, когда поток будет точно остановлен
+                                        // чтобы не удалить файл, например, в момент записи
+                                        StreamCacheManager.getInstance().delete(
+                                                StreamCacheDownloadFragment.this.getContext(), item);
 
-                                                handler.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(StreamCacheDownloadFragment.this.getContext(),
-                                                                getString(R.string.stream_is_deleted),
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                });
-                                            }
-                                        }).start();
-
+                                        Toast.makeText(StreamCacheDownloadFragment.this.getContext(),
+                                                getString(R.string.stream_is_deleted),
+                                                Toast.LENGTH_LONG).show();
                                     }
                                 })
                                 .setNegativeButton(android.R.string.no, null).show();
                     }
                 });
+        // если список пустой, показываем специальный экранчик с сообщением
+        adapter.registerAdapterDataObserver(emptyListObserver);
+
+        // Initial page size to fetch can also be configured here too
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+
+        final DataSource.Factory factory = VideoDatabase.getDbInstance(StreamCacheDownloadFragment.this.getContext()).
+                streamCacheDao().getNotFinishedDs();
+
+        streamCacheItemsLiveData = new LivePagedListBuilder(factory, config).build();
+
+        streamCacheItemsLiveData.observe(this, new Observer<PagedList<StreamCache>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<StreamCache> streamCacheItems) {
+                adapter.submitList(streamCacheItems);
+            }
+        });
 
         streamList.setAdapter(adapter);
-        // emptyListObserver здесь не сработает (т.к. у нас ArrayAdapter),
-        // обновим видимость элементов управления прямо здесь
-        updateControlsVisibility();
     }
 
     private void pauseAll() {
-        StreamCacheDownloadService.getInstance().pauseAll();
+        if (streamCacheDownloadService != null) {
+            streamCacheDownloadService.pauseAll();
+        }
     }
 
     private void startAll() {
-        StreamCacheDownloadService.getInstance().startAll(this.getContext());
+        if (streamCacheDownloadService != null) {
+            streamCacheDownloadService.startAll(StreamCacheDownloadFragment.this.getContext());
+        }
     }
 }

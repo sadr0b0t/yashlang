@@ -117,5 +117,9 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/yashlang_stream_cache"
             android:theme="@style/CustomToolbarTheme" />
+
+        <service
+            android:name=".service.StreamCacheDownloadService" />
+
     </application>
 </manifest>
