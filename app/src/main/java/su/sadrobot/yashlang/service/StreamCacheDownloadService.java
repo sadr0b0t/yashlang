@@ -37,6 +37,7 @@ import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.controller.TaskController;
 import su.sadrobot.yashlang.controller.VideoStreamDownloader;
 import su.sadrobot.yashlang.model.StreamCache;
+import su.sadrobot.yashlang.model.VideoDatabase;
 
 /**
  * Здесь активные на текущий момент закачки.
@@ -59,6 +60,18 @@ public class StreamCacheDownloadService extends Service {
     }
 
     private IBinder serviceBinder;
+
+    private Map<Long, TaskController> taskControllerMap = new HashMap<>();
+
+    private final ExecutorService downloadExecutor =
+            new ThreadPoolExecutor(1, 5, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<Runnable>() {
+                        @Override
+                        public boolean offer(Runnable o) {
+                            super.clear();
+                            return super.offer(o);
+                        }
+                    });
 
     @Override
     public void onCreate() {
@@ -83,34 +96,16 @@ public class StreamCacheDownloadService extends Service {
         pauseAll();
     }
 
-    private Map<StreamCache, TaskController> taskControllerMap = new HashMap<>();
-
-    private final ExecutorService downloadExecutor =
-            new ThreadPoolExecutor(1, 5, 0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>() {
-                        @Override
-                        public boolean offer(Runnable o) {
-                            super.clear();
-                            return super.offer(o);
-                        }
-                    });
-
-    public TaskController getTaskController(final StreamCache streamCacheItem) {
+    public TaskController getTaskController(final long streamCacheItemId) {
         final TaskController taskController;
-        if (taskControllerMap.containsKey(streamCacheItem)) {
-            taskController = taskControllerMap.get(streamCacheItem);
+        if (taskControllerMap.containsKey(streamCacheItemId)) {
+            taskController = taskControllerMap.get(streamCacheItemId);
         } else {
             taskController = new TaskController();
-            taskControllerMap.put(streamCacheItem, taskController);
+            taskControllerMap.put(streamCacheItemId, taskController);
         }
 
         return taskController;
-    }
-
-    public void pauseAll() {
-        for(final TaskController taskController : taskControllerMap.values()) {
-            pause(taskController);
-        }
     }
 
     private void pause(final TaskController taskController) {
@@ -123,21 +118,25 @@ public class StreamCacheDownloadService extends Service {
         taskController.cancel();
     }
 
-    public void pause(final StreamCache streamCacheItem) {
-        pause(getTaskController(streamCacheItem));
+    public void pause(final long streamCacheItemId) {
+        pause(getTaskController(streamCacheItemId));
     }
 
-    public void startAll(final Context context) {
-        downloadAll(context);
+    public void pauseAll() {
+        for(final TaskController taskController : taskControllerMap.values()) {
+            pause(taskController);
+        }
     }
 
-    public void start(final Context context, final StreamCache streamCacheItem) {
-        final TaskController taskController = getTaskController(streamCacheItem);
+    public void start(final Context context, final long streamCacheItemId) {
+        final TaskController taskController = getTaskController(streamCacheItemId);
         if (taskController.getState() == TaskController.TaskState.WAIT) {
             taskController.setState(TaskController.TaskState.ENQUEUED);
             downloadExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
+                    final StreamCache streamCacheItem = VideoDatabase.getDbInstance(StreamCacheDownloadService.this).
+                            streamCacheDao().getById(streamCacheItemId);
                     // пока ждали очедь на закачку, состояние могло поменяться - например, на WAIT,
                     // в таком случае игнорировать первоначальный запрос на закачку
                     if (taskController.getState() == TaskController.TaskState.ENQUEUED) {
@@ -149,10 +148,10 @@ public class StreamCacheDownloadService extends Service {
         }
     }
 
-    private void downloadAll(final Context context) {
+    public void startAll(final Context context) {
         // список роликов для загрузки
-        for(final StreamCache streamCacheItem : taskControllerMap.keySet()) {
-            start(context, streamCacheItem);
+        for(final Long streamCacheItemId : taskControllerMap.keySet()) {
+            start(context, streamCacheItemId);
         }
     }
 }

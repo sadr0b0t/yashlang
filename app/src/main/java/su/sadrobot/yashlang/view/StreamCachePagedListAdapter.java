@@ -41,6 +41,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.R;
 import su.sadrobot.yashlang.controller.StreamCacheFsManager;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
@@ -55,9 +56,9 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
     // https://developer.android.com/reference/android/support/v7/recyclerview/extensions/ListAdapter.html
     // https://developer.android.com/topic/libraries/architecture/paging/
 
-    private Activity context;
-    private OnListItemClickListener<StreamCache> onItemClickListener;
-    private OnListItemProgressControlListener<StreamCache> onItemProgressControlListener;
+    private final Activity context;
+    private final OnListItemClickListener<StreamCache> onItemClickListener;
+    private final OnListItemProgressControlListener<StreamCache> onItemProgressControlListener;
 
     //private ExecutorService dbQueryExecutor = Executors.newFixedThreadPool(10);
     //private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
@@ -69,7 +70,7 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
     // иконок через интернет, но для обращение к базе данных тоже так сделаем)
 
     // код создания ThreadPool из Executors.newFixedThreadPool(10)
-    private ExecutorService dbQueryExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
+    private final ExecutorService dbQueryExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingDeque<Runnable>() {
                 @Override
                 public Runnable take() throws InterruptedException {
@@ -78,7 +79,7 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
             });
 
     // код создания ThreadPool из Executors.newFixedThreadPool(10)
-    private ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
+    private final ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingDeque<Runnable>() {
                 @Override
                 public Runnable take() throws InterruptedException {
@@ -158,6 +159,7 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
         this.onItemProgressControlListener = onItemProgressControlListener;
     }
 
+    @NonNull
     @Override
     public StreamCacheViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.stream_cache_item, parent, false);
@@ -232,14 +234,17 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
         final String sizeStr = StringFormatUtil.formatFileSize(context, streamSize);
         holder.streamSizeTxt.setText(sizeStr);
 
-        if (item.isDownloaded()) {
-            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_done));
-        } else if (item.getStreamSize() == StreamCache.STREAM_SIZE_UNKNOWN) {
-            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_init));
-        } else {
-            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_progress));
-        }
+        if (ConfigOptions.DEVEL_MODE_ON) {
+            holder.downloadStateTxt.setVisibility(View.VISIBLE);
 
+            if (item.isDownloaded()) {
+                holder.downloadStateTxt.setText(context.getText(R.string.stream_state_done));
+            } else if (item.getStreamSize() == StreamCache.STREAM_SIZE_UNKNOWN) {
+                holder.downloadStateTxt.setText(context.getText(R.string.stream_state_init));
+            } else {
+                holder.downloadStateTxt.setText(context.getText(R.string.stream_state_progress));
+            }
+        }
 
         holder.downloadProgress.setVisibility(View.GONE);
 

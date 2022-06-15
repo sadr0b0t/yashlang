@@ -35,15 +35,15 @@ public class StringFormatUtil {
         if(sizeBytes < 1024) {
             sizeStr = sizeBytes + " " + context.getString(R.string.unit_bytes);
         } else if (sizeBytes < 1024 * 1024) {
-            final DecimalFormat format = new DecimalFormat("#.##");
+            final DecimalFormat format = new DecimalFormat("#0.00");
             format.setRoundingMode(RoundingMode.DOWN);
             sizeStr = format.format((double) sizeBytes / 1024) + " " + context.getString(R.string.unit_kb);
         } else if (sizeBytes < 1024 * 1024 * 1024) {
-            final DecimalFormat format = new DecimalFormat("#.##");
+            final DecimalFormat format = new DecimalFormat("#0.00");
             format.setRoundingMode(RoundingMode.DOWN);
             sizeStr = format.format((double) sizeBytes / 1024 / 1024) + " " + context.getString(R.string.unit_mb);
         } else {
-            final DecimalFormat format = new DecimalFormat("#.##");
+            final DecimalFormat format = new DecimalFormat("#0.00");
             format.setRoundingMode(RoundingMode.DOWN);
             sizeStr = format.format((double) sizeBytes / 1024 / 1024 / 1024) + " " + context.getString(R.string.unit_gb);
         }

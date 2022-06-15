@@ -175,11 +175,11 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
     @Override
     public void onBindViewHolder(@NonNull final StreamCacheViewHolder holder, final int position) {
         final StreamCache item = getItem(position);
-        final TaskController taskController = streamCacheDownloadService.getTaskController(item);
         if (item == null) {
             return;
         }
 
+        final TaskController taskController = streamCacheDownloadService.getTaskController(item.getId());
         taskController.setTaskListener(new TaskController.TaskAdapter() {
             @Override
             public void onStart() {
@@ -249,24 +249,32 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
                             context.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (item.isDownloaded()) {
-                                        holder.downloadStateTxt.setText(context.getText(R.string.stream_state_done));
-                                    } else if (item.getStreamSize() == StreamCache.STREAM_SIZE_UNKNOWN) {
-                                        holder.downloadStateTxt.setText(context.getText(R.string.stream_state_init));
-                                    } else if (taskController.getException() != null){
-                                        holder.downloadStateTxt.setText(context.getText(R.string.stream_state_error));
-                                    } else if(!taskController.isRunning()) {
-                                        holder.downloadStateTxt.setText(context.getText(R.string.stream_state_paused));
-                                    } else {
-                                        holder.downloadStateTxt.setText(context.getText(R.string.stream_state_progress));
+                                    if (ConfigOptions.DEVEL_MODE_ON) {
+                                        if (item.isDownloaded()) {
+                                            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_done));
+                                        } else if (item.getStreamSize() == StreamCache.STREAM_SIZE_UNKNOWN) {
+                                            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_init));
+                                        } else if (taskController.getException() != null) {
+                                            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_error));
+                                        } else if (!taskController.isRunning()) {
+                                            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_paused));
+                                        } else {
+                                            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_progress));
+                                        }
                                     }
 
                                     if (item.getStreamSize() != StreamCache.STREAM_SIZE_UNKNOWN && item.getStreamSize() > 0) {
                                         holder.downloadProgressSizeView.setVisibility(View.VISIBLE);
                                         holder.streamSizeTxt.setVisibility(View.VISIBLE);
 
-                                        holder.downloadProgressTxt.setText(StreamCacheFsManager.getDownloadedFileSize(context,
-                                                item) + " " + context.getString(R.string.unit_bytes));
+                                        if (ConfigOptions.DEVEL_MODE_ON) {
+                                            holder.downloadProgressTxt.setText(
+                                                    StreamCacheFsManager.getDownloadedFileSize(context, item) + " " + context.getString(R.string.unit_bytes));
+                                        } else {
+                                            holder.downloadProgressTxt.setText(StringFormatUtil.formatFileSize(context,
+                                                    StreamCacheFsManager.getDownloadedFileSize(context, item)));
+                                        }
+
                                         final long streamSize = item.getStreamSize();
                                         final String sizeStr = StringFormatUtil.formatFileSize(context, streamSize);
                                         holder.streamSizeTxt.setText(sizeStr);
@@ -362,24 +370,34 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
         holder.streamResTxt.setText(item.getStreamRes());
         holder.streamFormatTxt.setText(item.getStreamFormat());
 
-        if (item.isDownloaded()) {
-            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_done));
-        } else if (item.getStreamSize() == StreamCache.STREAM_SIZE_UNKNOWN) {
-            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_init));
-        } else if (taskController.getException() != null){
-            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_error));
-        } else if(!taskController.isRunning()) {
-            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_paused));
-        } else {
-            holder.downloadStateTxt.setText(context.getText(R.string.stream_state_progress));
+        if (ConfigOptions.DEVEL_MODE_ON) {
+            holder.downloadStateTxt.setVisibility(View.VISIBLE);
+
+            if (item.isDownloaded()) {
+                holder.downloadStateTxt.setText(context.getText(R.string.stream_state_done));
+            } else if (item.getStreamSize() == StreamCache.STREAM_SIZE_UNKNOWN) {
+                holder.downloadStateTxt.setText(context.getText(R.string.stream_state_init));
+            } else if (taskController.getException() != null) {
+                holder.downloadStateTxt.setText(context.getText(R.string.stream_state_error));
+            } else if(!taskController.isRunning()) {
+                holder.downloadStateTxt.setText(context.getText(R.string.stream_state_paused));
+            } else {
+                holder.downloadStateTxt.setText(context.getText(R.string.stream_state_progress));
+            }
         }
 
         if (item.getStreamSize() != StreamCache.STREAM_SIZE_UNKNOWN && item.getStreamSize() > 0) {
             holder.downloadProgressSizeView.setVisibility(View.VISIBLE);
             holder.streamSizeTxt.setVisibility(View.VISIBLE);
 
-            holder.downloadProgressTxt.setText(StreamCacheFsManager.getDownloadedFileSize(context, item) +
-                    " " + context.getString(R.string.unit_bytes));
+            if (ConfigOptions.DEVEL_MODE_ON) {
+                holder.downloadProgressTxt.setText(
+                        StreamCacheFsManager.getDownloadedFileSize(context, item) + " " + context.getString(R.string.unit_bytes));
+            } else {
+                holder.downloadProgressTxt.setText(StringFormatUtil.formatFileSize(context,
+                        StreamCacheFsManager.getDownloadedFileSize(context, item)));
+            }
+
             long streamSize = item.getStreamSize();
             final String sizeStr = StringFormatUtil.formatFileSize(context, streamSize);
             holder.streamSizeTxt.setText(sizeStr);
@@ -406,7 +424,6 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
         } else {
             holder.downloadProgress.setVisibility(View.INVISIBLE);
         }
-
 
         if (ConfigOptions.DEVEL_MODE_ON) {
             holder.downloadStatusTxt.setVisibility(View.VISIBLE);

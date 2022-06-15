@@ -196,12 +196,12 @@ public class StreamCacheDownloadFragment extends Fragment {
                 new OnListItemProgressControlListener<StreamCache>() {
                     @Override
                     public void onItemProgressStartClick(View view, int position, StreamCache item) {
-                        streamCacheDownloadService.start(StreamCacheDownloadFragment.this.getContext(), item);
+                        streamCacheDownloadService.start(StreamCacheDownloadFragment.this.getContext(), item.getId());
                     }
 
                     @Override
                     public void onItemProgressPauseClick(View view, int position, StreamCache item) {
-                        streamCacheDownloadService.pause(item);
+                        streamCacheDownloadService.pause(item.getId());
                     }
 
                     @Override
@@ -218,7 +218,7 @@ public class StreamCacheDownloadFragment extends Fragment {
 
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         // сначала поставим на паузу, если закачивается
-                                        streamCacheDownloadService.pause(item);
+                                        streamCacheDownloadService.pause(item.getId());
                                         // todo: здесь будет правильно дождаться, когда поток будет точно остановлен
                                         // чтобы не удалить файл, например, в момент записи
                                         StreamCacheManager.getInstance().delete(
