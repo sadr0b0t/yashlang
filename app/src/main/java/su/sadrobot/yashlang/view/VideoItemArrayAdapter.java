@@ -50,10 +50,10 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
     public static int ORIENTATION_VERTICAL = 0;
     public static int ORIENTATION_HORIZONTAL = 1;
 
-    private Activity context;
-    private List<VideoItem> videoItems;
-    private OnListItemClickListener<VideoItem> onItemClickListener;
-    private OnListItemSwitchListener<VideoItem> onItemSwitchListener;
+    private final Activity context;
+    private final List<VideoItem> videoItems;
+    private final OnListItemClickListener<VideoItem> onItemClickListener;
+    private final OnListItemSwitchListener<VideoItem> onItemSwitchListener;
     private int orientation = ORIENTATION_VERTICAL;
 
 
@@ -65,7 +65,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
     // а не ждать, пока загрузятся те иконки, которые уже пролистали раньше
 
     // код создания ThreadPool из Executors.newFixedThreadPool(10)
-    private ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
+    private final ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingDeque<Runnable>() {
                 @Override
                 public Runnable take() throws InterruptedException {
@@ -104,6 +104,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
         this.orientation = orientation;
     }
 
+    @NonNull
     @Override
     public VideoItemViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final View v;
@@ -206,9 +207,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
                 holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (onItemSwitchListener != null) {
-                            onItemSwitchListener.onItemCheckedChanged(buttonView, position, item, isChecked);
-                        }
+                        onItemSwitchListener.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
                     }
                 });
 
@@ -219,7 +218,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
             @Override
             public void onClick(final View view) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(view, position, item);
+                    onItemClickListener.onItemClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -228,7 +227,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
             @Override
             public boolean onLongClick(final View view) {
                 if (onItemClickListener != null) {
-                    return onItemClickListener.onItemLongClick(view, position, item);
+                    return onItemClickListener.onItemLongClick(view, holder.getBindingAdapterPosition(), item);
                 } else {
                     return false;
                 }

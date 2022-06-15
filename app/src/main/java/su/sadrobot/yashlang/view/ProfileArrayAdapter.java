@@ -41,9 +41,9 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
     // https://developer.android.com/reference/android/support/v7/recyclerview/extensions/ListAdapter.html
     // https://developer.android.com/topic/libraries/architecture/paging/
 
-    private List<Profile> profiles;
-    private List<Integer> separators = new ArrayList<>();
-    private OnListItemClickListener<Profile> onItemClickListener;
+    private final List<Profile> profiles;
+    private final List<Integer> separators = new ArrayList<>();
+    private final OnListItemClickListener<Profile> onItemClickListener;
 
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         final TextView nameTxt;
@@ -66,6 +66,7 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
         }
     }
 
+    @NonNull
     @Override
     public ProfileViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.profile_list_item, parent, false);
@@ -88,7 +89,7 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
             @Override
             public void onClick(final View view) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(view, position, item);
+                    onItemClickListener.onItemClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -97,7 +98,7 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
             @Override
             public boolean onLongClick(final View view) {
                 if (onItemClickListener != null) {
-                    return onItemClickListener.onItemLongClick(view, position, item);
+                    return onItemClickListener.onItemLongClick(view, holder.getBindingAdapterPosition(), item);
                 } else {
                     return false;
                 }
@@ -108,7 +109,7 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
             @Override
             public void onClick(final View view) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(holder.menuBtn, position, item);
+                    onItemClickListener.onItemClick(holder.menuBtn, holder.getBindingAdapterPosition(), item);
                 }
             }
         });

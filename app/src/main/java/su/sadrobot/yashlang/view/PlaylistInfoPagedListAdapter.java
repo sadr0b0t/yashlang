@@ -51,9 +51,9 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
     // https://developer.android.com/topic/libraries/architecture/paging/
 
 
-    private Activity context;
-    private OnListItemClickListener<PlaylistInfo> onItemClickListener;
-    private OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener;
+    private final Activity context;
+    private final OnListItemClickListener<PlaylistInfo> onItemClickListener;
+    private final OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener;
     private ListItemCheckedProvider<PlaylistInfo> itemCheckedProvider;
 
     //private ExecutorService dbQueryExecutor = Executors.newFixedThreadPool(10);
@@ -66,16 +66,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
     // иконок через интернет, но для обращение к базе данных тоже так сделаем)
 
     // код создания ThreadPool из Executors.newFixedThreadPool(10)
-    private ExecutorService dbQueryExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingDeque<Runnable>() {
-                @Override
-                public Runnable take() throws InterruptedException {
-                    return super.takeLast();
-                }
-            });
-
-    // код создания ThreadPool из Executors.newFixedThreadPool(10)
-    private ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
+    private final ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingDeque<Runnable>() {
                 @Override
                 public Runnable take() throws InterruptedException {
@@ -134,6 +125,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
         this.itemCheckedProvider = itemCheckedProvider;
     }
 
+    @NonNull
     @Override
     public PlaylistInfoViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_info_list_item, parent, false);
@@ -143,6 +135,9 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
     @Override
     public void onBindViewHolder(@NonNull final PlaylistInfoViewHolder holder, final int position) {
         final PlaylistInfo item = getItem(position);
+        if (item == null) {
+            return;
+        }
 
         holder.nameTxt.setText(item.getName());
         holder.urlTxt.setText(item.getUrl().replaceFirst(
@@ -182,9 +177,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
             holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (onItemSwitchListener != null) {
-                        onItemSwitchListener.onItemCheckedChanged(buttonView, position, item, isChecked);
-                    }
+                    onItemSwitchListener.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
                 }
             });
         }
@@ -199,7 +192,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
             @Override
             public void onClick(final View view) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(view, position, item);
+                    onItemClickListener.onItemClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -208,17 +201,11 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
             @Override
             public boolean onLongClick(final View view) {
                 if (onItemClickListener != null) {
-                    return onItemClickListener.onItemLongClick(view, position, item);
+                    return onItemClickListener.onItemLongClick(view, holder.getBindingAdapterPosition(), item);
                 } else {
                     return false;
                 }
             }
         });
-    }
-
-    // сделаем метод публичным
-    @Override
-    public PlaylistInfo getItem(int position) {
-        return super.getItem(position);
     }
 }

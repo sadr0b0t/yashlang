@@ -45,10 +45,10 @@ import su.sadrobot.yashlang.model.PlaylistInfo;
 
 public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoArrayAdapter.PlaylistInfoViewHolder> {
 
-    private Activity context;
-    private List<PlaylistInfo> playlistInfos;
-    private OnListItemClickListener<PlaylistInfo> onItemClickListener;
-    private OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener;
+    private final Activity context;
+    private final List<PlaylistInfo> playlistInfos;
+    private final OnListItemClickListener<PlaylistInfo> onItemClickListener;
+    private final OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener;
     private ListItemCheckedProvider<PlaylistInfo> itemCheckedProvider;
 
     //private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
@@ -59,7 +59,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
     // а не ждать, пока загрузятся те иконки, которые уже пролистали раньше
 
     // код создания ThreadPool из Executors.newFixedThreadPool(10)
-    private ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
+    private final ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingDeque<Runnable>() {
                 @Override
                 public Runnable take() throws InterruptedException {
@@ -105,6 +105,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
         this.itemCheckedProvider = itemCheckedProvider;
     }
 
+    @NonNull
     @Override
     public PlaylistInfoViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_info_list_item, parent, false);
@@ -163,10 +164,8 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
             holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (onItemSwitchListener != null) {
-                        onItemSwitchListener.onItemCheckedChanged(buttonView, position, item, isChecked);
-                        notifyDataSetChanged();
-                    }
+                    onItemSwitchListener.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
+                    notifyDataSetChanged();
                 }
             });
         }
@@ -181,7 +180,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
             @Override
             public void onClick(final View view) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(view, position, item);
+                    onItemClickListener.onItemClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -190,7 +189,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
             @Override
             public boolean onLongClick(final View view) {
                 if (onItemClickListener != null) {
-                    return onItemClickListener.onItemLongClick(view, position, item);
+                    return onItemClickListener.onItemLongClick(view, holder.getBindingAdapterPosition(), item);
                 } else {
                     return false;
                 }

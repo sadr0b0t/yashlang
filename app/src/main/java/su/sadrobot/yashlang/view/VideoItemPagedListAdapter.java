@@ -56,9 +56,9 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
     public static int ORIENTATION_VERTICAL = 0;
     public static int ORIENTATION_HORIZONTAL = 1;
 
-    private Activity context;
-    private OnListItemClickListener<VideoItem> onItemClickListener;
-    private OnListItemSwitchListener<VideoItem> onItemSwitchListener;
+    private final Activity context;
+    private final OnListItemClickListener<VideoItem> onItemClickListener;
+    private final OnListItemSwitchListener<VideoItem> onItemSwitchListener;
     private int orientation = ORIENTATION_VERTICAL;
 
     //private ExecutorService dbQueryExecutor = Executors.newFixedThreadPool(10);
@@ -71,7 +71,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
     // иконок через интернет, но для обращение к базе данных тоже так сделаем)
 
     // код создания ThreadPool из Executors.newFixedThreadPool(10)
-    private ExecutorService dbQueryExecutor = new ThreadPoolExecutor(10, 10, 0L,TimeUnit.MILLISECONDS,
+    private final ExecutorService dbQueryExecutor = new ThreadPoolExecutor(10, 10, 0L,TimeUnit.MILLISECONDS,
             new LinkedBlockingDeque<Runnable>() {
                 @Override
                 public Runnable take() throws InterruptedException {
@@ -80,7 +80,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             });
 
     // код создания ThreadPool из Executors.newFixedThreadPool(10)
-    private ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L,TimeUnit.MILLISECONDS,
+    private final ExecutorService thumbLoaderExecutor = new ThreadPoolExecutor(10, 10, 0L,TimeUnit.MILLISECONDS,
                     new LinkedBlockingDeque<Runnable>() {
         @Override
         public Runnable take() throws InterruptedException {
@@ -143,8 +143,9 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
         this.orientation = orientation;
     }
 
+    @NonNull
     @Override
-    public VideoItemViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public VideoItemViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View v;
         if (orientation == ORIENTATION_VERTICAL) {
             v = LayoutInflater.from(parent.getContext()).inflate(R.layout.video_list_item_vert, parent, false);
@@ -268,9 +269,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
                 holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (onItemSwitchListener != null) {
-                            onItemSwitchListener.onItemCheckedChanged(buttonView, position, item, isChecked);
-                        }
+                        onItemSwitchListener.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
                     }
                 });
 
@@ -281,7 +280,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             @Override
             public void onClick(final View view) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(view, position, item);
+                    onItemClickListener.onItemClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -290,7 +289,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             @Override
             public boolean onLongClick(final View view) {
                 if (onItemClickListener != null) {
-                    return onItemClickListener.onItemLongClick(view, position, item);
+                    return onItemClickListener.onItemLongClick(view, holder.getBindingAdapterPosition(), item);
                 } else {
                     return false;
                 }
