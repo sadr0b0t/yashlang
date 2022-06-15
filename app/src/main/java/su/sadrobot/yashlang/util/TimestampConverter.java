@@ -14,14 +14,16 @@ import java.util.Date;
 
 public class TimestampConverter {
     public static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private static DateFormat df = new SimpleDateFormat(TIME_STAMP_FORMAT);
+    private static final DateFormat df = new SimpleDateFormat(TIME_STAMP_FORMAT);
 
     @TypeConverter
     public static Date fromTimestamp(final String value) {
         if (value != null) {
             try {
                 return df.parse(value);
-            } catch (ParseException e) {
+            } catch (Exception e) {
+                // время от времени вылетаю разные невоспроизводимые эксепшены,
+                // среди прочего: ParseException, NumberFormatException, ArrayIndexOutOfBoundsException
                 //e.printStackTrace();
             }
             return null;
