@@ -83,7 +83,7 @@ public class ConfigOptions {
     /**
      * максимальное количество параллельных закачек для кэша потоков
      */
-    public static final int MAX_STREAM_CACHE_DOWNLOADS = 2;
+    public static final int MAX_STREAM_CACHE_DOWNLOADS = 5;
 
     private static final String PREF_PLAYLISTS_SORT_BY = "PREF_PLAYLISTS_SORT_BY";
 
