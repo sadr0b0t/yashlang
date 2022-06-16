@@ -75,8 +75,15 @@ public class ConfigOptions {
             "1080p", "720p", "480p", "360p", "240p", "144p"
     };
 
-    // среднее качество, доступно почти всегда
+    /**
+     * среднее качество, доступно почти всегда
+     */
     public static final String DEFAULT_VIDEO_RESOLUTION = "480p";
+
+    /**
+     * максимальное количество параллельных закачек для кэша потоков
+     */
+    public static final int MAX_STREAM_CACHE_DOWNLOADS = 2;
 
     private static final String PREF_PLAYLISTS_SORT_BY = "PREF_PLAYLISTS_SORT_BY";
 

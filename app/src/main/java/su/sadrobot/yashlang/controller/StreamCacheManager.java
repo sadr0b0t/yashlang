@@ -5,10 +5,12 @@ import android.content.Context;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.model.StreamCache;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
@@ -28,15 +30,8 @@ public class StreamCacheManager {
     private StreamCacheManager() {
     }
 
-    private final ExecutorService dbExecutor =
-            new ThreadPoolExecutor(1, 5, 0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>() {
-                        @Override
-                        public boolean offer(Runnable o) {
-                            super.clear();
-                            return super.offer(o);
-                        }
-                    });
+    // много фоновых потоков здесь, пожалуй, незачем
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
     public void queueForDownload(final Context context, final VideoItem videoItem,
                                  final StreamHelper.StreamInfo videoStream,

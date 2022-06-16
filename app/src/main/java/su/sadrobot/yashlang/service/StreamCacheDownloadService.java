@@ -29,9 +29,7 @@ import android.widget.Toast;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 
 import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.controller.TaskController;
@@ -63,15 +61,7 @@ public class StreamCacheDownloadService extends Service {
 
     private Map<Long, TaskController> taskControllerMap = new HashMap<>();
 
-    private final ExecutorService downloadExecutor =
-            new ThreadPoolExecutor(1, 5, 0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>() {
-                        @Override
-                        public boolean offer(Runnable o) {
-                            super.clear();
-                            return super.offer(o);
-                        }
-                    });
+    private final ExecutorService downloadExecutor = Executors.newFixedThreadPool(ConfigOptions.MAX_STREAM_CACHE_DOWNLOADS);
 
     @Override
     public void onCreate() {
