@@ -176,7 +176,7 @@ Google does not like big number of queries from same address, so it enables capt
 
 - DO NOT DOWNGRADE to 0.1.0 (or lower) after upgrading to 0.20 (or higher): you would loose all app data - added playlists, view history, stars etc.
 
-This is fixed starting from 0.2.0 (you can safely downgrade to 0.2.0 in future, but not to 0.1.0!). Version 0.1.0 is broked anyway, so there is no reasonable need to downgrade.
+This is fixed starting from 0.2.0 (you can safely downgrade to 0.2.0 in future, but not to 0.1.0!). Version 0.1.0 is broken anyway, so there is no reasonable need to downgrade.
 
 ## Someday in the future
 
