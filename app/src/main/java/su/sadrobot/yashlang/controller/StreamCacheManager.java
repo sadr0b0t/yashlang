@@ -3,6 +3,7 @@ package su.sadrobot.yashlang.controller;
 import android.content.Context;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,15 +27,22 @@ public class StreamCacheManager {
     private StreamCacheManager() {
     }
 
+    public static interface StreamCacheManagerListener {
+        void onStreamCacheAddedToQueue(final List<Long> insertedIds);
+    }
+
     // много фоновых потоков здесь, пожалуй, незачем
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
     public void queueForDownload(final Context context, final VideoItem videoItem,
                                  final StreamHelper.StreamInfo videoStream,
-                                 final StreamHelper.StreamInfo audioStream) {
+                                 final StreamHelper.StreamInfo audioStream,
+                                 final StreamCacheManagerListener callback) {
         dbExecutor.execute(new Runnable() {
             @Override
             public void run() {
+                final List<Long> insertedIds = new ArrayList<>();
+
                 if (videoStream != null) {
                     final StreamCache streamCache = new StreamCache();
                     streamCache.setVideoId(videoItem.getId());
@@ -48,7 +56,8 @@ public class StreamCacheManager {
                     final String fileName = StreamCacheFsManager.getFileNameForStream(streamCache);
                     streamCache.setFileName(fileName);
 
-                    VideoDatabase.getDbInstance(context).streamCacheDao().insertStreamCache(streamCache);
+                    final long insertedId = VideoDatabase.getDbInstance(context).streamCacheDao().insertStreamCache(streamCache);
+                    insertedIds.add(insertedId);
                 }
 
                 if (audioStream != null) {
@@ -64,7 +73,12 @@ public class StreamCacheManager {
                     final String fileName = StreamCacheFsManager.getFileNameForStream(audioStreamCache);
                     audioStreamCache.setFileName(fileName);
 
-                    VideoDatabase.getDbInstance(context).streamCacheDao().insertStreamCache(audioStreamCache);
+                    final long insertedId = VideoDatabase.getDbInstance(context).streamCacheDao().insertStreamCache(audioStreamCache);
+                    insertedIds.add(insertedId);
+                }
+
+                if (callback != null) {
+                    callback.onStreamCacheAddedToQueue(insertedIds);
                 }
             }
         });

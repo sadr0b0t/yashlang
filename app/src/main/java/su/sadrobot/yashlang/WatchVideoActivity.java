@@ -83,6 +83,7 @@ import su.sadrobot.yashlang.controller.StreamHelper;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.service.StreamCacheDownloadService;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemArrayAdapter;
 import su.sadrobot.yashlang.view.VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory;
@@ -1671,7 +1672,13 @@ public class WatchVideoActivity extends AppCompatActivity {
                     WatchVideoActivity.this,
                     _currentVideo,
                     _currentVideo.getPlaybackStreams().getVideoStream(),
-                    _currentVideo.getPlaybackStreams().getAudioStream());
+                    _currentVideo.getPlaybackStreams().getAudioStream(),
+                    new StreamCacheManager.StreamCacheManagerListener() {
+                        @Override
+                        public void onStreamCacheAddedToQueue(final List<Long> insertedIds) {
+                            StreamCacheDownloadService.startDownload(WatchVideoActivity.this, insertedIds);
+                        }
+                    });
         }
     }
 

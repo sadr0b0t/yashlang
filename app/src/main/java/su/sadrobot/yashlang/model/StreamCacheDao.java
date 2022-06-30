@@ -67,13 +67,15 @@ public abstract class StreamCacheDao {
     protected abstract void setVideoHasOffline(long videoId, boolean hasOffline);
 
     @Transaction
-    public void insertStreamCache(final StreamCache cacheItem) {
-        insert(cacheItem);
+    public long insertStreamCache(final StreamCache cacheItem) {
+        final long id = insert(cacheItem);
         if (cacheItem.isDownloaded()) {
             // если поток загружен, то этого достаточно, чтобы выставить ролику флаг
             setVideoHasOffline(cacheItem.getVideoId(), true);
         }
+        return id;
     }
+
     @Transaction
     public void deleteStreamCache(final StreamCache cacheItem) {
         delete(cacheItem);

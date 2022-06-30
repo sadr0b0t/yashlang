@@ -65,8 +65,6 @@ public class StreamCacheDownloadFragment extends Fragment {
     private StreamCacheDownloadService streamCacheDownloadService;
     private ServiceConnection streamCacheDownloadServiceConnection;
 
-    private final Handler handler = new Handler();
-
     private LiveData<PagedList<StreamCache>> streamCacheItemsLiveData;
 
     private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
@@ -196,12 +194,12 @@ public class StreamCacheDownloadFragment extends Fragment {
                 new OnListItemProgressControlListener<StreamCache>() {
                     @Override
                     public void onItemProgressStartClick(View view, int position, StreamCache item) {
-                        streamCacheDownloadService.start(StreamCacheDownloadFragment.this.getContext(), item.getId());
+                        StreamCacheDownloadService.startDownload(StreamCacheDownloadFragment.this.getContext(), item.getId());
                     }
 
                     @Override
                     public void onItemProgressPauseClick(View view, int position, StreamCache item) {
-                        streamCacheDownloadService.pause(item.getId());
+                        StreamCacheDownloadService.pauseDownload(StreamCacheDownloadFragment.this.getContext(), item.getId());
                     }
 
                     @Override
@@ -218,7 +216,8 @@ public class StreamCacheDownloadFragment extends Fragment {
 
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         // сначала поставим на паузу, если закачивается
-                                        streamCacheDownloadService.pause(item.getId());
+                                        StreamCacheDownloadService.pauseDownload(StreamCacheDownloadFragment.this.getContext(),
+                                                item.getId());
                                         // todo: здесь будет правильно дождаться, когда поток будет точно остановлен
                                         // чтобы не удалить файл, например, в момент записи
                                         StreamCacheManager.getInstance().delete(
@@ -254,14 +253,10 @@ public class StreamCacheDownloadFragment extends Fragment {
     }
 
     private void pauseAll() {
-        if (streamCacheDownloadService != null) {
-            streamCacheDownloadService.pauseAll();
-        }
+        StreamCacheDownloadService.pauseDownloads(StreamCacheDownloadFragment.this.getContext());
     }
 
     private void startAll() {
-        if (streamCacheDownloadService != null) {
-            streamCacheDownloadService.startAll(StreamCacheDownloadFragment.this.getContext());
-        }
+        StreamCacheDownloadService.startDownloads(StreamCacheDownloadFragment.this.getContext());
     }
 }

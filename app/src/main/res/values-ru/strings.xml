@@ -180,4 +180,6 @@
     <string name="delete_not_finished_title">Удалить ВСЕ незавершенные закачки?</string>
     <string name="no_playback_streams_for_video">Для ролика не найдено потоков для проигрывания</string>
     <string name="offline">оффлайн</string>
+    <string name="notification_channel_download_name">Кэшированные потоки видео и аудио</string>
+    <string name="notification_channel_download_description">Прогресс закачки файлов потоков видео и аудио для проигрывания оффлайн</string>
 </resources>

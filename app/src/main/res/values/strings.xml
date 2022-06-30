@@ -180,4 +180,6 @@
     <string name="delete_not_finished_title">Delete ALL not finished downloads?</string>
     <string name="no_playback_streams_for_video">No playback streams for video</string>
     <string name="offline">offline</string>
+    <string name="notification_channel_download_name">Video and audio stream cache</string>
+    <string name="notification_channel_download_description">Video and audio stream cache download progress for offline playback</string>
 </resources>
