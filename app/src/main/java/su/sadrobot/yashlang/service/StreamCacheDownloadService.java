@@ -246,6 +246,7 @@ public class StreamCacheDownloadService extends Service {
                 .setContentTitle(StringFormatUtil.formatFileSize(this, cumProgress) + " / " +
                         StringFormatUtil.formatFileSize(this, cumProgressMax))
                 .setContentText(downloadsActive + " / " + downloadsTotal)
+                .setSmallIcon(android.R.drawable.ic_menu_save)
                 .setContentIntent(gotoStreamCachePendingIntent)
                 .setProgress(100, cumProgressPercent, false)
                 .build();
