@@ -1,1 +1,1 @@
-Online PeerTube and YouTube player with local playlists and whitelisted recommendations
+Online PeerTube and YouTube player with local playlists and recommendations
