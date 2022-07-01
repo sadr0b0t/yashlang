@@ -78,7 +78,7 @@ public class ConfigurePlaylistsFragment extends Fragment {
 
     private LiveData<PagedList<PlaylistInfo>> playlistInfosLiveData;
 
-    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
@@ -414,7 +414,7 @@ public class ConfigurePlaylistsFragment extends Fragment {
         }
         playlistInfosLiveData = new LivePagedListBuilder(factory, config).build();
 
-        playlistInfosLiveData.observe(this, new Observer<PagedList<PlaylistInfo>>() {
+        playlistInfosLiveData.observe(this.getViewLifecycleOwner(), new Observer<PagedList<PlaylistInfo>>() {
             @Override
             public void onChanged(@Nullable PagedList<PlaylistInfo> videos) {
                 adapter.submitList(videos);

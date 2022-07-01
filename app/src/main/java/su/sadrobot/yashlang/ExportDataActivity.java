@@ -71,7 +71,7 @@ public class ExportDataActivity extends AppCompatActivity {
     private Button exportToFileBtn;
     private Button exportToClipboardBtn;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     private enum State {
         INITIAL, DATA_EXPORT_PROGRESS, DATA_EXPORT_ERROR, DATA_EXPORT_OK

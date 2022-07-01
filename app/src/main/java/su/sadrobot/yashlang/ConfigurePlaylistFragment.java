@@ -81,13 +81,13 @@ public class ConfigurePlaylistFragment extends Fragment {
     private EditText filterPlaylistInput;
     private RecyclerView videoList;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
 
     private long playlistId = PlaylistInfo.ID_NONE;
 
-    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
@@ -184,7 +184,7 @@ public class ConfigurePlaylistFragment extends Fragment {
         final boolean listIsEmpty = filterPlaylistInput.getText().length() == 0 &&
                 (videoList.getAdapter() == null || videoList.getAdapter().getItemCount() == 0);
 
-        if(listIsEmpty) {
+        if (listIsEmpty) {
             emptyView.setVisibility(View.VISIBLE);
             filterPlaylistInput.setVisibility(View.GONE);
             videoList.setVisibility(View.GONE);
@@ -399,7 +399,7 @@ public class ConfigurePlaylistFragment extends Fragment {
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
-        videoItemsLiveData.observe(this, new Observer<PagedList<VideoItem>>() {
+        videoItemsLiveData.observe(this.getViewLifecycleOwner(), new Observer<PagedList<VideoItem>>() {
             @Override
             public void onChanged(@Nullable PagedList<VideoItem> videos) {
                 adapter.submitList(videos);

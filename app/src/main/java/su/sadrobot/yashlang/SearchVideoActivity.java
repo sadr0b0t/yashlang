@@ -68,7 +68,7 @@ public class SearchVideoActivity extends AppCompatActivity {
     private EditText searchVideoInput;
     private RecyclerView videoList;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
     @Override

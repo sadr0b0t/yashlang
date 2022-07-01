@@ -22,6 +22,7 @@ package su.sadrobot.yashlang;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -62,6 +63,7 @@ public class ConfigureMoarActivity extends AppCompatActivity {
                 return 1;
             }
 
+            @NonNull
             @Override
             public Fragment getItem(int position) {
                 return configureVideoQualityFrag;

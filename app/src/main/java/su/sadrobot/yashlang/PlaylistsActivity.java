@@ -25,7 +25,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -74,10 +73,9 @@ public class PlaylistsActivity extends AppCompatActivity {
     private ImageButton sortBtn;
     private RecyclerView playlistList;
 
-    private Handler handler = new Handler();
     private LiveData<PagedList<PlaylistInfo>> playlistInfosLiveData;
 
-    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e

@@ -109,7 +109,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     private TextView newItemsAddDoneStatusTxt;
     private Button newItemsAddDoneBtn;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
 
@@ -128,7 +128,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     private State state = State.NEW_ITEMS_LIST_EMPTY;
     private boolean checkError = false;
 
-    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
@@ -532,7 +532,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
-        videoItemsLiveData.observe(this, new Observer<PagedList<VideoItem>>() {
+        videoItemsLiveData.observe(this.getViewLifecycleOwner(), new Observer<PagedList<VideoItem>>() {
             @Override
             public void onChanged(@Nullable PagedList<VideoItem> videos) {
                 adapter.submitList(videos);

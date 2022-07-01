@@ -114,7 +114,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     private enum State {
         ITEMS_LIST_EMPTY, ITEMS_LIST_LOAD_PROGRESS, ITEMS_LIST_LOAD_ERROR, ITEMS_LIST_LOADED_EMPTY, ITEMS_LIST_LOADED,
@@ -127,7 +127,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
     private PlaylistInfo loadedPlaylist = null;
     private TaskController taskController;
 
-    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e

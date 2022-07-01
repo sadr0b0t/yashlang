@@ -64,7 +64,7 @@ public class ImportDataActivity extends AppCompatActivity {
     private Button loadFromClipboardBtn;
     private Button importDataBtn;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     private enum State {
         INITIAL, DATA_LOAD_PROGRESS,DATA_LOAD_ERROR, DATA_LOAD_OK
@@ -297,6 +297,7 @@ public class ImportDataActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         // If the user doesn't pick a file just return
         if (requestCode != CODE_REQUEST_FILE || resultCode != RESULT_OK) {
             return;

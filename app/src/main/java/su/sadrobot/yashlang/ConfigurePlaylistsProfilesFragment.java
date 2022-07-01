@@ -36,8 +36,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
-import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,9 +56,7 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
     private Button newProfileBtn;
     private RecyclerView profileList;
 
-    private Handler handler = new Handler();
-
-    private LiveData<PagedList<Profile>> videoItemsLiveData;
+    private final Handler handler = new Handler();
 
     @Nullable
     @Override

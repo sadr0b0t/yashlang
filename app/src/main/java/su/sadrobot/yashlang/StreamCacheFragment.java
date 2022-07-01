@@ -54,7 +54,7 @@ public class StreamCacheFragment extends Fragment {
 
     private LiveData<PagedList<StreamCache>> streamCacheItemsLiveData;
 
-    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
@@ -171,7 +171,7 @@ public class StreamCacheFragment extends Fragment {
 
         streamCacheItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
-        streamCacheItemsLiveData.observe(this, new Observer<PagedList<StreamCache>>() {
+        streamCacheItemsLiveData.observe(this.getViewLifecycleOwner(), new Observer<PagedList<StreamCache>>() {
             @Override
             public void onChanged(@Nullable PagedList<StreamCache> streamCacheItems) {
                 adapter.submitList(streamCacheItems);

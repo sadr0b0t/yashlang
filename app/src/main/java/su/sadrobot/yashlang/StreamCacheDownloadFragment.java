@@ -27,7 +27,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +67,7 @@ public class StreamCacheDownloadFragment extends Fragment {
 
     private LiveData<PagedList<StreamCache>> streamCacheItemsLiveData;
 
-    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
         // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
         // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
@@ -169,16 +168,6 @@ public class StreamCacheDownloadFragment extends Fragment {
         StreamCacheDownloadFragment.this.getContext().unbindService(streamCacheDownloadServiceConnection);
     }
 
-    private void updateControlsVisibility() {
-        if (streamList.getAdapter() == null || streamList.getAdapter().getItemCount() > 0) {
-            emptyView.setVisibility(View.GONE);
-            streamList.setVisibility(View.VISIBLE);
-        } else {
-            emptyView.setVisibility(View.VISIBLE);
-            streamList.setVisibility(View.GONE);
-        }
-    }
-
     private void setupStreamListAdapter() {
         if (streamCacheItemsLiveData != null) {
             streamCacheItemsLiveData.removeObservers(this);
@@ -251,7 +240,7 @@ public class StreamCacheDownloadFragment extends Fragment {
 
         streamCacheItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
-        streamCacheItemsLiveData.observe(this, new Observer<PagedList<StreamCache>>() {
+        streamCacheItemsLiveData.observe(this.getViewLifecycleOwner(), new Observer<PagedList<StreamCache>>() {
             @Override
             public void onChanged(@Nullable PagedList<StreamCache> streamCacheItems) {
                 adapter.submitList(streamCacheItems);

@@ -33,6 +33,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -64,7 +65,7 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
     private ConfigurePlaylistFragment viewPlaylistFrag;
     private ConfigurePlaylistNewItemsFragment viewPlaylistNewItemsFrag;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     private long playlistId = PlaylistInfo.ID_NONE;
     private PlaylistInfo plInfo;
@@ -94,6 +95,7 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                 return 2;
             }
 
+            @NonNull
             @Override
             public Fragment getItem(int position) {
                 if (position == 0) {

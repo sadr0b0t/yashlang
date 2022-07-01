@@ -88,7 +88,7 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
     private Button playlistAddSkipBtn;
     private Button playlistAddCancelBtn;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
 
     private enum State {
@@ -104,8 +104,8 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
 
     private List<PlaylistInfo> recommendedPlaylists = new ArrayList<>();
     // плейлисты из списка рекомендованных, которые уже есть в локальной базе данных
-    private Set<PlaylistInfo> playlistsInDb = new HashSet<>();
-    private List<PlaylistInfo> playlistsToAdd = new ArrayList<>();
+    private final Set<PlaylistInfo> playlistsInDb = new HashSet<>();
+    private final List<PlaylistInfo> playlistsToAdd = new ArrayList<>();
 
 
     @Override

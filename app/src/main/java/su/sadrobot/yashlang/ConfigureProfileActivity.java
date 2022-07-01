@@ -75,39 +75,13 @@ public class ConfigureProfileActivity extends AppCompatActivity {
     private RecyclerView playlistList;
 
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     private long profileId = Profile.ID_NONE;
     private Profile profile;
-    private Set<Long> checkedPlaylists = new HashSet<>();
+    private final Set<Long> checkedPlaylists = new HashSet<>();
 
     private boolean saveOnFinish = true;
-
-    private RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
-        // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
-        // https://stackoverflow.com/questions/27414173/equivalent-of-listview-setemptyview-in-recyclerview
-        // https://gist.github.com/sheharyarn/5602930ad84fa64c30a29ab18eb69c6e
-        private void checkIfEmpty() {
-            final boolean listIsEmpty = playlistList.getAdapter() == null || playlistList.getAdapter().getItemCount() == 0;
-            emptyView.setVisibility(listIsEmpty ? View.VISIBLE : View.GONE);
-            playlistList.setVisibility(listIsEmpty ? View.GONE : View.VISIBLE);
-        }
-
-        @Override
-        public void onChanged() {
-            checkIfEmpty();
-        }
-
-        @Override
-        public void onItemRangeInserted(int positionStart, int itemCount) {
-            checkIfEmpty();
-        }
-
-        @Override
-        public void onItemRangeRemoved(int positionStart, int itemCount) {
-            checkIfEmpty();
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

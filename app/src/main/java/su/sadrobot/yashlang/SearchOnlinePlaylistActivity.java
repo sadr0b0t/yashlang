@@ -61,7 +61,7 @@ public class SearchOnlinePlaylistActivity extends AppCompatActivity {
     private EditText playlistSearchInput;
     private RecyclerView playlistList;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
 
     @Override
