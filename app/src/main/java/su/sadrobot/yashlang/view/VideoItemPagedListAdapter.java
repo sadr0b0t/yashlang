@@ -197,7 +197,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
                             context.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    VideoItemPagedListAdapter.this.notifyDataSetChanged();
+                                    VideoItemPagedListAdapter.this.notifyItemChanged(holder.getBindingAdapterPosition());
                                 }
                             });
                         }
@@ -245,7 +245,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
                         context.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                VideoItemPagedListAdapter.this.notifyDataSetChanged();
+                                VideoItemPagedListAdapter.this.notifyItemChanged(holder.getBindingAdapterPosition());
                             }
                         });
                     }

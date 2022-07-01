@@ -183,7 +183,7 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
                     context.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            StreamCachePagedListAdapter.this.notifyDataSetChanged();
+                            StreamCachePagedListAdapter.this.notifyItemChanged(holder.getBindingAdapterPosition());
                         }
                     });
                 }
@@ -209,7 +209,7 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
                             context.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    StreamCachePagedListAdapter.this.notifyDataSetChanged();
+                                    StreamCachePagedListAdapter.this.notifyItemChanged(holder.getBindingAdapterPosition());
                                 }
                             });
                         }
@@ -285,7 +285,7 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
                         context.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                StreamCachePagedListAdapter.this.notifyDataSetChanged();
+                                StreamCachePagedListAdapter.this.notifyItemChanged(holder.getBindingAdapterPosition());
                             }
                         });
                     }

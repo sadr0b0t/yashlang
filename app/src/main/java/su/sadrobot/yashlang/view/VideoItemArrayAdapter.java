@@ -183,7 +183,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
                         context.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                VideoItemArrayAdapter.this.notifyDataSetChanged();
+                                VideoItemArrayAdapter.this.notifyItemChanged(holder.getBindingAdapterPosition());
                             }
                         });
                     }

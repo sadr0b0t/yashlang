@@ -133,7 +133,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
                     context.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            PlaylistInfoArrayAdapter.this.notifyDataSetChanged();
+                            PlaylistInfoArrayAdapter.this.notifyItemChanged(holder.getBindingAdapterPosition());
                         }
                     });
                 }
@@ -165,7 +165,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     onItemSwitchListener.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
-                    notifyDataSetChanged();
+                    notifyItemChanged(holder.getBindingAdapterPosition());
                 }
             });
         }

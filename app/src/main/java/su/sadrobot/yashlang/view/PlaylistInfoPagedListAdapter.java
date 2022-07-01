@@ -156,7 +156,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
                     context.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            PlaylistInfoPagedListAdapter.this.notifyDataSetChanged();
+                            PlaylistInfoPagedListAdapter.this.notifyItemChanged(holder.getBindingAdapterPosition());
                         }
                     });
                 }
