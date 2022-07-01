@@ -40,6 +40,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,6 +51,7 @@ import androidx.lifecycle.Observer;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -526,6 +528,14 @@ public class WatchVideoActivity extends AppCompatActivity {
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
                 getApplicationContext(), RecyclerView.HORIZONTAL, false);
         videoList.setLayoutManager(linearLayoutManager);
+        videoList.setItemAnimator(new DefaultItemAnimator() {
+            @Override
+            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder) {
+                // чтобы картинки и текст не сбивались в кучку при быстрой промотке
+                // см: https://github.com/sadr0b0t/yashlang/issues/129
+                return true;
+            }
+        });
 
 
         final RecommendationsMode recommendationsMode = super.getIntent().hasExtra(PARAM_RECOMMENDATIONS_MODE) ?
@@ -838,6 +848,14 @@ public class WatchVideoActivity extends AppCompatActivity {
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
                 getApplicationContext(), RecyclerView.HORIZONTAL, false);
         videoList.setLayoutManager(linearLayoutManager);
+        videoList.setItemAnimator(new DefaultItemAnimator() {
+            @Override
+            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder) {
+                // чтобы картинки и текст не сбивались в кучку при быстрой промотке
+                // см: https://github.com/sadr0b0t/yashlang/issues/129
+                return true;
+            }
+        });
         videoList.setAdapter(videoListAdapter);
 
         // Режим полного или неполного экрана

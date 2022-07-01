@@ -35,8 +35,10 @@ import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -128,6 +130,14 @@ public class ConfigureProfileActivity extends AppCompatActivity {
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         playlistList.setLayoutManager(linearLayoutManager);
+        playlistList.setItemAnimator(new DefaultItemAnimator() {
+            @Override
+            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder) {
+                // чтобы картинки и текст не сбивались в кучку при быстрой промотке
+                // см: https://github.com/sadr0b0t/yashlang/issues/129
+                return true;
+            }
+        });
 
         profileId = getIntent().getLongExtra(PARAM_PROFILE_ID, Profile.ID_NONE);
         loadProfile();

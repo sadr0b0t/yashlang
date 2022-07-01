@@ -39,6 +39,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -47,6 +48,7 @@ import androidx.lifecycle.Observer;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -89,6 +91,14 @@ public class SearchVideoActivity extends AppCompatActivity {
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         videoList.setLayoutManager(linearLayoutManager);
+        videoList.setItemAnimator(new DefaultItemAnimator() {
+            @Override
+            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder) {
+                // чтобы картинки и текст не сбивались в кучку при быстрой промотке
+                // см: https://github.com/sadr0b0t/yashlang/issues/129
+                return true;
+            }
+        });
 
 
         searchVideoInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {

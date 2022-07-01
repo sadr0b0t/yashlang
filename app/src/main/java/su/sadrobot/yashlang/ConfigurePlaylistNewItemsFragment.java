@@ -46,6 +46,7 @@ import androidx.lifecycle.Observer;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -230,6 +231,14 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         videoList.setLayoutManager(linearLayoutManager);
+        videoList.setItemAnimator(new DefaultItemAnimator() {
+            @Override
+            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder) {
+                // чтобы картинки и текст не сбивались в кучку при быстрой промотке
+                // см: https://github.com/sadr0b0t/yashlang/issues/129
+                return true;
+            }
+        });
 
 
         checkNewItemsBtn.setOnClickListener(new View.OnClickListener() {
