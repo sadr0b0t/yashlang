@@ -26,7 +26,7 @@
         android:title="@string/quality"/>
     <item
         android:id="@+id/action_download"
-        android:title="@string/download"/>
+        android:title="@string/download_stream"/>
     <item
         android:id="@+id/action_reload"
         android:title="@string/reload"/>

@@ -163,13 +163,42 @@ public class StreamHelper {
     }
 
     /**
-     * Добыть потоки для ролика - локальные (из базы данных) и онлайн (по url через NewPipeExtractor)
+     * Добыть потоки для ролика - онлайн (по url через NewPipeExtractor)
+     *
+     * @param videoItem
+     *
+     * @return
+     */
+    public static StreamHelper.StreamSources fetchOnlineStreams(final VideoItem videoItem) {
+        final List<StreamInfo> allVideoStreams = new ArrayList<>();
+        final List<StreamInfo> allAudioStreams = new ArrayList<>();
+        final List<Exception> problems = new ArrayList<>();
+
+        // получить онлайн-потоки
+        try {
+            StreamHelper.StreamSources onlineStreamSources = ContentLoader.getInstance().extractStreams(videoItem.getItemUrl());
+
+            allVideoStreams.addAll(onlineStreamSources.getVideoStreams());
+            allAudioStreams.addAll(onlineStreamSources.getAudioStreams());
+        } catch (ExtractionException | IOException e) {
+            problems.add(e);
+        }
+
+        final StreamHelper.StreamSources streamSources = new StreamSources(allVideoStreams, allAudioStreams);
+        streamSources.problems.addAll(problems);
+        return streamSources;
+    }
+
+    /**
+     * Добыть потоки для ролика - локальные (из базы данных)
      *
      * @param context
      * @param videoItem
+     *
      * @return
      */
-    public static StreamHelper.StreamSources fetchStreams(final Context context, final VideoItem videoItem) {
+    public static StreamHelper.StreamSources fetchOfflineStreams(
+            final Context context, final VideoItem videoItem) {
         final List<StreamInfo> allVideoStreams = new ArrayList<>();
         final List<StreamInfo> allAudioStreams = new ArrayList<>();
         final List<Exception> problems = new ArrayList<>();
@@ -190,15 +219,34 @@ public class StreamHelper {
             }
         }
 
-        // получить онлайн-потоки
-        try {
-            StreamHelper.StreamSources onlineStreamSources = ContentLoader.getInstance().extractStreams(videoItem.getItemUrl());
+        final StreamHelper.StreamSources streamSources = new StreamSources(allVideoStreams, allAudioStreams);
+        streamSources.problems.addAll(problems);
+        return streamSources;
+    }
 
-            allVideoStreams.addAll(onlineStreamSources.getVideoStreams());
-            allAudioStreams.addAll(onlineStreamSources.getAudioStreams());
-        } catch (ExtractionException | IOException e) {
-            problems.add(e);
-        }
+    /**
+     * Добыть потоки для ролика - локальные (из базы данных) и онлайн (по url через NewPipeExtractor)
+     *
+     * @param context
+     * @param videoItem
+     *
+     * @return
+     */
+    public static StreamHelper.StreamSources fetchStreams(
+            final Context context, final VideoItem videoItem) {
+        final List<StreamInfo> allVideoStreams = new ArrayList<>();
+        final List<StreamInfo> allAudioStreams = new ArrayList<>();
+        final List<Exception> problems = new ArrayList<>();
+
+        final StreamHelper.StreamSources offlineStreamSources = fetchOfflineStreams(context, videoItem);
+        allVideoStreams.addAll(offlineStreamSources.getVideoStreams());
+        allAudioStreams.addAll(offlineStreamSources.getAudioStreams());
+        problems.addAll(offlineStreamSources.problems);
+
+        final StreamHelper.StreamSources onlineStreamSources = fetchOnlineStreams(videoItem);
+        allVideoStreams.addAll(onlineStreamSources.getVideoStreams());
+        allAudioStreams.addAll(onlineStreamSources.getAudioStreams());
+        problems.addAll(onlineStreamSources.problems);
 
         final StreamHelper.StreamSources streamSources = new StreamSources(allVideoStreams, allAudioStreams);
         streamSources.problems.addAll(problems);

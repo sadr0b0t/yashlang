@@ -80,12 +80,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
-import su.sadrobot.yashlang.controller.StreamCacheManager;
 import su.sadrobot.yashlang.controller.StreamHelper;
+import su.sadrobot.yashlang.controller.VideoItemActionFactory;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
-import su.sadrobot.yashlang.service.StreamCacheDownloadService;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemArrayAdapter;
 import su.sadrobot.yashlang.view.VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory;
@@ -1603,8 +1602,9 @@ public class WatchVideoActivity extends AppCompatActivity {
                 final PopupMenu popup = new PopupMenu(WatchVideoActivity.this, videoQualityTxt);
                 int streamId = 0;
                 for (final StreamHelper.StreamInfo stream : _vidStreams) {
-                    final String streamInfoStr = stream.getResolution() + (stream.getQuality() != null ?
-                            " (" + stream.getQuality() + ") " : " ") + stream.getFormatName() +
+                    final String streamInfoStr = stream.getResolution() +
+                            (stream.getQuality() != null ?  " (" + stream.getQuality() + ") " : " ") +
+                            stream.getFormatName() +
                             (!stream.isOnline() ? " [" + WatchVideoActivity.this.getString(R.string.offline).toUpperCase()  + "]" : "");
                     popup.getMenu().add(Menu.NONE, streamId, Menu.NONE, streamInfoStr);
                     streamId++;
@@ -1684,20 +1684,8 @@ public class WatchVideoActivity extends AppCompatActivity {
      * Загрузить видео для просмотра оффлайн.
      */
     private void actionDownload() {
-        if (currentVideo != null && currentVideo.getId() != VideoItem.ID_NONE && currentVideo.getPlaybackStreams() != null) {
-            final VideoItem _currentVideo = currentVideo;
-            StreamCacheManager.getInstance().queueForDownload(
-                    WatchVideoActivity.this,
-                    _currentVideo,
-                    _currentVideo.getPlaybackStreams().getVideoStream(),
-                    _currentVideo.getPlaybackStreams().getAudioStream(),
-                    new StreamCacheManager.StreamCacheManagerListener() {
-                        @Override
-                        public void onStreamCacheAddedToQueue(final List<Long> insertedIds) {
-                            StreamCacheDownloadService.startDownload(WatchVideoActivity.this, insertedIds);
-                        }
-                    });
-        }
+        videoPlayerView.getPlayer().setPlayWhenReady(false);
+        VideoItemActionFactory.actionDownloadStream(this, handler, currentVideo);
     }
 
     /**

@@ -150,7 +150,7 @@
     <string name="vid_stream_prefer_lower">lower resolution</string>
     <string name="vid_stream_prefer_if_not_available">If not available, prefer</string>
     <string name="done_importing">Done importing</string>
-    <string name="download">Download stream</string>
+    <string name="download_stream">Download stream</string>
     <string name="yashlang_stream_cache">YaShlang: stream cache downloads</string>
     <string name="downloads">Stream downloads</string>
     <string name="no_active_downloads">No active downloads</string>
@@ -182,4 +182,11 @@
     <string name="offline">offline</string>
     <string name="notification_channel_download_name">Video and audio stream cache</string>
     <string name="notification_channel_download_description">Video and audio stream cache download progress for offline playback</string>
+    <string name="video_streams">Video streams</string>
+    <string name="audio_streams">Audio streams</string>
+    <string name="download_video_item_streams">Download streams for video item</string>
+    <string name="error_loading_streams_for_video">Error loading stream list for video</string>
+    <string name="download">Download</string>
+    <string name="streams_added_to_download_queue">Streams added to download queue</string>
+    <string name="stream_none">None</string>
 </resources>
