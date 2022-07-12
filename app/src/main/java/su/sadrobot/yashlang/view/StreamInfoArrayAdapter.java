@@ -59,7 +59,8 @@ public class StreamInfoArrayAdapter extends BaseAdapter {
             final String streamInfoStr = stream.getResolution() +
                     (stream.getQuality() != null ? " (" + stream.getQuality() + ") " : " ") +
                     stream.getFormatName() +
-                    (!stream.isOnline() ? " [" + context.getString(R.string.offline).toUpperCase() + "]" : "") +
+                    (!stream.isOnline() ? " [" + context.getString(R.string.icon_offline) + " " +
+                            context.getString(R.string.offline).toUpperCase() + "]" : "") +
                     (stream.getStreamType() == StreamCache.StreamType.BOTH ?
                             " [" + StreamCache.StreamType.VIDEO.name() + "+" + StreamCache.StreamType.AUDIO + "]" : "");
             textTxt.setText(streamInfoStr);
@@ -83,7 +84,8 @@ public class StreamInfoArrayAdapter extends BaseAdapter {
             final String streamInfoStr = stream.getResolution() +
                     (stream.getQuality() != null ? " (" + stream.getQuality() + ") " : " ") +
                     stream.getFormatName() +
-                    (!stream.isOnline() ? " [" + context.getString(R.string.offline).toUpperCase() + "]" : "") +
+                    (!stream.isOnline() ? " [" + context.getString(R.string.icon_offline) + " " +
+                            context.getString(R.string.offline).toUpperCase() + "]" : "") +
                     (stream.getStreamType() == StreamCache.StreamType.BOTH ?
                             " [" + StreamCache.StreamType.VIDEO.name() + "+" + StreamCache.StreamType.AUDIO + "]" : "");
             textTxt.setText(streamInfoStr);
@@ -107,6 +109,11 @@ public class StreamInfoArrayAdapter extends BaseAdapter {
         return position == 0 ? null : streams.get(position - 1);
     }
 
+    /**
+     * Первый элемент в списке всегда NONE, поэтому если поток null или не найден, вернет индекс 0.
+     * @param stream
+     * @return
+     */
     public int indexOf(final StreamHelper.StreamInfo stream) {
         int position = 0;
         if (stream != null) {
@@ -115,7 +122,8 @@ public class StreamInfoArrayAdapter extends BaseAdapter {
             // не тот, который добавлен в список
             for (int i = 0; i < streams.size(); i++) {
                 final StreamHelper.StreamInfo stream2 = streams.get(i);
-                if (stream.getStreamType() == stream2.getStreamType() &&
+                if (stream.isOnline() == stream2.isOnline() &&
+                        stream.getStreamType() == stream2.getStreamType() &&
                         stream.getFormatName().equals(stream2.getFormatName()) &&
                         stream.getResolution().equals(stream2.getResolution())) {
                     position = i + 1;

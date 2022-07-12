@@ -39,7 +39,13 @@ import su.sadrobot.yashlang.service.StreamCacheDownloadService;
 import su.sadrobot.yashlang.view.StreamInfoArrayAdapter;
 
 public class VideoItemActionFactory {
-    public static void actionDownloadStream(final Context context, final Handler handler, final VideoItem videoItem) {
+    public interface StreamDialogListener {
+        void onClose();
+        void onStreamsSelected(final StreamHelper.StreamInfo videoStream, final StreamHelper.StreamInfo audioStream);
+    }
+
+    public static void actionDownloadStreams(final Context context, final Handler handler, final VideoItem videoItem,
+                                             final StreamDialogListener callback) {
         // https://developer.android.com/reference/android/view/LayoutInflater
         // https://stackoverflow.com/questions/51729036/what-is-layoutinflater-and-how-do-i-use-it-properly
         final LayoutInflater inflater = LayoutInflater.from(context);
@@ -57,7 +63,15 @@ public class VideoItemActionFactory {
                 .setTitle(R.string.download_video_item_streams)
                 .setView(view)
                 .setPositiveButton(R.string.download, null)
-                .setNegativeButton(android.R.string.no, null).create();
+                .setNegativeButton(android.R.string.cancel, null).create();
+        if (callback != null) {
+            dlg1.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    callback.onClose();
+                }
+            });
+        }
 
         new Thread(new Runnable() {
             @Override
@@ -116,14 +130,18 @@ public class VideoItemActionFactory {
                             final StreamInfoArrayAdapter videoStreamsAdapter = new StreamInfoArrayAdapter(
                                     context, streamSources.getVideoStreams());
                             videoStreamSpinner.setAdapter(videoStreamsAdapter);
-                            videoStreamSpinner.setSelection(videoStreamsAdapter.indexOf(
-                                    videoItem.getPlaybackStreams().getVideoStream()));
+                            if (videoItem.getPlaybackStreams() != null) {
+                                videoStreamSpinner.setSelection(videoStreamsAdapter.indexOf(
+                                        videoItem.getPlaybackStreams().getVideoStream()));
+                            }
 
                             final StreamInfoArrayAdapter audioStreamsAdapter = new StreamInfoArrayAdapter(
                                     context, streamSources.getAudioStreams());
                             audioStreamSpinner.setAdapter(audioStreamsAdapter);
-                            audioStreamSpinner.setSelection(audioStreamsAdapter.indexOf(
-                                    videoItem.getPlaybackStreams().getAudioStream()));
+                            if (videoItem.getPlaybackStreams() != null) {
+                                audioStreamSpinner.setSelection(audioStreamsAdapter.indexOf(
+                                        videoItem.getPlaybackStreams().getAudioStream()));
+                            }
 
                             dlg1.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
                             dlg1.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(android.R.string.yes),
@@ -147,6 +165,12 @@ public class VideoItemActionFactory {
                                                                 handler.post(new Runnable() {
                                                                     @Override
                                                                     public void run() {
+                                                                        if (callback != null) {
+                                                                            callback.onStreamsSelected(
+                                                                                    (StreamHelper.StreamInfo) videoStreamSpinner.getSelectedItem(),
+                                                                                    (StreamHelper.StreamInfo) audioStreamSpinner.getSelectedItem());
+                                                                        }
+
                                                                         Toast.makeText(context,
                                                                                 R.string.streams_added_to_download_queue,
                                                                                 Toast.LENGTH_LONG).show();
@@ -159,6 +183,129 @@ public class VideoItemActionFactory {
                                     }).start();
                                 }
                             });
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    public static void actionSelectStreams(final Context context, final Handler handler, final VideoItem videoItem,
+                                           final StreamDialogListener callback) {
+        // https://developer.android.com/reference/android/view/LayoutInflater
+        // https://stackoverflow.com/questions/51729036/what-is-layoutinflater-and-how-do-i-use-it-properly
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        final View view = inflater.inflate(R.layout.view_video_item_streams, null, false);
+        final ProgressBar fetchStreamsProgress = view.findViewById(R.id.fetch_streams_progress);
+        final View errorView = view.findViewById(R.id.error_view);
+        final View videoItemStreamsView = view.findViewById(R.id.video_items_streams_view);
+
+        final TextView fetchErrorTxt = view.findViewById(R.id.fetch_error_txt);
+        final TextView fetchErrorDetailsTxt = view.findViewById(R.id.fetch_error_details_txt);
+        final Spinner videoStreamSpinner = view.findViewById(R.id.video_streams_spinner);
+        final Spinner audioStreamSpinner = view.findViewById(R.id.audio_streams_spinner);
+
+        final AlertDialog dlg1 = new AlertDialog.Builder(context)
+                .setTitle(R.string.select_video_item_streams)
+                .setView(view)
+                .setPositiveButton(android.R.string.ok, null)
+                .setNegativeButton(android.R.string.cancel, null).create();
+        if (callback != null) {
+            dlg1.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    callback.onClose();
+                }
+            });
+        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        fetchStreamsProgress.setVisibility(View.VISIBLE);
+                        errorView.setVisibility(View.GONE);
+                        videoItemStreamsView.setVisibility(View.GONE);
+                        dlg1.show();
+                        dlg1.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.GONE);
+                    }
+                });
+
+                final StreamHelper.StreamSources streamSources;
+                if (videoItem.getStreamSources() != null) {
+                    streamSources = videoItem.getStreamSources();
+                } else {
+                    // загрузить списки потоков видео и аудио
+                    streamSources = StreamHelper.fetchStreams(context, videoItem);
+                }
+
+                if (streamSources.getVideoStreams().isEmpty() &&
+                        streamSources.getAudioStreams().isEmpty()) {
+                    if (!streamSources.problems.isEmpty()) {
+                        // нет ни видео, ни аудио потоков, при этом список проблем не пустой
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                fetchStreamsProgress.setVisibility(View.GONE);
+                                errorView.setVisibility(View.VISIBLE);
+                                videoItemStreamsView.setVisibility(View.GONE);
+                                dlg1.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.GONE);
+
+                                fetchErrorTxt.setText(context.getString(R.string.error_loading_streams_for_video));
+                                fetchErrorDetailsTxt.setText(streamSources.problems.get(0).getMessage());
+                            }
+                        });
+                    } else {
+                        // нет ни видео, ни аудио потоков, но и явных проблем в списке проблем нет
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                fetchStreamsProgress.setVisibility(View.GONE);
+                                errorView.setVisibility(View.GONE);
+                                videoItemStreamsView.setVisibility(View.GONE);
+
+                                fetchErrorTxt.setText(context.getString(R.string.no_streams_for_video_item));
+                            }
+                        });
+                    }
+                } else {
+                    // нашли потоки видео или аудио или и то и другое
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            fetchStreamsProgress.setVisibility(View.GONE);
+                            errorView.setVisibility(View.GONE);
+                            videoItemStreamsView.setVisibility(View.VISIBLE);
+
+                            final StreamInfoArrayAdapter videoStreamsAdapter = new StreamInfoArrayAdapter(
+                                    context, streamSources.getVideoStreams());
+                            videoStreamSpinner.setAdapter(videoStreamsAdapter);
+                            if (videoItem.getPlaybackStreams() != null) {
+                                videoStreamSpinner.setSelection(videoStreamsAdapter.indexOf(
+                                        videoItem.getPlaybackStreams().getVideoStream()));
+                            }
+
+                            final StreamInfoArrayAdapter audioStreamsAdapter = new StreamInfoArrayAdapter(
+                                    context, streamSources.getAudioStreams());
+                            audioStreamSpinner.setAdapter(audioStreamsAdapter);
+                            if (videoItem.getPlaybackStreams() != null) {
+                                audioStreamSpinner.setSelection(audioStreamsAdapter.indexOf(
+                                        videoItem.getPlaybackStreams().getAudioStream()));
+                            }
+
+                            dlg1.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
+                            dlg1.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(android.R.string.yes),
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            if (callback != null) {
+                                                callback.onStreamsSelected(
+                                                        (StreamHelper.StreamInfo) videoStreamSpinner.getSelectedItem(),
+                                                        (StreamHelper.StreamInfo) audioStreamSpinner.getSelectedItem());
+                                            }
+                                        }
+                                    });
                         }
                     });
                 }

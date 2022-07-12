@@ -175,11 +175,11 @@ public class ConfigureVideoQualityFragment extends Fragment {
             }
         });
 
-        final ArrayAdapter<String> videoResAdapter = new ArrayAdapter<String>(ConfigureVideoQualityFragment.this.getContext(),
+        final ArrayAdapter<String> videoResAdapter = new ArrayAdapter<>(ConfigureVideoQualityFragment.this.getContext(),
                 android.R.layout.simple_spinner_item, ConfigOptions.VIDEO_RESOLUTIONS);
-
         videoResAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         vidStreamCustomResSpinner.setAdapter(videoResAdapter);
+
         // найти позицию выбранного эллемента в массиве
         final String savedCustomResolution = ConfigOptions.getVideoStreamCustomRes(getContext());
         int selResPos = -1;

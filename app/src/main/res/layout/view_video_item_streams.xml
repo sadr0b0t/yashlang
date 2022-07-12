@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp" />
+            android:layout_marginLeft="25dp" />
         <TextView
             android:id="@+id/fetch_error_details_txt"
             android:layout_width="match_parent"
@@ -44,15 +44,15 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="20dp"
-            android:text="@string/video_streams" />
+            android:text="@string/video_stream" />
         <Spinner
             android:id="@+id/video_streams_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginLeft="30dp"
+            android:layout_marginLeft="25dp"
             android:layout_marginRight="20dp"
             android:background="@android:drawable/btn_dropdown"
             android:spinnerMode="dropdown" />
@@ -60,15 +60,15 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="20dp"
-            android:text="@string/audio_streams" />
+            android:text="@string/audio_stream" />
         <Spinner
             android:id="@+id/audio_streams_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginLeft="30dp"
+            android:layout_marginLeft="25dp"
             android:layout_marginRight="20dp"
             android:background="@android:drawable/btn_dropdown"
             android:spinnerMode="dropdown" />

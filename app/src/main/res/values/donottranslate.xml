@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="notification_channel_id" translatable="false">yashlang</string>
+    <string name="icon_offline" translatable="false">💾</string>
+    <string name="icon_online" translatable="false">☁️</string>
+    <string name="icon_no_sound" translatable="false">🔇</string>
+    <string name="icon_only_sound" translatable="false">🎵</string>
 </resources>

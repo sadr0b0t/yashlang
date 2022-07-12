@@ -137,7 +137,7 @@
     <string name="clipboard_is_empty">В буфере обмена пусто</string>
     <string name="no_playlists_to_import">Нет плейлистов для импорта</string>
     <string name="export_dir_location">Каталог для экспорта: %s</string>
-    <string name="quality">Качество</string>
+    <string name="select_stream">Выбрать поток</string>
     <string name="no_streams_for_video_item">Для ролика не найдено потоков видео</string>
     <string name="configure_moar">Больше настроек</string>
     <string name="tab_item_video_quality">Качество видео</string>
@@ -152,7 +152,7 @@
     <string name="done_importing">Импортировали что было</string>
     <string name="download_stream">Скачать поток</string>
     <string name="yashlang_stream_cache">YaShlang: закачанные потоки</string>
-    <string name="downloads">Закачанные потоки</string>
+    <string name="downloads">💾 Закачанные потоки</string>
     <string name="no_active_downloads">Нет активных закачек</string>
     <string name="start_all">Запустить все</string>
     <string name="pause_all">Приостановить все</string>
@@ -182,11 +182,12 @@
     <string name="offline">оффлайн</string>
     <string name="notification_channel_download_name">Кэшированные потоки видео и аудио</string>
     <string name="notification_channel_download_description">Прогресс закачки файлов потоков видео и аудио для проигрывания оффлайн</string>
-    <string name="video_streams">Потоки видео</string>
-    <string name="audio_streams">Потоки аудио</string>
+    <string name="video_stream">Поток видео</string>
+    <string name="audio_stream">Поток аудио</string>
     <string name="download_video_item_streams">Скачать потоки для ролика</string>
     <string name="error_loading_streams_for_video">Ошибка при загрузке списка потоков для ролика</string>
     <string name="download">Скачать</string>
     <string name="streams_added_to_download_queue">Потоки добавлены в очередь для закачки</string>
     <string name="stream_none">Нет</string>
+    <string name="select_video_item_streams">Выбрать потоки для ролика</string>
 </resources>
