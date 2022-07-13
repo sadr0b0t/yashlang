@@ -26,6 +26,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,6 +37,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,6 +84,7 @@ import java.util.concurrent.TimeUnit;
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.StreamHelper;
 import su.sadrobot.yashlang.controller.VideoItemActionFactory;
+import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.StreamCache;
 import su.sadrobot.yashlang.model.VideoDatabase;
@@ -176,10 +179,16 @@ public class WatchVideoActivity extends AppCompatActivity {
     }
 
     private enum PlayerState {
-        EMPTY, LOADED, LOADING, ERROR, NOTHING_TO_PLAY
+        EMPTY, LOADING, ERROR, LOADED, NOTHING_TO_PLAY
+    }
+
+    private enum PlayerMode {
+        VIDEO, AUDIO
     }
 
     private PlayerView videoPlayerView;
+    private View audioPlayerView;
+    private ImageView audioPlayerThumbImg;
     private PlayerControlView videoPlayerControlView;
     private TextView streamInfoTxt;
     private ImageButton prevVideoBtn;
@@ -211,6 +220,7 @@ public class WatchVideoActivity extends AppCompatActivity {
     private boolean stateFullscreen = false;
 
     private PlayerState playerState = PlayerState.EMPTY;
+    private PlayerMode playerMode = PlayerMode.VIDEO;
     private String videoLoadErrorMsg = "";
 
     // рекомендации
@@ -237,7 +247,18 @@ public class WatchVideoActivity extends AppCompatActivity {
     // здесь:
     //   - конструктор ThreadPoolExecutor с LinkedBlockingQueue взял из Executors.newSingleThreadExecutor
     //   - ThreadPoolExecutor.execute вызывает queue.offer, а не queue.add, поэтому переопределяем его
-    private final ExecutorService videoLoadingExecutor =
+    private final ExecutorService videoLoaderExecutor =
+            new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<Runnable>() {
+                        @Override
+                        public boolean offer(Runnable o) {
+                            super.clear();
+                            return super.offer(o);
+                        }
+                    });
+
+    // пул потоков для загрузки иконок видео, логика аналогичная videoLoadingExecutor
+    private final ExecutorService videoThumbLoaderExecutor =
             new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>() {
                         @Override
@@ -280,6 +301,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_watch_video);
 
         videoPlayerView = findViewById(R.id.video_player_view);
+        audioPlayerView = findViewById(R.id.audio_player_view);
+        audioPlayerThumbImg = findViewById(R.id.audio_player_thumb_img);
         videoPlayerControlView = findViewById(R.id.video_player_control_view);
         streamInfoTxt = findViewById(R.id.stream_info_txt);
         prevVideoBtn = findViewById(R.id.prev_video_btn);
@@ -725,6 +748,8 @@ public class WatchVideoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_watch_video);
 
         videoPlayerView = findViewById(R.id.video_player_view);
+        audioPlayerView = findViewById(R.id.audio_player_view);
+        audioPlayerThumbImg = findViewById(R.id.audio_player_thumb_img);
         videoPlayerControlView = findViewById(R.id.video_player_control_view);
         streamInfoTxt = findViewById(R.id.stream_info_txt);
         prevVideoBtn = findViewById(R.id.prev_video_btn);
@@ -1208,6 +1233,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
                 case LOADING:
                     videoPlayerView.setVisibility(View.GONE);
+                    audioPlayerView.setVisibility(View.GONE);
                     videoPlayerControlView.setVisibility(View.INVISIBLE);
                     streamInfoTxt.setVisibility(View.GONE);
                     videoPlayerLoadingView.setVisibility(View.VISIBLE);
@@ -1217,7 +1243,13 @@ public class WatchVideoActivity extends AppCompatActivity {
                     break;
 
                 case LOADED:
-                    videoPlayerView.setVisibility(View.VISIBLE);
+                    if (playerMode == PlayerMode.VIDEO) {
+                        videoPlayerView.setVisibility(View.VISIBLE);
+                        audioPlayerView.setVisibility(View.GONE);
+                    } else { // PlayerMode.AUDIO
+                        videoPlayerView.setVisibility(View.GONE);
+                        audioPlayerView.setVisibility(View.VISIBLE);
+                    }
 
                     // если делать так, то статус играть/пауза не будет обновляться
                     //videoPlayerControlView.setVisibility(View.GONE);
@@ -1274,6 +1306,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
                     // обычно этот экран не видно никогда
                     videoPlayerView.setVisibility(View.INVISIBLE);
+                    audioPlayerView.setVisibility(View.GONE);
                     videoPlayerControlView.setVisibility(View.GONE);
                     streamInfoTxt.setVisibility(View.GONE);
                     videoPlayerLoadingView.setVisibility(View.GONE);
@@ -1286,6 +1319,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     //setFullscreen(false);
 
                     videoPlayerView.setVisibility(View.GONE);
+                    audioPlayerView.setVisibility(View.GONE);
                     videoPlayerControlView.setVisibility(View.GONE);
                     streamInfoTxt.setVisibility(View.GONE);
                     videoPlayerLoadingView.setVisibility(View.GONE);
@@ -1296,6 +1330,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
                 case LOADING:
                     videoPlayerView.setVisibility(View.GONE);
+                    audioPlayerView.setVisibility(View.GONE);
                     videoPlayerControlView.setVisibility(View.INVISIBLE);
                     streamInfoTxt.setVisibility(View.VISIBLE);
                     videoPlayerLoadingView.setVisibility(View.VISIBLE);
@@ -1305,7 +1340,13 @@ public class WatchVideoActivity extends AppCompatActivity {
                     break;
 
                 case LOADED:
-                    videoPlayerView.setVisibility(View.VISIBLE);
+                    if (playerMode == PlayerMode.VIDEO) {
+                        videoPlayerView.setVisibility(View.VISIBLE);
+                        audioPlayerView.setVisibility(View.GONE);
+                    } else { // PlayerMode.AUDIO
+                        videoPlayerView.setVisibility(View.GONE);
+                        audioPlayerView.setVisibility(View.VISIBLE);
+                    }
 
                     // если делать так, то статус играть/пауза не будет обновляться
                     //videoPlayerControlView.setVisibility(View.VISIBLE);
@@ -1326,6 +1367,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     // выбрать поток для проигрывания вручшую)
 
                     videoPlayerView.setVisibility(View.GONE);
+                    audioPlayerView.setVisibility(View.GONE);
                     videoPlayerControlView.setVisibility(View.GONE);
                     streamInfoTxt.setVisibility(View.GONE);
                     videoPlayerLoadingView.setVisibility(View.GONE);
@@ -1370,10 +1412,19 @@ public class WatchVideoActivity extends AppCompatActivity {
                 // поле всё равно будет сктрыто)
                 streamInfoTxt.setText("");
             }
+
+            // будет видно только в режиме проигрывания адио без видео
+            if (currentVideo.getThumbBitmap() != null) {
+                audioPlayerThumbImg.setImageBitmap(currentVideo.getThumbBitmap());
+            } else {
+                audioPlayerThumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
+            }
         } else {
             getSupportActionBar().setTitle("");
             getSupportActionBar().setSubtitle("");
             streamInfoTxt.setText("");
+
+            audioPlayerThumbImg.setImageResource(R.drawable.ic_yashlang_thumb);
         }
 
         prevVideoBtn.setEnabled(playbackHistory.size() > 1);
@@ -1482,7 +1533,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             invalidateOptionsMenu();
 
             // теперь то, что в фоне
-            videoLoadingExecutor.execute(new Runnable() {
+            videoLoaderExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     // посчитать просмотр (для ролика, загруженного из базы)
@@ -1494,6 +1545,27 @@ public class WatchVideoActivity extends AppCompatActivity {
                     loadVideoItem(videoItem);
                 }
             });
+
+            // если иконка видео не заргужена, загрузим её здесь на всякий случай отдельным потоком,
+            // это может пригодиться в режиме проигрывания потока аудио без видео.
+            // неудачная загрузка иконки не является критичное проблемой, поэтому не будем
+            // вставлять ее в основной поток загрузки
+            if (videoItem.getThumbBitmap() == null) {
+                videoThumbLoaderExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        final Bitmap thumb =
+                                VideoThumbManager.getInstance().loadVideoThumb(WatchVideoActivity.this, videoItem);
+                        videoItem.setThumbBitmap(thumb);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateControlsValues();
+                            }
+                        });
+                    }
+                });
+            }
         }
 
         // новый текущий ролик - обновить состояние элементов управления
@@ -1648,8 +1720,10 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             if (videoSource != null && audioSource == null) {
                 mediaSource = videoSource;
+                playerMode = PlayerMode.VIDEO;
             } else if (videoSource == null && audioSource != null) {
                 mediaSource = audioSource;
+                playerMode = PlayerMode.AUDIO;
             } else {
                 // videoSource != null && audioSource != null
                 // (оба null буть не могут, т.к. этот случай отсекли еще выше)
@@ -1657,6 +1731,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 // https://stackoverflow.com/questions/58404056/exoplayer-play-an-audio-stream-and-a-video-stream-synchronously
 
                 mediaSource = new MergingMediaSource(videoSource, audioSource);
+                playerMode = PlayerMode.VIDEO;
             }
 
             // Поставим на паузу старое видео, пока готовим новое
@@ -1722,7 +1797,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                             setPlayerState(PlayerState.LOADING, null);
                             // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
                             // видео заново - обе операции в фоновом потоке
-                            videoLoadingExecutor.execute(new Runnable() {
+                            videoLoaderExecutor.execute(new Runnable() {
                                 @Override
                                 public void run() {
                                     // если за время запуска потока видео успели переключить, всё отменяем
@@ -1807,7 +1882,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 }
                 // сохраним текущую позицию (если она больше нуля) в б/д и загрузим
                 // видео заново - обе операции в фоновом потоке
-                videoLoadingExecutor.execute(new Runnable() {
+                videoLoaderExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         // если за время запуска потока видео успели переключить, всё отменяем
@@ -1833,7 +1908,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 if (currentVideo != null && playerState == PlayerState.LOADED) {
                     currentVideo.setPausedAt(_currentPos);
                 }
-                videoLoadingExecutor.execute(new Runnable() {
+                videoLoaderExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         // если за время запуска потока видео успели переключить, всё отменяем

@@ -103,6 +103,24 @@
             android:layout_marginTop="30dp" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/audio_player_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:keepScreenOn="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <ImageView
+            android:id="@+id/audio_player_thumb_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="2dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_yashlang_thumb" />
+    </LinearLayout>
+
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/video_player_view"
         android:layout_width="match_parent"
