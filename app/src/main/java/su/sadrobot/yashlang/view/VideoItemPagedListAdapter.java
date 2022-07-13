@@ -92,6 +92,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
         final TextView nameTxt;
         final TextView playlistTxt;
         final TextView durationTxt;
+        final View hasOfflineView;
         final View starredView;
         final ProgressBar watchProgress;
         final ImageView thumbImg;
@@ -102,6 +103,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             nameTxt = itemView.findViewById(R.id.video_name_txt);
             playlistTxt = itemView.findViewById(R.id.video_pl_txt);
             durationTxt = itemView.findViewById(R.id.video_duration_txt);
+            hasOfflineView = itemView.findViewById(R.id.video_has_offline_view);
             starredView = itemView.findViewById(R.id.video_starred_view);
             watchProgress = itemView.findViewById(R.id.video_progress);
             thumbImg = itemView.findViewById(R.id.video_thumb_img);
@@ -206,7 +208,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             }
         }
 
-        if(holder.durationTxt != null) {
+        if (holder.durationTxt != null) {
             long sec = item.getDuration();
             final String durStr = sec > 0 ?
                     (sec / 3600) > 0 ?
@@ -216,11 +218,15 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
             holder.durationTxt.setText(durStr);
         }
 
-        if(holder.starredView != null) {
+        if (holder.hasOfflineView != null) {
+            holder.hasOfflineView.setVisibility(item.isHasOffline() ? View.VISIBLE : View.GONE);
+        }
+
+        if (holder.starredView != null) {
             holder.starredView.setVisibility(item.isStarred() ? View.VISIBLE : View.GONE);
         }
 
-        if(holder.watchProgress != null) {
+        if (holder.watchProgress != null) {
             if(item.getDuration() > 0 && item.getPausedAt() > 5000) {
                 holder.watchProgress.setMax(100);
                 holder.watchProgress.setProgress( (int) ( ((float)item.getPausedAt() / ((float)item.getDuration()*1000.)) * 100. ) );
