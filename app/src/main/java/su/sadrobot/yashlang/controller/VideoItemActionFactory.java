@@ -89,6 +89,7 @@ public class VideoItemActionFactory {
 
                 // загрузить списки потоков видео и аудио
                 final StreamHelper.StreamSources streamSources = StreamHelper.fetchOnlineStreams(videoItem);
+                StreamHelper.sortVideoStreams(streamSources.getVideoStreams());
                 if (streamSources.getVideoStreams().isEmpty() &&
                         streamSources.getAudioStreams().isEmpty()) {
                     if (!streamSources.problems.isEmpty()) {
@@ -239,6 +240,7 @@ public class VideoItemActionFactory {
                 } else {
                     // загрузить списки потоков видео и аудио
                     streamSources = StreamHelper.fetchStreams(context, videoItem);
+                    StreamHelper.sortVideoStreams(streamSources.getVideoStreams());
                 }
 
                 if (streamSources.getVideoStreams().isEmpty() &&

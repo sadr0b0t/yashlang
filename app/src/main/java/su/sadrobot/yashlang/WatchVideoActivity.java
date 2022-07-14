@@ -1602,6 +1602,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         // загрузить поток видео
         final StreamHelper.StreamSources streamSources = StreamHelper.fetchStreams(this, videoItem);
         if (streamSources.getVideoStreams().size() > 0) {
+            StreamHelper.sortVideoStreams(streamSources.getVideoStreams());
             final StreamHelper.StreamPair playbackStreams = StreamHelper.getNextPlaybackStream(
                     this, streamSources.getVideoStreams(), streamSources.getAudioStreams(), null);
             videoItem.setStreamSources(streamSources);

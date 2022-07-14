@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import su.sadrobot.yashlang.ConfigOptions;
+import su.sadrobot.yashlang.model.StreamCache;
 
 public class StreamHelperTest {
     private static boolean assertEqual(final String actual, final String expected) {
@@ -24,6 +25,25 @@ public class StreamHelperTest {
             System.out.print("FAIL: ");
         }
         System.out.println("test if actual value '" + actual + "' is EQUAL to expected '" + expected + "'");
+
+        return pass;
+    }
+
+    private static boolean assertEqual(final List actual, final List expected) {
+        //System.out.println(message + ": ");
+        final boolean pass = actual.equals(expected);
+        if (pass) {
+            System.out.print("PASS: ");
+        } else {
+            System.out.print("FAIL: ");
+        }
+        System.out.println();
+        System.out.print("  actual: ");
+        printStreamList(actual);
+        System.out.println();
+        System.out.print("expected: ");
+        printStreamList(expected);
+        System.out.println();
 
         return pass;
     }
@@ -41,6 +61,18 @@ public class StreamHelperTest {
         return pass;
     }
 
+
+    private static String streamToString(StreamHelper.StreamInfo stream) {
+        return stream.getResolution() +
+                (stream.isOnline() ? "" : "[offline]") +
+                (stream.getStreamType() == StreamCache.StreamType.BOTH ? " [VIDEO+AUDIO]" : "");
+    }
+    private static void printStreamList(final List<StreamHelper.StreamInfo> streamList) {
+        for (final StreamHelper.StreamInfo stream : streamList) {
+            System.out.print(streamToString(stream) + " ");
+        }
+    }
+
     public static void main(String args[]) {
         // https://ru.wikipedia.org/wiki/480p
         // разрешение может быть указано как 480p или 480p60 (60 - количество кадров в секунду)
@@ -53,6 +85,7 @@ public class StreamHelperTest {
         testNextPlaybackStreamMaxRes();
         testNextPlaybackStreamMinRes();
         testNextPlaybackStreamForRes();
+        testSortStreamsForRes();
     }
 
     public static void showSampleStreams() {
@@ -237,7 +270,7 @@ public class StreamHelperTest {
         // video sources list - v1
         final List<StreamHelper.StreamInfo> videoSources1 = new ArrayList<>();
         videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "1080p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "480p")));
+        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "480p60")));
         // пусть этого варианта нет в списке
         //videoSources1.add(new VideoStream("urll", MediaFormat.MPEG_4, "360p"));
         videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "240p")));
@@ -250,7 +283,7 @@ public class StreamHelperTest {
         // проверка точного совпадения
         nextStream = StreamHelper.getNextPlaybackStreamForRes("480p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, null);
-        assertEqual(nextStream.getResolution(), "480p");
+        assertEqual(nextStream.getResolution(), "480p60");
 
         nextStream = StreamHelper.getNextPlaybackStreamForRes("1080p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, null);
@@ -263,7 +296,7 @@ public class StreamHelperTest {
 
         nextStream = StreamHelper.getNextPlaybackStreamForRes("480p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, null);
-        assertEqual(nextStream.getResolution(), "480p");
+        assertEqual(nextStream.getResolution(), "480p60");
 
         nextStream = StreamHelper.getNextPlaybackStreamForRes("144p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, null);
@@ -279,7 +312,7 @@ public class StreamHelperTest {
         // здесь в настройках указано разрешение, которого нет в списке
         nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, null);
-        assertEqual(nextStream.getResolution(), "480p");
+        assertEqual(nextStream.getResolution(), "480p60");
 
         nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, nextStream);
@@ -311,7 +344,7 @@ public class StreamHelperTest {
 
         nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, nextStream);
-        assertEqual(nextStream.getResolution(), "480p");
+        assertEqual(nextStream.getResolution(), "480p60");
 
         nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, nextStream);
@@ -320,5 +353,249 @@ public class StreamHelperTest {
         nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, nextStream);
         assertNull(nextStream);
+    }
+
+
+    public static void testSortStreamsForRes() {
+        System.out.println("***** TEST: testSortStreamsForRes *****");
+        // Этот вариант лучше, чем testNextPlaybackStreamForRes , т.к. сразу видно порядок выборки потоков
+        // (это стало возможжно, т.к. перевел алгоритм выборки потоков на механизм предварительной сортировки).
+        // но исходные тесты пусть тоже останутся просто так для истории
+
+        final StreamHelper.StreamInfo stream_r1080p_vid_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.VIDEO, true, "1080p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r1080p_both_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.BOTH, true, "1080p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r480p60_vid_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.VIDEO, true, "480p60",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r360p_vid_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.VIDEO, true, "360p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r360p_both_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.BOTH, true, "360p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r360p_vid_offline = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.VIDEO, false, "360p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r240p_vid_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.VIDEO, true, "240p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r144p_vid_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.VIDEO, true, "144p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r144p_vid_offline = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.VIDEO, false, "144p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+
+        final List<StreamHelper.StreamInfo> videoSources1 = new ArrayList<>();
+        videoSources1.add(stream_r1080p_vid_online);
+        videoSources1.add(stream_r1080p_both_online);
+        videoSources1.add(stream_r480p60_vid_online);
+        videoSources1.add(stream_r360p_vid_online);
+        videoSources1.add(stream_r360p_both_online);
+        videoSources1.add(stream_r360p_vid_offline);
+        videoSources1.add(stream_r240p_vid_online);
+        videoSources1.add(stream_r144p_vid_online);
+        videoSources1.add(stream_r144p_vid_offline);
+
+        List<StreamHelper.StreamInfo> sortedStreams;
+        List<StreamHelper.StreamInfo> expectedStreams = new ArrayList<>();
+
+        sortedStreams = StreamHelper.sortStreamsForRes(
+                "144p", ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1);
+        System.out.print("prefer=HIGHER_RES, target=144p: ");
+        for (final StreamHelper.StreamInfo stream : sortedStreams) {
+            System.out.print(streamToString(stream) + " ");
+        }
+        System.out.println();
+        expectedStreams.clear();
+        expectedStreams.add(stream_r144p_vid_offline);
+        expectedStreams.add(stream_r144p_vid_online);
+        expectedStreams.add(stream_r240p_vid_online);
+        expectedStreams.add(stream_r360p_vid_offline);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r360p_vid_online);
+        expectedStreams.add(stream_r480p60_vid_online);
+        expectedStreams.add(stream_r1080p_both_online);
+        expectedStreams.add(stream_r1080p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
+
+
+        System.out.println();
+        sortedStreams = StreamHelper.sortStreamsForRes(
+                "240p", ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1);
+        System.out.print("prefer=HIGHER_RES, target=240p: ");
+        printStreamList(sortedStreams);
+        System.out.println();
+        expectedStreams.clear();
+        expectedStreams.add(stream_r240p_vid_online);
+        expectedStreams.add(stream_r360p_vid_offline);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r360p_vid_online);
+        expectedStreams.add(stream_r480p60_vid_online);
+        expectedStreams.add(stream_r1080p_both_online);
+        expectedStreams.add(stream_r1080p_vid_online);
+        expectedStreams.add(stream_r144p_vid_offline);
+        expectedStreams.add(stream_r144p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
+
+        System.out.println();
+        sortedStreams = StreamHelper.sortStreamsForRes(
+                "360p", ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1);
+        System.out.print("prefer=HIGHER_RES, target=360p: ");
+        printStreamList(sortedStreams);
+        System.out.println();
+        expectedStreams.clear();
+        expectedStreams.add(stream_r360p_vid_offline);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r360p_vid_online);
+        expectedStreams.add(stream_r480p60_vid_online);
+        expectedStreams.add(stream_r1080p_both_online);
+        expectedStreams.add(stream_r1080p_vid_online);
+        expectedStreams.add(stream_r240p_vid_online);
+        expectedStreams.add(stream_r144p_vid_offline);
+        expectedStreams.add(stream_r144p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
+
+
+        System.out.println();
+        sortedStreams = StreamHelper.sortStreamsForRes(
+                "480p", ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1);
+        System.out.print("prefer=HIGHER_RES, target=480p: ");
+        printStreamList(sortedStreams);
+        System.out.println();
+        expectedStreams.clear();
+        expectedStreams.add(stream_r480p60_vid_online);
+        expectedStreams.add(stream_r1080p_both_online);
+        expectedStreams.add(stream_r1080p_vid_online);
+        expectedStreams.add(stream_r360p_vid_offline);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r360p_vid_online);
+        expectedStreams.add(stream_r240p_vid_online);
+        expectedStreams.add(stream_r144p_vid_offline);
+        expectedStreams.add(stream_r144p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
+
+
+        System.out.println();
+        sortedStreams = StreamHelper.sortStreamsForRes(
+                "1080p", ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1);
+        System.out.print("prefer=HIGHER_RES, target=1080p: ");
+        printStreamList(sortedStreams);
+        System.out.println();
+        expectedStreams.clear();
+        expectedStreams.add(stream_r1080p_both_online);
+        expectedStreams.add(stream_r1080p_vid_online);
+        expectedStreams.add(stream_r480p60_vid_online);
+        expectedStreams.add(stream_r360p_vid_offline);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r360p_vid_online);
+        expectedStreams.add(stream_r240p_vid_online);
+        expectedStreams.add(stream_r144p_vid_offline);
+        expectedStreams.add(stream_r144p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
+
+
+        System.out.println();
+        sortedStreams = StreamHelper.sortStreamsForRes(
+                "144p", ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1);
+        System.out.print("prefer=LOWER_RES, target=144p: ");
+        printStreamList(sortedStreams);
+        System.out.println();
+        expectedStreams.clear();
+        expectedStreams.add(stream_r144p_vid_offline);
+        expectedStreams.add(stream_r144p_vid_online);
+        expectedStreams.add(stream_r240p_vid_online);
+        expectedStreams.add(stream_r360p_vid_offline);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r360p_vid_online);
+        expectedStreams.add(stream_r480p60_vid_online);
+        expectedStreams.add(stream_r1080p_both_online);
+        expectedStreams.add(stream_r1080p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
+
+        System.out.println();
+        sortedStreams = StreamHelper.sortStreamsForRes(
+                "240p", ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1);
+        System.out.print("prefer=LOWER_RES, target=240p: ");
+        printStreamList(sortedStreams);
+        System.out.println();
+        expectedStreams.clear();
+        expectedStreams.add(stream_r240p_vid_online);
+        expectedStreams.add(stream_r144p_vid_offline);
+        expectedStreams.add(stream_r144p_vid_online);
+        expectedStreams.add(stream_r360p_vid_offline);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r360p_vid_online);
+        expectedStreams.add(stream_r480p60_vid_online);
+        expectedStreams.add(stream_r1080p_both_online);
+        expectedStreams.add(stream_r1080p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
+
+        System.out.println();
+        sortedStreams = StreamHelper.sortStreamsForRes(
+                "360p", ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1);
+        System.out.print("prefer=LOWER_RES, target=360p: ");
+        printStreamList(sortedStreams);
+        System.out.println();
+        expectedStreams.clear();
+        expectedStreams.add(stream_r360p_vid_offline);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r360p_vid_online);
+        expectedStreams.add(stream_r240p_vid_online);
+        expectedStreams.add(stream_r144p_vid_offline);
+        expectedStreams.add(stream_r144p_vid_online);
+        expectedStreams.add(stream_r480p60_vid_online);
+        expectedStreams.add(stream_r1080p_both_online);
+        expectedStreams.add(stream_r1080p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
+
+        System.out.println();
+        sortedStreams = StreamHelper.sortStreamsForRes(
+                "480p", ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1);
+        System.out.print("prefer=LOWER_RES, target=480p: ");
+        printStreamList(sortedStreams);
+        System.out.println();
+        expectedStreams.clear();
+        expectedStreams.add(stream_r480p60_vid_online);
+        expectedStreams.add(stream_r360p_vid_offline);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r360p_vid_online);
+        expectedStreams.add(stream_r240p_vid_online);
+        expectedStreams.add(stream_r144p_vid_offline);
+        expectedStreams.add(stream_r144p_vid_online);
+        expectedStreams.add(stream_r1080p_both_online);
+        expectedStreams.add(stream_r1080p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
+
+        System.out.println();
+        sortedStreams = StreamHelper.sortStreamsForRes(
+                "1080p", ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1);
+        System.out.print("prefer=LOWER_RES, target=1080p: ");
+        printStreamList(sortedStreams);
+        System.out.println();
+        expectedStreams.clear();
+        expectedStreams.add(stream_r1080p_both_online);
+        expectedStreams.add(stream_r1080p_vid_online);
+        expectedStreams.add(stream_r480p60_vid_online);
+        expectedStreams.add(stream_r360p_vid_offline);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r360p_vid_online);
+        expectedStreams.add(stream_r240p_vid_online);
+        expectedStreams.add(stream_r144p_vid_offline);
+        expectedStreams.add(stream_r144p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
     }
 }
