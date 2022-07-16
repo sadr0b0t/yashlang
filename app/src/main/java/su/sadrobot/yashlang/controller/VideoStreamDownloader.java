@@ -98,7 +98,7 @@ public class VideoStreamDownloader {
                 // по формат+разрешение+тип-потока (в тех роликах, которые видел, одинаковое разрешение и формат
                 // встречаются у роликов, один из которых включает поток аудио, а другой не включает)
                 final StreamHelper.StreamSources streamSources = ContentLoader.getInstance().extractStreams(videoItemUrl);
-                final StreamHelper.StreamInfo streamInfo = StreamHelper.findPlaybackStream(streamSources,
+                final StreamHelper.StreamInfo streamInfo = StreamHelper.findStreamByParams(streamSources,
                         streamCache.getStreamTypeEnum(), streamCache.getStreamRes(), streamCache.getStreamFormat());
 
                 final String url = streamInfo.getUrl();

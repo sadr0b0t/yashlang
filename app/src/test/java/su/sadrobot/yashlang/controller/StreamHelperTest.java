@@ -82,10 +82,10 @@ public class StreamHelperTest {
         showSampleStreams();
         showSampleStreams2();
 
-        testNextPlaybackStreamMaxRes();
-        testNextPlaybackStreamMinRes();
-        testNextPlaybackStreamForRes();
-        testSortStreamsForRes();
+        testNextVideoPlaybackStreamMaxRes();
+        testNextVideoPlaybackStreamMinRes();
+        testNextVideoPlaybackStreamForRes();
+        testSortVideoStreamsForRes();
     }
 
     public static void showSampleStreams() {
@@ -204,8 +204,8 @@ public class StreamHelperTest {
         }
     }
 
-    public static void testNextPlaybackStreamMaxRes() {
-        System.out.println("***** TEST: testNextPlaybackStreamMaxRes *****");
+    public static void testNextVideoPlaybackStreamMaxRes() {
+        System.out.println("***** TEST: testNextVideoPlaybackStreamMaxRes *****");
 
         final List<StreamHelper.StreamInfo> videoSources1 = new ArrayList<>();
         videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "1080p")));
@@ -215,27 +215,27 @@ public class StreamHelperTest {
         videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "144p")));
 
         StreamHelper.StreamInfo nextStream;
-        nextStream = StreamHelper.getNextPlaybackStreamMaxRes(videoSources1, null);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMaxRes(videoSources1, null);
         assertEqual(nextStream.getResolution(), "1080p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamMaxRes(videoSources1, nextStream);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMaxRes(videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "480p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamMaxRes(videoSources1, nextStream);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMaxRes(videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "360p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamMaxRes(videoSources1, nextStream);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMaxRes(videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "240p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamMaxRes(videoSources1, nextStream);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMaxRes(videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "144p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamMaxRes(videoSources1, nextStream);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMaxRes(videoSources1, nextStream);
         assertNull(nextStream);
     }
 
-    public static void testNextPlaybackStreamMinRes() {
-        System.out.println("***** TEST: testNextPlaybackStreamMinRes *****");
+    public static void testNextVideoPlaybackStreamMinRes() {
+        System.out.println("***** TEST: testNextVideoPlaybackStreamMinRes *****");
 
         final List<StreamHelper.StreamInfo> videoSources1 = new ArrayList<>();
         videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "1080p")));
@@ -245,27 +245,27 @@ public class StreamHelperTest {
         videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "144p")));
 
         StreamHelper.StreamInfo nextStream;
-        nextStream = StreamHelper.getNextPlaybackStreamMinRes(videoSources1, null);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMinRes(videoSources1, null);
         assertEqual(nextStream.getResolution(), "144p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamMinRes(videoSources1, nextStream);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMinRes(videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "240p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamMinRes(videoSources1, nextStream);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMinRes(videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "360p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamMinRes(videoSources1, nextStream);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMinRes(videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "480p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamMinRes(videoSources1, nextStream);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMinRes(videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "1080p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamMinRes(videoSources1, nextStream);
+        nextStream = StreamHelper.getNextVideoPlaybackStreamMinRes(videoSources1, nextStream);
         assertNull(nextStream);
     }
 
-    public static void testNextPlaybackStreamForRes() {
-        System.out.println("***** TEST: testNextPlaybackStreamForRes *****");
+    public static void testNextVideoPlaybackStreamForRes() {
+        System.out.println("***** TEST: testNextVideoPlaybackStreamForRes *****");
 
         // video sources list - v1
         final List<StreamHelper.StreamInfo> videoSources1 = new ArrayList<>();
@@ -281,28 +281,28 @@ public class StreamHelperTest {
         // ***** TEST-0 *****
         // выбор первого элемента
         // проверка точного совпадения
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("480p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("480p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, null);
         assertEqual(nextStream.getResolution(), "480p60");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("1080p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("1080p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, null);
         assertEqual(nextStream.getResolution(), "1080p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("1081p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("1081p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, null);
         assertEqual(nextStream.getResolution(), "1080p");
 
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("480p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("480p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, null);
         assertEqual(nextStream.getResolution(), "480p60");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("144p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("144p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, null);
         assertEqual(nextStream.getResolution(), "144p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("140p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("140p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, null);
         assertEqual(nextStream.getResolution(), "144p");
 
@@ -310,23 +310,23 @@ public class StreamHelperTest {
         // Последовательный выбор элементов
         // предпочитать видео с более высоким разрешением, следующее за текущим
         // здесь в настройках указано разрешение, которого нет в списке
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, null);
         assertEqual(nextStream.getResolution(), "480p60");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "1080p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "240p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "144p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1, nextStream);
         assertNull(nextStream);
 
@@ -334,31 +334,31 @@ public class StreamHelperTest {
         // Последовательный выбор элементов:
         // предпочитать видео с более низким разрешением, следующее за текущим
         // здесь в настройках указано разрешение, которого нет в списке
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, null);
         assertEqual(nextStream.getResolution(), "240p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "144p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "480p60");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, nextStream);
         assertEqual(nextStream.getResolution(), "1080p");
 
-        nextStream = StreamHelper.getNextPlaybackStreamForRes("360p",
+        nextStream = StreamHelper.getNextVideoPlaybackStreamForRes("360p",
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, nextStream);
         assertNull(nextStream);
     }
 
 
-    public static void testSortStreamsForRes() {
-        System.out.println("***** TEST: testSortStreamsForRes *****");
-        // Этот вариант лучше, чем testNextPlaybackStreamForRes , т.к. сразу видно порядок выборки потоков
+    public static void testSortVideoStreamsForRes() {
+        System.out.println("***** TEST: testSortVideoStreamsForRes *****");
+        // Этот вариант лучше, чем testNextVideoPlaybackStreamForRes , т.к. сразу видно порядок выборки потоков
         // (это стало возможжно, т.к. перевел алгоритм выборки потоков на механизм предварительной сортировки).
         // но исходные тесты пусть тоже останутся просто так для истории
 
@@ -413,7 +413,7 @@ public class StreamHelperTest {
         List<StreamHelper.StreamInfo> sortedStreams;
         List<StreamHelper.StreamInfo> expectedStreams = new ArrayList<>();
 
-        sortedStreams = StreamHelper.sortStreamsForRes(
+        sortedStreams = StreamHelper.sortVideoStreamsForRes(
                 "144p", ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1);
         System.out.print("prefer=HIGHER_RES, target=144p: ");
         for (final StreamHelper.StreamInfo stream : sortedStreams) {
@@ -434,7 +434,7 @@ public class StreamHelperTest {
 
 
         System.out.println();
-        sortedStreams = StreamHelper.sortStreamsForRes(
+        sortedStreams = StreamHelper.sortVideoStreamsForRes(
                 "240p", ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1);
         System.out.print("prefer=HIGHER_RES, target=240p: ");
         printStreamList(sortedStreams);
@@ -452,7 +452,7 @@ public class StreamHelperTest {
         assertEqual(sortedStreams, expectedStreams);
 
         System.out.println();
-        sortedStreams = StreamHelper.sortStreamsForRes(
+        sortedStreams = StreamHelper.sortVideoStreamsForRes(
                 "360p", ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1);
         System.out.print("prefer=HIGHER_RES, target=360p: ");
         printStreamList(sortedStreams);
@@ -471,7 +471,7 @@ public class StreamHelperTest {
 
 
         System.out.println();
-        sortedStreams = StreamHelper.sortStreamsForRes(
+        sortedStreams = StreamHelper.sortVideoStreamsForRes(
                 "480p", ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1);
         System.out.print("prefer=HIGHER_RES, target=480p: ");
         printStreamList(sortedStreams);
@@ -490,7 +490,7 @@ public class StreamHelperTest {
 
 
         System.out.println();
-        sortedStreams = StreamHelper.sortStreamsForRes(
+        sortedStreams = StreamHelper.sortVideoStreamsForRes(
                 "1080p", ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES, videoSources1);
         System.out.print("prefer=HIGHER_RES, target=1080p: ");
         printStreamList(sortedStreams);
@@ -509,7 +509,7 @@ public class StreamHelperTest {
 
 
         System.out.println();
-        sortedStreams = StreamHelper.sortStreamsForRes(
+        sortedStreams = StreamHelper.sortVideoStreamsForRes(
                 "144p", ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1);
         System.out.print("prefer=LOWER_RES, target=144p: ");
         printStreamList(sortedStreams);
@@ -527,7 +527,7 @@ public class StreamHelperTest {
         assertEqual(sortedStreams, expectedStreams);
 
         System.out.println();
-        sortedStreams = StreamHelper.sortStreamsForRes(
+        sortedStreams = StreamHelper.sortVideoStreamsForRes(
                 "240p", ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1);
         System.out.print("prefer=LOWER_RES, target=240p: ");
         printStreamList(sortedStreams);
@@ -545,7 +545,7 @@ public class StreamHelperTest {
         assertEqual(sortedStreams, expectedStreams);
 
         System.out.println();
-        sortedStreams = StreamHelper.sortStreamsForRes(
+        sortedStreams = StreamHelper.sortVideoStreamsForRes(
                 "360p", ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1);
         System.out.print("prefer=LOWER_RES, target=360p: ");
         printStreamList(sortedStreams);
@@ -563,7 +563,7 @@ public class StreamHelperTest {
         assertEqual(sortedStreams, expectedStreams);
 
         System.out.println();
-        sortedStreams = StreamHelper.sortStreamsForRes(
+        sortedStreams = StreamHelper.sortVideoStreamsForRes(
                 "480p", ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1);
         System.out.print("prefer=LOWER_RES, target=480p: ");
         printStreamList(sortedStreams);
@@ -581,7 +581,7 @@ public class StreamHelperTest {
         assertEqual(sortedStreams, expectedStreams);
 
         System.out.println();
-        sortedStreams = StreamHelper.sortStreamsForRes(
+        sortedStreams = StreamHelper.sortVideoStreamsForRes(
                 "1080p", ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1);
         System.out.print("prefer=LOWER_RES, target=1080p: ");
         printStreamList(sortedStreams);

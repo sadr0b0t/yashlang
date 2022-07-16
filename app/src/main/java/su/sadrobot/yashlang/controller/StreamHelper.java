@@ -189,37 +189,6 @@ public class StreamHelper {
         return Integer.valueOf(resolution.replaceAll("p.*", ""));
     }
 
-    public static List<StreamInfo> sortVideoStreams(final List<StreamInfo> videoStreams) {
-        // сортируем потоки видео по правилу:
-        // - в начале потоки с самым высоким качеством, дальше по убыванию
-        // - для потоков с одинаковым качеством сначала идут оффлайн-потоки, потом онлайн
-        // - для потоков с одинаковым качеством и одинаковым статусом оффлайн-онлайн,
-        // сначала идут совмещенные потоки видео+аудио
-
-        Collections.sort(videoStreams, new Comparator<StreamInfo>() {
-            @Override
-            public int compare(StreamInfo o1, StreamInfo o2) {
-                if (resolutionToInt(o1.getResolution()) - resolutionToInt(o2.getResolution()) != 0) {
-                    return resolutionToInt(o1.getResolution()) - resolutionToInt(o2.getResolution());
-                } else if (!o1.isOnline() && o2.isOnline()) {
-                    return 1;
-                } else if (o1.isOnline() && !o2.isOnline()) {
-                    return -1;
-                } else if (o1.getStreamType() == StreamCache.StreamType.BOTH && o2.getStreamType() != StreamCache.StreamType.BOTH) {
-                    return 1;
-                } else if (o1.getStreamType() != StreamCache.StreamType.BOTH && o2.getStreamType() == StreamCache.StreamType.BOTH) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
-        });
-
-        // а теперь пересортируем по убыванию
-        Collections.reverse(videoStreams);
-        return videoStreams;
-    }
-
     /**
      * Добыть потоки для ролика - онлайн (по url через NewPipeExtractor)
      *
@@ -327,20 +296,90 @@ public class StreamHelper {
         return _streams;
     }
 
-    // в отдельном методе для удобства тестов
-    static List<StreamInfo> sortStreamsForMaxRes(
-            final List<StreamInfo> videoStreams) {
-        // будем полагаться на сортировку
-        // сортируем так, что наиболее предпочительный элемент находится в начале списка,
+    /**
+     * Сортировка потоков видео для отображения в списках на экране.
+     * @param videoStreams
+     */
+    public static void sortVideoStreamsDefault(final List<StreamInfo> videoStreams) {
+
+        // сортируем потоки видео по правилу:
+        // - в начале потоки с самым высоким качеством, дальше по убыванию
+        // - для потоков с одинаковым качеством сначала идут оффлайн-потоки, потом онлайн
+        // - для потоков с одинаковым качеством и одинаковым статусом оффлайн-онлайн,
+        // сначала идут совмещенные потоки видео+аудио
+
+        // сортируем так, что наиболее предпочтительный элемент находится в начале списка,
         // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
         // Например, когда срваниванием o1 и o2:
         // "-1" (или любое отрицательное число) - значит, что o1 появится в списке раньше, чем o2 (o1 более предпочтителен)
         // "1" (или любое положительное число) - значит, что o1 появится в списке позже, чем o2 (o1 менее предпочтителен)
+        // "0" - значит элементы с точки зрения сортировщика равны
+        Collections.sort(videoStreams, new Comparator<StreamInfo>() {
+            @Override
+            public int compare(StreamInfo o1, StreamInfo o2) {
+                if (resolutionToInt(o1.getResolution()) - resolutionToInt(o2.getResolution()) != 0) {
+                    return -(resolutionToInt(o1.getResolution()) - resolutionToInt(o2.getResolution()));
+                } else if (!o1.isOnline() && o2.isOnline()) {
+                    return -1;
+                } else if (o1.isOnline() && !o2.isOnline()) {
+                    return 1;
+                } else if (o1.getStreamType() == StreamCache.StreamType.BOTH && o2.getStreamType() != StreamCache.StreamType.BOTH) {
+                    return -1;
+                } else if (o1.getStreamType() != StreamCache.StreamType.BOTH && o2.getStreamType() == StreamCache.StreamType.BOTH) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+    }
+
+    /**
+     * Сортировка потоков аудио для отображения в списках на экране.
+     * @param audioStreams
+     */
+    public static void sortAudioStreamsDefault(final List<StreamInfo> audioStreams) {
+
+        // сортируем потоки аудио по правилу:
+        // - в начале потоки оффлайн, потом онлайн
+        // - внутри групп оффлайн-онлайн потоки отсортированы по качеству (битрейт, в StreamInfo - resolution)
+
+        // сортируем так, что наиболее предпочтительный элемент находится в начале списка,
+        // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
+        // Например, когда срваниванием o1 и o2:
+        // "-1" (или любое отрицательное число) - значит, что o1 появится в списке раньше, чем o2 (o1 более предпочтителен)
+        // "1" (или любое положительное число) - значит, что o1 появится в списке позже, чем o2 (o1 менее предпочтителен)
+        // "0" - значит элементы с точки зрения сортировщика равны
+        Collections.sort(audioStreams, new Comparator<StreamInfo>() {
+            @Override
+            public int compare(StreamInfo o1, StreamInfo o2) {
+                if (!o1.isOnline() && o2.isOnline()) {
+                    return -1;
+                } else if (o1.isOnline() && !o2.isOnline()) {
+                    return 1;
+                } else {
+                    return -(resolutionToInt(o1.getResolution()) - resolutionToInt(o2.getResolution()));
+                }
+            }
+        });
+    }
+
+    // в отдельном методе для удобства тестов
+    static List<StreamInfo> sortVideoStreamsForMaxRes(
+            final List<StreamInfo> videoStreams) {
 
         // сортируем от наилучшего качества к наихудшему
         // - при этом в каждой из групп с одинаковым качеством сначала идут потоки оффлайн, потому онлайн
         // - в каждой из групп с одинаковым качеством и статусом онлайн-оффлайн сначала идут потоки
         // видео+аудио, потом просто видео
+
+        // будем полагаться на сортировку
+        // сортируем так, что наиболее предпочтительный элемент находится в начале списка,
+        // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
+        // Например, когда срваниванием o1 и o2:
+        // "-1" (или любое отрицательное число) - значит, что o1 появится в списке раньше, чем o2 (o1 более предпочтителен)
+        // "1" (или любое положительное число) - значит, что o1 появится в списке позже, чем o2 (o1 менее предпочтителен)
+        // "0" - значит элементы с точки зрения сортировщика равны
         final List<StreamInfo> sortedStreams = new ArrayList<>(videoStreams);
         Collections.sort(sortedStreams, new Comparator<StreamInfo>() {
             @Override
@@ -364,18 +403,20 @@ public class StreamHelper {
     }
 
     // в отдельном методе для удобства тестов
-    static List<StreamInfo> sortStreamsForMinRes(final List<StreamInfo> videoStreams) {
-        // будем полагаться на сортировку
-        // сортируем так, что наиболее предпочительный элемент находится в начале списка,
-        // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
-        // Например, когда срваниванием o1 и o2:
-        // "-1" (или любое отрицательное число) - значит, что o1 появится в списке раньше, чем o2 (o1 более предпочтителен)
-        // "1" (или любое положительное число) - значит, что o1 появится в списке позже, чем o2 (o1 менее предпочтителен)
+    static List<StreamInfo> sortVideoStreamsForMinRes(final List<StreamInfo> videoStreams) {
 
         // сортируем от наихудшего качества к наилучшему
         // - при этом в каждой из групп с одинаковым качеством сначала идут потоки оффлайн, потому онлайн
         // - в каждой из групп с одинаковым качеством и статусом онлайн-оффлайн сначала идут потоки
         // видео+аудио, потом просто видео
+
+        // будем полагаться на сортировку
+        // сортируем так, что наиболее предпочтительный элемент находится в начале списка,
+        // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
+        // Например, когда срваниванием o1 и o2:
+        // "-1" (или любое отрицательное число) - значит, что o1 появится в списке раньше, чем o2 (o1 более предпочтителен)
+        // "1" (или любое положительное число) - значит, что o1 появится в списке позже, чем o2 (o1 менее предпочтителен)
+        // "0" - значит элементы с точки зрения сортировщика равны
         final List<StreamInfo> sortedStreams = new ArrayList<>(videoStreams);
         Collections.sort(sortedStreams, new Comparator<StreamInfo>() {
             @Override
@@ -399,22 +440,23 @@ public class StreamHelper {
     }
 
     // в отдельном методе для удобства тестов
-    static List<StreamInfo> sortStreamsForRes(
+    static List<StreamInfo> sortVideoStreamsForRes(
             final String targetRes,
             final ConfigOptions.VideoStreamSelectPreferRes preferRes,
             final List<StreamInfo> videoStreams) {
         final int _targetRes = resolutionToInt(targetRes);
 
-        // сортируем так, что наиболее предпочительный элемент находится в начале списка,
-        // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
-        // Например, когда срваниванием o1 и o2:
-        // "-1" (или любое отрицательное число) - значит, что o1 появится в списке раньше, чем o2 (o1 более предпочтителен)
-        // "1" (или любое положительное число) - значит, что o1 появится в списке позже, чем o2 (o1 менее предпочтителен)
-
         // Ищем поток с целевым качеством. Его в списке доступных разрешений может не быть.
         // В таком случае выбираем наиболее близкое к нему в зависимости от настроек:
         // если "предпочитать лучшее", то находим следующее лучшее качество
         // если "предпочитать худшее", то находим следующее худшее качество
+
+        // сортируем так, что наиболее предпочтительный элемент находится в начале списка,
+        // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
+        // Например, когда срваниванием o1 и o2:
+        // "-1" (или любое отрицательное число) - значит, что o1 появится в списке раньше, чем o2 (o1 более предпочтителен)
+        // "1" (или любое положительное число) - значит, что o1 появится в списке позже, чем o2 (o1 менее предпочтителен)
+        // "0" - значит элементы с точки зрения сортировщика равны
         final List<StreamInfo> sortedStreams = new ArrayList<>(videoStreams);
         if (preferRes == ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES) {
             // Движемся по качеству от худшего к лучшим до тех пор, пока не найдем ролик с нужным
@@ -517,14 +559,13 @@ public class StreamHelper {
         return sortedStreams;
     }
 
-    public static StreamInfo getNextPlaybackStreamMaxRes(
+    public static StreamInfo getNextVideoPlaybackStreamMaxRes(
             final List<StreamInfo> videoStreams,
             final StreamInfo currVideoStream) {
 
         // будем полагаться на сортировку
-        // сортируем так, что наиболее предпочительный элемент находится в начале списка,
-        // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
-        final List<StreamInfo> sortedStreams = sortStreamsForMaxRes(videoStreams);
+        // сортируем так, что наиболее предпочтительный элемент находится в начале списка
+        final List<StreamInfo> sortedStreams = sortVideoStreamsForMaxRes(videoStreams);
 
         StreamInfo _videoStream;
         if (currVideoStream == null) {
@@ -543,14 +584,13 @@ public class StreamHelper {
         return _videoStream;
     }
 
-    public static StreamInfo getNextPlaybackStreamMinRes(
+    public static StreamInfo getNextVideoPlaybackStreamMinRes(
             final List<StreamInfo> videoStreams,
             final StreamInfo currVideoStream) {
 
         // будем полагаться на сортировку
-        // сортируем так, что наиболее предпочительный элемент находится в начале списка,
-        // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
-        final List<StreamInfo> sortedStreams = sortStreamsForMinRes(videoStreams);
+        // сортируем так, что наиболее предпочтительный элемент находится в начале списка
+        final List<StreamInfo> sortedStreams = sortVideoStreamsForMinRes(videoStreams);
 
         StreamInfo _videoStream;
         if (currVideoStream == null) {
@@ -569,16 +609,15 @@ public class StreamHelper {
         return _videoStream;
     }
 
-    public static StreamInfo getNextPlaybackStreamForRes(
+    public static StreamInfo getNextVideoPlaybackStreamForRes(
             final String targetRes,
             final ConfigOptions.VideoStreamSelectPreferRes preferRes,
             final List<StreamInfo> videoStreams,
             final StreamInfo currVideoStream) {
 
         // будем полагаться на сортировку
-        // сортируем так, что наиболее предпочительный элемент находится в начале списка,
-        // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
-        final List<StreamInfo> sortedStreams = sortStreamsForRes(targetRes, preferRes, videoStreams);
+        // сортируем так, что наиболее предпочтительный элемент находится в начале списка
+        final List<StreamInfo> sortedStreams = sortVideoStreamsForRes(targetRes, preferRes, videoStreams);
 
         StreamInfo _videoStream;
         if (currVideoStream == null) {
@@ -596,6 +635,48 @@ public class StreamHelper {
         return _videoStream;
     }
 
+    public static List<StreamInfo> sortAudioStreams(final List<StreamInfo> audioStreams) {
+
+        // сортируем потоки аудио по правилу:
+        // - в начале потоки оффлайн, потом онлайн
+        // - внутри групп оффлайн-онлайн потоки отсортированы по качеству (битрейт, в StreamInfo - resolution)
+
+        // сортируем так, что наиболее предпочтительный элемент находится в начале списка,
+        // т.е. более предпочительные элементы имеют меньший индекс по сравнению менее предпочительными
+        // Например, когда срваниванием o1 и o2:
+        // "-1" (или любое отрицательное число) - значит, что o1 появится в списке раньше, чем o2 (o1 более предпочтителен)
+        // "1" (или любое положительное число) - значит, что o1 появится в списке позже, чем o2 (o1 менее предпочтителен)
+        // "0" - значит элементы с точки зрения сортировщика равны
+        final List<StreamInfo> sortedStreams = new ArrayList<>(audioStreams);
+        Collections.sort(sortedStreams, new Comparator<StreamInfo>() {
+            @Override
+            public int compare(StreamInfo o1, StreamInfo o2) {
+                if (!o1.isOnline() && o2.isOnline()) {
+                    return -1;
+                } else if (o1.isOnline() && !o2.isOnline()) {
+                    return 1;
+                } else {
+                    return -(resolutionToInt(o1.getResolution()) - resolutionToInt(o2.getResolution()));
+                }
+            }
+        });
+        return sortedStreams;
+    }
+
+    public static StreamInfo getAudioPlaybackStream(
+            final List<StreamInfo> audioStreams,
+            final StreamInfo currVideoStream) {
+        // будем полагаться на сортировку
+        // сортируем так, что наиболее предпочтительный элемент находится в начале списка
+        final List<StreamInfo> sortedStreams = sortAudioStreams(audioStreams);
+
+        // если поток видео совмещен с аудио, возвращаем null,
+        // если не совмещен, то просто берем первый элемент в списке аудио
+        // (список предварительно сортируем как надо)
+        return currVideoStream.getStreamType() == StreamCache.StreamType.VIDEO && sortedStreams.size() > 0 ?
+                sortedStreams.get(0) : null;
+    }
+
     /**
      * Выбрать из списка следующий поток:
      * - если текущий поток null, вернуть поток по умолчанию (из логики настроек)
@@ -610,26 +691,26 @@ public class StreamHelper {
      * @param currVideoStream
      * @return следующий поток ролика для проигрывания
      */
-    public static StreamPair getNextPlaybackStream(
+    public static StreamPair getNextPlaybackStreamPair(
             final Context context,
             final List<StreamInfo> videoStreams, final List<StreamInfo> audioStreams,
             final StreamInfo currVideoStream) {
         StreamInfo _videoStream;
         switch (ConfigOptions.getVideoStreamSelectStrategy(context)) {
             case MAX_RES:
-                _videoStream = getNextPlaybackStreamMaxRes(videoStreams, currVideoStream);
+                _videoStream = getNextVideoPlaybackStreamMaxRes(videoStreams, currVideoStream);
                 break;
             case MIN_RES:
-                _videoStream = getNextPlaybackStreamMinRes(videoStreams, currVideoStream);
+                _videoStream = getNextVideoPlaybackStreamMinRes(videoStreams, currVideoStream);
                 break;
             case CUSTOM_RES:
-                _videoStream = getNextPlaybackStreamForRes(
+                _videoStream = getNextVideoPlaybackStreamForRes(
                         ConfigOptions.getVideoStreamCustomRes(context),
                         ConfigOptions.getVideoStreamSelectCustomPreferRes(context),
                         videoStreams, currVideoStream);
                 break;
             case LAST_CHOSEN:
-                _videoStream = getNextPlaybackStreamForRes(
+                _videoStream = getNextVideoPlaybackStreamForRes(
                         ConfigOptions.getVideoStreamLastSelectedRes(context),
                         ConfigOptions.getVideoStreamSelectLastPreferRes(context),
                         videoStreams, currVideoStream);
@@ -645,11 +726,11 @@ public class StreamHelper {
                 }
         }
 
-        final StreamInfo _audioStream = _videoStream.getStreamType() == StreamCache.StreamType.VIDEO && audioStreams.size() > 0 ? audioStreams.get(0) : null;
+        final StreamInfo _audioStream = getAudioPlaybackStream(audioStreams, _videoStream);
         return new StreamPair(_videoStream, _audioStream);
     }
 
-    public static StreamInfo findPlaybackStream(
+    public static StreamInfo findStreamByParams(
             final StreamHelper.StreamSources streamSources,
             final StreamCache.StreamType streamType,
             final String resolution,

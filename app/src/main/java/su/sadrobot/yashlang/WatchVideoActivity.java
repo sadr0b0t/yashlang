@@ -494,7 +494,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                 setPlayerState(PlayerState.LOADING, null);
                 boolean tryAnotherStream = false;
                 try {
-                    final StreamHelper.StreamPair nextPlaybackStreams = StreamHelper.getNextPlaybackStream(
+                    final StreamHelper.StreamPair nextPlaybackStreams = StreamHelper.getNextPlaybackStreamPair(
                             WatchVideoActivity.this,
                             currentVideo.getStreamSources().getVideoStreams(),
                             currentVideo.getStreamSources().getAudioStreams(), currentVideo.getPlaybackStreams().getVideoStream());
@@ -1602,8 +1602,9 @@ public class WatchVideoActivity extends AppCompatActivity {
         // загрузить поток видео
         final StreamHelper.StreamSources streamSources = StreamHelper.fetchStreams(this, videoItem);
         if (streamSources.getVideoStreams().size() > 0) {
-            StreamHelper.sortVideoStreams(streamSources.getVideoStreams());
-            final StreamHelper.StreamPair playbackStreams = StreamHelper.getNextPlaybackStream(
+            StreamHelper.sortVideoStreamsDefault(streamSources.getVideoStreams());
+            StreamHelper.sortAudioStreamsDefault(streamSources.getAudioStreams());
+            final StreamHelper.StreamPair playbackStreams = StreamHelper.getNextPlaybackStreamPair(
                     this, streamSources.getVideoStreams(), streamSources.getAudioStreams(), null);
             videoItem.setStreamSources(streamSources);
             videoItem.setPlaybackStreams(playbackStreams);
