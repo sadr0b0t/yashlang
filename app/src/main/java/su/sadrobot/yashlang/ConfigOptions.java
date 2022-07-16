@@ -128,6 +128,12 @@ public class ConfigOptions {
      */
     private static final String PREF_VIDEO_STREAM_SELECT_LAST_PREFER_RES = "PREF_VIDEO_STREAM_SELECT_LAST_PREFER_RES";
 
+    /**
+     * true: если у ролика есть любые потоки оффлайн, всегда по умолчанию выбирать поток видео оффлайн
+     * наилучшего качества (из доступных оффлайн). Если потоков оффлайн нет, использовать обычную стратегию.
+     * false: в любом случае использовать обычную стратегию выбора потока.
+     */
+    private static final String PREF_VIDEO_STREAM_SELECT_OFFLINE = "PREF_VIDEO_STREAM_SELECT_OFFLINE";
 
 
     public static SortBy getPlaylistsSortBy(final Context context) {
@@ -233,6 +239,18 @@ public class ConfigOptions {
     public static void setVideoStreamSelectLastPreferRes(final Context context, final VideoStreamSelectPreferRes preferRes) {
         final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
         editor.putString(PREF_VIDEO_STREAM_SELECT_LAST_PREFER_RES, preferRes.name());
+        editor.commit();
+    }
+
+    public static boolean getVideoStreamSelectOffline(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        // по умолчанию: true
+        return sp.getBoolean(PREF_VIDEO_STREAM_SELECT_OFFLINE, true);
+    }
+
+    public static void setVideoStreamSelectOffline(final Context context, final boolean selectOffline) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putBoolean(PREF_VIDEO_STREAM_SELECT_OFFLINE, selectOffline);
         editor.commit();
     }
 }

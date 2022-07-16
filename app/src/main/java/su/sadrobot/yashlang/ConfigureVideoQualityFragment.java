@@ -29,6 +29,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -57,6 +58,8 @@ public class ConfigureVideoQualityFragment extends Fragment {
     private RadioButton vidStreamSelectLastPreferHigherResRadio;
     private RadioButton vidStreamSelectLastPreferLowerResRadio;
 
+    private Switch vidStreamSelectOfflineSwitch;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -83,10 +86,12 @@ public class ConfigureVideoQualityFragment extends Fragment {
         vidStreamSelectLastPreferHigherResRadio = view.findViewById(R.id.vid_stream_select_last_prefer_higher_res_radio);
         vidStreamSelectLastPreferLowerResRadio = view.findViewById(R.id.vid_stream_select_last_prefer_lower_res_radio);
 
+        vidStreamSelectOfflineSwitch = view.findViewById(R.id.vid_stream_select_offline_switch);
+
         vidStreamSelectMaxResRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     ConfigOptions.setVideoStreamSelectStrategy(
                             ConfigureVideoQualityFragment.this.getContext(),
                             ConfigOptions.VideoStreamSelectStrategy.MAX_RES);
@@ -98,7 +103,7 @@ public class ConfigureVideoQualityFragment extends Fragment {
         vidStreamSelectMinResRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     ConfigOptions.setVideoStreamSelectStrategy(
                             ConfigureVideoQualityFragment.this.getContext(),
                             ConfigOptions.VideoStreamSelectStrategy.MIN_RES);
@@ -110,7 +115,7 @@ public class ConfigureVideoQualityFragment extends Fragment {
         vidStreamSelectCustomRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     ConfigOptions.setVideoStreamSelectStrategy(
                             ConfigureVideoQualityFragment.this.getContext(),
                             ConfigOptions.VideoStreamSelectStrategy.CUSTOM_RES);
@@ -122,7 +127,7 @@ public class ConfigureVideoQualityFragment extends Fragment {
         vidStreamSelectLastChosenRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     ConfigOptions.setVideoStreamSelectStrategy(
                             ConfigureVideoQualityFragment.this.getContext(),
                             ConfigOptions.VideoStreamSelectStrategy.LAST_CHOSEN);
@@ -134,7 +139,7 @@ public class ConfigureVideoQualityFragment extends Fragment {
         vidStreamSelectCustomPreferHigherResRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     ConfigOptions.setVideoStreamSelectCustomPreferRes(
                             ConfigureVideoQualityFragment.this.getContext(),
                             ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES);
@@ -145,7 +150,7 @@ public class ConfigureVideoQualityFragment extends Fragment {
         vidStreamSelectCustomPreferLowerResRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     ConfigOptions.setVideoStreamSelectCustomPreferRes(
                             ConfigureVideoQualityFragment.this.getContext(),
                             ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES);
@@ -156,7 +161,7 @@ public class ConfigureVideoQualityFragment extends Fragment {
         vidStreamSelectLastPreferHigherResRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     ConfigOptions.setVideoStreamSelectLastPreferRes(
                             ConfigureVideoQualityFragment.this.getContext(),
                             ConfigOptions.VideoStreamSelectPreferRes.HIGHER_RES);
@@ -167,11 +172,22 @@ public class ConfigureVideoQualityFragment extends Fragment {
         vidStreamSelectLastPreferLowerResRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     ConfigOptions.setVideoStreamSelectLastPreferRes(
                             ConfigureVideoQualityFragment.this.getContext(),
                             ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES);
                 }
+            }
+        });
+
+        vidStreamSelectOfflineSwitch.setChecked(ConfigOptions.getVideoStreamSelectOffline(
+                ConfigureVideoQualityFragment.this.getContext()));
+        vidStreamSelectOfflineSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                ConfigOptions.setVideoStreamSelectOffline(
+                        ConfigureVideoQualityFragment.this.getContext(),
+                        isChecked);
             }
         });
 
@@ -183,23 +199,23 @@ public class ConfigureVideoQualityFragment extends Fragment {
         // найти позицию выбранного эллемента в массиве
         final String savedCustomResolution = ConfigOptions.getVideoStreamCustomRes(getContext());
         int selResPos = -1;
-        for(int i = 0; i < ConfigOptions.VIDEO_RESOLUTIONS.length; i++) {
-            if(ConfigOptions.VIDEO_RESOLUTIONS[i].equals(savedCustomResolution)) {
+        for (int i = 0; i < ConfigOptions.VIDEO_RESOLUTIONS.length; i++) {
+            if (ConfigOptions.VIDEO_RESOLUTIONS[i].equals(savedCustomResolution)) {
                 selResPos = i;
                 break;
             }
         }
 
         // перестраховка, но ладно
-        if(selResPos == -1) {
-            for(int i = 0; i < ConfigOptions.VIDEO_RESOLUTIONS.length; i++) {
-                if(ConfigOptions.VIDEO_RESOLUTIONS[i].equals(ConfigOptions.DEFAULT_VIDEO_RESOLUTION)) {
+        if (selResPos == -1) {
+            for (int i = 0; i < ConfigOptions.VIDEO_RESOLUTIONS.length; i++) {
+                if (ConfigOptions.VIDEO_RESOLUTIONS[i].equals(ConfigOptions.DEFAULT_VIDEO_RESOLUTION)) {
                     selResPos = i;
                     break;
                 }
             }
             // совсем уже перестраховка
-            if(selResPos == -1) {
+            if (selResPos == -1) {
                 selResPos = 0;
             }
         }
@@ -254,7 +270,7 @@ public class ConfigureVideoQualityFragment extends Fragment {
     }
 
     private void updateControlsStates() {
-        if(vidStreamSelectMaxResRadio.isChecked()) {
+        if (vidStreamSelectMaxResRadio.isChecked()) {
             vidStreamSelectCustomPreferTxt.setEnabled(false);
             vidStreamCustomResSpinner.setEnabled(false);
             vidStreamSelectCustomPreferHigherResRadio.setEnabled(false);
@@ -264,7 +280,7 @@ public class ConfigureVideoQualityFragment extends Fragment {
             vidStreamLastResTxt.setEnabled(false);
             vidStreamSelectLastPreferHigherResRadio.setEnabled(false);
             vidStreamSelectLastPreferLowerResRadio.setEnabled(false);
-        } else if(vidStreamSelectMinResRadio.isChecked()) {
+        } else if (vidStreamSelectMinResRadio.isChecked()) {
             vidStreamSelectCustomPreferTxt.setEnabled(false);
             vidStreamCustomResSpinner.setEnabled(false);
             vidStreamSelectCustomPreferHigherResRadio.setEnabled(false);
@@ -274,7 +290,7 @@ public class ConfigureVideoQualityFragment extends Fragment {
             vidStreamLastResTxt.setEnabled(false);
             vidStreamSelectLastPreferHigherResRadio.setEnabled(false);
             vidStreamSelectLastPreferLowerResRadio.setEnabled(false);
-        } else if(vidStreamSelectCustomRadio.isChecked()) {
+        } else if (vidStreamSelectCustomRadio.isChecked()) {
             vidStreamSelectCustomPreferTxt.setEnabled(true);
             vidStreamCustomResSpinner.setEnabled(true);
             vidStreamSelectCustomPreferHigherResRadio.setEnabled(true);

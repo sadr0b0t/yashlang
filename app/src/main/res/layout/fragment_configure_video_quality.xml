@@ -12,7 +12,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
-            android:layout_marginBottom="40dp"
             android:orientation="vertical">
 
             <RadioButton
@@ -124,6 +123,17 @@
             </RadioGroup>
 
         </RadioGroup>
+
+        <Switch
+            android:id="@+id/vid_stream_select_offline_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="40dp"
+            android:checked="true"
+            android:text="@string/vid_stream_prefer_offline" />
 
     </LinearLayout>
 </ScrollView>

@@ -190,4 +190,5 @@
     <string name="streams_added_to_download_queue">Streams added to download queue</string>
     <string name="stream_none">None</string>
     <string name="select_video_item_streams">Select streams for video item</string>
+    <string name="vid_stream_prefer_offline">Play offline stream max quality before all if available</string>
 </resources>

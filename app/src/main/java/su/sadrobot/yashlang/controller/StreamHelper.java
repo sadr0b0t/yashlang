@@ -635,6 +635,30 @@ public class StreamHelper {
         return _videoStream;
     }
 
+    public static StreamInfo getOfflineVideoPlaybackStreamMaxRes(final List<StreamInfo> videoStreams) {
+
+        StreamInfo _videoStream = null;
+        for (final StreamInfo _stream : videoStreams) {
+            if (!_stream.isOnline()) {
+                if (_videoStream == null) {
+                    // нашли хоть что-то оффлайн
+                    _videoStream = _stream;
+                } else if (resolutionToInt(_stream.getResolution()) > resolutionToInt(_videoStream.getResolution())) {
+                    // нашли еще один оффлайн-поток и его разрешение больше, чем у предыдущего
+                    _videoStream = _stream;
+                } else if (resolutionToInt(_stream.getResolution()) == resolutionToInt(_videoStream.getResolution()) &&
+                        _stream.getStreamType() == StreamCache.StreamType.BOTH &&
+                        _videoStream.getStreamType() != StreamCache.StreamType.BOTH) {
+                    // нашли еще один оффлайн-поток с таким же разрешением, как у предыдущего найденного,
+                    // но у него совмещены дорожки аудио и видео, а у предыдущго не были совмещены
+                    // (в принципе, если совмещены у обоих, то без раницы, какой выбрать)
+                    _videoStream = _stream;
+                }
+            }
+        }
+        return _videoStream;
+    }
+
     public static List<StreamInfo> sortAudioStreams(final List<StreamInfo> audioStreams) {
 
         // сортируем потоки аудио по правилу:
@@ -695,35 +719,45 @@ public class StreamHelper {
             final Context context,
             final List<StreamInfo> videoStreams, final List<StreamInfo> audioStreams,
             final StreamInfo currVideoStream) {
-        StreamInfo _videoStream;
-        switch (ConfigOptions.getVideoStreamSelectStrategy(context)) {
-            case MAX_RES:
-                _videoStream = getNextVideoPlaybackStreamMaxRes(videoStreams, currVideoStream);
-                break;
-            case MIN_RES:
-                _videoStream = getNextVideoPlaybackStreamMinRes(videoStreams, currVideoStream);
-                break;
-            case CUSTOM_RES:
-                _videoStream = getNextVideoPlaybackStreamForRes(
-                        ConfigOptions.getVideoStreamCustomRes(context),
-                        ConfigOptions.getVideoStreamSelectCustomPreferRes(context),
-                        videoStreams, currVideoStream);
-                break;
-            case LAST_CHOSEN:
-                _videoStream = getNextVideoPlaybackStreamForRes(
-                        ConfigOptions.getVideoStreamLastSelectedRes(context),
-                        ConfigOptions.getVideoStreamSelectLastPreferRes(context),
-                        videoStreams, currVideoStream);
-                break;
-            default:
-                // сюда не попадем
-                if (currVideoStream == null) {
-                    // выбирать стрим с наилучшим качеством (в начале)
-                    _videoStream = videoStreams.size() > 0 ? videoStreams.get(0) : null;
-                } else {
-                    // взять стрим последний с списке (с наименьшим качеством - обычно это 144p mp4)
-                    _videoStream = videoStreams.size() > 0 ? videoStreams.get(videoStreams.size() - 1) : null;
-                }
+        StreamInfo _videoStream = null;
+        if (currVideoStream == null && ConfigOptions.getVideoStreamSelectOffline(context)) {
+            // выбираем оффлайн-поток видео с наилучшим качеством, если есть
+            // (работает только для роликов, для которых еще не выбирали поток, т.е. это выбор
+            // потока по умолчанию)
+            _videoStream = getOfflineVideoPlaybackStreamMaxRes(videoStreams);
+        }
+
+        // настройка "играть оффлайн" не выбрана или нет оффлайн-потоков или для ролика уже выбирали поток
+        if (_videoStream == null) {
+            switch (ConfigOptions.getVideoStreamSelectStrategy(context)) {
+                case MAX_RES:
+                    _videoStream = getNextVideoPlaybackStreamMaxRes(videoStreams, currVideoStream);
+                    break;
+                case MIN_RES:
+                    _videoStream = getNextVideoPlaybackStreamMinRes(videoStreams, currVideoStream);
+                    break;
+                case CUSTOM_RES:
+                    _videoStream = getNextVideoPlaybackStreamForRes(
+                            ConfigOptions.getVideoStreamCustomRes(context),
+                            ConfigOptions.getVideoStreamSelectCustomPreferRes(context),
+                            videoStreams, currVideoStream);
+                    break;
+                case LAST_CHOSEN:
+                    _videoStream = getNextVideoPlaybackStreamForRes(
+                            ConfigOptions.getVideoStreamLastSelectedRes(context),
+                            ConfigOptions.getVideoStreamSelectLastPreferRes(context),
+                            videoStreams, currVideoStream);
+                    break;
+                default:
+                    // сюда не попадем
+                    if (currVideoStream == null) {
+                        // выбирать стрим с наилучшим качеством (в начале)
+                        _videoStream = videoStreams.size() > 0 ? videoStreams.get(0) : null;
+                    } else {
+                        // взять стрим последний с списке (с наименьшим качеством - обычно это 144p mp4)
+                        _videoStream = videoStreams.size() > 0 ? videoStreams.get(videoStreams.size() - 1) : null;
+                    }
+            }
         }
 
         final StreamInfo _audioStream = getAudioPlaybackStream(audioStreams, _videoStream);
