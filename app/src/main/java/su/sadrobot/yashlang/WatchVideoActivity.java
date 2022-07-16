@@ -488,16 +488,17 @@ public class WatchVideoActivity extends AppCompatActivity {
                 //  https://github.com/sadr0b0t/yashlang/commit/b89c415ba3d71a0ac81c40f5d54b7fad249eac27
                 //  применим логику:
                 // - если произошла ошибка при загрузке плеером потока и при этом этот поток -
-                //   поток высокого качества, то попробовать загрузить другой поток низкого качества
-                //   (который предлагает YouTube первым в списке по умолчанию)
-                // - если же это уже и так был поток низкого качества, то показать ошибку
+                //   поток высокого качества, то попробовать загрузить другой поток
+                //   (стратегия выбора потока указана в настройках)
+                // - если все потоки в списке перепробованы, то показать ошибку
                 setPlayerState(PlayerState.LOADING, null);
                 boolean tryAnotherStream = false;
                 try {
                     final StreamHelper.StreamPair nextPlaybackStreams = StreamHelper.getNextPlaybackStreamPair(
                             WatchVideoActivity.this,
                             currentVideo.getStreamSources().getVideoStreams(),
-                            currentVideo.getStreamSources().getAudioStreams(), currentVideo.getPlaybackStreams().getVideoStream());
+                            currentVideo.getStreamSources().getAudioStreams(),
+                            currentVideo.getPlaybackStreams().getVideoStream());
                     if (currentVideo.getPlaybackStreams().getVideoStream() != null &&
                             nextPlaybackStreams.getVideoStream() != null &&
                             !nextPlaybackStreams.getVideoStream().getUrl().equals(currentVideo.getPlaybackStreams().getVideoStream().getUrl())) {
@@ -1607,7 +1608,7 @@ public class WatchVideoActivity extends AppCompatActivity {
 
         // загрузить поток видео
         final StreamHelper.StreamSources streamSources = StreamHelper.fetchStreams(this, videoItem);
-        if (streamSources.getVideoStreams().size() > 0) {
+        if (streamSources.getVideoStreams().size() > 0 || streamSources.getAudioStreams().size() > 0) {
             StreamHelper.sortVideoStreamsDefault(streamSources.getVideoStreams());
             StreamHelper.sortAudioStreamsDefault(streamSources.getAudioStreams());
             final StreamHelper.StreamPair playbackStreams = StreamHelper.getNextPlaybackStreamPair(
@@ -1615,31 +1616,36 @@ public class WatchVideoActivity extends AppCompatActivity {
             videoItem.setStreamSources(streamSources);
             videoItem.setPlaybackStreams(playbackStreams);
 
-            // пока загружали информацию о видео, пользователь мог кликнуть на загрузку нового ролика,
-            // в этом случае уже нет смысла загружать в плеер этот ролик на долю секунды
-            // или на то время, пока загружается новый ролик, поэтому здесь просто ничего не делаем,
-            // а плеер останется в статусе "LOADING" до тех пор, пока не будет загружен новый ролик
-            if (videoItem == currentVideo) {
-                if (videoItem.getPlaybackStreams().getVideoStream() != null) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            // т.к. загрузка видео осуществляется в фононовом потоке, мы можем сюда попасть
-                            // в такой ситуации, когда пользователь кликнул на загрузку видео, а потом
-                            // сразу свернул приложение - в этом случае ролик начнет проигрывание в фоне,
-                            // а пользователь услышит его звук и ему придется вернуться в приложение, чтобы
-                            // поставить плеер на паузу.
-                            // по этой причине мы здесь проверяем, является ли экран с плеером активным
-                            // (см: https://stackoverflow.com/questions/5446565/android-how-do-i-check-if-activity-is-running/25722319 )
-                            // и если не является, то загружать видео, но не начинать его проигрывание
-                            // сразу после загрузки.
-                            // https://github.com/sadr0b0t/yashlang/issues/4
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    // пока загружали информацию о видео, пользователь мог кликнуть на загрузку нового ролика,
+                    // в этом случае уже нет смысла загружать в плеер этот ролик на долю секунды
+                    // или на то время, пока загружается новый ролик, поэтому здесь просто ничего не делаем,
+                    // а плеер останется в статусе "LOADING" до тех пор, пока не будет загружен новый ролик
+                    if (videoItem == currentVideo) {
 
-                            updateControlsValues();
+                        // т.к. загрузка видео осуществляется в фононовом потоке, мы можем сюда попасть
+                        // в такой ситуации, когда пользователь кликнул на загрузку видео, а потом
+                        // сразу свернул приложение - в этом случае ролик начнет проигрывание в фоне,
+                        // а пользователь услышит его звук и ему придется вернуться в приложение, чтобы
+                        // поставить плеер на паузу.
+                        // по этой причине мы здесь проверяем, является ли экран с плеером активным
+                        // (см: https://stackoverflow.com/questions/5446565/android-how-do-i-check-if-activity-is-running/25722319 )
+                        // и если не является, то загружать видео, но не начинать его проигрывание
+                        // сразу после загрузки.
+                        // https://github.com/sadr0b0t/yashlang/issues/4
 
+                        updateControlsValues();
+
+                        if (videoItem.getPlaybackStreams().getVideoStream() == null && videoItem.getPlaybackStreams().getAudioStream() == null) {
+                            // здесь нас тоже скорее всего не будет, т.к. в автоматическом режиме
+                            // если есть потоки видео или адио, что-то из них будет выбрано
+                            setPlayerState(PlayerState.NOTHING_TO_PLAY, null);
+                        } else {
                             try {
                                 playVideoStream(
-                                        videoItem.getPlaybackStreams().getVideoStream().getUrl(),
+                                        (videoItem.getPlaybackStreams().getVideoStream() != null ? videoItem.getPlaybackStreams().getVideoStream().getUrl() : null),
                                         (videoItem.getPlaybackStreams().getAudioStream() != null ? videoItem.getPlaybackStreams().getAudioStream().getUrl() : null),
                                         videoItem.getPausedAt(),
                                         !WatchVideoActivity.this.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED));
@@ -1649,21 +1655,9 @@ public class WatchVideoActivity extends AppCompatActivity {
                                 ex.printStackTrace();
                             }
                         }
-                    });
-                } else {
-                    // здесь может быть NULL для некоторых роликов:
-                    // - из-за глюков экстрактора
-                    // - у некоторых специальных роликов изначально не определена продолжительность и
-                    // нет ссылки на поток видео (например, см ролик "Топ мультиков Союзмультфильм")
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateControlsValues();
-                            setPlayerState(PlayerState.ERROR, getString(R.string.err_video_stream_url_null));
-                        }
-                    });
+                    }
                 }
-            }
+            });
         } else {
             if (videoItem == currentVideo) {
                 handler.post(new Runnable() {

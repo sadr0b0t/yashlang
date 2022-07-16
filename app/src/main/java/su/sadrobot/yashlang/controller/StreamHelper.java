@@ -697,8 +697,8 @@ public class StreamHelper {
         // если поток видео совмещен с аудио, возвращаем null,
         // если не совмещен, то просто берем первый элемент в списке аудио
         // (список предварительно сортируем как надо)
-        return currVideoStream.getStreamType() == StreamCache.StreamType.VIDEO && sortedStreams.size() > 0 ?
-                sortedStreams.get(0) : null;
+        return (currVideoStream == null || currVideoStream.getStreamType() == StreamCache.StreamType.VIDEO) &&
+                sortedStreams.size() > 0 ? sortedStreams.get(0) : null;
     }
 
     /**
