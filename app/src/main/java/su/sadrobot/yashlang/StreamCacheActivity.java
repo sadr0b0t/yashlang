@@ -42,6 +42,7 @@ import java.util.List;
 
 import su.sadrobot.yashlang.controller.StreamCacheFsManager;
 import su.sadrobot.yashlang.controller.StreamCacheManager;
+import su.sadrobot.yashlang.service.StreamCacheDownloadService;
 import su.sadrobot.yashlang.util.StringFormatUtil;
 
 
@@ -151,6 +152,9 @@ public class StreamCacheActivity extends AppCompatActivity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
+                        StreamCacheDownloadService.pauseDownloads(StreamCacheActivity.this);
+                        // todo: здесь будет правильно дождаться, когда потоки будут точно остановлены
+                        // чтобы не удалить файл, например, в момент записи
                         StreamCacheManager.getInstance().deleteNotFinished(StreamCacheActivity.this);
                     }
                 })
