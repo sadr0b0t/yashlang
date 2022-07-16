@@ -48,7 +48,7 @@ public abstract class StreamCacheDao {
     @Query("SELECT * FROM stream_cache WHERE _id = :id LIMIT 1")
     public abstract StreamCache getById(long id);
 
-    @Query("SELECT * FROM stream_cache WHERE downloaded ORDER BY video_id")
+    @Query("SELECT * FROM stream_cache WHERE downloaded ORDER BY video_id, stream_type DESC, stream_size DESC")
     public abstract DataSource.Factory<Integer, StreamCache> getFinishedDs();
 
     @Query("SELECT * FROM stream_cache WHERE NOT downloaded")

@@ -175,7 +175,7 @@
     <string name="unmanaged_files_in_cache_dir">Check cache dir for unmanaged files</string>
     <string name="no_unmanaged_cache_files">No unmanaged files in cache dir</string>
     <string name="deleted_unmanaged_files">Deleted %c unmanaged files (%s) from cache</string>
-    <string name="delete_unmanaged_files_title">Delete unmanaged files from cache? (%c files, %s)</string>
+    <string name="delete_unmanaged_files_title">Delete unmanaged files from cache? (files: %c, %s)</string>
     <string name="delete_not_finished">Delete not finished</string>
     <string name="delete_not_finished_title">Delete ALL not finished downloads?</string>
     <string name="no_playback_streams_for_video">No playback streams for video</string>
