@@ -28,10 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.R;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
@@ -60,20 +59,27 @@ public class VideoThumbManager {
 
     public Bitmap loadBitmap(final String url) throws IOException {
 
-        final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.connect();
+        final HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+
+        //  настройки таймаутов
+        // https://github.com/sadr0b0t/yashlang/issues/132
+        // https://stackoverflow.com/questions/45199702/httpurlconnection-timeout-defaults
+        // https://github.com/TeamNewPipe/NewPipe/blob/v0.23.1/app/src/main/java/org/schabi/newpipe/player/datasource/YoutubeHttpDataSource.java
+        conn.setConnectTimeout(ConfigOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS);
+        conn.setReadTimeout(ConfigOptions.DEFAULT_READ_TIMEOUT_MILLIS);
+        conn.connect();
 
         InputStream input = null;
         Bitmap bm;
 
         try {
-            input = connection.getInputStream();
+            input = conn.getInputStream();
             bm = BitmapFactory.decodeStream(input);
         } finally {
             if(input != null) {
                 input.close();
             }
-            if(connection.getErrorStream() != null) {
+            if(conn.getErrorStream() != null) {
                 // Сюда попадаем, если connection.getInputStream() вылетает с эксепшеном
                 // (на сервере нет иконки, которую пытаемся скачать)
                 // Это очень важное место:
@@ -83,9 +89,9 @@ public class VideoThumbManager {
                 // количеством роликов, для которых удалены аналоги на сервере (иконка недоступна на сервере),
                 // если в этом же списке происходит обращение к б/д - вылетает ошибка:
                 // SQLiteCantOpenDatabaseException: unable to open database file
-                connection.getErrorStream().close();
+                conn.getErrorStream().close();
             }
-            connection.disconnect();
+            conn.disconnect();
         }
 
         return bm;

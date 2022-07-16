@@ -71,6 +71,14 @@ public class ConfigOptions {
 
     public static final int UPDATE_PLAYLISTS_DELAY_MS = 500;
 
+    /** The default connection timeout, in milliseconds. */
+    public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS =
+            com.google.android.exoplayer2.upstream.DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS;
+
+    /** The default read timeout, in milliseconds. */
+    public static final int DEFAULT_READ_TIMEOUT_MILLIS =
+            com.google.android.exoplayer2.upstream.DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS;
+
     public static final String[] VIDEO_RESOLUTIONS = {
             "1080p", "720p", "480p", "360p", "240p", "144p"
     };

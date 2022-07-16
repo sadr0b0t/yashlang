@@ -34,6 +34,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.model.StreamCache;
 import su.sadrobot.yashlang.model.VideoDatabase;
 
@@ -128,6 +129,7 @@ public class VideoStreamDownloader {
                 // выставить режим докачки, то длина потока будет не поток целиком, а оставшийся
                 // размер с места, с которого продолжили
                 conn = (HttpURLConnection) new URL(url).openConnection();
+                conn.setConnectTimeout(ConfigOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS);
                 conn.setRequestMethod("HEAD");
                 final long contentLength = conn.getContentLength();
                 conn.disconnect();
@@ -138,8 +140,16 @@ public class VideoStreamDownloader {
 
                 // подключаемся еще раз - уже для закачки
                 conn = (HttpURLConnection) new URL(url).openConnection();
-                // правильные настройки подключения см в коде NewPipe:
-                // https://github.com/TeamNewPipe/NewPipe/blob/dev/app/src/main/java/us/shandian/giga/get/DownloadMission.java
+
+                //  настройки таймаутов
+                // https://github.com/sadr0b0t/yashlang/issues/132
+                // https://stackoverflow.com/questions/45199702/httpurlconnection-timeout-defaults
+                // https://github.com/TeamNewPipe/NewPipe/blob/v0.23.1/app/src/main/java/org/schabi/newpipe/player/datasource/YoutubeHttpDataSource.java
+                conn.setConnectTimeout(ConfigOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS);
+                conn.setReadTimeout(ConfigOptions.DEFAULT_READ_TIMEOUT_MILLIS);
+
+                // правильные настройки подключения для режима докачки (см в коде NewPipe):
+                // https://github.com/TeamNewPipe/NewPipe/blob/v0.23.1/app/src/main/java/us/shandian/giga/get/DownloadMission.java
                 // если что-то из этого не выставить, сервер будет плохо реагировать на параметр Range,
                 // который необходим для докачки (будет возвращать размер потока 0)
                 conn.setInstanceFollowRedirects(true);
