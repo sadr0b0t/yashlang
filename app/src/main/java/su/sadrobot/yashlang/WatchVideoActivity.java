@@ -1387,6 +1387,8 @@ public class WatchVideoActivity extends AppCompatActivity {
                 // если аудио потока нет (ни встроенного, ни отдельного), обозначим ситуацию игконкой "🔇" (unicode: muted speaker)
                 // если поток сохранен локально, обозначим иконкой "💾" (unicode: floppy disk)
                 // если при этом аудио поток играет онлайн, дополинтельно метка "🎵☁️" (unicode: musical note + cloud) (звук в облаке)
+                // если поток видео играет онлайн, а поток аудио - оффлайн, дополнительная метка "🎵💾️"
+                //   (unicode: musical note + floppy disk) (звук на дискетке)
                 streamInfoTxt.setText(
                         currentVideo.getPlaybackStreams().getVideoStream().getResolution() +
                                 (!currentVideo.getPlaybackStreams().getVideoStream().isOnline() ?
@@ -1396,7 +1398,11 @@ public class WatchVideoActivity extends AppCompatActivity {
                                 (!currentVideo.getPlaybackStreams().getVideoStream().isOnline() &&
                                         currentVideo.getPlaybackStreams().getAudioStream() != null &&
                                         currentVideo.getPlaybackStreams().getAudioStream().isOnline() ?
-                                        " " + getString(R.string.icon_only_sound) + getString(R.string.icon_online) : "")
+                                        " " + getString(R.string.icon_only_sound) + getString(R.string.icon_online) : "") +
+                                (currentVideo.getPlaybackStreams().getVideoStream().isOnline() &&
+                                        currentVideo.getPlaybackStreams().getAudioStream() != null &&
+                                        !currentVideo.getPlaybackStreams().getAudioStream().isOnline() ?
+                                        " " + getString(R.string.icon_only_sound) + getString(R.string.icon_offline) : "")
                 );
             } else if (currentVideo.getPlaybackStreams() != null && currentVideo.getPlaybackStreams().getAudioStream() != null) {
                 // потока видео нет, но есть поток аудио
