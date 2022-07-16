@@ -165,6 +165,9 @@ public class StreamCacheDownloadFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
+        if (streamCacheDownloadService != null) {
+            streamCacheDownloadService.stopIfFinished();
+        }
         StreamCacheDownloadFragment.this.getContext().unbindService(streamCacheDownloadServiceConnection);
     }
 
