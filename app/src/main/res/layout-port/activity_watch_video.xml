@@ -132,6 +132,13 @@
         app:show_timeout="45000"
         app:surface_type="texture_view" />
 
+    <com.google.android.exoplayer2.ui.PlayerControlView
+        android:id="@+id/video_player_control_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:controller_layout_id="@layout/exo_player_custom_control_view" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -154,13 +161,6 @@
             android:layout_gravity="right"
             android:src="@drawable/exo_controls_next" />
     </FrameLayout>
-
-    <com.google.android.exoplayer2.ui.PlayerControlView
-        android:id="@+id/video_player_control_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:controller_layout_id="@layout/exo_player_custom_control_view" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/video_recommend_list"
