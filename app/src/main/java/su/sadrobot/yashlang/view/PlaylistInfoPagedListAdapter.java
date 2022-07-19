@@ -100,6 +100,11 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
 
                 @Override
                 public boolean areContentsTheSame(PlaylistInfo oldItem, PlaylistInfo newItem) {
+                    // вставим небольшой хак, чтобы не моргала иконка обновленного элемента -
+                    // перекинем кэш загруженной иконки со старого элемента на новый элемент,
+                    // раз уж он к нам сюда пришел
+                    newItem.setThumbBitmap(oldItem.getThumbBitmap());
+
                     // Здесь следует перечислить все поля, которые в том или ином виде
                     // отображены на элементе списка: например, флаг для плейлиста включен/выключен
                     // (для плейлиста пока получается, что это единственный флаг)

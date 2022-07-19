@@ -120,6 +120,11 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
 
                 @Override
                 public boolean areContentsTheSame(VideoItem oldItem, VideoItem newItem) {
+                    // вставим небольшой хак, чтобы не моргала иконка обновленного элемента -
+                    // перекинем кэш загруженной иконки со старого элемента на новый элемент,
+                    // раз уж он к нам сюда пришел
+                    newItem.setThumbBitmap(oldItem.getThumbBitmap());
+
                     // Здесь следует перечислить все поля, которые в том или ином виде
                     // отображены на элементе списка: например, прогресс (pausedAt), или
                     // статус "любомое" (starred). В таком случае при изменении этих полей
