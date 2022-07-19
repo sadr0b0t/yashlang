@@ -135,7 +135,7 @@ public class BlacklistActivity extends AppCompatActivity {
                 new OnListItemClickListener<VideoItem>() {
                     @Override
                     public void onItemClick(final View view, final int position, final VideoItem videoItem) {
-                        VideoItemActions.actionPlay(BlacklistActivity.this, videoItem);
+                        VideoItemActions.actionPlayWithoutRecommendations(BlacklistActivity.this, videoItem);
                     }
 
                     @Override
