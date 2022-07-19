@@ -381,17 +381,26 @@ public class VideoItemActions {
                             final StreamInfoArrayAdapter videoStreamsAdapter = new StreamInfoArrayAdapter(
                                     context, streamSources.getVideoStreams());
                             videoStreamSpinner.setAdapter(videoStreamsAdapter);
-                            if (videoItem.getPlaybackStreams() != null) {
-                                videoStreamSpinner.setSelection(videoStreamsAdapter.indexOf(
-                                        videoItem.getPlaybackStreams().getVideoStream()));
-                            }
 
                             final StreamInfoArrayAdapter audioStreamsAdapter = new StreamInfoArrayAdapter(
                                     context, streamSources.getAudioStreams());
                             audioStreamSpinner.setAdapter(audioStreamsAdapter);
+
+                            // выбранные элементы в выпадающих списках
                             if (videoItem.getPlaybackStreams() != null) {
+                                videoStreamSpinner.setSelection(videoStreamsAdapter.indexOf(
+                                        videoItem.getPlaybackStreams().getVideoStream()));
                                 audioStreamSpinner.setSelection(audioStreamsAdapter.indexOf(
                                         videoItem.getPlaybackStreams().getAudioStream()));
+                            } else {
+                                // будет удобнее, если предложим скачать потоки по алгоритму,
+                                // выбирающему поток по умолчанию
+                                final StreamHelper.StreamPair defaultPlaybackStreams = StreamHelper.getNextPlaybackStreamPair(
+                                        context, streamSources.getVideoStreams(), streamSources.getAudioStreams(), null);
+                                videoStreamSpinner.setSelection(videoStreamsAdapter.indexOf(
+                                        defaultPlaybackStreams.getVideoStream()));
+                                audioStreamSpinner.setSelection(audioStreamsAdapter.indexOf(
+                                        defaultPlaybackStreams.getAudioStream()));
                             }
 
                             dlg1.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
