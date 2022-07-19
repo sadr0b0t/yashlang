@@ -37,7 +37,6 @@
     <string name="copy_playlist_url">Copy playlist url</string>
     <string name="tab_item_playlist">Playlist</string>
     <string name="tab_item_new">NEW</string>
-    <string name="err_playlist_not_defined">error: playlist not defined</string>
     <string name="delete_playlist_title">Really delete playlist?</string>
     <string name="delete_playlist_message">Items from this playlist will also go away from starred list and history</string>
     <string name="adding_playlist_new_items">Adding new items to playlist</string>
@@ -136,7 +135,7 @@
     <string name="clipboard_is_empty">Clipboard is empty</string>
     <string name="no_playlists_to_import">No playlists to import</string>
     <string name="export_dir_location">Export dir location: %s</string>
-    <string name="select_stream">Select stream</string>
+    <string name="select_streams">Select streams</string>
     <string name="no_streams_for_video_item">No streams for this video</string>
     <string name="configure_moar">More settings</string>
     <string name="tab_item_video_quality">Video quality</string>
@@ -149,7 +148,7 @@
     <string name="vid_stream_prefer_lower">lower resolution</string>
     <string name="vid_stream_prefer_if_not_available">If not available, prefer</string>
     <string name="done_importing">Done importing</string>
-    <string name="download_stream">Download stream</string>
+    <string name="download_streams">Download</string>
     <string name="yashlang_stream_cache">YaShlang: stream cache downloads</string>
     <string name="downloads">💾 Stream downloads</string>
     <string name="no_active_downloads">No active downloads</string>

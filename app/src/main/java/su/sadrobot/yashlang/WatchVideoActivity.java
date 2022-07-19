@@ -20,11 +20,6 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -40,7 +35,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -83,7 +77,7 @@ import java.util.concurrent.TimeUnit;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.StreamHelper;
-import su.sadrobot.yashlang.controller.VideoItemActionFactory;
+import su.sadrobot.yashlang.controller.VideoItemActions;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.StreamCache;
@@ -548,7 +542,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         selectStreamBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                actionSelectStream();
+                actionSelectStreams();
             }
         });
 
@@ -565,7 +559,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         streamInfoTxt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                actionSelectStream();
+                actionSelectStreams();
             }
         });
 
@@ -889,7 +883,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         selectStreamBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                actionSelectStream();
+                actionSelectStreams();
             }
         });
 
@@ -905,7 +899,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         streamInfoTxt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                actionSelectStream();
+                actionSelectStreams();
             }
         });
 
@@ -948,8 +942,11 @@ public class WatchVideoActivity extends AppCompatActivity {
 
             toolbar.inflateMenu(R.menu.watch_video_actions);
 
-            if (currentVideo.getId() != VideoItem.ID_NONE) {
-
+            if (currentVideo.getId() == VideoItem.ID_NONE) {
+                toolbar.getMenu().findItem(R.id.action_star).setVisible(false);
+                toolbar.getMenu().findItem(R.id.action_blacklist).setVisible(false);
+                toolbar.getMenu().findItem(R.id.action_download_streams).setVisible(false);
+            } else {
                 starredCheck = (CheckBox) toolbar.getMenu().findItem(R.id.action_star).getActionView();
                 starredCheck.setButtonDrawable(android.R.drawable.btn_star);
 
@@ -957,36 +954,26 @@ public class WatchVideoActivity extends AppCompatActivity {
                 starredCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                        // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
-                        // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
-                        final VideoItem _currentVideo = currentVideo;
-                        final Stack<VideoItem> _playbackHistory = playbackHistory;
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (_currentVideo != null) {
-                                    VideoDatabase.getDbInstance(
-                                            WatchVideoActivity.this).videoItemDao().setStarred(_currentVideo.getId(), isChecked);
-
-                                    // обновим кэш
-                                    _currentVideo.setStarred(isChecked);
-
-                                    // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
-                                    // (там ролик будет тот же, а объект VideoItem - другой)
-                                    for (final VideoItem item : _playbackHistory) {
-                                        if (item.getId() == _currentVideo.getId()) {
-                                            item.setStarred(isChecked);
+                        if (currentVideo != null && currentVideo.getId() != VideoItem.ID_NONE) {
+                            VideoItemActions.actionSetStarred(WatchVideoActivity.this, currentVideo, isChecked,
+                                    new VideoItemActions.OnVideoStarredChangeListener() {
+                                        @Override
+                                        public void onVideoStarredChange(final long videoId, final boolean starred) {
+                                            // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
+                                            // (там ролик будет тот же, а объект VideoItem - другой)
+                                            for (final VideoItem item : playbackHistory) {
+                                                if (item.getId() == videoId) {
+                                                    item.setStarred(starred);
+                                                }
+                                            }
                                         }
-                                    }
-                                }
-                            }
-                        }).start();
+                                    });
+                        }
                     }
                 });
+            }
 
-            } else {
-                toolbar.getMenu().findItem(R.id.action_star).setVisible(false);
-                toolbar.getMenu().findItem(R.id.action_blacklist).setVisible(false);
+            if (currentVideo.getPlaylistId() == PlaylistInfo.ID_NONE) {
                 toolbar.getMenu().findItem(R.id.action_copy_playlist_name).setVisible(false);
                 toolbar.getMenu().findItem(R.id.action_copy_playlist_url).setVisible(false);
             }
@@ -1033,148 +1020,56 @@ public class WatchVideoActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_copy_video_name:
-                if (currentVideo != null) {
-                    final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                    final ClipData clip = ClipData.newPlainText(currentVideo.getName(), currentVideo.getName());
-                    clipboard.setPrimaryClip(clip);
-
-                    Toast.makeText(WatchVideoActivity.this,
-                            getString(R.string.copied) + ": " + currentVideo.getName(),
-                            Toast.LENGTH_LONG).show();
-                }
+            case R.id.action_copy_video_name: {
+                VideoItemActions.actionCopyVideoName(WatchVideoActivity.this, currentVideo);
                 break;
-            case R.id.action_copy_video_url:
-                if (currentVideo != null) {
-                    final String vidUrl = currentVideo.getItemUrl();
-                    final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                    final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
-                    clipboard.setPrimaryClip(clip);
-
-                    Toast.makeText(WatchVideoActivity.this,
-                            getString(R.string.copied) + ": " + vidUrl,
-                            Toast.LENGTH_LONG).show();
-                }
+            }
+            case R.id.action_copy_video_url: {
+                VideoItemActions.actionCopyVideoUrl(WatchVideoActivity.this, currentVideo);
                 break;
-            case R.id.action_copy_playlist_name:
-                if (currentVideo != null && currentVideo.getPlaylistId() != PlaylistInfo.ID_NONE) {
-                    final VideoItem _currentVideo = currentVideo;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
-                                    WatchVideoActivity.this).playlistInfoDao().getById(_currentVideo.getPlaylistId());
-                            if (plInfo != null) {
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                        final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
-                                        clipboard.setPrimaryClip(clip);
-
-                                        Toast.makeText(WatchVideoActivity.this,
-                                                getString(R.string.copied) + ": " + plInfo.getName(),
-                                                Toast.LENGTH_LONG).show();
+            }
+            case R.id.action_copy_playlist_name: {
+                VideoItemActions.actionCopyPlaylistName(WatchVideoActivity.this, handler, currentVideo);
+                break;
+            }
+            case R.id.action_copy_playlist_url: {
+                VideoItemActions.actionCopyPlaylistUrl(WatchVideoActivity.this, handler, currentVideo);
+                break;
+            }
+            case R.id.action_blacklist: {
+                VideoItemActions.actionBlacklist(
+                        WatchVideoActivity.this, handler, currentVideo,
+                        new VideoItemActions.OnVideoBlacklistedChangeListener() {
+                            @Override
+                            public void onVideoBlacklistedChange(final long videoId, final boolean blacklisted) {
+                                // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
+                                // (там ролик будет тот же, а объект VideoItem - другой)
+                                for (final VideoItem item : playbackHistory) {
+                                    if (item.getId() == videoId) {
+                                        item.setBlacklisted(true);
                                     }
-                                });
-                            }
-                        }
-                    }).start();
-                } else if (currentVideo != null && currentVideo.getPlaylistId() == PlaylistInfo.ID_NONE) {
-                    Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
-                            Toast.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.action_copy_playlist_url:
-                if (currentVideo != null && currentVideo.getPlaylistId() != PlaylistInfo.ID_NONE) {
-                    final VideoItem _currentVideo = currentVideo;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
-                                    WatchVideoActivity.this).playlistInfoDao().getById(_currentVideo.getPlaylistId());
-                            if (plInfo != null) {
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                        final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
-                                        clipboard.setPrimaryClip(clip);
-
-                                        Toast.makeText(WatchVideoActivity.this,
-                                                getString(R.string.copied) + ": " + plInfo.getUrl(),
-                                                Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                            }
-                        }
-                    }).start();
-                } else if (currentVideo != null && currentVideo.getPlaylistId() == PlaylistInfo.ID_NONE) {
-                    Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
-                            Toast.LENGTH_LONG).show();
-                }
-                break;
-            case R.id.action_blacklist:
-                if (currentVideo != null && currentVideo.getId() != VideoItem.ID_NONE) {
-                    // сохраним переменные здесь, чтобы потом спокойно их использовать внутри потока
-                    // и не бояться, что текущее видео будет переключено до того, как состояние сохранится
-                    final VideoItem _currentVideo = currentVideo;
-                    final Stack<VideoItem> _playbackHistory = playbackHistory;
-                    new AlertDialog.Builder(WatchVideoActivity.this)
-                            .setTitle(getString(R.string.blacklist_video_title))
-                            .setMessage(getString(R.string.blacklist_video_message))
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            VideoDatabase.getDbInstance(WatchVideoActivity.this).
-                                                    videoItemDao().setBlacklisted(_currentVideo.getId(), true);
-
-                                            // обновим кэш
-                                            _currentVideo.setBlacklisted(true);
-
-                                            // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
-                                            // (там ролик будет тот же, а объект VideoItem - другой)
-                                            for (final VideoItem item : _playbackHistory) {
-                                                if (item.getId() == _currentVideo.getId()) {
-                                                    item.setBlacklisted(true);
-                                                }
-                                            }
-
-                                            handler.post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.video_is_blacklisted),
-                                                            Toast.LENGTH_LONG).show();
-                                                }
-                                            });
-                                            // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
-                                            // удалить из истории, начать проигрывать какое-то другое видео
-                                            // (какое? первое из рекомендаций? Что если список рекомендаций пуст?),
-                                            // удалить его из списка рекомендаций (с текущим датасорсом из ROOM
-                                            // это произойдет автоматом) и т.п.
-                                        }
-                                    }).start();
-
                                 }
-                            })
-                            .setNegativeButton(android.R.string.no, null).show();
-                }
+                                // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
+                                // удалить из истории, начать проигрывать какое-то другое видео
+                                // (какое? первое из рекомендаций? Что если список рекомендаций пуст?),
+                                // удалить его из списка рекомендаций (с текущим датасорсом из ROOM
+                                // это произойдет автоматом) и т.п.
+                            }
+                        });
                 break;
-
-            case R.id.action_select_stream:
-                actionSelectStream();
+            }
+            case R.id.action_download_streams: {
+                actionDownloadStreams();
                 break;
-            case R.id.action_download_stream:
-                actionDownloadStream();
+            }
+            case R.id.action_select_streams: {
+                actionSelectStreams();
                 break;
-            case R.id.action_reload:
+            }
+            case R.id.action_reload: {
                 actionReload();
                 break;
-
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -1774,11 +1669,11 @@ public class WatchVideoActivity extends AppCompatActivity {
     /**
      * Выбрать видеопоток для текущего ролика
      */
-    private void actionSelectStream() {
+    private void actionSelectStreams() {
         if (currentVideo != null) {
             videoPlayerView.getPlayer().setPlayWhenReady(false);
-            VideoItemActionFactory.actionSelectStreams(this, handler, currentVideo,
-                    new VideoItemActionFactory.StreamDialogListener() {
+            VideoItemActions.actionSelectStreams(this, handler, currentVideo,
+                    new VideoItemActions.StreamDialogListener() {
                         @Override
                         public void onClose() {
                             // Прячем панель навигации, т.к. при выборе меню она появляется опять.
@@ -1846,11 +1741,11 @@ public class WatchVideoActivity extends AppCompatActivity {
     /**
      * Загрузить видео для просмотра оффлайн.
      */
-    private void actionDownloadStream() {
+    private void actionDownloadStreams() {
         if (currentVideo != null) {
             videoPlayerView.getPlayer().setPlayWhenReady(false);
-            VideoItemActionFactory.actionDownloadStreams(this, handler, currentVideo,
-                    new VideoItemActionFactory.StreamDialogListener() {
+            VideoItemActions.actionDownloadStreams(this, handler, currentVideo,
+                    new VideoItemActions.StreamDialogListener() {
                         @Override
                         public void onClose() {
                             // Прячем панель навигации, т.к. при выборе меню она появляется опять.
@@ -1928,6 +1823,17 @@ public class WatchVideoActivity extends AppCompatActivity {
         popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
         popup.getMenu().removeItem(R.id.action_play_in_playlist);
         popup.getMenu().removeItem(R.id.action_play_in_playlist_shuffle);
+
+        if (videoItem == null || videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
+            popup.getMenu().removeItem(R.id.action_copy_playlist_name);
+            popup.getMenu().removeItem(R.id.action_copy_playlist_url);
+        }
+
+        if (videoItem == null || videoItem.getId() == VideoItem.ID_NONE) {
+            popup.getMenu().removeItem(R.id.action_blacklist);
+            popup.getMenu().removeItem(R.id.action_download_streams);
+        }
+
         popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
             @Override
             public void onDismiss(PopupMenu menu) {
@@ -1941,126 +1847,45 @@ public class WatchVideoActivity extends AppCompatActivity {
                     public boolean onMenuItemClick(final MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.action_copy_video_name: {
-                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                final ClipData clip = ClipData.newPlainText(videoItem.getName(), videoItem.getName());
-                                clipboard.setPrimaryClip(clip);
-
-                                Toast.makeText(WatchVideoActivity.this,
-                                        getString(R.string.copied) + ": " + videoItem.getName(),
-                                        Toast.LENGTH_LONG).show();
+                                VideoItemActions.actionCopyVideoName(WatchVideoActivity.this, videoItem);
                                 break;
                             }
                             case R.id.action_copy_video_url: {
-                                final String vidUrl = videoItem.getItemUrl();
-                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
-                                clipboard.setPrimaryClip(clip);
-
-                                Toast.makeText(WatchVideoActivity.this,
-                                        getString(R.string.copied) + ": " + vidUrl,
-                                        Toast.LENGTH_LONG).show();
+                                VideoItemActions.actionCopyVideoUrl(WatchVideoActivity.this, videoItem);
                                 break;
                             }
-                            case R.id.action_copy_playlist_name:
-                                if (videoItem != null && videoItem.getPlaylistId() != PlaylistInfo.ID_NONE) {
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
-                                                    WatchVideoActivity.this).playlistInfoDao().getById(videoItem.getPlaylistId());
-                                            if (plInfo != null) {
-                                                handler.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                                        final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
-                                                        clipboard.setPrimaryClip(clip);
-
-                                                        Toast.makeText(WatchVideoActivity.this,
-                                                                getString(R.string.copied) + ": " + plInfo.getName(),
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    }).start();
-                                } else if (videoItem != null && videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
-                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
-                                            Toast.LENGTH_LONG).show();
-                                }
+                            case R.id.action_copy_playlist_name: {
+                                VideoItemActions.actionCopyPlaylistName(WatchVideoActivity.this, handler, videoItem);
                                 break;
-                            case R.id.action_copy_playlist_url:
-                                if (videoItem != null && videoItem.getPlaylistId() != PlaylistInfo.ID_NONE) {
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
-                                                    WatchVideoActivity.this).playlistInfoDao().getById(videoItem.getPlaylistId());
-                                            if (plInfo != null) {
-                                                handler.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                                        final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
-                                                        clipboard.setPrimaryClip(clip);
-
-                                                        Toast.makeText(WatchVideoActivity.this,
-                                                                getString(R.string.copied) + ": " + plInfo.getUrl(),
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    }).start();
-                                } else if (videoItem != null && videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
-                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.err_playlist_not_defined),
-                                            Toast.LENGTH_LONG).show();
-                                }
+                            }
+                            case R.id.action_copy_playlist_url: {
+                                VideoItemActions.actionCopyPlaylistUrl(WatchVideoActivity.this, handler, videoItem);
                                 break;
-                            case R.id.action_blacklist:
-                                if (videoItem != null && videoItem.getId() != VideoItem.ID_NONE) {
-                                    final Stack<VideoItem> _playbackHistory = playbackHistory;
-                                    new AlertDialog.Builder(WatchVideoActivity.this)
-                                            .setTitle(getString(R.string.blacklist_video_title))
-                                            .setMessage(getString(R.string.blacklist_video_message))
-                                            .setIcon(android.R.drawable.ic_dialog_alert)
-                                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                                                public void onClick(DialogInterface dialog, int whichButton) {
-                                                    new Thread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            VideoDatabase.getDbInstance(WatchVideoActivity.this).
-                                                                    videoItemDao().setBlacklisted(videoItem.getId(), true);
-
-                                                            // обновим кэш
-                                                            videoItem.setBlacklisted(true);
-
-                                                            // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
-                                                            // (там ролик будет тот же, а объект VideoItem - другой)
-                                                            for (final VideoItem item : _playbackHistory) {
-                                                                if (item.getId() == videoItem.getId()) {
-                                                                    item.setBlacklisted(true);
-                                                                }
-                                                            }
-
-                                                            handler.post(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    Toast.makeText(WatchVideoActivity.this, getString(R.string.video_is_blacklisted),
-                                                                            Toast.LENGTH_LONG).show();
-                                                                }
-                                                            });
-                                                            // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
-                                                            // например, удалить из текущего списка рекомендаций
-                                                        }
-                                                    }).start();
-
+                            }
+                            case R.id.action_blacklist: {
+                                VideoItemActions.actionBlacklist(
+                                        WatchVideoActivity.this, handler, videoItem,
+                                        new VideoItemActions.OnVideoBlacklistedChangeListener() {
+                                            @Override
+                                            public void onVideoBlacklistedChange(final long videoId, final boolean blacklisted) {
+                                                // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
+                                                // (там ролик будет тот же, а объект VideoItem - другой)
+                                                for (final VideoItem item : playbackHistory) {
+                                                    if (item.getId() == videoId) {
+                                                        item.setBlacklisted(blacklisted);
+                                                    }
                                                 }
-                                            })
-                                            .setNegativeButton(android.R.string.no, null).show();
-                                }
+                                                // TODO: здесь что-то нужно сделать после добавления видео в блеклист:
+                                                // например, удалить из текущего списка рекомендаций
+                                            }
+                                        });
                                 break;
+                            }
+                            case R.id.action_download_streams: {
+                                VideoItemActions.actionDownloadStreams(
+                                        WatchVideoActivity.this, handler, videoItem, null);
+                                break;
+                            }
                         }
                         return true;
                     }

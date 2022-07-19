@@ -22,11 +22,11 @@
         android:id="@+id/action_blacklist"
         android:title="@string/add_to_blacklist"/>
     <item
-        android:id="@+id/action_select_stream"
-        android:title="@string/select_stream"/>
+        android:id="@+id/action_download_streams"
+        android:title="@string/download_streams"/>
     <item
-        android:id="@+id/action_download_stream"
-        android:title="@string/download_stream"/>
+        android:id="@+id/action_select_streams"
+        android:title="@string/select_streams"/>
     <item
         android:id="@+id/action_reload"
         android:title="@string/reload"/>

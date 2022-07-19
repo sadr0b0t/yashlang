@@ -20,9 +20,6 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -37,7 +34,6 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +51,7 @@ import java.util.List;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.TaskController;
+import su.sadrobot.yashlang.controller.VideoItemActions;
 import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
@@ -454,33 +451,21 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                         popup.getMenuInflater().inflate(R.menu.video_item_actions, popup.getMenu());
                         popup.getMenu().removeItem(R.id.action_play_in_playlist);
                         popup.getMenu().removeItem(R.id.action_play_in_playlist_shuffle);
-                        popup.getMenu().removeItem(R.id.action_blacklist);
                         popup.getMenu().removeItem(R.id.action_copy_playlist_name);
                         popup.getMenu().removeItem(R.id.action_copy_playlist_url);
+                        popup.getMenu().removeItem(R.id.action_blacklist);
+                        popup.getMenu().removeItem(R.id.action_download_streams);
                         popup.setOnMenuItemClickListener(
                                 new PopupMenu.OnMenuItemClickListener() {
                                     @Override
                                     public boolean onMenuItemClick(final MenuItem item) {
                                         switch (item.getItemId()) {
                                             case R.id.action_copy_video_name: {
-                                                final ClipboardManager clipboard = (ClipboardManager) ConfigurePlaylistsNewItemsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                                                final ClipData clip = ClipData.newPlainText(videoItem.getName(), videoItem.getName());
-                                                clipboard.setPrimaryClip(clip);
-
-                                                Toast.makeText(ConfigurePlaylistsNewItemsFragment.this.getContext(),
-                                                        getString(R.string.copied) + ": " + videoItem.getName(),
-                                                        Toast.LENGTH_LONG).show();
+                                                VideoItemActions.actionCopyVideoName(ConfigurePlaylistsNewItemsFragment.this.getContext(), videoItem);
                                                 break;
                                             }
                                             case R.id.action_copy_video_url: {
-                                                final String vidUrl = videoItem.getItemUrl();
-                                                final ClipboardManager clipboard = (ClipboardManager) ConfigurePlaylistsNewItemsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                                                final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
-                                                clipboard.setPrimaryClip(clip);
-
-                                                Toast.makeText(ConfigurePlaylistsNewItemsFragment.this.getContext(),
-                                                        getString(R.string.copied) + ": " + vidUrl,
-                                                        Toast.LENGTH_LONG).show();
+                                                VideoItemActions.actionCopyVideoUrl(ConfigurePlaylistsNewItemsFragment.this.getContext(), videoItem);
                                                 break;
                                             }
                                         }

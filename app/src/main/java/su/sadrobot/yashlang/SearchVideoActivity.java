@@ -20,12 +20,6 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -52,7 +46,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import su.sadrobot.yashlang.model.PlaylistInfo;
+import su.sadrobot.yashlang.controller.VideoItemActions;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
@@ -131,7 +125,7 @@ public class SearchVideoActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
 
         if (videoItemsLiveData != null) {
@@ -161,25 +155,20 @@ public class SearchVideoActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_play_results:
                 if(videoList.getAdapter().getItemCount() > 0) {
-                    final Intent intent = new Intent(SearchVideoActivity.this, WatchVideoActivity.class);
-                    intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID,
-                            ((VideoItemPagedListAdapter)videoList.getAdapter()).getItem(0).getId());
-                    intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.SEARCH_STR);
-                    intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, searchVideoInput.getText().toString());
-                    startActivity(intent);
+                    VideoItemActions.actionPlayWithSearchResults(
+                            SearchVideoActivity.this,
+                            ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(0),
+                            searchVideoInput.getText().toString().trim());
                 } else {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.action_play_results_shuffle:
                 if(videoList.getAdapter().getItemCount() > 0) {
-                    final Intent intent = new Intent(SearchVideoActivity.this, WatchVideoActivity.class);
-                    intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID,
-                            ((VideoItemPagedListAdapter)videoList.getAdapter()).getItem(0).getId());
-                    intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.SEARCH_STR);
-                    intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, searchVideoInput.getText().toString().trim());
-                    intent.putExtra(WatchVideoActivity.PARAM_SHUFFLE, true);
-                    startActivity(intent);
+                    VideoItemActions.actionPlayWithSearchResultsShuffle(
+                            SearchVideoActivity.this,
+                            ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(0),
+                            searchVideoInput.getText().toString().trim());
                 } else {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
                 }
@@ -204,9 +193,7 @@ public class SearchVideoActivity extends AppCompatActivity {
         final VideoItemPagedListAdapter adapter = new VideoItemPagedListAdapter(this, new OnListItemClickListener<VideoItem>() {
             @Override
             public void onItemClick(final View view, final int position, final VideoItem videoItem) {
-                final Intent intent = new Intent(SearchVideoActivity.this, WatchVideoActivity.class);
-                intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-                startActivity(intent);
+                VideoItemActions.actionPlay(SearchVideoActivity.this, videoItem);
             }
 
             @Override
@@ -220,131 +207,37 @@ public class SearchVideoActivity extends AppCompatActivity {
                             public boolean onMenuItemClick(final MenuItem item) {
                                 switch (item.getItemId()) {
                                     case R.id.action_play_in_playlist: {
-                                        final Intent intent = new Intent(SearchVideoActivity.this, WatchVideoActivity.class);
-                                        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-                                        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
-                                        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
-                                        startActivity(intent);
+                                        VideoItemActions.actionPlayInPlaylist(SearchVideoActivity.this, videoItem);
                                         break;
                                     }
                                     case R.id.action_play_in_playlist_shuffle: {
-                                        final Intent intent = new Intent(SearchVideoActivity.this, WatchVideoActivity.class);
-                                        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-                                        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
-                                        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
-                                        intent.putExtra(WatchVideoActivity.PARAM_SHUFFLE, true);
-                                        startActivity(intent);
+                                        VideoItemActions.actionPlayInPlaylistShuffle(SearchVideoActivity.this, videoItem);
                                         break;
                                     }
                                     case R.id.action_copy_video_name: {
-                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                        final ClipData clip = ClipData.newPlainText(videoItem.getName(), videoItem.getName());
-                                        clipboard.setPrimaryClip(clip);
-
-                                        Toast.makeText(SearchVideoActivity.this,
-                                                getString(R.string.copied) + ": " + videoItem.getName(),
-                                                Toast.LENGTH_LONG).show();
+                                        VideoItemActions.actionCopyVideoName(SearchVideoActivity.this, videoItem);
                                         break;
                                     }
                                     case R.id.action_copy_video_url: {
-                                        final String vidUrl = videoItem.getItemUrl();
-                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                        final ClipData clip = ClipData.newPlainText(vidUrl, vidUrl);
-                                        clipboard.setPrimaryClip(clip);
-
-                                        Toast.makeText(SearchVideoActivity.this,
-                                                getString(R.string.copied) + ": " + vidUrl,
-                                                Toast.LENGTH_LONG).show();
+                                        VideoItemActions.actionCopyVideoUrl(SearchVideoActivity.this, videoItem);
                                         break;
                                     }
-                                    case R.id.action_copy_playlist_name:
-                                        if (videoItem != null && videoItem.getPlaylistId() != PlaylistInfo.ID_NONE) {
-                                            new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
-                                                            SearchVideoActivity.this).playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                    if(plInfo != null) {
-                                                        handler.post(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                                                final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
-                                                                clipboard.setPrimaryClip(clip);
-
-                                                                Toast.makeText(SearchVideoActivity.this,
-                                                                        getString(R.string.copied) + ": " + plInfo.getName(),
-                                                                        Toast.LENGTH_LONG).show();
-                                                            }
-                                                        });
-                                                    }
-                                                }
-                                            }).start();
-                                        } else if(videoItem != null && videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
-                                            Toast.makeText(SearchVideoActivity.this, getString(R.string.err_playlist_not_defined),
-                                                    Toast.LENGTH_LONG).show();
-                                        }
+                                    case R.id.action_copy_playlist_name: {
+                                        VideoItemActions.actionCopyPlaylistName(SearchVideoActivity.this, handler, videoItem);
                                         break;
-                                    case R.id.action_copy_playlist_url:
-                                        if (videoItem != null && videoItem.getPlaylistId() != PlaylistInfo.ID_NONE) {
-                                            new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    final PlaylistInfo plInfo = VideoDatabase.getDbInstance(
-                                                            SearchVideoActivity.this).playlistInfoDao().getById(videoItem.getPlaylistId());
-                                                    if(plInfo != null) {
-                                                        handler.post(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                                                final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
-                                                                clipboard.setPrimaryClip(clip);
-
-                                                                Toast.makeText(SearchVideoActivity.this,
-                                                                        getString(R.string.copied) + ": " + plInfo.getUrl(),
-                                                                        Toast.LENGTH_LONG).show();
-                                                            }
-                                                        });
-                                                    }
-                                                }
-                                            }).start();
-                                        } else if(videoItem != null && videoItem.getPlaylistId() == PlaylistInfo.ID_NONE) {
-                                            Toast.makeText(SearchVideoActivity.this, getString(R.string.err_playlist_not_defined),
-                                                    Toast.LENGTH_LONG).show();
-                                        }
+                                    }
+                                    case R.id.action_copy_playlist_url: {
+                                        VideoItemActions.actionCopyPlaylistUrl(SearchVideoActivity.this, handler, videoItem);
                                         break;
-                                    case R.id.action_blacklist:
-                                        if (videoItem != null && videoItem.getId() != VideoItem.ID_NONE) {
-                                            new AlertDialog.Builder(SearchVideoActivity.this)
-                                                    .setTitle(getString(R.string.blacklist_video_title))
-                                                    .setMessage(getString(R.string.blacklist_video_message))
-                                                    .setIcon(android.R.drawable.ic_dialog_alert)
-                                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                                            new Thread(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    VideoDatabase.getDbInstance(SearchVideoActivity.this).
-                                                                            videoItemDao().setBlacklisted(videoItem.getId(), true);
-                                                                    // обновим кэш
-                                                                    videoItem.setBlacklisted(true);
-                                                                    handler.post(new Runnable() {
-                                                                        @Override
-                                                                        public void run() {
-                                                                            Toast.makeText(SearchVideoActivity.this, getString(R.string.video_is_blacklisted),
-                                                                                    Toast.LENGTH_LONG).show();
-                                                                        }
-                                                                    });
-                                                                    // (на этом экране список рекомендаций обновится автоматом)
-                                                                }
-                                                            }).start();
-
-                                                        }
-                                                    })
-                                                    .setNegativeButton(android.R.string.no, null).show();
-                                        }
+                                    }
+                                    case R.id.action_blacklist: {
+                                        VideoItemActions.actionBlacklist(SearchVideoActivity.this, handler, videoItem, null);
                                         break;
+                                    }
+                                    case R.id.action_download_streams: {
+                                        VideoItemActions.actionDownloadStreams(SearchVideoActivity.this, handler, videoItem, null);
+                                        break;
+                                    }
                                 }
                                 return true;
                             }

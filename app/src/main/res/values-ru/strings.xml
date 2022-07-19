@@ -37,7 +37,6 @@
     <string name="copy_video_url">Копировать адрес видео</string>
     <string name="tab_item_playlist">Плейлист</string>
     <string name="tab_item_new">Новое</string>
-    <string name="err_playlist_not_defined">ошибка: плейлист не определен</string>
     <string name="delete_playlist_title">Правда удалить плейлист?</string>
     <string name="delete_playlist_message">Ролики из этого списка также исчезнут из списка любимых и истории</string>
     <string name="adding_playlist_new_items">Добавляем в плейлист новые элементы</string>
@@ -136,7 +135,7 @@
     <string name="clipboard_is_empty">В буфере обмена пусто</string>
     <string name="no_playlists_to_import">Нет плейлистов для импорта</string>
     <string name="export_dir_location">Каталог для экспорта: %s</string>
-    <string name="select_stream">Выбрать поток</string>
+    <string name="select_streams">Выбрать потоки</string>
     <string name="no_streams_for_video_item">Для ролика не найдено потоков видео</string>
     <string name="configure_moar">Больше настроек</string>
     <string name="tab_item_video_quality">Качество видео</string>
@@ -149,7 +148,7 @@
     <string name="vid_stream_prefer_lower">более низкое качество</string>
     <string name="vid_stream_prefer_if_not_available">Если не доступно, предпочитать</string>
     <string name="done_importing">Импортировали что было</string>
-    <string name="download_stream">Скачать поток</string>
+    <string name="download_streams">Скачать</string>
     <string name="yashlang_stream_cache">YaShlang: закачанные потоки</string>
     <string name="downloads">💾 Закачанные потоки</string>
     <string name="no_active_downloads">Нет активных закачек</string>

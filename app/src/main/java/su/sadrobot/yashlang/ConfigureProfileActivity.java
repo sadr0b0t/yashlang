@@ -21,9 +21,6 @@ package su.sadrobot.yashlang;
  */
 
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import su.sadrobot.yashlang.controller.PlaylistInfoActions;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.Profile;
 import su.sadrobot.yashlang.model.VideoDatabase;
@@ -314,23 +312,15 @@ public class ConfigureProfileActivity extends AppCompatActivity {
                                             public boolean onMenuItemClick(final MenuItem item) {
                                                 switch (item.getItemId()) {
                                                     case R.id.action_copy_playlist_name: {
-                                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                                        final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
-                                                        clipboard.setPrimaryClip(clip);
-
-                                                        Toast.makeText(ConfigureProfileActivity.this,
-                                                                getString(R.string.copied) + ": " + plInfo.getName(),
-                                                                Toast.LENGTH_LONG).show();
+                                                        PlaylistInfoActions.actionCopyPlaylistName(
+                                                                ConfigureProfileActivity.this,
+                                                                plInfo);
                                                         break;
                                                     }
                                                     case R.id.action_copy_playlist_url: {
-                                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                                        final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
-                                                        clipboard.setPrimaryClip(clip);
-
-                                                        Toast.makeText(ConfigureProfileActivity.this,
-                                                                getString(R.string.copied) + ": " + plInfo.getUrl(),
-                                                                Toast.LENGTH_LONG).show();
+                                                        PlaylistInfoActions.actionCopyPlaylistUrl(
+                                                                ConfigureProfileActivity.this,
+                                                                plInfo);
                                                         break;
                                                     }
                                                 }

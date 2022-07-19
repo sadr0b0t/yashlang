@@ -20,18 +20,12 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +36,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
+import su.sadrobot.yashlang.controller.PlaylistInfoActions;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 
@@ -142,6 +137,14 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                 public void run() {
                     plInfo = VideoDatabase.getDbInstance(ConfigurePlaylistActivity.this).
                             playlistInfoDao().getById(playlistId);
+
+                    // пересозданим меню
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            invalidateOptionsMenu();
+                        }
+                    });
                 }
             }).start();
         }
@@ -151,12 +154,15 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(final Menu menu) {
         // https://developer.android.com/training/appbar/action-views.html
 
-        toolbar.inflateMenu(R.menu.configure_playlist_actions);
-        enabledSwitch = (Switch) toolbar.getMenu().findItem(R.id.action_enable).getActionView();
-
-        // plInfo загружается в фоновом потоке из onCreate, но все равно появляется раньше, чем
-        // вызывается onCreateOptionsMenu, поэтому здесь plInfo, вообще говоря, не должен быть null
+        // Без живого plInfo не будем показывать тулбар
+        // plInfo загружается в фоновом потоке из onCreate, после загрузки вызываем invalidateOptionsMenu,
+        // чтобы иметь возможность пересоздать меню с живым plInfo.
+        // Но plInfo обычно появляется раньше, чем вызывается onCreateOptionsMenu, поэтому здесь plInfo
+        // обычно сразу будет не null
         if (plInfo != null) {
+            toolbar.inflateMenu(R.menu.configure_playlist_actions);
+            enabledSwitch = (Switch) toolbar.getMenu().findItem(R.id.action_enable).getActionView();
+
             enabledSwitch.setChecked(plInfo.isEnabled());
             enabledSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -165,25 +171,23 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             if (plInfo != null) {
-                                VideoDatabase.getDbInstance(ConfigurePlaylistActivity.this).
-                                        playlistInfoDao().setEnabled(plInfo.getId(), isChecked);
-
-                                // обновим кэш
-                                plInfo.setEnabled(isChecked);
+                                PlaylistInfoActions.actionSetPlaylistEnabled(
+                                        ConfigurePlaylistActivity.this,
+                                        plInfo, isChecked);
                             }
                         }
                     }).start();
                 }
             });
-        }
 
-        toolbar.setOnMenuItemClickListener(
-                new Toolbar.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        return onOptionsItemSelected(item);
-                    }
-                });
+            toolbar.setOnMenuItemClickListener(
+                    new Toolbar.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            return onOptionsItemSelected(item);
+                        }
+                    });
+        }
 
         return true;
     }
@@ -191,69 +195,28 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_enable:
-                if (plInfo != null) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            VideoDatabase.getDbInstance(ConfigurePlaylistActivity.this).
-                                    videoItemDao().setStarred(plInfo.getId(), !plInfo.isEnabled());
-                            // обновим кэш
-                            plInfo.setEnabled(!plInfo.isEnabled());
-                        }
-                    }).start();
-                }
-                break;
             case R.id.action_copy_playlist_name:
-                if (plInfo != null) {
-                    final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                    final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
-                    clipboard.setPrimaryClip(clip);
-
-                    Toast.makeText(ConfigurePlaylistActivity.this,
-                            getString(R.string.copied) + ": " + plInfo.getName(),
-                            Toast.LENGTH_LONG).show();
-                }
+                PlaylistInfoActions.actionCopyPlaylistName(ConfigurePlaylistActivity.this, plInfo);
                 break;
             case R.id.action_copy_playlist_url:
-                if (plInfo != null) {
-                    final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                    final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
-                    clipboard.setPrimaryClip(clip);
-
-                    Toast.makeText(ConfigurePlaylistActivity.this,
-                            getString(R.string.copied) + ": " + plInfo.getUrl(),
-                            Toast.LENGTH_LONG).show();
-                }
+                PlaylistInfoActions.actionCopyPlaylistUrl(ConfigurePlaylistActivity.this, plInfo);
                 break;
             case R.id.action_delete:
-                new AlertDialog.Builder(ConfigurePlaylistActivity.this)
-                        .setTitle(getString(R.string.delete_playlist_title))
-                        .setMessage(getString(R.string.delete_playlist_message))
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                                new Thread(new Runnable() {
+                PlaylistInfoActions.actionDeletePlaylist(
+                        ConfigurePlaylistActivity.this, playlistId,
+                        new PlaylistInfoActions.OnPlaylistDeletedListener() {
+                            @Override
+                            public void onPlaylistDeleted() {
+                                handler.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        final VideoDatabase videodb = VideoDatabase.getDbInstance(ConfigurePlaylistActivity.this);
-                                        final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(playlistId);
-                                        videodb.playlistInfoDao().delete(plInfo);
-
-                                        handler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                ConfigurePlaylistActivity.this.finish();
-                                            }
-                                        });
+                                        ConfigurePlaylistActivity.this.finish();
                                     }
-                                }).start();
-
+                                });
                             }
-                        })
-                        .setNegativeButton(android.R.string.no, null).show();
+                        }
+                );
+                break;
         }
 
         return super.onOptionsItemSelected(item);

@@ -20,9 +20,6 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -38,7 +35,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,7 +48,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
+import su.sadrobot.yashlang.controller.PlaylistInfoActions;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
@@ -292,9 +288,7 @@ public class ConfigurePlaylistsFragment extends Fragment {
                 new OnListItemClickListener<PlaylistInfo>() {
                     @Override
                     public void onItemClick(final View view, final int position, final PlaylistInfo item) {
-                        final Intent intent = new Intent(ConfigurePlaylistsFragment.this.getContext(), ConfigurePlaylistActivity.class);
-                        intent.putExtra(ConfigurePlaylistActivity.PARAM_PLAYLIST_ID, item.getId());
-                        startActivity(intent);
+                        PlaylistInfoActions.actionConfigurePlaylist(ConfigurePlaylistsFragment.this.getContext(), item.getId());
                     }
 
                     @Override
@@ -312,25 +306,15 @@ public class ConfigurePlaylistsFragment extends Fragment {
                                     public boolean onMenuItemClick(final MenuItem item) {
                                         switch (item.getItemId()) {
                                             case R.id.action_copy_playlist_name: {
-                                                final ClipboardManager clipboard = (ClipboardManager)
-                                                        ConfigurePlaylistsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                                                final ClipData clip = ClipData.newPlainText(plInfo.getName(), plInfo.getName());
-                                                clipboard.setPrimaryClip(clip);
-
-                                                Toast.makeText(ConfigurePlaylistsFragment.this.getContext(),
-                                                        getString(R.string.copied) + ": " + plInfo.getName(),
-                                                        Toast.LENGTH_LONG).show();
+                                                PlaylistInfoActions.actionCopyPlaylistName(
+                                                        ConfigurePlaylistsFragment.this.getContext(),
+                                                        plInfo);
                                                 break;
                                             }
                                             case R.id.action_copy_playlist_url: {
-                                                final ClipboardManager clipboard = (ClipboardManager)
-                                                        ConfigurePlaylistsFragment.this.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                                                final ClipData clip = ClipData.newPlainText(plInfo.getUrl(), plInfo.getUrl());
-                                                clipboard.setPrimaryClip(clip);
-
-                                                Toast.makeText(ConfigurePlaylistsFragment.this.getContext(),
-                                                        getString(R.string.copied) + ": " + plInfo.getUrl(),
-                                                        Toast.LENGTH_LONG).show();
+                                                PlaylistInfoActions.actionCopyPlaylistUrl(
+                                                        ConfigurePlaylistsFragment.this.getContext(),
+                                                        plInfo);
                                                 break;
                                             }
                                         }
@@ -349,8 +333,7 @@ public class ConfigurePlaylistsFragment extends Fragment {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                VideoDatabase.getDbInstance(getContext()).
-                                        playlistInfoDao().setEnabled(item.getId(), isChecked);
+                                PlaylistInfoActions.actionSetPlaylistEnabled(getContext(), item, isChecked);
                             }
                         }).start();
                     }

@@ -20,19 +20,17 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
+import su.sadrobot.yashlang.controller.PlaylistInfoActions;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
@@ -157,14 +156,33 @@ public class SearchOnlinePlaylistActivity extends AppCompatActivity {
                                         finish();
                                     }
                                     @Override
-                                    public boolean onItemLongClick(final View view, final int position, final PlaylistInfo item) {
-                                        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                        final ClipData clip = ClipData.newPlainText(item.getUrl(), item.getUrl());
-                                        clipboard.setPrimaryClip(clip);
-
-                                        Toast.makeText(SearchOnlinePlaylistActivity.this,
-                                                getString(R.string.copied) + ": " + item.getUrl(),
-                                                Toast.LENGTH_LONG).show();
+                                    public boolean onItemLongClick(final View view, final int position, final PlaylistInfo plInfo) {
+                                        final PopupMenu popup = new PopupMenu(SearchOnlinePlaylistActivity.this,
+                                                view.findViewById(R.id.playlist_name_txt));
+                                        popup.getMenuInflater().inflate(R.menu.playlist_item_actions, popup.getMenu());
+                                        popup.setOnMenuItemClickListener(
+                                                new PopupMenu.OnMenuItemClickListener() {
+                                                    @Override
+                                                    public boolean onMenuItemClick(final MenuItem item) {
+                                                        switch (item.getItemId()) {
+                                                            case R.id.action_copy_playlist_name: {
+                                                                PlaylistInfoActions.actionCopyPlaylistName(
+                                                                        SearchOnlinePlaylistActivity.this,
+                                                                        plInfo);
+                                                                break;
+                                                            }
+                                                            case R.id.action_copy_playlist_url: {
+                                                                PlaylistInfoActions.actionCopyPlaylistUrl(
+                                                                        SearchOnlinePlaylistActivity.this,
+                                                                        plInfo);
+                                                                break;
+                                                            }
+                                                        }
+                                                        return true;
+                                                    }
+                                                }
+                                        );
+                                        popup.show();
                                         return true;
                                     }
                                 }, null));
