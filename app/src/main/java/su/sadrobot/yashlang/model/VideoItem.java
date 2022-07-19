@@ -102,7 +102,11 @@ public class VideoItem {
 
     /**
      * Количество просмотров на внешнем сервисе (Youtube)
+     * Пожалуй, это поле следует удалить. При первой загрузке плейлиста можно получить только
+     * сиюминутное значение. В дальнейшем нет никакой возможности поддерживать его в актуальном
+     * состоянии для всех роликов в базе, ни смысла. В интерфейсе на текущий момент нигде не используется.
      */
+    @Deprecated
     @ColumnInfo(name = "view_count_ext")
     private long viewCountExt;
 
@@ -343,10 +347,12 @@ public class VideoItem {
         return viewCount;
     }
 
+    @Deprecated
     public void setViewCount(long viewCount) {
         this.viewCount = viewCount;
     }
 
+    @Deprecated
     public long getViewCountExt() {
         return viewCountExt;
     }
