@@ -100,7 +100,10 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
 
                 @Override
                 public boolean areContentsTheSame(PlaylistInfo oldItem, PlaylistInfo newItem) {
-                    return (oldItem.getUrl().equals(newItem.getUrl()));
+                    // Здесь следует перечислить все поля, которые в том или ином виде
+                    // отображены на элементе списка: например, флаг для плейлиста включен/выключен
+                    // (для плейлиста пока получается, что это единственный флаг)
+                    return (oldItem.isEnabled() == newItem.isEnabled());
                 }
             };
 

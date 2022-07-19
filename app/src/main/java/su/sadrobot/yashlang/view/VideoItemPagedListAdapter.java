@@ -120,7 +120,27 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
 
                 @Override
                 public boolean areContentsTheSame(VideoItem oldItem, VideoItem newItem) {
-                    return (oldItem.getItemUrl().equals(newItem.getItemUrl()));
+                    // Здесь следует перечислить все поля, которые в том или ином виде
+                    // отображены на элементе списка: например, прогресс (pausedAt), или
+                    // статус "любомое" (starred). В таком случае при изменении этих полей
+                    // (например, при сохранении новой позиции или переключении состояния
+                    // звездочки) будет автоматически изменяться состояние элемента в загруженном
+                    // списке (на текущем экране - например, в рекомендациях на экране плеера,
+                    // или в списке на экране, из которого был открыт плеер)
+                    // Но внесем сюда только изменяемые позиции (имя или адрес ролика не изменяются,
+                    // поэтому сравнивать дополнительно их нет большого смысла)
+                    return (oldItem.isStarred() == newItem.isStarred() &&
+                            oldItem.getPausedAt() == newItem.getPausedAt() &&
+                            oldItem.isHasOffline() == newItem.isHasOffline() &&
+                            oldItem.isBlacklisted() == newItem.isBlacklisted() &&
+                            oldItem.isEnabled() == newItem.isEnabled() &&
+                            oldItem.getViewCount() == newItem.getViewCount() &&
+                            ( (oldItem.getLastViewedDate() != null && newItem.getLastViewedDate() != null &&
+                                    oldItem.getLastViewedDate().equals(newItem.getLastViewedDate())) ||
+                                    (oldItem.getLastViewedDate() == null && newItem.getLastViewedDate() == null) ) &&
+                            ( (oldItem.getStarredDate() != null && newItem.getStarredDate() != null &&
+                                    oldItem.getStarredDate().equals(newItem.getStarredDate())) ||
+                                    (oldItem.getStarredDate() == null && newItem.getStarredDate() == null) ) );
                 }
             };
 

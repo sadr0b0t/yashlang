@@ -184,15 +184,6 @@ public class Glagna extends AppCompatActivity {
         setupVideoListAdapter();
     }
 
-    @Override
-    public void onPause(){
-        super.onPause();
-
-        if (videoItemsLiveData != null) {
-            videoItemsLiveData.removeObservers(this);
-        }
-    }
-
     private void setupVideoListAdapter() {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);

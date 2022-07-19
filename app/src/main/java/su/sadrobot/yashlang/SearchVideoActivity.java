@@ -125,15 +125,6 @@ public class SearchVideoActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-
-        if (videoItemsLiveData != null) {
-            videoItemsLiveData.removeObservers(this);
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         // https://developer.android.com/training/appbar/action-views.html
 
