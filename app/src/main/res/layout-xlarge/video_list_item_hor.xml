@@ -17,17 +17,52 @@
             android:scaleType="fitCenter"
             android:src="@drawable/ic_yashlang_thumb" />
 
-        <TextView
-            android:id="@+id/video_duration_txt"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right|bottom"
             android:layout_margin="2dp"
-            android:padding="2dp"
             android:background="#000000"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="2dp">
 
+            <TextView
+                android:id="@+id/video_has_offline_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="4dp"
+                android:text="@string/icon_offline"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/video_duration_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/video_starred_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top"
+            android:layout_margin="2dp"
+            android:src="@android:drawable/btn_star_big_on"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/video_progress"
+            android:layout_width="320dp"
+            android:layout_height="3dp"
+            android:layout_gravity="left|bottom"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
+            android:visibility="gone" />
     </FrameLayout>
 
     <TextView
@@ -35,8 +70,8 @@
         android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="2dp"
-        android:maxLines="2"
         android:ellipsize="end"
+        android:maxLines="2"
         android:textAlignment="center"
         android:textColor="#f4f4f4"
         android:textSize="14sp" />
