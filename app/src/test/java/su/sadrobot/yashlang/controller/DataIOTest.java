@@ -82,6 +82,8 @@ public class DataIOTest {
     public static void checkPlaylistsAlive() {
         System.out.println("***** TEST: checkPlaylistsAlive *****");
 
+        boolean allPlaylistsOk = true;
+
         try {
             final String loadedFileContent = DataIO.loadFromResource("/su/sadrobot/yashlang/data/recommended-playlists.json");
 
@@ -93,11 +95,20 @@ public class DataIOTest {
                     ContentLoader.getInstance().getPlaylistInfo(plInfo.getUrl());
                     System.out.println("..........OK");
                 } catch (ExtractionException | IOException e) {
+                    allPlaylistsOk = false;
                     System.out.println("..........ERROR: " + e.getMessage());
                 }
             }
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println("--------");
+        if (allPlaylistsOk) {
+            System.out.println("ОК: ВСЕ плейлисты в порядке");
+        } else {
+            System.out.println("ЕСТЬ ОШИБКИ: с некоторыми плейлистами есть проблемы (см. лог выше)");
+        }
+        System.out.println("--------");
     }
 }
