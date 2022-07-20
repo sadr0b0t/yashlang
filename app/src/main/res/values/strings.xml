@@ -189,4 +189,10 @@
     <string name="stream_none">None</string>
     <string name="select_video_item_streams">Select streams for video item</string>
     <string name="vid_stream_prefer_offline">Play offline stream max quality before all if available</string>
+    <string name="tab_item_size_on_disk">Size on disk</string>
+    <string name="stream_cache_fs_total">Total</string>
+    <string name="stream_cache_fs_finished">Finished</string>
+    <string name="stream_cache_fs_not_finished">Not finished</string>
+    <string name="stream_cache_fs_unmanaged">Unmanaged</string>
+    <string name="stream_cache_dir_path">Stream cache dir path</string>
 </resources>

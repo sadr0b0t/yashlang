@@ -58,6 +58,7 @@ public class StreamCacheActivity extends AppCompatActivity {
 
     private StreamCacheDownloadFragment streamCacheDownloadFrag;
     private StreamCacheFragment streamCacheFrag;
+    private StreamCacheFsStatusFragment streamCacheFsStatusFrag;
 
     private final Handler handler = new Handler();
 
@@ -79,11 +80,12 @@ public class StreamCacheActivity extends AppCompatActivity {
 
         streamCacheDownloadFrag = new StreamCacheDownloadFragment();
         streamCacheFrag = new StreamCacheFragment();
+        streamCacheFsStatusFrag = new StreamCacheFsStatusFragment();
 
         pager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public int getCount() {
-                return 2;
+                return 3;
             }
 
             @NonNull
@@ -91,8 +93,10 @@ public class StreamCacheActivity extends AppCompatActivity {
             public Fragment getItem(int position) {
                 if (position == 0) {
                     return streamCacheDownloadFrag;
-                } else {
+                } else if (position == 1) {
                     return streamCacheFrag;
+                } else {
+                    return streamCacheFsStatusFrag;
                 }
             }
 
@@ -100,8 +104,10 @@ public class StreamCacheActivity extends AppCompatActivity {
             public CharSequence getPageTitle(int position) {
                 if (position == 0) {
                     return getString(R.string.tab_item_stream_cache_download);
-                } else {
+                } else if (position == 1) {
                     return getString(R.string.tab_item_stream_cache);
+                } else {
+                    return getString(R.string.tab_item_size_on_disk);
                 }
             }
         });
@@ -178,12 +184,11 @@ public class StreamCacheActivity extends AppCompatActivity {
                 } else {
                     final StringBuilder unmanagedFilesListStr = new StringBuilder();
                     unmanagedFilesListStr.append(StreamCacheFsManager.getStreamCacheDir(StreamCacheActivity.this));
-                    long totalSize = 0;
+                    final long totalSize = StreamCacheFsManager.getUnmanagedFilesFsSize(StreamCacheActivity.this);
                     for (final File file : unmanagedFiles) {
-                        long size = file.length();
-                        totalSize += size;
-                        unmanagedFilesListStr.append("\n" + file.getName() +" (" +
-                                StringFormatUtil.formatFileSize(StreamCacheActivity.this, size) +
+                        unmanagedFilesListStr.append(
+                                "\n" + file.getName() +" (" +
+                                StringFormatUtil.formatFileSize(StreamCacheActivity.this, file.length()) +
                                 ")");
                     }
                     final String title = getString(R.string.delete_unmanaged_files_title).

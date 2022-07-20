@@ -189,4 +189,10 @@
     <string name="stream_none">Нет</string>
     <string name="select_video_item_streams">Выбрать потоки для ролика</string>
     <string name="vid_stream_prefer_offline">Выбирать поток оффлайн раньше остальных (если потоков оффлайн несколько, будет выбран с наилучшим качеством)</string>
+    <string name="tab_item_size_on_disk">Размер на диске</string>
+    <string name="stream_cache_fs_total">Всего</string>
+    <string name="stream_cache_fs_finished">Завершенные</string>
+    <string name="stream_cache_fs_not_finished">Незавершенные</string>
+    <string name="stream_cache_fs_unmanaged">Бесхозные</string>
+    <string name="stream_cache_dir_path">Каталог на диске</string>
 </resources>

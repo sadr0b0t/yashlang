@@ -66,6 +66,9 @@ public abstract class StreamCacheDao {
     @Query("UPDATE video_item SET has_offline = :hasOffline WHERE _id = :videoId")
     protected abstract void setVideoHasOffline(long videoId, boolean hasOffline);
 
+    @Query("SELECT SUM(stream_size) FROM stream_cache WHERE downloaded AND stream_size > 0")
+    public abstract long getFinishedSize();
+
     @Transaction
     public long insertStreamCache(final StreamCache cacheItem) {
         final long id = insert(cacheItem);

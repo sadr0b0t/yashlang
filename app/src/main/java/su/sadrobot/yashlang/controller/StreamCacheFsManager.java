@@ -145,4 +145,45 @@ public class StreamCacheFsManager {
         }
         return unmanagedFiles;
     }
+
+    public static long getStreamCacheFsSize(final Context context) {
+        final File cacheDir = getStreamCacheDir(context);
+
+        // https://stackoverflow.com/questions/2149785/get-size-of-folder-or-file
+        long cacheSize = 0;
+        final File[] cacheFiles = cacheDir.listFiles();
+        if (cacheFiles != null) {
+            for (final File file : cacheFiles) {
+                if (file.isFile()) {
+                    cacheSize += file.length();
+                }
+            }
+        }
+        return  cacheSize;
+    }
+
+    public static long getStreamCacheUnfinishedPartsFsSize(final Context context) {
+        final File cacheDir = getStreamCacheDir(context);
+
+        // https://stackoverflow.com/questions/2149785/get-size-of-folder-or-file
+        long cachePartSize = 0;
+        final File[] cacheFiles = cacheDir.listFiles();
+        if (cacheFiles != null) {
+            for (final File file : cacheFiles) {
+                if (file.isFile() && file.getName().endsWith(PART_FILE_POSTFIX)) {
+                    cachePartSize += file.length();
+                }
+            }
+        }
+        return  cachePartSize;
+    }
+
+    public static long getUnmanagedFilesFsSize(final Context context) {
+        final List<File> unmanagedFiles = StreamCacheFsManager.getUnmanagedFiles(context);
+        long totalSize = 0;
+        for (final File file : unmanagedFiles) {
+            totalSize += file.length();
+        }
+        return totalSize;
+    }
 }
