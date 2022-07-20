@@ -143,7 +143,7 @@ public class StreamCacheDownloadFragment extends Fragment {
         streamCacheDownloadServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(final ComponentName name, final IBinder service) {
-                streamCacheDownloadService = ((StreamCacheDownloadService.StreamCacheDownloadServiceBinder)service).getService();
+                streamCacheDownloadService = ((StreamCacheDownloadService.StreamCacheDownloadServiceBinder) service).getService();
 
                 // текущие элементы (при первом обращении будет пустой список)
                 setupStreamListAdapter();

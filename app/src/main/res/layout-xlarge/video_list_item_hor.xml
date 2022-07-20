@@ -71,7 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="2dp"
         android:ellipsize="end"
-        android:maxLines="2"
+        android:lines="2"
         android:textAlignment="center"
         android:textColor="#f4f4f4"
         android:textSize="14sp" />
