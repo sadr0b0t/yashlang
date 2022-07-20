@@ -16,12 +16,6 @@
       "thumb_url": "https://open.tube/lazy-static/avatars/a5a7dff0-27ed-4079-9a91-165a30fb5532.jpg",
       "type": "PT_USER"
     },
-    {
-      "name": "films",
-      "url": "https://vidcommons.org/accounts/films/videos",
-      "thumb_url": "https://vidcommons.org/lazy-static/avatars/bb912df2-a136-4590-96a2-e5de06db9ccd.jpg",
-      "type": "PT_USER"
-    },
 
     {
       "_ignore": "true",
@@ -243,13 +237,6 @@
       "type": "YT_USER"
     },
     {
-      "_comment": "// [теперь уже немного, но что-то осталось] много разных мультиков (в т.ч. с зачищенного союзмультифильма)",
-      "name": "Мультяшики",
-      "url": "https://www.youtube.com/channel/UC1shWzOsPcKAVDjJ9HnwKwQ",
-      "thumb_url": "https://yt3.ggpht.com/ytc/AAUvwnil1LMRGYrGDC9jHOmWvGgRbBEf8BYktntD4O_udw=s240-c-k-c0x00ffffff-no-rj",
-      "type": "YT_CHANNEL"
-    },
-    {
       "name": "Мульт _TV",
       "url": "https://www.youtube.com/channel/UCd6CwAi4-9_k3Ooa8A66fzQ",
       "thumb_url": "https://yt3.ggpht.com/ytc/AAUvwngYDL3syIx001-nlAsEXR4KeHkLEhnhO9PefZv3zQ=s240-c-k-c0x00ffffff-no-rj",
@@ -406,12 +393,6 @@
       "type": "YT_USER"
     },
     {
-      "name": "LFV (Ленфильм)",
-      "url": "https://www.youtube.com/user/LenfilmVideo",
-      "thumb_url": "https://yt3.ggpht.com/a/AGF-l7-mV3IOoSod_k4Vnm4EZGDrhPyyYCx5QyHRfw=s240-c-k-c0xffffffff-no-rj-mo",
-      "type": "YT_USER"
-    },
-    {
       "name": "Киностудия Горького",
       "url": "https://www.youtube.com/c/gorkyfilmstudio",
       "thumb_url": "https://yt3.ggpht.com/ytc/AKedOLT7PJGkjLfNKuAdSHIyf3lW5mRPhisCRnYDWVQn=s240-c-k-c0x00ffffff-no-rj",
@@ -539,12 +520,6 @@
       "name": "КИНОтеатр Ностальгия",
       "url": "https://www.youtube.com/channel/UCYf677te1lsZoWFzHGe-z6A",
       "thumb_url": "https://yt3.ggpht.com/ytc/AKedOLQqS1ahOVEoLLxneGzxV0qlbQTmUKdTMdJ78-0SkA=s240-c-k-c0x00ffffff-no-rj",
-      "type": "YT_CHANNEL"
-    },
-    {
-      "name": "Фильмотека 1",
-      "url": "https://www.youtube.com/channel/UCDc1U6laUS1WO77TQC5kBlw",
-      "thumb_url": "https://yt3.ggpht.com/GC_hnked1R9zqx-dmjbHrRWIOwDSnwmGpcWVjlGviA6VmeCvUL20Gi882AsbA25M9-15Mp33ZP0=s240-c-k-c0x00ffffff-no-rj",
       "type": "YT_CHANNEL"
     },
 
@@ -796,12 +771,6 @@
       "name": "Детское Радио",
       "url": "https://www.youtube.com/user/DetiFM",
       "thumb_url": "https://yt3.ggpht.com/ytc/AKedOLT3is0VinNrUm717fxCkbKCJ_20rBVGj5m8vZWP=s240-c-k-c0x00ffffff-no-rj",
-      "type": "YT_USER"
-    },
-    {
-      "name": "Наука 2.0",
-      "url": "https://www.youtube.com/c/NaukaTV",
-      "thumb_url": "https://yt3.ggpht.com/a/AATXAJxCxKX8Rfv9A481SgY7idXoeCfQmEkeuJYI-Obpjg=s240-c-k-c0x00ffffff-no-rj",
       "type": "YT_USER"
     },
     {
