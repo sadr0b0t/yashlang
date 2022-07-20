@@ -1,6 +1,7 @@
 package su.sadrobot.yashlang.controller;
 
 import org.json.JSONException;
+import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 
 import java.io.IOException;
 import java.util.List;
@@ -10,6 +11,7 @@ import su.sadrobot.yashlang.model.PlaylistInfo;
 public class DataIOTest {
     public static void main(String args[]) {
         loadPlaylistsFromJSON();
+        checkPlaylistsAlive();
     }
 
     public static void loadPlaylistsFromJSON() {
@@ -69,8 +71,30 @@ public class DataIOTest {
             final String loadedFileContent = DataIO.loadFromResource("/su/sadrobot/yashlang/data/recommended-playlists.json");
 
             final List<PlaylistInfo> loadedPlaylists = DataIO.loadPlaylistsFromJSON(loadedFileContent);
-            for(PlaylistInfo plInfo : loadedPlaylists) {
+            for (final PlaylistInfo plInfo : loadedPlaylists) {
                 System.out.println(plInfo.getName() + " " + plInfo.getUrl() + " " + PlaylistInfo.PlaylistType.valueOf(plInfo.getType()).name());
+            }
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void checkPlaylistsAlive() {
+        System.out.println("***** TEST: checkPlaylistsAlive *****");
+
+        try {
+            final String loadedFileContent = DataIO.loadFromResource("/su/sadrobot/yashlang/data/recommended-playlists.json");
+
+            final List<PlaylistInfo> loadedPlaylists = DataIO.loadPlaylistsFromJSON(loadedFileContent);
+            for (final PlaylistInfo plInfo : loadedPlaylists) {
+                System.out.println(plInfo.getName() + " " + plInfo.getUrl());
+
+                try {
+                    ContentLoader.getInstance().getPlaylistInfo(plInfo.getUrl());
+                    System.out.println("..........OK");
+                } catch (ExtractionException | IOException e) {
+                    System.out.println("..........ERROR: " + e.getMessage());
+                }
             }
         } catch (JSONException | IOException e) {
             e.printStackTrace();
