@@ -232,11 +232,6 @@ public class StreamCacheDownloadService extends Service {
         final int cumProgressPercent = (int) ((double) cumProgress /
                 (double) cumProgressMax * 100);
 
-        // уведомление со своим лэйаут-файлом
-        // https://developer.android.com/training/notify-user/custom-notification
-        // https://developer.android.com/reference/android/app/Notification.html#contentView
-        // https://stackoverflow.com/questions/10516722/android-notification-with-buttons-on-it
-
         final Intent gotoStreamCacheIntent = new Intent(this, StreamCacheActivity.class);
         final PendingIntent gotoStreamCachePendingIntent = PendingIntent.getActivity(this, 0,
                 gotoStreamCacheIntent, PendingIntent.FLAG_IMMUTABLE);
