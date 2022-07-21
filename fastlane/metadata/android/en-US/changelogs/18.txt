@@ -1,0 +1,18 @@
+- Download video and audio streams for offline playback #8 #144 #132
+- Manage downloaded streams: Settings > Downloaded streams
+- Play offline steam of best quality by default (can be disabled in settings): #133
+- Select video and audio streams available for playback item in dialog #131
+- Play audio stream without video (first step to audio player mode) #134 #126
+
+cosmetic improvements and fixes
+- Draw list elements as "disabled" ("grayed out") in lists with switches when switch is switched off #119
+- Lists internal optimizations (scrolling should work even better): #129 #136
+- Some features for tablets #137
+- Draw playback control panel above prev/next buttons in vertical player orientation #135
+- Delete blocked channels from recommended #147
+
+refactor, internals
+- Unify code for list elements actions and other actions #99
+- Automatically check recomended playlists in desktop tests #140 #147
+- Fastlane changelogs for f-droid #122
+

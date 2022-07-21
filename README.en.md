@@ -166,7 +166,7 @@ for example: [Укрощение огня 1 серия, Киноконцерн "
 
 - Interface might be glitchy while loading galleries and lists with slow (but available) internet
 
-updt: should be better after this https://github.com/sadr0b0t/yashlang/issues/17
+updt: should be better after this https://github.com/sadr0b0t/yashlang/issues/17 https://github.com/sadr0b0t/yashlang/issues/129
 
 - If you catch NullPointerException while opening video or adding playlist, please copy stack trace and create bug report, then try same operation again, most likely it would finish successfully.
 
@@ -180,8 +180,8 @@ This is fixed starting from 0.2.0 (you can safely downgrade to 0.2.0 in future, 
 
 ## Someday in the future
 
-- Download videos to watch offline
-- Export and import database for backup and device migration
+- Download videos to watch offline (done here https://github.com/sadr0b0t/yashlang/issues/8, but it can be even better https://github.com/sadr0b0t/yashlang/issues/142)
+- Export and import database for backup and device migration (partially implemented https://github.com/sadr0b0t/yashlang/releases/tag/v0.7.0)
 - Audio-player mode: play sound track in background when the screen is switched off or the app is not in foucus
 - Local playlists with manual video adding
 - Other streaming services
