@@ -18,4 +18,5 @@ Major features:
 * Starred videos (faves) and watch history
 * Context menus in activity titles and on long click in lists and galleries
 * Quick start — add recommended channels and playlists
+* Download streams for offline playback
 
