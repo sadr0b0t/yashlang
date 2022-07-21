@@ -48,7 +48,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
     private final Activity context;
     private final List<PlaylistInfo> playlistInfos;
     private final OnListItemClickListener<PlaylistInfo> onItemClickListener;
-    private final OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener;
+    private final ListItemSwitchController<PlaylistInfo> itemSwitchController;
     private ListItemCheckedProvider<PlaylistInfo> itemCheckedProvider;
 
     //private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
@@ -87,21 +87,21 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
 
     public PlaylistInfoArrayAdapter(final Activity context, final List<PlaylistInfo> playlistInfos,
                                     final OnListItemClickListener<PlaylistInfo> onItemClickListener,
-                                    final OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener) {
+                                    final ListItemSwitchController<PlaylistInfo> itemSwitchController) {
         this.context = context;
         this.playlistInfos = playlistInfos;
         this.onItemClickListener = onItemClickListener;
-        this.onItemSwitchListener = onItemSwitchListener;
+        this.itemSwitchController = itemSwitchController;
     }
 
     public PlaylistInfoArrayAdapter(final Activity context, final List<PlaylistInfo> playlistInfos,
                                     final OnListItemClickListener<PlaylistInfo> onItemClickListener,
-                                    final OnListItemSwitchListener<PlaylistInfo> onItemSwitchListener,
+                                    final ListItemSwitchController<PlaylistInfo> itemSwitchController,
                                     final ListItemCheckedProvider<PlaylistInfo> itemCheckedProvider) {
         this.context = context;
         this.playlistInfos = playlistInfos;
         this.onItemClickListener = onItemClickListener;
-        this.onItemSwitchListener = onItemSwitchListener;
+        this.itemSwitchController = itemSwitchController;
         this.itemCheckedProvider = itemCheckedProvider;
     }
 
@@ -140,31 +140,35 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
             });
         }
 
-        if (onItemSwitchListener != null) {
-            holder.nameTxt.setEnabled(onItemSwitchListener.isItemChecked(item));
-            holder.urlTxt.setEnabled(onItemSwitchListener.isItemChecked(item));
-            holder.checkedView.setEnabled(onItemSwitchListener.isItemChecked(item));
-        } else {
+        if (itemSwitchController == null) {
+            // состояние "вкл/выкл" будем брать как флаг isEnabled для плейлиста
             holder.nameTxt.setEnabled(item.isEnabled());
             holder.urlTxt.setEnabled(item.isEnabled());
             holder.checkedView.setEnabled(item.isEnabled());
+        } else {
+            // состояние "вкл/выкл" будем брать не напрямую из плейлиста, а из itemSwitchController
+            // (например, при импорте плейлистов или в настройках профиля пользователь
+            // выбирает переключателями нужные плейлисты - эти флаги вообще в базе данных не сохранены)
+            holder.nameTxt.setEnabled(itemSwitchController.isItemChecked(item));
+            holder.urlTxt.setEnabled(itemSwitchController.isItemChecked(item));
+            holder.checkedView.setEnabled(itemSwitchController.isItemChecked(item));
         }
 
         // обнулить слушателя событий выключателя:
         // вот это важно здесь, иначе не оберешься трудноуловимых глюков в списках с прокруткой
         holder.onoffSwitch.setOnCheckedChangeListener(null);
-        if (onItemSwitchListener == null || !onItemSwitchListener.showItemCheckbox(item)) {
+        if (itemSwitchController == null || !itemSwitchController.showItemCheckbox(item)) {
             // вот так - не передали слушателя вкл/выкл - прячем кнопку
             // немного не феншуй, зато пока не будем городить отдельный флаг
             holder.onoffSwitch.setVisibility(View.GONE);
         } else {
             holder.onoffSwitch.setVisibility(View.VISIBLE);
 
-            holder.onoffSwitch.setChecked(onItemSwitchListener.isItemChecked(item));
+            holder.onoffSwitch.setChecked(itemSwitchController.isItemChecked(item));
             holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    onItemSwitchListener.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
+                    itemSwitchController.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
                     notifyItemChanged(holder.getBindingAdapterPosition());
                 }
             });

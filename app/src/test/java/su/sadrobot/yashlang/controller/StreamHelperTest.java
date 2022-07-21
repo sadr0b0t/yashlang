@@ -61,12 +61,12 @@ public class StreamHelperTest {
         return pass;
     }
 
-
     private static String streamToString(StreamHelper.StreamInfo stream) {
         return stream.getResolution() +
                 (stream.isOnline() ? "" : "[offline]") +
                 (stream.getStreamType() == StreamCache.StreamType.BOTH ? " [VIDEO+AUDIO]" : "");
     }
+
     private static void printStreamList(final List<StreamHelper.StreamInfo> streamList) {
         for (final StreamHelper.StreamInfo stream : streamList) {
             System.out.print(streamToString(stream) + " ");
@@ -143,6 +143,7 @@ public class StreamHelperTest {
             e.printStackTrace();
         }
     }
+
     public static void showSampleStreams2() {
         System.out.println("***** TEST: showSampleStreams2 *****");
         final String itemUrl = "https://www.youtube.com/watch?v=4BkgG03EG7U";
@@ -354,7 +355,6 @@ public class StreamHelperTest {
                 ConfigOptions.VideoStreamSelectPreferRes.LOWER_RES, videoSources1, nextStream);
         assertNull(nextStream);
     }
-
 
     public static void testSortVideoStreamsForRes() {
         System.out.println("***** TEST: testSortVideoStreamsForRes *****");

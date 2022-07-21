@@ -223,7 +223,7 @@ public class StarredActivity extends AppCompatActivity {
                                                 break;
                                             }
                                             case R.id.action_blacklist: {
-                                                VideoItemActions.actionBlacklist(StarredActivity.this, handler, videoItem, null);
+                                                VideoItemActions.actionBlacklist(StarredActivity.this, handler, videoItem.getId(), null);
                                                 break;
                                             }
                                             case R.id.action_download_streams: {

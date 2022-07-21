@@ -58,8 +58,8 @@ import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.ListItemCheckedProvider;
+import su.sadrobot.yashlang.view.ListItemSwitchController;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
-import su.sadrobot.yashlang.view.OnListItemSwitchListener;
 import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
 
 /**
@@ -326,7 +326,7 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
                                         return true;
                                     }
                                 },
-                                new OnListItemSwitchListener<PlaylistInfo>() {
+                                new ListItemSwitchController<PlaylistInfo>() {
                                     @Override
                                     public void onItemCheckedChanged(final CompoundButton buttonView, final int position,
                                                                      final PlaylistInfo item, final boolean isChecked) {

@@ -233,33 +233,35 @@ public class VideoItemActions {
     }
 
     public static void actionSetStarred(
-            final Context context, final VideoItem videoItem, final boolean starred,
+            final Context context, final long videoId, final boolean starred,
             final OnVideoStarredChangeListener callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                VideoDatabase.getDbInstance(context).videoItemDao().setStarred(videoItem.getId(), starred);
-                // обновим кэш
-                videoItem.setStarred(starred);
-                callback.onVideoStarredChange(videoItem.getId(), starred);
+                VideoDatabase.getDbInstance(context).videoItemDao().setStarred(videoId, starred);
+                if (callback != null) {
+                    callback.onVideoStarredChange(videoId, starred);
+                }
             }
         }).start();
-
     }
 
     public static void actionSetBlacklisted(
-            final Context context, final VideoItem videoItem, final boolean blacklisted) {
+            final Context context, final long videoId, final boolean blacklisted,
+            final OnVideoBlacklistedChangeListener callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                VideoDatabase.getDbInstance(context).videoItemDao().setBlacklisted(videoItem.getId(), blacklisted);
-                videoItem.setBlacklisted(blacklisted);
+                VideoDatabase.getDbInstance(context).videoItemDao().setBlacklisted(videoId, blacklisted);
+                if (callback != null) {
+                    callback.onVideoBlacklistedChange(videoId, blacklisted);
+                }
             }
         }).start();
     }
 
     public static void actionBlacklist(
-            final Context context, final Handler handler, final VideoItem videoItem,
+            final Context context, final Handler handler, final long videoId,
             final OnVideoBlacklistedChangeListener callback) {
         new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.blacklist_video_title))
@@ -272,9 +274,8 @@ public class VideoItemActions {
                             @Override
                             public void run() {
                                 VideoDatabase.getDbInstance(context).
-                                        videoItemDao().setBlacklisted(videoItem.getId(), true);
-                                // обновим кэш
-                                videoItem.setBlacklisted(true);
+                                        videoItemDao().setBlacklisted(videoId, true);
+
                                 handler.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -283,7 +284,7 @@ public class VideoItemActions {
                                     }
                                 });
                                 if (callback != null) {
-                                    callback.onVideoBlacklistedChange(videoItem.getId(), true);
+                                    callback.onVideoBlacklistedChange(videoId, true);
                                 }
                             }
                         }).start();
@@ -293,8 +294,9 @@ public class VideoItemActions {
                 .setNegativeButton(android.R.string.no, null).show();
     }
 
-    public static void actionDownloadStreams(final Context context, final Handler handler, final VideoItem videoItem,
-                                             final StreamDialogListener callback) {
+    public static void actionDownloadStreams(
+            final Context context, final Handler handler, final VideoItem videoItem,
+            final StreamDialogListener callback) {
         // https://developer.android.com/reference/android/view/LayoutInflater
         // https://stackoverflow.com/questions/51729036/what-is-layoutinflater-and-how-do-i-use-it-properly
         final LayoutInflater inflater = LayoutInflater.from(context);
@@ -450,8 +452,9 @@ public class VideoItemActions {
         }).start();
     }
 
-    public static void actionSelectStreams(final Context context, final Handler handler, final VideoItem videoItem,
-                                           final StreamDialogListener callback) {
+    public static void actionSelectStreams(
+            final Context context, final Handler handler, final VideoItem videoItem,
+            final StreamDialogListener callback) {
         // https://developer.android.com/reference/android/view/LayoutInflater
         // https://stackoverflow.com/questions/51729036/what-is-layoutinflater-and-how-do-i-use-it-properly
         final LayoutInflater inflater = LayoutInflater.from(context);

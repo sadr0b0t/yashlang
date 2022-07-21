@@ -167,16 +167,17 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
             enabledSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (plInfo != null) {
-                                PlaylistInfoActions.actionSetPlaylistEnabled(
-                                        ConfigurePlaylistActivity.this,
-                                        plInfo, isChecked);
-                            }
-                        }
-                    }).start();
+                    if (plInfo != null) {
+                        PlaylistInfoActions.actionSetPlaylistEnabled(
+                                ConfigurePlaylistActivity.this,
+                                plInfo.getId(), isChecked, new PlaylistInfoActions.OnPlaylistEnabledChangeListener() {
+                                    @Override
+                                    public void onPlaylistEnabledChange() {
+                                        // обновим кэш
+                                        plInfo.setEnabled(isChecked);
+                                    }
+                                });
+                    }
                 }
             });
 

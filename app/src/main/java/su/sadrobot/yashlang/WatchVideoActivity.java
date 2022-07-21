@@ -955,10 +955,14 @@ public class WatchVideoActivity extends AppCompatActivity {
                     @Override
                     public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
                         if (currentVideo != null && currentVideo.getId() != VideoItem.ID_NONE) {
-                            VideoItemActions.actionSetStarred(WatchVideoActivity.this, currentVideo, isChecked,
+                            final VideoItem _currentVideo = currentVideo;
+                            VideoItemActions.actionSetStarred(WatchVideoActivity.this, currentVideo.getId(), isChecked,
                                     new VideoItemActions.OnVideoStarredChangeListener() {
                                         @Override
                                         public void onVideoStarredChange(final long videoId, final boolean starred) {
+                                            // обновим кэш
+                                            _currentVideo.setStarred(starred);
+
                                             // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
                                             // (там ролик будет тот же, а объект VideoItem - другой)
                                             for (final VideoItem item : playbackHistory) {
@@ -1037,11 +1041,15 @@ public class WatchVideoActivity extends AppCompatActivity {
                 break;
             }
             case R.id.action_blacklist: {
+                final VideoItem _currentVideo = currentVideo;
                 VideoItemActions.actionBlacklist(
-                        WatchVideoActivity.this, handler, currentVideo,
+                        WatchVideoActivity.this, handler, currentVideo.getId(),
                         new VideoItemActions.OnVideoBlacklistedChangeListener() {
                             @Override
                             public void onVideoBlacklistedChange(final long videoId, final boolean blacklisted) {
+                                // обновим кэш
+                                _currentVideo.setBlacklisted(true);
+
                                 // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
                                 // (там ролик будет тот же, а объект VideoItem - другой)
                                 for (final VideoItem item : playbackHistory) {
@@ -1864,10 +1872,17 @@ public class WatchVideoActivity extends AppCompatActivity {
                             }
                             case R.id.action_blacklist: {
                                 VideoItemActions.actionBlacklist(
-                                        WatchVideoActivity.this, handler, videoItem,
+                                        WatchVideoActivity.this, handler, videoItem.getId(),
                                         new VideoItemActions.OnVideoBlacklistedChangeListener() {
                                             @Override
                                             public void onVideoBlacklistedChange(final long videoId, final boolean blacklisted) {
+                                                // обновим кэш для текущего видео если вдруг так получилось,
+                                                // что мы играем сейчас тот самый ролик, на котором кликнули
+                                                // в рекомендациях
+                                                if (currentVideo != null && currentVideo.getId() == videoItem.getId()) {
+                                                    currentVideo.setBlacklisted(blacklisted);
+                                                }
+
                                                 // и еще обновим кэш, если этот же ролик вдруг есть в списке предыдущих видео
                                                 // (там ролик будет тот же, а объект VideoItem - другой)
                                                 for (final VideoItem item : playbackHistory) {

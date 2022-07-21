@@ -53,8 +53,8 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
     private final Activity context;
     private final List<VideoItem> videoItems;
     private final OnListItemClickListener<VideoItem> onItemClickListener;
-    private final OnListItemSwitchListener<VideoItem> onItemSwitchListener;
-    private int orientation = ORIENTATION_VERTICAL;
+    private final ListItemSwitchController<VideoItem> itemSwitchController;
+    private int orientation;
 
 
     //private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
@@ -97,12 +97,12 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
     public VideoItemArrayAdapter(final Activity context,
                                  final List<VideoItem> videoItems,
                                  final OnListItemClickListener<VideoItem> onItemClickListener,
-                                 final OnListItemSwitchListener<VideoItem> onItemSwitchListener,
+                                 final ListItemSwitchController<VideoItem> itemSwitchController,
                                  final int orientation) {
         this.context = context;
         this.videoItems = videoItems;
         this.onItemClickListener = onItemClickListener;
-        this.onItemSwitchListener = onItemSwitchListener;
+        this.itemSwitchController = itemSwitchController;
         this.orientation = orientation;
     }
 
@@ -197,23 +197,41 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
             }
         }
 
+        if (itemSwitchController == null) {
+            // состояние "вкл/выкл" будем брать как флаг isBlacklisted для плейлиста
+            if (holder.nameTxt != null) {
+                holder.nameTxt.setEnabled(!item.isBlacklisted());
+            }
+            if (holder.durationTxt != null) {
+                holder.durationTxt.setEnabled(!item.isBlacklisted());
+            }
+        } else {
+            // состояние "вкл/выкл" будем брать не напрямую из ролика, а из itemSwitchController
+            if (holder.nameTxt != null) {
+                holder.nameTxt.setEnabled(itemSwitchController.isItemChecked(item));
+            }
+            if (holder.durationTxt != null) {
+                holder.durationTxt.setEnabled(itemSwitchController.isItemChecked(item));
+            }
+        }
+
         if (holder.onoffSwitch != null) {
             // обнулить слушателя событий выключателя:
             // вот это важно здесь здесь, иначе не оберешься трудноуловимых глюков
             // в списках с прокруткой
             holder.onoffSwitch.setOnCheckedChangeListener(null);
-            if (onItemSwitchListener == null) {
+            if (itemSwitchController == null) {
                 // вот так - не передали слушателя вкл/выкл - прячем кнопку
                 // немного не феншуй, зато пока не будем городить отдельный флаг
                 holder.onoffSwitch.setVisibility(View.GONE);
             } else {
                 holder.onoffSwitch.setVisibility(View.VISIBLE);
 
-                holder.onoffSwitch.setChecked(onItemSwitchListener.isItemChecked(item));
+                holder.onoffSwitch.setChecked(itemSwitchController.isItemChecked(item));
                 holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        onItemSwitchListener.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
+                        itemSwitchController.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
                     }
                 });
 

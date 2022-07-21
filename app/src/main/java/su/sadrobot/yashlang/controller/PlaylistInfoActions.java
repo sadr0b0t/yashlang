@@ -39,6 +39,10 @@ public class PlaylistInfoActions {
         void onPlaylistDeleted();
     }
 
+    public interface OnPlaylistEnabledChangeListener {
+        void onPlaylistEnabledChange();
+    }
+
     public static void actionConfigurePlaylist(final Context context, final long playlistId) {
         final Intent intent = new Intent(context, ConfigurePlaylistActivity.class);
         intent.putExtra(ConfigurePlaylistActivity.PARAM_PLAYLIST_ID, playlistId);
@@ -83,7 +87,9 @@ public class PlaylistInfoActions {
                                 final PlaylistInfo plInfo = videodb.playlistInfoDao().getById(playlistId);
                                 videodb.playlistInfoDao().delete(plInfo);
 
-                                callback.onPlaylistDeleted();
+                                if (callback != null) {
+                                    callback.onPlaylistDeleted();
+                                }
                             }
                         }).start();
 
@@ -92,10 +98,17 @@ public class PlaylistInfoActions {
                 .setNegativeButton(android.R.string.no, null).show();
     }
 
-    public static void actionSetPlaylistEnabled(final Context context, final PlaylistInfo plInfo, final boolean enabled) {
-        VideoDatabase.getDbInstance(context).playlistInfoDao().setEnabled(plInfo.getId(), enabled);
-
-        // обновим кэш
-        plInfo.setEnabled(enabled);
+    public static void actionSetPlaylistEnabled(
+            final Context context, final long playlistId, final boolean enabled,
+            OnPlaylistEnabledChangeListener callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                VideoDatabase.getDbInstance(context).playlistInfoDao().setEnabled(playlistId, enabled);
+                if (callback != null) {
+                    callback.onPlaylistEnabledChange();
+                }
+            }
+        }).start();
     }
 }

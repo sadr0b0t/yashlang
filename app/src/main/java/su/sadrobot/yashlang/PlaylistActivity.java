@@ -460,7 +460,7 @@ public class PlaylistActivity extends AppCompatActivity {
                                                 break;
                                             }
                                             case R.id.action_blacklist: {
-                                                VideoItemActions.actionBlacklist(PlaylistActivity.this, handler, videoItem, null);
+                                                VideoItemActions.actionBlacklist(PlaylistActivity.this, handler, videoItem.getId(), null);
                                                 break;
                                             }
                                             case R.id.action_download_streams: {

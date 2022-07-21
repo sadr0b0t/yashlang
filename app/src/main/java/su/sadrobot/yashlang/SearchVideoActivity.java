@@ -222,7 +222,7 @@ public class SearchVideoActivity extends AppCompatActivity {
                                         break;
                                     }
                                     case R.id.action_blacklist: {
-                                        VideoItemActions.actionBlacklist(SearchVideoActivity.this, handler, videoItem, null);
+                                        VideoItemActions.actionBlacklist(SearchVideoActivity.this, handler, videoItem.getId(), null);
                                         break;
                                     }
                                     case R.id.action_download_streams: {

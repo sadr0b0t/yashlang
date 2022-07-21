@@ -236,7 +236,7 @@ public class Glagna extends AppCompatActivity {
                                         break;
                                     }
                                     case R.id.action_blacklist: {
-                                        VideoItemActions.actionBlacklist(Glagna.this, handler, videoItem, null);
+                                        VideoItemActions.actionBlacklist(Glagna.this, handler, videoItem.getId(), null);
                                         break;
                                     }
                                     case R.id.action_download_streams: {

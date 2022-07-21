@@ -55,7 +55,7 @@ import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
-import su.sadrobot.yashlang.view.OnListItemSwitchListener;
+import su.sadrobot.yashlang.view.ListItemSwitchController;
 import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 
 /**
@@ -296,10 +296,10 @@ public class ConfigurePlaylistFragment extends Fragment {
                         return true;
                     }
                 },
-                new OnListItemSwitchListener<VideoItem>() {
+                new ListItemSwitchController<VideoItem>() {
                     @Override
                     public void onItemCheckedChanged(final CompoundButton buttonView, final int position, final VideoItem item, final boolean isChecked) {
-                        VideoItemActions.actionSetBlacklisted(getContext(), item, !isChecked);
+                        VideoItemActions.actionSetBlacklisted(getContext(), item.getId(), !isChecked, null);
                     }
 
                     @Override
