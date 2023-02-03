@@ -32,10 +32,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.File;
 import java.util.List;
@@ -48,11 +49,10 @@ import su.sadrobot.yashlang.util.StringFormatUtil;
 
 public class StreamCacheActivity extends AppCompatActivity {
     // https://developer.android.com/guide/components/fragments
-    // https://developer.android.com/guide/navigation/navigation-swipe-view
-    // https://developer.android.com/reference/androidx/fragment/app/FragmentPagerAdapter
+    // https://developer.android.com/guide/navigation/navigation-swipe-view-2
 
     private TabLayout tabs;
-    private ViewPager pager;
+    private ViewPager2 pager;
 
     private Toolbar toolbar;
 
@@ -82,15 +82,15 @@ public class StreamCacheActivity extends AppCompatActivity {
         streamCacheFrag = new StreamCacheFragment();
         streamCacheFsStatusFrag = new StreamCacheFsStatusFragment();
 
-        pager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+        pager.setAdapter(new FragmentStateAdapter(getSupportFragmentManager(), getLifecycle()) {
             @Override
-            public int getCount() {
+            public int getItemCount() {
                 return 3;
             }
 
             @NonNull
             @Override
-            public Fragment getItem(int position) {
+            public Fragment createFragment(int position) {
                 if (position == 0) {
                     return streamCacheDownloadFrag;
                 } else if (position == 1) {
@@ -99,20 +99,21 @@ public class StreamCacheActivity extends AppCompatActivity {
                     return streamCacheFsStatusFrag;
                 }
             }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-                if (position == 0) {
-                    return getString(R.string.tab_item_stream_cache_download);
-                } else if (position == 1) {
-                    return getString(R.string.tab_item_stream_cache);
-                } else {
-                    return getString(R.string.tab_item_size_on_disk);
-                }
-            }
         });
 
-        tabs.setupWithViewPager(pager);
+        new TabLayoutMediator(tabs, pager,
+                new TabLayoutMediator.TabConfigurationStrategy() {
+                    @Override
+                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                        if (position == 0) {
+                            tab.setText(R.string.tab_item_stream_cache_download);
+                        } else if (position == 1) {
+                            tab.setText(R.string.tab_item_stream_cache);
+                        } else {
+                            tab.setText(R.string.tab_item_size_on_disk);
+                        }
+                    }
+                }).attach();
     }
 
     @Override

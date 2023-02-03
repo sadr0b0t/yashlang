@@ -76,8 +76,19 @@ dependencies {
     //implementation 'androidx.viewpager:viewpager:1.0.0'
     //implementation 'androidx.recyclerview:recyclerview:1.0.0'
 
+    // ViewPager2
+    // https://developer.android.com/develop/ui/views/animations/vp2-migration#java
+    // https://developer.android.com/jetpack/androidx/releases/viewpager2
+    // Новый API для табов, старый объявлен deprecated
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+
     // TabLayout
-    implementation 'com.google.android.material:material:1.0.0'
+    // https://m2.material.io/develop/android/docs/getting-started
+    // https://maven.google.com/web/index.html#com.google.android.material:material
+    // максимальная версия material для текущего значения minSdkVersion 17 - 1.4
+    // (с 1.5 уже будет ошибка сборки)
+    implementation 'com.google.android.material:material:1.4.0'
+
     // tab widget in NewPipe added in this way
     // android.support.design.widget.
     // implementation "com.android.support:design:${supportLibVersion}"

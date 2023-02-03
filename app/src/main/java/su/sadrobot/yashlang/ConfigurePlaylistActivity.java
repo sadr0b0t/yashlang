@@ -31,10 +31,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import su.sadrobot.yashlang.controller.PlaylistInfoActions;
 import su.sadrobot.yashlang.model.PlaylistInfo;
@@ -45,14 +46,13 @@ import su.sadrobot.yashlang.model.VideoDatabase;
  */
 public class ConfigurePlaylistActivity extends AppCompatActivity {
     // https://developer.android.com/guide/components/fragments
-    // https://developer.android.com/guide/navigation/navigation-swipe-view
-    // https://developer.android.com/reference/androidx/fragment/app/FragmentPagerAdapter
+    // https://developer.android.com/guide/navigation/navigation-swipe-view-2
 
     public static final String PARAM_PLAYLIST_ID = "PARAM_PLAYLIST_ID";
 
 
     private TabLayout tabs;
-    private ViewPager pager;
+    private ViewPager2 pager;
 
     private Toolbar toolbar;
     private Switch enabledSwitch;
@@ -84,33 +84,34 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
         viewPlaylistFrag = new ConfigurePlaylistFragment();
         viewPlaylistNewItemsFrag = new ConfigurePlaylistNewItemsFragment();
 
-        pager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+        pager.setAdapter(new FragmentStateAdapter(getSupportFragmentManager(), getLifecycle()) {
             @Override
-            public int getCount() {
+            public int getItemCount() {
                 return 2;
             }
 
             @NonNull
             @Override
-            public Fragment getItem(int position) {
+            public Fragment createFragment(int position) {
                 if (position == 0) {
                     return viewPlaylistFrag;
                 } else {
                     return viewPlaylistNewItemsFrag;
                 }
             }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-                if (position == 0) {
-                    return getString(R.string.tab_item_playlist);
-                } else {
-                    return getString(R.string.tab_item_new);
-                }
-            }
         });
 
-        tabs.setupWithViewPager(pager);
+        new TabLayoutMediator(tabs, pager,
+                new TabLayoutMediator.TabConfigurationStrategy() {
+                    @Override
+                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                        if (position == 0) {
+                            tab.setText(R.string.tab_item_playlist);
+                        } else {
+                            tab.setText(R.string.tab_item_new);
+                        }
+                    }
+                }).attach();
 
         viewPlaylistNewItemsFrag.setPlaylistUpdateListener(new ConfigurePlaylistNewItemsFragment.PlaylistUpdateListener() {
             @Override

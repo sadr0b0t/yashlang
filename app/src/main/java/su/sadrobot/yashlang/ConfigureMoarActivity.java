@@ -25,23 +25,24 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 /**
  *
  */
 public class ConfigureMoarActivity extends AppCompatActivity {
     // https://developer.android.com/guide/components/fragments
-    // https://developer.android.com/guide/navigation/navigation-swipe-view
-    // https://developer.android.com/reference/androidx/fragment/app/FragmentPagerAdapter
+    // https://developer.android.com/guide/navigation/navigation-swipe-view-2
 
     private TabLayout tabs;
-    private ViewPager pager;
+    private ViewPager2 pager;
 
     private ConfigureVideoQualityFragment configureVideoQualityFrag;
+    private ThumbCacheFragment thumbCacheFrag;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -56,26 +57,28 @@ public class ConfigureMoarActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         configureVideoQualityFrag = new ConfigureVideoQualityFragment();
+        thumbCacheFrag = new ThumbCacheFragment();
 
-        pager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+        pager.setAdapter(new FragmentStateAdapter(getSupportFragmentManager(), getLifecycle()) {
             @Override
-            public int getCount() {
+            public int getItemCount() {
                 return 1;
             }
 
             @NonNull
             @Override
-            public Fragment getItem(int position) {
+            public Fragment createFragment(int position) {
                 return configureVideoQualityFrag;
-            }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-                return getString(R.string.tab_item_video_quality);
             }
         });
 
-        tabs.setupWithViewPager(pager);
+        new TabLayoutMediator(tabs, pager,
+                new TabLayoutMediator.TabConfigurationStrategy() {
+                    @Override
+                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                        tab.setText(R.string.tab_item_video_quality);
+                    }
+                }).attach();
     }
 
     @Override
