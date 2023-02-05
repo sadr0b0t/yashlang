@@ -33,6 +33,11 @@ public class ConfigOptions {
      */
     public static final String STREAM_CACHE_DIR_NAME = "stream_cache";
 
+    /**
+     * File cache_dir = new File(context.getExternalFilesDir(null), ConfigOptions.THUMB_CACHE_DIR_NAME);
+     */
+    public static final String THUMB_CACHE_DIR_NAME = "thumb_cache";
+
     // TIME_ADDED здесь, по сути, без сортировки, или сортировка по ID
     public enum SortBy {
         TIME_ADDED, NAME, URL, DURATION
@@ -57,6 +62,17 @@ public class ConfigOptions {
      */
     public enum VideoStreamSelectPreferRes {
         HIGHER_RES, LOWER_RES
+    }
+
+    /**
+     * Стратегия кэширования иконок для роликов:
+     * NONE - не кэшировать
+     * ALL - кэшировать все
+     * WITH_OFFLINE_STREAMS - кэшировать только для роликов, у которых
+     *   есть кэшированные оффлайн потоки
+     */
+    public enum VideoThumbCacheStrategy {
+        NONE, ALL, WITH_OFFLINE_STREAMS
     }
 
     public static final boolean DEVEL_MODE_ON = false;
@@ -134,6 +150,11 @@ public class ConfigOptions {
      * false: в любом случае использовать обычную стратегию выбора потока.
      */
     private static final String PREF_VIDEO_STREAM_SELECT_OFFLINE = "PREF_VIDEO_STREAM_SELECT_OFFLINE";
+
+    /**
+     * VideoThumbCacheStrategy
+     */
+    private static final String PREF_VIDEO_THUMB_CACHE_STRATEGY = "PREF_VIDEO_THUMB_CACHE_STRATEGY";
 
 
     public static SortBy getPlaylistsSortBy(final Context context) {
@@ -251,6 +272,17 @@ public class ConfigOptions {
     public static void setVideoStreamSelectOffline(final Context context, final boolean selectOffline) {
         final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
         editor.putBoolean(PREF_VIDEO_STREAM_SELECT_OFFLINE, selectOffline);
+        editor.commit();
+    }
+
+    public static VideoThumbCacheStrategy getVideoThumbCacheStrategy(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        return VideoThumbCacheStrategy.valueOf(sp.getString(PREF_VIDEO_THUMB_CACHE_STRATEGY, VideoThumbCacheStrategy.ALL.name()));
+    }
+
+    public static void setVideoThumbCacheStrategy(final Context context, final VideoThumbCacheStrategy strategy) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putString(PREF_VIDEO_THUMB_CACHE_STRATEGY, strategy.name());
         editor.commit();
     }
 }

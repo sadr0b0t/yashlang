@@ -601,7 +601,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                         // иконка канала
                         if (plInfo.getThumbBitmap() == null) {
                             final Bitmap _plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
-                                    ConfigurePlaylistsNewItemsFragment.this.getContext(), plInfo.getThumbUrl());
+                                    ConfigurePlaylistsNewItemsFragment.this.getContext(), plInfo);
                             plInfo.setThumbBitmap(_plThumb);
                         }
                     } catch (final Exception e) {

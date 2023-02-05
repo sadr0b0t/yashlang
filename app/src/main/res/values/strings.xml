@@ -195,4 +195,16 @@
     <string name="stream_cache_fs_not_finished">Not finished</string>
     <string name="stream_cache_fs_unmanaged">Unmanaged</string>
     <string name="stream_cache_dir_path">Stream cache dir path</string>
+    <string name="tab_item_thumb_cache">Thumb cache</string>
+    <string name="video_thumb_cache_none">Do not cache</string>
+    <string name="video_thumb_cache_all">Cache all</string>
+    <string name="video_thumb_cache_with_offline_streams">Cache only for videos with offline streams</string>
+    <string name="thumb_cache_dir_path">Thumb cache dir path</string>
+    <string name="thumb_cache_fs_size">Cache size on disk</string>
+    <string name="thumb_cache_clear">Clear thumb cache</string>
+    <string name="video_thumb_cache">Video thumbs</string>
+    <string name="playlist_thumb_cache">Playlist thumbs</string>
+    <string name="cache_always_on">Always cache</string>
+    <string name="clear_thumb_cache_title">Clear thumb cache dir?</string>
+    <string name="clear_thumb_cache_message">All thumb cache dir contents would be deleted</string>
 </resources>

@@ -431,7 +431,7 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
                         // иконка канала
                         if (plInfo.getThumbBitmap() == null) {
                             final Bitmap _plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
-                                    ImportPlaylistsActivity.this, plInfo.getThumbUrl());
+                                    ImportPlaylistsActivity.this, plInfo);
                             plInfo.setThumbBitmap(_plThumb);
                         }
                     } catch (final Exception e) {

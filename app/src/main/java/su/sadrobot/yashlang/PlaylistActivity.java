@@ -385,7 +385,7 @@ public class PlaylistActivity extends AppCompatActivity {
                 // иконка плейлиста - может грузиться подольше, без интернета вообще не загрузится
                 try {
                     final Bitmap plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
-                            PlaylistActivity.this, plInfo.getThumbUrl());
+                            PlaylistActivity.this, plInfo);
                     plInfo.setThumbBitmap(plThumb);
 
                     handler.post(new Runnable() {

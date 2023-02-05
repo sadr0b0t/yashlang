@@ -409,7 +409,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
                 // иконка плейлиста - может грузиться подольше, без интернета вообще не загрузится
                 try {
                     final Bitmap plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
-                            ConfigurePlaylistNewItemsFragment.this.getContext(), plInfo.getThumbUrl());
+                            ConfigurePlaylistNewItemsFragment.this.getContext(), plInfo);
                     plInfo.setThumbBitmap(plThumb);
 
                     handler.post(new Runnable() {

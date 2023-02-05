@@ -24,6 +24,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -32,6 +34,7 @@ import java.util.List;
 
 import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.R;
+import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 
@@ -47,17 +50,24 @@ public class VideoThumbManager {
     private VideoThumbManager() {
     }
 
-    //private static final String THUMB_URL_TEMPLATE = "https://img.youtube.com/vi/%id%/sddefault.jpg";
-    private static final String THUMB_URL_TEMPLATE = "https://img.youtube.com/vi/%id%/default.jpg";
+    private Bitmap defaultVideoItemThumb;
+    private Bitmap defaultPlaylistInfoThumb;
 
-    // http://img.youtube.com/vi/<insert-youtube-video-id-here>/default.jpg
-    // http://img.youtube.com/vi/<insert-youtube-video-id-here>/hqdefault.jpg
-    // http://img.youtube.com/vi/<insert-youtube-video-id-here>/mqdefault.jpg
-    // http://img.youtube.com/vi/<insert-youtube-video-id-here>/sddefault.jpg
-    // http://img.youtube.com/vi/<insert-youtube-video-id-here>/maxresdefault.jpg
+    private Bitmap getDefaultVideoItemThumb(final Context context) {
+        if (defaultVideoItemThumb == null) {
+            defaultVideoItemThumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
+        }
+        return defaultVideoItemThumb;
+    }
 
+    private Bitmap getDefaultPlaylistInfoThumb(final Context context) {
+        if (defaultPlaylistInfoThumb == null) {
+            defaultPlaylistInfoThumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
+        }
+        return defaultPlaylistInfoThumb;
+    }
 
-    public Bitmap loadBitmap(final String url) throws IOException {
+    private Bitmap loadBitmap(final String url) throws IOException {
 
         final HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
 
@@ -76,10 +86,10 @@ public class VideoThumbManager {
             input = conn.getInputStream();
             bm = BitmapFactory.decodeStream(input);
         } finally {
-            if(input != null) {
+            if (input != null) {
                 input.close();
             }
-            if(conn.getErrorStream() != null) {
+            if (conn.getErrorStream() != null) {
                 // Сюда попадаем, если connection.getInputStream() вылетает с эксепшеном
                 // (на сервере нет иконки, которую пытаемся скачать)
                 // Это очень важное место:
@@ -97,82 +107,100 @@ public class VideoThumbManager {
         return bm;
     }
 
-    /**
-     * Load thumbnail for youtube video
-     * @param ytId youtube video id
-     * @return video thumbnail as bitmap
-     * @throws IOException
-     */
-    public Bitmap loadVideoThumb(final String ytId) throws IOException {
-        // 1) YouTube data api (Android):
-        // https://github.com/youtube/api-samples/tree/master/java
-        // (похоже, хотят обращаться к ютюб-сервисам, установленным на телефоне;
-        // скорее всего выберем данунах, проще тягать иконки по шаблону URL и парсить страничку с поиском)
-        // https://developers.google.com/youtube/v3/quickstart/android
-        // build.gradle:
-        //     compile('com.google.apis:google-api-services-youtube:v3-rev209-1.25.0') {
-        //        exclude group: 'org.apache.httpcomponents'
-        //    }
-        // AndroidManifest.xml
-        //     <uses-permission android:name="android.permission.INTERNET" />
-        //    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-        // 2) Вручную по шаблону
-        // https://www.thewebtaylor.com/articles/how-to-get-a-youtube-videos-thumbnail-image-in-high-quality
-        // http://img.youtube.com/vi/<insert-youtube-video-id-here>/hqdefault.jpg
-        // https://img.youtube.com/vi/KguUtafZtN8/sddefault.jpg
-
-        return loadBitmap(THUMB_URL_TEMPLATE.replace("%id%", ytId));
+    private Bitmap loadBitmap(final File file) {
+        return BitmapFactory.decodeFile(file.getAbsolutePath());
     }
 
+    private boolean saveBitmap(final Bitmap bm, final File file) throws IOException {
+        if (!file.exists()) {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            file.createNewFile();
+        }
+        return bm.compress(Bitmap.CompressFormat.JPEG, 90, new FileOutputStream(file));
+    }
 
     /**
      * TODO: пожалуй, если картинка не грузится, лучше возвращать null,
-     * чтобы было понятно, что произошло.
+     *   чтобы было понятно, что произошло.
+     *   updt: не факт, что следует так делать, т.к. сейчас во всех местах, где грузятся иконки,
+     *   если иконка null, то происходит попытка её загрузить. Если при неудачной попытке загрузить
+     *   будет оставаться null, то попытка загрузить иконку будет происходить снова и снова, что
+     *   при плохом или выключенном интернете ни к чему хорошему не приведет
      *
      * Загрузить картинку с превью видео или вернуть картинку по умолчанию.
+     *
      * @param context
-     * @param vid
+     * @param videoItem
      * @return
      */
-    public Bitmap loadVideoThumb(final Context context, final VideoItem vid) {
-        Bitmap thumb = null;
-        try {
-            // Будем грузить для роликов YouTube иконку большего размера (так будет лучше на планшетах),
-            // для PeerTube ссылка останется без изменений
-            thumb = loadBitmap(PlaylistUrlUtil.fixYtVideoThumbSize(vid.getThumbUrl()));
-        } catch (IOException e) {
-            //thumb = defaultThumb; // default thumb
-            //e.printStackTrace();
-        }
-        if(thumb == null) {
-            thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
+    public Bitmap loadVideoThumb(final Context context, final VideoItem videoItem) {
+        // сначала пробуем загрузить из кэша
+        final File cacheFile = ThumbCacheFsManager.getThumbCacheFileForVideoItem(context, videoItem);
+        Bitmap thumb = loadBitmap(cacheFile);
+
+        // если в кэше нет, грузим онлайн
+        if (thumb == null) {
+            try {
+                // Будем грузить для роликов YouTube иконку большего размера (так будет лучше на планшетах),
+                // для PeerTube ссылка останется без изменений
+                thumb = loadBitmap(PlaylistUrlUtil.fixYtVideoThumbSize(videoItem.getThumbUrl()));
+
+                // сохраним в кэш, если выставлена настройка
+                final ConfigOptions.VideoThumbCacheStrategy cacheStrategy = ConfigOptions.getVideoThumbCacheStrategy(context);
+                if (cacheStrategy == ConfigOptions.VideoThumbCacheStrategy.ALL ||
+                        (cacheStrategy == ConfigOptions.VideoThumbCacheStrategy.WITH_OFFLINE_STREAMS &&
+                                videoItem.isHasOffline())) {
+                    saveBitmap(thumb, cacheFile);
+                }
+            } catch (IOException e) {
+                // если произошла ошибка при загрузке или сохранении, знать о ней не обязтельно -
+                // приложение просто оставит иконку по умолчанию
+                //e.printStackTrace();
+            }
+
+            // онлайн не загрузили - грузим иконку из ресурсов
+            if (thumb == null) {
+                thumb = getDefaultVideoItemThumb(context);
+            }
         }
         return thumb;
     }
 
+    public Bitmap loadPlaylistThumb(final Context context, final PlaylistInfo plInfo) {
+        // сначала пробуем загрузить из кэша
+        final File cacheFile = ThumbCacheFsManager.getThumbCacheFileForPlaylistInfo(context, plInfo);
+        Bitmap thumb = loadBitmap(cacheFile);
 
-    public Bitmap loadPlaylistThumb(final Context context, final String thumbUrl) {
-        Bitmap thumb = null;
-        try {
-            // в базе данных и так сохраняется ссылка на большую иконку (=240-),
-            // но это может быть пригодится, если придется взять картинку еще больше
-            // (или, наоборот, поэкономит трафик и взять меньше) - сюда можно будет
-            // передавать нужный размер и подставлять его в url
-            thumb = loadBitmap(PlaylistUrlUtil.fixYtChannelAvatarSize(thumbUrl));
-        } catch (IOException e) {
-            //thumb = defaultThumb; // default thumb
-        }
-        if(thumb == null) {
-            thumb = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_yashlang_thumb);
+        // если в кэше нет, грузим онлайн
+        if (thumb == null) {
+            try {
+                // в базе данных и так сохраняется ссылка на большую иконку (=240-),
+                // но это может быть пригодится, если придется взять картинку еще больше
+                // (или, наоборот, поэкономит трафик и взять меньше) - сюда можно будет
+                // передавать нужный размер и подставлять его в url
+                thumb = loadBitmap(PlaylistUrlUtil.fixYtChannelAvatarSize(plInfo.getThumbUrl()));
+
+                // сохраним в кэш
+                saveBitmap(thumb, cacheFile);
+            } catch (IOException e) {
+                // если произошла ошибка при загрузке или сохранении, знать о ней не обязтельно -
+                // приложение просто оставит иконку по умолчанию
+                //e.printStackTrace();
+            }
+
+            // онлайн не загрузили - грузим иконку из ресурсов
+            if (thumb == null) {
+                thumb = getDefaultPlaylistInfoThumb(context);
+            }
         }
         return thumb;
     }
 
     public void loadThumbs(final Context context, final List<VideoItem> videoItems) {
         for (VideoItem videoItem : videoItems) {
-            final Bitmap thumb =
-                    VideoThumbManager.getInstance().loadVideoThumb(context, videoItem);
+            final Bitmap thumb = loadVideoThumb(context, videoItem);
             videoItem.setThumbBitmap(thumb);
         }
     }

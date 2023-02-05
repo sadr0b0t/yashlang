@@ -463,7 +463,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
 
                     // иконка канала
                     _plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
-                            AddPlaylistActivity.this, _plInfo.getThumbUrl());
+                            AddPlaylistActivity.this, _plInfo);
                 } catch (final Exception e) {
                     playlistLoadError = true;
                     _errMsg = e.getMessage()

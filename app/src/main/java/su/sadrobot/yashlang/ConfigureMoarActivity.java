@@ -62,13 +62,17 @@ public class ConfigureMoarActivity extends AppCompatActivity {
         pager.setAdapter(new FragmentStateAdapter(getSupportFragmentManager(), getLifecycle()) {
             @Override
             public int getItemCount() {
-                return 1;
+                return 2;
             }
 
             @NonNull
             @Override
             public Fragment createFragment(int position) {
-                return configureVideoQualityFrag;
+                if (position == 0) {
+                    return configureVideoQualityFrag;
+                } else {
+                    return thumbCacheFrag;
+                }
             }
         });
 
@@ -76,7 +80,11 @@ public class ConfigureMoarActivity extends AppCompatActivity {
                 new TabLayoutMediator.TabConfigurationStrategy() {
                     @Override
                     public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                        tab.setText(R.string.tab_item_video_quality);
+                        if (position == 0) {
+                            tab.setText(R.string.tab_item_video_quality);
+                        } else {
+                            tab.setText(R.string.tab_item_thumb_cache);
+                        }
                     }
                 }).attach();
     }

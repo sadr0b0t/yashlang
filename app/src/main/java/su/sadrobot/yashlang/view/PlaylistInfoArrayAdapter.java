@@ -128,7 +128,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
                 @Override
                 public void run() {
                     final Bitmap thumb =
-                            VideoThumbManager.getInstance().loadPlaylistThumb(context, item.getThumbUrl());
+                            VideoThumbManager.getInstance().loadPlaylistThumb(context, item);
                     item.setThumbBitmap(thumb);
                     context.runOnUiThread(new Runnable() {
                         @Override

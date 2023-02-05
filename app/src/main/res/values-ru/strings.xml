@@ -195,4 +195,16 @@
     <string name="stream_cache_fs_not_finished">Незавершенные</string>
     <string name="stream_cache_fs_unmanaged">Бесхозные</string>
     <string name="stream_cache_dir_path">Каталог на диске</string>
+    <string name="tab_item_thumb_cache">Кэш иконок</string>
+    <string name="video_thumb_cache_none">Не кэшировать</string>
+    <string name="video_thumb_cache_all">Кэшировать все</string>
+    <string name="video_thumb_cache_with_offline_streams">Кэшировать только для роликов с сохраненными потоками</string>
+    <string name="thumb_cache_dir_path">Каталог на диске</string>
+    <string name="thumb_cache_fs_size">Размер кэша на диске</string>
+    <string name="thumb_cache_clear">Очистить кэш иконок</string>
+    <string name="video_thumb_cache">Иконки видео</string>
+    <string name="playlist_thumb_cache">Иконки плейлистов</string>
+    <string name="cache_always_on">Всегда кэшировать</string>
+    <string name="clear_thumb_cache_title">Очистить кэш иконок?</string>
+    <string name="clear_thumb_cache_message">Всё содержимое каталога с кэшэм иконок будет удалено</string>
 </resources>
