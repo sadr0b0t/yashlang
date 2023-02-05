@@ -219,6 +219,7 @@ public class ConfigureVideoQualityFragment extends Fragment {
                 selResPos = 0;
             }
         }
+
         vidStreamCustomResSpinner.setSelection(selResPos);
         vidStreamCustomResSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

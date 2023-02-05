@@ -34,7 +34,7 @@ import java.util.List;
 
 import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.controller.ContentLoader;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
 
@@ -115,7 +115,7 @@ public class VideoItemMultPlaylistsOnlyNewOnlineDataSource extends AbstractVideo
                     final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(
                             pageNewItems, playlistId);
                     if (loadThumbs) {
-                        VideoThumbManager.getInstance().loadThumbs(context, videoItems);
+                        ThumbManager.getInstance().loadVideoThumbs(context, videoItems);
                     }
                     callback.onResult(videoItems);
                 } else {
@@ -218,7 +218,7 @@ public class VideoItemMultPlaylistsOnlyNewOnlineDataSource extends AbstractVideo
                     final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(
                             pageNewItems, playlistId);
                     if (loadThumbs) {
-                        VideoThumbManager.getInstance().loadThumbs(context, videoItems);
+                        ThumbManager.getInstance().loadVideoThumbs(context, videoItems);
                     }
                     callback.onResult(videoItems);
                 }

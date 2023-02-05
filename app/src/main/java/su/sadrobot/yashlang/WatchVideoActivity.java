@@ -78,7 +78,7 @@ import java.util.concurrent.TimeUnit;
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.StreamHelper;
 import su.sadrobot.yashlang.controller.VideoItemActions;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.StreamCache;
 import su.sadrobot.yashlang.model.VideoDatabase;
@@ -1465,7 +1465,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         final Bitmap thumb =
-                                VideoThumbManager.getInstance().loadVideoThumb(WatchVideoActivity.this, videoItem);
+                                ThumbManager.getInstance().loadVideoThumb(WatchVideoActivity.this, videoItem);
                         videoItem.setThumbBitmap(thumb);
                         handler.post(new Runnable() {
                             @Override

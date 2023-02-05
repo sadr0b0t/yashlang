@@ -41,7 +41,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import su.sadrobot.yashlang.R;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.VideoItem;
 
 public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAdapter.VideoItemViewHolder> {
@@ -184,7 +184,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
                     @Override
                     public void run() {
                         final Bitmap thumb =
-                                VideoThumbManager.getInstance().loadVideoThumb(context, item);
+                                ThumbManager.getInstance().loadVideoThumb(context, item);
                         item.setThumbBitmap(thumb);
                         context.runOnUiThread(new Runnable() {
                             @Override

@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.List;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.VideoItem;
 
 /**
@@ -71,7 +71,7 @@ public class VideoItemOnlineDataSource extends AbstractVideoItemOnlineDataSource
             // загрузили, можно обновлять список
             final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(loadedPage.getItems());
             if(loadThumbs) {
-                VideoThumbManager.getInstance().loadThumbs(context, videoItems);
+                ThumbManager.getInstance().loadVideoThumbs(context, videoItems);
             }
             callback.onResult(videoItems);
         } catch (ExtractionException | IOException e) {
@@ -103,7 +103,7 @@ public class VideoItemOnlineDataSource extends AbstractVideoItemOnlineDataSource
                 // загрузили страницу, можно обновлять список
                 final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(loadedPage.getItems());
                 if(loadThumbs) {
-                    VideoThumbManager.getInstance().loadThumbs(context, videoItems);
+                    ThumbManager.getInstance().loadVideoThumbs(context, videoItems);
                 }
                 callback.onResult(videoItems);
 

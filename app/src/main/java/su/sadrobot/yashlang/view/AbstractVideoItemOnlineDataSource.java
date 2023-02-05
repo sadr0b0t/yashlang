@@ -25,17 +25,9 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.paging.ItemKeyedDataSource;
 
-import org.schabi.newpipe.DownloaderTestImpl;
 import org.schabi.newpipe.extractor.ListExtractor;
-import org.schabi.newpipe.extractor.NewPipe;
-import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 
-import java.io.IOException;
-import java.util.List;
-
-import su.sadrobot.yashlang.controller.ContentLoader;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
 import su.sadrobot.yashlang.model.VideoItem;
 
 /**

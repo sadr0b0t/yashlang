@@ -53,7 +53,7 @@ import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.PlaylistInfoActions;
 import su.sadrobot.yashlang.controller.TaskController;
 import su.sadrobot.yashlang.controller.VideoItemActions;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
@@ -462,7 +462,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
                     _plInfo = ContentLoader.getInstance().getPlaylistInfo(plUrl);
 
                     // иконка канала
-                    _plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
+                    _plThumb = ThumbManager.getInstance().loadPlaylistThumb(
                             AddPlaylistActivity.this, _plInfo);
                 } catch (final Exception e) {
                     playlistLoadError = true;

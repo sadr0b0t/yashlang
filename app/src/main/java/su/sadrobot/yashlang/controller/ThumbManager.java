@@ -4,7 +4,7 @@ package su.sadrobot.yashlang.controller;
  * Created by Anton Moiseev (sadr0b0t) in 2019.
  *
  * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
- * VideoThumbManager.java is part of YaShlang.
+ * ThumbManager.java is part of YaShlang.
  *
  * YaShlang is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,16 +38,16 @@ import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoItem;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 
-public class VideoThumbManager {
-    private static VideoThumbManager _instance;
+public class ThumbManager {
+    private static ThumbManager _instance;
     static {
-        _instance = new VideoThumbManager();
+        _instance = new ThumbManager();
     }
 
-    public static VideoThumbManager getInstance() {
+    public static ThumbManager getInstance() {
         return _instance;
     }
-    private VideoThumbManager() {
+    private ThumbManager() {
     }
 
     private Bitmap defaultVideoItemThumb;
@@ -198,7 +198,7 @@ public class VideoThumbManager {
         return thumb;
     }
 
-    public void loadThumbs(final Context context, final List<VideoItem> videoItems) {
+    public void loadVideoThumbs(final Context context, final List<VideoItem> videoItems) {
         for (VideoItem videoItem : videoItems) {
             final Bitmap thumb = loadVideoThumb(context, videoItem);
             videoItem.setThumbBitmap(thumb);

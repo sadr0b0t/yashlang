@@ -48,7 +48,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.TaskController;
 import su.sadrobot.yashlang.controller.VideoItemActions;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
@@ -408,7 +408,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
 
                 // иконка плейлиста - может грузиться подольше, без интернета вообще не загрузится
                 try {
-                    final Bitmap plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
+                    final Bitmap plThumb = ThumbManager.getInstance().loadPlaylistThumb(
                             ConfigurePlaylistNewItemsFragment.this.getContext(), plInfo);
                     plInfo.setThumbBitmap(plThumb);
 

@@ -52,7 +52,7 @@ import java.util.List;
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.TaskController;
 import su.sadrobot.yashlang.controller.VideoItemActions;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
@@ -600,7 +600,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                     try {
                         // иконка канала
                         if (plInfo.getThumbBitmap() == null) {
-                            final Bitmap _plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
+                            final Bitmap _plThumb = ThumbManager.getInstance().loadPlaylistThumb(
                                     ConfigurePlaylistsNewItemsFragment.this.getContext(), plInfo);
                             plInfo.setThumbBitmap(_plThumb);
                         }

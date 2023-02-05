@@ -48,7 +48,7 @@ import su.sadrobot.yashlang.ConfigOptions;
 import su.sadrobot.yashlang.R;
 import su.sadrobot.yashlang.controller.StreamCacheFsManager;
 import su.sadrobot.yashlang.controller.TaskController;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.StreamCache;
 import su.sadrobot.yashlang.model.VideoDatabase;
@@ -464,7 +464,7 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
                     // (строго говоря, такой вариант невозможен, за это отвечает движок базы данных)
                     if (item.getVideoItem() != null) {
                         final Bitmap thumb =
-                                VideoThumbManager.getInstance().loadVideoThumb(context, item.getVideoItem());
+                                ThumbManager.getInstance().loadVideoThumb(context, item.getVideoItem());
                         item.getVideoItem().setThumbBitmap(thumb);
 
                         context.runOnUiThread(new Runnable() {

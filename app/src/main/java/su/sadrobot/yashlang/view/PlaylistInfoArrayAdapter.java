@@ -40,7 +40,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import su.sadrobot.yashlang.R;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 
 public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoArrayAdapter.PlaylistInfoViewHolder> {
@@ -128,7 +128,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
                 @Override
                 public void run() {
                     final Bitmap thumb =
-                            VideoThumbManager.getInstance().loadPlaylistThumb(context, item);
+                            ThumbManager.getInstance().loadPlaylistThumb(context, item);
                     item.setThumbBitmap(thumb);
                     context.runOnUiThread(new Runnable() {
                         @Override

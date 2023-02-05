@@ -274,7 +274,7 @@ public class VideoStreamDownloader {
                     if (conn.getErrorStream() != null) {
                         // Сюда попадаем, если connection.getInputStream() вылетает с эксепшеном
                         // (на сервере нет видео, которое пытаемся скачать)
-                        // см. комент в VideoThumbManager.loadBitmap
+                        // см. комент в ThumbManager.loadBitmap
                         try {
                             conn.getErrorStream().close();
                         } catch (IOException e) {

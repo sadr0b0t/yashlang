@@ -51,7 +51,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import su.sadrobot.yashlang.controller.PlaylistInfoActions;
 import su.sadrobot.yashlang.controller.VideoItemActions;
-import su.sadrobot.yashlang.controller.VideoThumbManager;
+import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
@@ -384,7 +384,7 @@ public class PlaylistActivity extends AppCompatActivity {
 
                 // иконка плейлиста - может грузиться подольше, без интернета вообще не загрузится
                 try {
-                    final Bitmap plThumb = VideoThumbManager.getInstance().loadPlaylistThumb(
+                    final Bitmap plThumb = ThumbManager.getInstance().loadPlaylistThumb(
                             PlaylistActivity.this, plInfo);
                     plInfo.setThumbBitmap(plThumb);
 
