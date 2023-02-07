@@ -1,8 +1,6 @@
 package su.sadrobot.yashlang.controller;
 
 /*
- * Created by Anton Moiseev (sadr0b0t) in 2019.
- *
  * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
  *
  * YaShlang is free software: you can redistribute it and/or modify

@@ -1,9 +1,7 @@
 package su.sadrobot.yashlang;
 
 /*
- * Created by Anton Moiseev (sadr0b0t) in 2023.
- *
- * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
+ * Copyright (C) Anton Moiseev 2023 <github.com/sadr0b0t>
  *
  * YaShlang is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
