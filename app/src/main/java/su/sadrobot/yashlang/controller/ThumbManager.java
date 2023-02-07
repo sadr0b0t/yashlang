@@ -146,12 +146,14 @@ public class ThumbManager {
                 // для PeerTube ссылка останется без изменений
                 thumb = loadBitmap(PlaylistUrlUtil.fixYtVideoThumbSize(videoItem.getThumbUrl()));
 
-                // сохраним в кэш, если выставлена настройка
-                final ConfigOptions.VideoThumbCacheStrategy cacheStrategy = ConfigOptions.getVideoThumbCacheStrategy(context);
-                if (cacheStrategy == ConfigOptions.VideoThumbCacheStrategy.ALL ||
-                        (cacheStrategy == ConfigOptions.VideoThumbCacheStrategy.WITH_OFFLINE_STREAMS &&
-                                videoItem.isHasOffline())) {
-                    saveBitmap(thumb, cacheFile);
+                if (thumb != null) {
+                    // сохраним в кэш, если выставлена настройка
+                    final ConfigOptions.VideoThumbCacheStrategy cacheStrategy = ConfigOptions.getVideoThumbCacheStrategy(context);
+                    if (cacheStrategy == ConfigOptions.VideoThumbCacheStrategy.ALL ||
+                            (cacheStrategy == ConfigOptions.VideoThumbCacheStrategy.WITH_OFFLINE_STREAMS &&
+                                    videoItem.isHasOffline())) {
+                        saveBitmap(thumb, cacheFile);
+                    }
                 }
             } catch (IOException e) {
                 // если произошла ошибка при загрузке или сохранении, знать о ней не обязтельно -
@@ -181,8 +183,10 @@ public class ThumbManager {
                 // передавать нужный размер и подставлять его в url
                 thumb = loadBitmap(PlaylistUrlUtil.fixYtChannelAvatarSize(plInfo.getThumbUrl()));
 
-                // сохраним в кэш
-                saveBitmap(thumb, cacheFile);
+                if (thumb != null) {
+                    // сохраним в кэш
+                    saveBitmap(thumb, cacheFile);
+                }
             } catch (IOException e) {
                 // если произошла ошибка при загрузке или сохранении, знать о ней не обязтельно -
                 // приложение просто оставит иконку по умолчанию
