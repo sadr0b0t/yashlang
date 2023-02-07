@@ -4,7 +4,6 @@ package su.sadrobot.yashlang;
  * Created by Anton Moiseev (sadr0b0t) in 2021.
  *
  * Copyright (C) Anton Moiseev 2021 <github.com/sadr0b0t>
- * ImportPlaylistsActivity.java is part of YaShlang.
  *
  * YaShlang is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
