@@ -52,6 +52,17 @@ public abstract class VideoDatabase extends RoomDatabase {
         }
     }
 
+    public abstract PlaylistInfoPubListsDao playlistInfoPubListsDefaultDao();
+    public abstract PlaylistInfoPubListsOfflineDao playlistInfoPubListsOfflineDao();
+
+    public PlaylistInfoPubListsDao playlistInfoPubListsDao() {
+        if (!ConfigOptions.getOfflineModeOn(context)) {
+            return playlistInfoPubListsDefaultDao();
+        } else {
+            return playlistInfoPubListsOfflineDao();
+        }
+    }
+
     public static VideoDatabase getDbInstance(final Context context) {
         if (INSTANCE == null) {
             synchronized (VideoDatabase.class) {

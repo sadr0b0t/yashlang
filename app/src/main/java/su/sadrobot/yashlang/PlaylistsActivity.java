@@ -344,41 +344,41 @@ public class PlaylistsActivity extends AppCompatActivity {
         if (sstr != null && !sstr.isEmpty()) {
             if(sortBy == ConfigOptions.SortBy.NAME) {
                 if (sortDirAsc) {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByNameAscDs(sstr);
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().searchEnabledSortByNameAscDs(sstr);
                 } else {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByNameDescDs(sstr);
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().searchEnabledSortByNameDescDs(sstr);
                 }
             } else if(sortBy == ConfigOptions.SortBy.URL) {
                 if (sortDirAsc) {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByUrlAscDs(sstr);
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().searchEnabledSortByUrlAscDs(sstr);
                 } else {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledSortByUrlDescDs(sstr);
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().searchEnabledSortByUrlDescDs(sstr);
                 }
             } else { // TIME_ADDED (unsorted)
                 if (sortDirAsc) {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledAscDs(sstr);
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().searchEnabledAscDs(sstr);
                 } else {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().searchEnabledDescDs(sstr);
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().searchEnabledDescDs(sstr);
                 }
             }
         } else {
             if(sortBy == ConfigOptions.SortBy.NAME) {
                 if (sortDirAsc) {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByNameAscDs();
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().getEnabledSortByNameAscDs();
                 } else {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByNameDescDs();
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().getEnabledSortByNameDescDs();
                 }
             } else if(sortBy == ConfigOptions.SortBy.URL) {
                 if (sortDirAsc) {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByUrlAscDs();
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().getEnabledSortByUrlAscDs();
                 } else {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledSortByUrlDescDs();
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().getEnabledSortByUrlDescDs();
                 }
             } else { // TIME_ADDED (unsorted)
                 if (sortDirAsc) {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledAscDs();
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().getEnabledAscDs();
                 } else {
-                    factory = VideoDatabase.getDbInstance(this).playlistInfoDao().getEnabledDescDs();
+                    factory = VideoDatabase.getDbInstance(this).playlistInfoPubListsDao().getEnabledDescDs();
                 }
             }
         }
