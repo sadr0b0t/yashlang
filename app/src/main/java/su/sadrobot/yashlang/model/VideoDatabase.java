@@ -42,8 +42,8 @@ public abstract class VideoDatabase extends RoomDatabase {
     public abstract ProfileDao profileDao();
     public abstract StreamCacheDao streamCacheDao();
 
-    protected abstract VideoItemPubListsDao videoItemPubListsDefaultDao();
-    protected abstract VideoItemPubListsOfflineDao videoItemPubListsOfflineDao();
+    public abstract VideoItemPubListsDao videoItemPubListsDefaultDao();
+    public abstract VideoItemPubListsOfflineDao videoItemPubListsOfflineDao();
 
     public VideoItemPubListsDao videoItemPubListsDao() {
         if (!ConfigOptions.getOfflineModeOn(context)) {
