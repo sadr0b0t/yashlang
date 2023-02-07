@@ -42,7 +42,7 @@ public class ConfigureMoarActivity extends AppCompatActivity {
 
     private ConfigureMoarFragment configureMoarFrag;
     private ConfigureVideoQualityFragment configureVideoQualityFrag;
-    private ThumbCacheFragment thumbCacheFrag;
+    private ConfigureThumbCacheFragment configureThumbCacheFragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -58,7 +58,7 @@ public class ConfigureMoarActivity extends AppCompatActivity {
 
         configureMoarFrag = new ConfigureMoarFragment();
         configureVideoQualityFrag = new ConfigureVideoQualityFragment();
-        thumbCacheFrag = new ThumbCacheFragment();
+        configureThumbCacheFragment = new ConfigureThumbCacheFragment();
 
         pager.setAdapter(new FragmentStateAdapter(getSupportFragmentManager(), getLifecycle()) {
             @Override
@@ -74,7 +74,7 @@ public class ConfigureMoarActivity extends AppCompatActivity {
                 } else if (position == 1) {
                     return configureVideoQualityFrag;
                 } else {
-                    return thumbCacheFrag;
+                    return configureThumbCacheFragment;
                 }
             }
         });

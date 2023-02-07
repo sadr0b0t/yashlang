@@ -41,7 +41,7 @@ import su.sadrobot.yashlang.util.StringFormatUtil;
 /**
  *
  */
-public class ThumbCacheFragment extends Fragment {
+public class ConfigureThumbCacheFragment extends Fragment {
 
     private RadioButton vidThumbCacheNoneRadio;
     private RadioButton vidThumbCacheAllRadio;
@@ -58,7 +58,7 @@ public class ThumbCacheFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_thumb_cache, container, false);
+        return inflater.inflate(R.layout.fragment_configure_thumb_cache, container, false);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ThumbCacheFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     ConfigOptions.setVideoThumbCacheStrategy(
-                            ThumbCacheFragment.this.getContext(),
+                            ConfigureThumbCacheFragment.this.getContext(),
                             ConfigOptions.VideoThumbCacheStrategy.NONE);
                 }
             }
@@ -88,7 +88,7 @@ public class ThumbCacheFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     ConfigOptions.setVideoThumbCacheStrategy(
-                            ThumbCacheFragment.this.getContext(),
+                            ConfigureThumbCacheFragment.this.getContext(),
                             ConfigOptions.VideoThumbCacheStrategy.ALL);
                 }
             }
@@ -99,7 +99,7 @@ public class ThumbCacheFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     ConfigOptions.setVideoThumbCacheStrategy(
-                            ThumbCacheFragment.this.getContext(),
+                            ConfigureThumbCacheFragment.this.getContext(),
                             ConfigOptions.VideoThumbCacheStrategy.WITH_OFFLINE_STREAMS);
                 }
             }
@@ -108,14 +108,14 @@ public class ThumbCacheFragment extends Fragment {
         thumbCacheClearBnt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AlertDialog.Builder(ThumbCacheFragment.this.getContext())
+                new AlertDialog.Builder(ConfigureThumbCacheFragment.this.getContext())
                         .setTitle(getString(R.string.clear_thumb_cache_title))
                         .setMessage(getString(R.string.clear_thumb_cache_message))
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                ThumbCacheFsManager.clearThumbCache(ThumbCacheFragment.this.getContext());
+                                ThumbCacheFsManager.clearThumbCache(ConfigureThumbCacheFragment.this.getContext());
                                 updateThumbCacheFsInfo();
                             }
                         })
@@ -153,7 +153,7 @@ public class ThumbCacheFragment extends Fragment {
                     @Override
                     public void run() {
                         thumbCacheFsSizeTxt.setText(StringFormatUtil.formatFileSize(
-                                ThumbCacheFragment.this.getContext(),
+                                ConfigureThumbCacheFragment.this.getContext(),
                                 cacheTotalFsSize));
                     }
                 });
