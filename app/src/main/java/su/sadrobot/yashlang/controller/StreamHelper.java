@@ -270,10 +270,12 @@ public class StreamHelper {
         allAudioStreams.addAll(offlineStreamSources.getAudioStreams());
         problems.addAll(offlineStreamSources.problems);
 
-        final StreamHelper.StreamSources onlineStreamSources = fetchOnlineStreams(videoItem);
-        allVideoStreams.addAll(onlineStreamSources.getVideoStreams());
-        allAudioStreams.addAll(onlineStreamSources.getAudioStreams());
-        problems.addAll(onlineStreamSources.problems);
+        if (!ConfigOptions.getOfflineModeOn(context)) {
+            final StreamHelper.StreamSources onlineStreamSources = fetchOnlineStreams(videoItem);
+            allVideoStreams.addAll(onlineStreamSources.getVideoStreams());
+            allAudioStreams.addAll(onlineStreamSources.getAudioStreams());
+            problems.addAll(onlineStreamSources.problems);
+        }
 
         final StreamHelper.StreamSources streamSources = new StreamSources(allVideoStreams, allAudioStreams);
         streamSources.problems.addAll(problems);

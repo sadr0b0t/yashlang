@@ -65,6 +65,9 @@ public class Glagna extends AppCompatActivity {
     //
     private RecyclerView videoList;
 
+    //
+    private View statusOfflineModeView;
+
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
 
     private final Handler handler = new Handler();
@@ -112,6 +115,8 @@ public class Glagna extends AppCompatActivity {
         addRecommendedBtn = findViewById(R.id.add_recommended_btn);
 
         videoList = findViewById(R.id.video_recommend_list);
+
+        statusOfflineModeView = findViewById(R.id.status_offline_mode_view);
 
         // Рекомендации
         final GridLayoutManager gridLayoutManager = new GridLayoutManager(
@@ -180,6 +185,12 @@ public class Glagna extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (ConfigOptions.getOfflineModeOn(this)) {
+            statusOfflineModeView.setVisibility(View.VISIBLE);
+        } else {
+            statusOfflineModeView.setVisibility(View.GONE);
+        }
 
         setupVideoListAdapter();
     }
@@ -260,7 +271,7 @@ public class Glagna extends AppCompatActivity {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
         final DataSource.Factory factory = VideoDatabase.getDbInstance(this).
-                videoItemDao().recommendVideosDs();
+                videoItemPubListsDao().recommendVideosDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

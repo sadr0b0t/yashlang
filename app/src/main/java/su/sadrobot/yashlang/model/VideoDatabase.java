@@ -28,16 +28,30 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import su.sadrobot.yashlang.ConfigOptions;
+
 
 @Database(entities = {VideoItem.class, PlaylistInfo.class, StreamCache.class, Profile.class, ProfilePlaylists.class}, version = 5)
 public abstract class VideoDatabase extends RoomDatabase {
     private static volatile VideoDatabase INSTANCE;
 
+    private Context context;
 
     public abstract VideoItemDao videoItemDao();
     public abstract PlaylistInfoDao playlistInfoDao();
     public abstract ProfileDao profileDao();
     public abstract StreamCacheDao streamCacheDao();
+
+    protected abstract VideoItemPubListsDao videoItemPubListsDefaultDao();
+    protected abstract VideoItemPubListsOfflineDao videoItemPubListsOfflineDao();
+
+    public VideoItemPubListsDao videoItemPubListsDao() {
+        if (!ConfigOptions.getOfflineModeOn(context)) {
+            return videoItemPubListsDefaultDao();
+        } else {
+            return videoItemPubListsOfflineDao();
+        }
+    }
 
     public static VideoDatabase getDbInstance(final Context context) {
         if (INSTANCE == null) {
@@ -52,6 +66,7 @@ public abstract class VideoDatabase extends RoomDatabase {
                             //.fallbackToDestructiveMigration()
                             //.allowMainThreadQueries()
                             .build();
+                    INSTANCE.context = context;
                 }
             }
         }

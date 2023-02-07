@@ -116,7 +116,7 @@ public class DataIO {
 
                 final List<VideoItem> videoItems = exportSkipBlocked ?
                         VideoDatabase.getDbInstance(context).
-                                videoItemDao().getByPlaylist(plInfo.getId()) :
+                                videoItemPubListsDao().getByPlaylist(plInfo.getId()) :
                         VideoDatabase.getDbInstance(context).
                                 videoItemDao().getByPlaylistAll(plInfo.getId());
                 for (final VideoItem videoItem : videoItems) {
@@ -144,7 +144,7 @@ public class DataIO {
             stringBuilder.append("# Starred").append("\n");
 
             final List<VideoItem> videoItems = VideoDatabase.getDbInstance(context).
-                    videoItemDao().getStarred();
+                    videoItemPubListsDao().getStarred();
             for (final VideoItem videoItem : videoItems) {
                 if (exportYtdlScript) {
                     stringBuilder.append("youtube-dl " + videoItem.getItemUrl());
@@ -262,7 +262,7 @@ public class DataIO {
 
                 final JSONArray jsonVideoItems = new JSONArray();
                 final List<VideoItem> videoItems = exportSkipBlocked ?
-                        VideoDatabase.getDbInstance(context).videoItemDao().getByPlaylist(plInfo.getId()) :
+                        VideoDatabase.getDbInstance(context).videoItemPubListsDao().getByPlaylist(plInfo.getId()) :
                         VideoDatabase.getDbInstance(context).videoItemDao().getByPlaylistAll(plInfo.getId());
 
                 for (final VideoItem videoItem : videoItems) {
@@ -288,7 +288,7 @@ public class DataIO {
             final JSONArray jsonStarred = new JSONArray();
 
             final List<VideoItem> videoItems =
-                    VideoDatabase.getDbInstance(context).videoItemDao().getStarred();
+                    VideoDatabase.getDbInstance(context).videoItemPubListsDao().getStarred();
             for (final VideoItem videoItem : videoItems) {
                 final JSONObject jsonVideoItem = new JSONObject();
 
@@ -307,7 +307,7 @@ public class DataIO {
             final JSONArray jsonBlacklist = new JSONArray();
 
             final List<VideoItem> videoItems =
-                    VideoDatabase.getDbInstance(context).videoItemDao().getStarred();
+                    VideoDatabase.getDbInstance(context).videoItemPubListsDao().getStarred();
             for (final VideoItem videoItem : videoItems) {
                 final JSONObject jsonVideoItem = new JSONObject();
 

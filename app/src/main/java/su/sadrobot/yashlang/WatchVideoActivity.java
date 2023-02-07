@@ -1920,7 +1920,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final List<VideoItem> videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
-                        videoItemDao().recommendVideos(ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                        videoItemPubListsDao().recommendVideos(ConfigOptions.RECOMMENDED_RANDOM_LIM);
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
@@ -1954,7 +1954,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final List<VideoItem> videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
-                        videoItemDao().searchVideosShuffle(searchStr, ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                        videoItemPubListsDao().searchVideosShuffle(searchStr, ConfigOptions.RECOMMENDED_RANDOM_LIM);
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
@@ -1988,7 +1988,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final List<VideoItem> videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
-                        videoItemDao().getStarredShuffle(ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                        videoItemPubListsDao().getStarredShuffle(ConfigOptions.RECOMMENDED_RANDOM_LIM);
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
                     @Override
@@ -2024,10 +2024,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                 final List<VideoItem> videoItems;
                 if(searchStr != null) {
                     videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
-                            videoItemDao().getByPlaylistShuffle(playlistId, searchStr, ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                            videoItemPubListsDao().getByPlaylistShuffle(playlistId, searchStr, ConfigOptions.RECOMMENDED_RANDOM_LIM);
                 } else {
                     videoItems = VideoDatabase.getDbInstance(WatchVideoActivity.this).
-                            videoItemDao().getByPlaylistShuffle(playlistId, ConfigOptions.RECOMMENDED_RANDOM_LIM);
+                            videoItemPubListsDao().getByPlaylistShuffle(playlistId, ConfigOptions.RECOMMENDED_RANDOM_LIM);
                 }
                 final VideoItemArrayAdapter adapter = new VideoItemArrayAdapter(
                         WatchVideoActivity.this, videoItems, new OnListItemClickListener<VideoItem>() {
@@ -2090,7 +2090,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
         final DataSource.Factory factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).
-                videoItemDao().searchVideosDs(searchStr);
+                videoItemPubListsDao().searchVideosDs(searchStr);
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
@@ -2136,7 +2136,7 @@ public class WatchVideoActivity extends AppCompatActivity {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
         final DataSource.Factory factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).
-                videoItemDao().getStarredDs();
+                videoItemPubListsDao().getStarredDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 
@@ -2193,30 +2193,30 @@ public class WatchVideoActivity extends AppCompatActivity {
             }
         } else {
             if(sortBy == null) {
-                factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).videoItemDao().getByPlaylistDs(playlistId);
+                factory = VideoDatabase.getDbInstance(WatchVideoActivity.this).videoItemPubListsDao().getByPlaylistDs(playlistId);
             } else if(sortBy == ConfigOptions.SortBy.NAME) {
                 if (sortDirAsc) {
                     factory = VideoDatabase.getDbInstance(
-                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByNameAscDs(playlistId, searchStr);
+                            WatchVideoActivity.this).videoItemPubListsDao().getByPlaylistSortByNameAscDs(playlistId, searchStr);
                 } else {
                     factory = VideoDatabase.getDbInstance(
-                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByNameDescDs(playlistId, searchStr);
+                            WatchVideoActivity.this).videoItemPubListsDao().getByPlaylistSortByNameDescDs(playlistId, searchStr);
                 }
             } else if(sortBy == ConfigOptions.SortBy.DURATION) {
                 if(sortDirAsc) {
                     factory = VideoDatabase.getDbInstance(
-                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByDurationAscDs(playlistId, searchStr);
+                            WatchVideoActivity.this).videoItemPubListsDao().getByPlaylistSortByDurationAscDs(playlistId, searchStr);
                 }else {
                     factory = VideoDatabase.getDbInstance(
-                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByDurationDescDs(playlistId, searchStr);
+                            WatchVideoActivity.this).videoItemPubListsDao().getByPlaylistSortByDurationDescDs(playlistId, searchStr);
                 }
             } else { // TIME_ADDED
                 if(sortDirAsc) {
                     factory = VideoDatabase.getDbInstance(
-                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByTimeAddedAscDs(playlistId, searchStr);
+                            WatchVideoActivity.this).videoItemPubListsDao().getByPlaylistSortByTimeAddedAscDs(playlistId, searchStr);
                 } else {
                     factory = VideoDatabase.getDbInstance(
-                            WatchVideoActivity.this).videoItemDao().getByPlaylistSortByTimeAddedDescDs(playlistId, searchStr);
+                            WatchVideoActivity.this).videoItemPubListsDao().getByPlaylistSortByTimeAddedDescDs(playlistId, searchStr);
                 }
             }
         }

@@ -156,6 +156,12 @@ public class ConfigOptions {
      */
     private static final String PREF_VIDEO_THUMB_CACHE_STRATEGY = "PREF_VIDEO_THUMB_CACHE_STRATEGY";
 
+    /**
+     * true: включить режим оффлайн (показывать в рекомендациях только такие ролики, у которых
+     * есть сохраненные оффлайн потоки)
+     */
+    private static final String PREF_OFFLINE_MODE_ON = "PREF_OFFLINE_MODE_ON";
+
 
     public static SortBy getPlaylistsSortBy(final Context context) {
         final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
@@ -284,5 +290,17 @@ public class ConfigOptions {
         final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
         editor.putString(PREF_VIDEO_THUMB_CACHE_STRATEGY, strategy.name());
         editor.commit();
+    }
+
+    public static void setOfflineModeOn(final Context context, final boolean offlineModeOn) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        editor.putBoolean(PREF_OFFLINE_MODE_ON, offlineModeOn);
+        editor.commit();
+    }
+
+    public static boolean getOfflineModeOn(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        // по умолчанию: false
+        return sp.getBoolean(PREF_OFFLINE_MODE_ON, false);
     }
 }

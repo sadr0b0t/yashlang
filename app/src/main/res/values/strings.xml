@@ -207,4 +207,7 @@
     <string name="cache_always_on">Always cache</string>
     <string name="clear_thumb_cache_title">Clear thumb cache dir?</string>
     <string name="clear_thumb_cache_message">All thumb cache dir contents would be deleted</string>
+    <string name="offline_mode">💾 Offline mode</string>
+    <string name="tab_item_moar">Misc</string>
+    <string name="offline_mode_hint">Only show videos with downloaded offline streams</string>
 </resources>

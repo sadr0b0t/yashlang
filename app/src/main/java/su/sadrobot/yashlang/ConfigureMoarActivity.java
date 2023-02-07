@@ -4,7 +4,7 @@ package su.sadrobot.yashlang;
  * Created by Anton Moiseev (sadr0b0t) in 2021.
  *
  * Copyright (C) Anton Moiseev 2019 <github.com/sadr0b0t>
- * ConfigurePlaylistActivity.java is part of YaShlang.
+ * ConfigureMoarActivity.java is part of YaShlang.
  *
  * YaShlang is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ public class ConfigureMoarActivity extends AppCompatActivity {
     private TabLayout tabs;
     private ViewPager2 pager;
 
+    private ConfigureMoarFragment configureMoarFrag;
     private ConfigureVideoQualityFragment configureVideoQualityFrag;
     private ThumbCacheFragment thumbCacheFrag;
 
@@ -56,19 +57,22 @@ public class ConfigureMoarActivity extends AppCompatActivity {
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        configureMoarFrag = new ConfigureMoarFragment();
         configureVideoQualityFrag = new ConfigureVideoQualityFragment();
         thumbCacheFrag = new ThumbCacheFragment();
 
         pager.setAdapter(new FragmentStateAdapter(getSupportFragmentManager(), getLifecycle()) {
             @Override
             public int getItemCount() {
-                return 2;
+                return 3;
             }
 
             @NonNull
             @Override
             public Fragment createFragment(int position) {
                 if (position == 0) {
+                    return configureMoarFrag;
+                } else if (position == 1) {
                     return configureVideoQualityFrag;
                 } else {
                     return thumbCacheFrag;
@@ -81,6 +85,8 @@ public class ConfigureMoarActivity extends AppCompatActivity {
                     @Override
                     public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
                         if (position == 0) {
+                            tab.setText(R.string.tab_item_moar);
+                        } else if (position == 1) {
                             tab.setText(R.string.tab_item_video_quality);
                         } else {
                             tab.setText(R.string.tab_item_thumb_cache);

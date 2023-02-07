@@ -253,6 +253,11 @@ public class PlaylistsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        if (ConfigOptions.getOfflineModeOn(this)) {
+            getSupportActionBar().setTitle(getString(R.string.icon_offline) + " " +
+                    getString(R.string.yashlang_playlists));
+        }
+
         setupPlaylistInfoPagedListAdapter(filterPlaylistListInput.getText().toString().trim(),
                 ConfigOptions.getPlaylistsSortBy(PlaylistsActivity.this),
                 ConfigOptions.getPlaylistsSortDir(PlaylistsActivity.this));

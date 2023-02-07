@@ -112,6 +112,11 @@ public class HistoryActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        if (ConfigOptions.getOfflineModeOn(this)) {
+            getSupportActionBar().setTitle(getString(R.string.icon_offline) + " " +
+                    getString(R.string.yashlang_history));
+        }
+
         setupVideoListAdapter();
     }
 
@@ -194,7 +199,7 @@ public class HistoryActivity extends AppCompatActivity {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
 
         final DataSource.Factory factory = VideoDatabase.getDbInstance(HistoryActivity.this).
-                videoItemDao().getHistoryOrderByLastViewedDs();
+                videoItemPubListsDao().getHistoryOrderByLastViewedDs();
 
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

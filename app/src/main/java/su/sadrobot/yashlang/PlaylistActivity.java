@@ -273,6 +273,16 @@ public class PlaylistActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (ConfigOptions.getOfflineModeOn(this)) {
+            getSupportActionBar().setTitle(getString(R.string.icon_offline) + " " +
+                    getString(R.string.yashlang_playlist));
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         // https://developer.android.com/training/appbar/action-views.html
 
@@ -371,7 +381,7 @@ public class PlaylistActivity extends AppCompatActivity {
                 // информация из базы данных - загрузится быстро и без интернета
                 final VideoDatabase videodb = VideoDatabase.getDbInstance(PlaylistActivity.this);
                 plInfo = VideoDatabase.getDbInstance(PlaylistActivity.this).playlistInfoDao().getById(plId);
-                final int plVideosCount = videodb.videoItemDao().countVideos(plId);
+                final int plVideosCount = videodb.videoItemPubListsDao().countVideos(plId);
 
                 handler.post(new Runnable() {
                     @Override
@@ -486,26 +496,26 @@ public class PlaylistActivity extends AppCompatActivity {
         if(sortBy == ConfigOptions.SortBy.NAME) {
             if (sortDirAsc) {
                 factory = VideoDatabase.getDbInstance(
-                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByNameAscDs(plId, sstr);
+                        PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByNameAscDs(plId, sstr);
             } else {
                 factory = VideoDatabase.getDbInstance(
-                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByNameDescDs(plId, sstr);
+                        PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByNameDescDs(plId, sstr);
             }
         } else if(sortBy == ConfigOptions.SortBy.DURATION) {
             if(sortDirAsc) {
                 factory = VideoDatabase.getDbInstance(
-                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByDurationAscDs(plId, sstr);
+                        PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByDurationAscDs(plId, sstr);
             }else {
                 factory = VideoDatabase.getDbInstance(
-                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByDurationDescDs(plId, sstr);
+                        PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByDurationDescDs(plId, sstr);
             }
         } else { // TIME_ADDED
             if(sortDirAsc) {
                 factory = VideoDatabase.getDbInstance(
-                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByTimeAddedAscDs(plId, sstr);
+                        PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByTimeAddedAscDs(plId, sstr);
             } else {
                 factory = VideoDatabase.getDbInstance(
-                        PlaylistActivity.this).videoItemDao().getByPlaylistSortByTimeAddedDescDs(plId, sstr);
+                        PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByTimeAddedDescDs(plId, sstr);
             }
         }
 

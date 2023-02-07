@@ -207,4 +207,7 @@
     <string name="cache_always_on">Всегда кэшировать</string>
     <string name="clear_thumb_cache_title">Очистить кэш иконок?</string>
     <string name="clear_thumb_cache_message">Всё содержимое каталога с кэшэм иконок будет удалено</string>
+    <string name="offline_mode">💾 Режим оффлайн</string>
+    <string name="tab_item_moar">Разное</string>
+    <string name="offline_mode_hint">Показывать ролики только со скачанными оффлайн потоками</string>
 </resources>

@@ -65,6 +65,7 @@ public class SearchVideoActivity extends AppCompatActivity {
     private final Handler handler = new Handler();
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,6 +123,16 @@ public class SearchVideoActivity extends AppCompatActivity {
 
         // при пустой поисковой строке будет показывать все видео по алфавиту
         setupVideoListAdapter(null);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (ConfigOptions.getOfflineModeOn(this)) {
+            getSupportActionBar().setTitle(getString(R.string.icon_offline) + " " +
+                    getString(R.string.yashlang_search));
+        }
     }
 
     @Override
@@ -243,9 +254,9 @@ public class SearchVideoActivity extends AppCompatActivity {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
         final DataSource.Factory factory;
         if (sstr != null && !sstr.isEmpty()) {
-            factory = VideoDatabase.getDbInstance(this).videoItemDao().searchVideosDs(sstr);
+            factory = VideoDatabase.getDbInstance(this).videoItemPubListsDao().searchVideosDs(sstr);
         } else {
-            factory = VideoDatabase.getDbInstance(this).videoItemDao().getAllEnabledDs();
+            factory = VideoDatabase.getDbInstance(this).videoItemPubListsDao().getAllDs();
         }
         videoItemsLiveData = new LivePagedListBuilder(factory, config).build();
 

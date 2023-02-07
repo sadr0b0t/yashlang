@@ -131,6 +131,18 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/video_recommend_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_marginTop="5dp" />
+
+    <TextView
+        android:id="@+id/status_offline_mode_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginRight="2dp"
+        android:layout_marginBottom="2dp"
+        android:textSize="10sp"
+        android:text="@string/icon_offline"
+        android:visibility="gone" />
 </LinearLayout>
