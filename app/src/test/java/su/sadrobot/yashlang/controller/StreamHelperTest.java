@@ -209,11 +209,26 @@ public class StreamHelperTest {
         System.out.println("***** TEST: testNextVideoPlaybackStreamMaxRes *****");
 
         final List<StreamHelper.StreamInfo> videoSources1 = new ArrayList<>();
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "1080p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "480p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "360p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "240p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "144p")));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("1080p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("480p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("360p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("240p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("144p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
 
         StreamHelper.StreamInfo nextStream;
         nextStream = StreamHelper.getNextVideoPlaybackStreamMaxRes(videoSources1, null);
@@ -239,11 +254,26 @@ public class StreamHelperTest {
         System.out.println("***** TEST: testNextVideoPlaybackStreamMinRes *****");
 
         final List<StreamHelper.StreamInfo> videoSources1 = new ArrayList<>();
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "1080p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "480p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "360p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "240p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "144p")));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("1080p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("480p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("360p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("240p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("144p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
 
         StreamHelper.StreamInfo nextStream;
         nextStream = StreamHelper.getNextVideoPlaybackStreamMinRes(videoSources1, null);
@@ -270,12 +300,24 @@ public class StreamHelperTest {
 
         // video sources list - v1
         final List<StreamHelper.StreamInfo> videoSources1 = new ArrayList<>();
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "1080p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "480p60")));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("1080p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("480p60").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
         // пусть этого варианта нет в списке
         //videoSources1.add(new VideoStream("urll", MediaFormat.MPEG_4, "360p"));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "240p")));
-        videoSources1.add(new StreamHelper.StreamInfo(new VideoStream("urll", MediaFormat.MPEG_4, "144p")));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("240p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
+        videoSources1.add(new StreamHelper.StreamInfo(
+                new VideoStream.Builder().setResolution("144p").
+                        setMediaFormat(MediaFormat.MPEG_4).setId(VideoStream.ID_UNKNOWN).
+                        setContent("urll", true).setIsVideoOnly(true).build()));
 
         StreamHelper.StreamInfo nextStream;
 
