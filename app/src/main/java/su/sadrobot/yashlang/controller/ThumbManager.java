@@ -133,18 +133,22 @@ public class ThumbManager {
      * @return
      */
     public Bitmap loadVideoThumb(final Context context, final VideoItem videoItem) {
-        // сначала пробуем загрузить из кэша
         final File cacheFile = ThumbCacheFsManager.getThumbCacheFileForVideoItem(context, videoItem);
-        Bitmap thumb = loadBitmap(cacheFile);
+        Bitmap thumb = null;
 
-        // если в кэше нет, грузим онлайн
-        if (thumb == null) {
+        // сначала пробуем загрузить из кэша
+        if (videoItem.getId() != VideoItem.ID_NONE) {
+            loadBitmap(cacheFile);
+        }
+
+        // если в кэше нет и не режим оффлайн, грузим онлайн
+        if (thumb == null && !ConfigOptions.getOfflineModeOn(context)) {
             try {
                 // Будем грузить для роликов YouTube иконку большего размера (так будет лучше на планшетах),
                 // для PeerTube ссылка останется без изменений
                 thumb = loadBitmap(PlaylistUrlUtil.fixYtVideoThumbSize(videoItem.getThumbUrl()));
 
-                if (thumb != null) {
+                if (thumb != null && videoItem.getId() != VideoItem.ID_NONE) {
                     // сохраним в кэш, если выставлена настройка
                     final ConfigOptions.VideoThumbCacheStrategy cacheStrategy = ConfigOptions.getVideoThumbCacheStrategy(context);
                     if (cacheStrategy == ConfigOptions.VideoThumbCacheStrategy.ALL ||
@@ -158,22 +162,26 @@ public class ThumbManager {
                 // приложение просто оставит иконку по умолчанию
                 //e.printStackTrace();
             }
+        }
 
-            // онлайн не загрузили - грузим иконку из ресурсов
-            if (thumb == null) {
-                thumb = getDefaultVideoItemThumb(context);
-            }
+        // в кэше нет и онлайн не загрузили - грузим иконку из ресурсов
+        if (thumb == null) {
+            thumb = getDefaultVideoItemThumb(context);
         }
         return thumb;
     }
 
     public Bitmap loadPlaylistThumb(final Context context, final PlaylistInfo plInfo) {
-        // сначала пробуем загрузить из кэша
         final File cacheFile = ThumbCacheFsManager.getThumbCacheFileForPlaylistInfo(context, plInfo);
-        Bitmap thumb = loadBitmap(cacheFile);
+        Bitmap thumb = null;
 
-        // если в кэше нет, грузим онлайн
-        if (thumb == null) {
+        // сначала пробуем загрузить из кэша
+        if (plInfo.getId() != PlaylistInfo.ID_NONE) {
+            thumb = loadBitmap(cacheFile);
+        }
+
+        // если в кэше нет и не режим оффлайн, грузим онлайн
+        if (thumb == null && !ConfigOptions.getOfflineModeOn(context)) {
             try {
                 // в базе данных и так сохраняется ссылка на большую иконку (=240-),
                 // но это может быть пригодится, если придется взять картинку еще больше
@@ -181,7 +189,7 @@ public class ThumbManager {
                 // передавать нужный размер и подставлять его в url
                 thumb = loadBitmap(PlaylistUrlUtil.fixYtChannelAvatarSize(plInfo.getThumbUrl()));
 
-                if (thumb != null) {
+                if (thumb != null && plInfo.getId() != PlaylistInfo.ID_NONE) {
                     // сохраним в кэш
                     saveBitmap(thumb, cacheFile);
                 }
@@ -190,11 +198,11 @@ public class ThumbManager {
                 // приложение просто оставит иконку по умолчанию
                 //e.printStackTrace();
             }
+        }
 
-            // онлайн не загрузили - грузим иконку из ресурсов
-            if (thumb == null) {
-                thumb = getDefaultPlaylistInfoThumb(context);
-            }
+        // в кэше нет и онлайн не загрузили - грузим иконку из ресурсов
+        if (thumb == null) {
+            thumb = getDefaultPlaylistInfoThumb(context);
         }
         return thumb;
     }
