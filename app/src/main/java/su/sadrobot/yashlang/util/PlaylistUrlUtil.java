@@ -117,6 +117,16 @@ public class PlaylistUrlUtil {
     }
 
     /**
+     * Исправить адрес иконки канала YouTube
+     * @param iconUrl
+     * @return
+     */
+    public static String fixYtChannelUrl(final String iconUrl) {
+        // 2023: домен с иконками переехал с yt3.ggpht.com на yt3.googleusercontent.com
+        return fixYtChannelAvatarSize(iconUrl).replace("yt3.ggpht.com", "yt3.googleusercontent.com");
+    }
+
+    /**
      * Исправить адрес иконки канала YouTube так, чтобы иконка была большего размера
      * @param iconUrl
      * @return

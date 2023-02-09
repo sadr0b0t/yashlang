@@ -187,7 +187,7 @@ public class ThumbManager {
                 // но это может быть пригодится, если придется взять картинку еще больше
                 // (или, наоборот, поэкономит трафик и взять меньше) - сюда можно будет
                 // передавать нужный размер и подставлять его в url
-                thumb = loadBitmap(PlaylistUrlUtil.fixYtChannelAvatarSize(plInfo.getThumbUrl()));
+                thumb = loadBitmap(PlaylistUrlUtil.fixYtChannelUrl(plInfo.getThumbUrl()));
 
                 if (thumb != null && plInfo.getId() != PlaylistInfo.ID_NONE) {
                     // сохраним в кэш
