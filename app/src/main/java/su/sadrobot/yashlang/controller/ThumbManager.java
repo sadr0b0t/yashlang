@@ -137,7 +137,7 @@ public class ThumbManager {
         Bitmap thumb = null;
 
         // сначала пробуем загрузить из кэша
-        if (videoItem.getId() != VideoItem.ID_NONE) {
+        if (videoItem.getId() != VideoItem.ID_NONE && cacheFile.exists()) {
             loadBitmap(cacheFile);
         }
 
@@ -176,7 +176,7 @@ public class ThumbManager {
         Bitmap thumb = null;
 
         // сначала пробуем загрузить из кэша
-        if (plInfo.getId() != PlaylistInfo.ID_NONE) {
+        if (plInfo.getId() != PlaylistInfo.ID_NONE && cacheFile.exists()) {
             thumb = loadBitmap(cacheFile);
         }
 
