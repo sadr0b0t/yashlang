@@ -4,18 +4,6 @@
       "_ignore": "true",
       "_comment": "// PeerTube"
     },
-    {
-      "name": "OldGoodCartoons",
-      "url": "https://open.tube/accounts/olddaycartoons/videos",
-      "thumb_url": "https://open.tube/lazy-static/avatars/679a4755-914a-48e4-83a9-f47f12445b2f.png",
-      "type": "PT_USER"
-    },
-    {
-      "name": "OpenMovies \uD83D\uDCFD",
-      "url": "https://open.tube/accounts/openmovies/videos",
-      "thumb_url": "https://open.tube/lazy-static/avatars/a5a7dff0-27ed-4079-9a91-165a30fb5532.jpg",
-      "type": "PT_USER"
-    },
 
     {
       "_ignore": "true",
@@ -28,9 +16,11 @@
       ]
     },
     {
+      "_ignore": "true",
       "_comment": [
         "// Классические и современные мультфильмы и детские фильмы",
-        "// Проект телеканала «Россия», ВГТРК Официальный сайт  https://russia.tv"
+        "// Проект телеканала «Россия», ВГТРК Официальный сайт  https://russia.tv",
+        "// февраль 2023: сейчас на канале 16 шляпных мультиков вместо нормальной коллекции"
       ],
       "name": "Русские мультфильмы",
       "url": "https://youtube.com/channel/UCU06hfFzcBjQl9-Ih2SvpoQ",
@@ -505,22 +495,10 @@
       "type": "YT_PLAYLIST"
     },
     {
-      "name": "КОМЕДИИ СТАРЫЕ",
-      "url": "https://www.youtube.com/playlist?list=PLbqctdB4RyNGWuorsQkNtxb9vBmZ4QkJU",
-      "thumb_url": "https://i.ytimg.com/vi/NYth4HYpDDY/hqdefault.jpg",
-      "type": "YT_PLAYLIST"
-    },
-    {
       "name": "ЗАРУБЕЖНЫЕ КОМЕДИИ",
       "url": "https://www.youtube.com/playlist?list=PLbqctdB4RyNE8FZmiorNDYboXjPJJ5eML",
       "thumb_url": "https://i.ytimg.com/vi/4PF6Pnx9vSg/hqdefault.jpg",
       "type": "YT_PLAYLIST"
-    },
-    {
-      "name": "КИНОтеатр Ностальгия",
-      "url": "https://www.youtube.com/channel/UCYf677te1lsZoWFzHGe-z6A",
-      "thumb_url": "https://yt3.ggpht.com/ytc/AKedOLQqS1ahOVEoLLxneGzxV0qlbQTmUKdTMdJ78-0SkA=s240-c-k-c0x00ffffff-no-rj",
-      "type": "YT_CHANNEL"
     },
 
     {
