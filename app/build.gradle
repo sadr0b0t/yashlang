@@ -7,8 +7,8 @@ android {
         applicationId "su.sadrobot.yashlang"
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 18
-        versionName "0.9.0"
+        versionCode 19
+        versionName "0.10.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Required when setting minSdkVersion to 20 or lower
