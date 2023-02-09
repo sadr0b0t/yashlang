@@ -25,11 +25,12 @@ public class PlaylistUrlUtil {
         // https://www.youtube.com/c/eralash
         // https://www.youtube.com/user/TVSmeshariki
 
-        // обратить внимание: варианты  плйлистов youtube.com/user/ и youtube.com/c/ не обязательно взаимозаменяемые
+        // обратить внимание: варианты  плейлистов youtube.com/user/ и youtube.com/c/ не обязательно взаимозаменяемые
         // например: www.youtube.com/user/Soyuzmultfilm и www.youtube.com/c/Soyuzmultfilm - разные пользователи
         // или: https://www.youtube.com/c/eralash есть, а https://www.youtube.com/user/eralash вообще не существует
         // (но иногда совпадают)
-        return url.contains("youtube.com/user/") || url.contains("youtube.com/c/");
+        // 2023: новый формат адреса пользователя: https://www.youtube.com/@eralash
+        return url.contains("youtube.com/user/") || url.contains("youtube.com/c/") || url.contains("youtube.com/@");
     }
 
     public static boolean isYtChannel(final String url) {
