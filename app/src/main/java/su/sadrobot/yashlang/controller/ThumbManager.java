@@ -138,7 +138,7 @@ public class ThumbManager {
 
         // сначала пробуем загрузить из кэша
         if (videoItem.getId() != VideoItem.ID_NONE && cacheFile.exists()) {
-            loadBitmap(cacheFile);
+            thumb = loadBitmap(cacheFile);
         }
 
         // если в кэше нет и не режим оффлайн, грузим онлайн
