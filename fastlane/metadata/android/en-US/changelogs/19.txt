@@ -1,0 +1,13 @@
+- Cache video and playlist thumbnails. Goto Config > menu > More setting > Thumb cache to configure or clear cache #148
+- Offline mode: browse and recommend only video items with downloaded streams (introduced in https://github.com/sadr0b0t/yashlang/releases/tag/v0.9.0). Goto Config > menu > More settings > Misc to switch offline mode on / off #142 #156
+-- Download streams for fave videos, switch offline mode on and use the app without internet even when youtube would get broken.
+-- Video thumbs also won't get downloaded online in offline mode, cached thumbs would be shown. To make sure all thumbs for all offline videos are cached, switch thumb caching on, switch offline mode off, go to Config > menu > 💾 Stream downloads > Downloaded and scroll the list, so all icons would be cached. Then switch offline mode on, all offline videos should be shown with cached thumbs.
+
+- Fix broken YouTube, update NewPipeExtractor to the most recent unstable version #161
+- Support new YouTube @channel_name urls #160
+- YouTube changed domain to store playlist thumbs #162
+
+refactor, internals
+- move to ViewPager2 #154
+- Cleanup copyright captions #155
+
