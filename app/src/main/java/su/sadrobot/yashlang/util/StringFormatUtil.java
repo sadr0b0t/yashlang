@@ -46,4 +46,28 @@ public class StringFormatUtil {
         }
         return sizeStr;
     }
+
+    /**
+     *
+     * @param sec продолжительность в секундах
+     * @return
+     */
+    public static String formatDuration(final Context context, final long sec) {
+        return sec > 0 ?
+                (sec / 3600) > 0 ?
+                        String.format("%d:%02d:%02d", sec / 3600, (sec % 3600) / 60, (sec % 60)) :
+                        String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60))
+                : context.getString(R.string.duration_undefined);
+    }
+
+    /**
+     *
+     * @param sec продолжительность в секундах
+     * @return
+     */
+    public static String formatCurrTime(final long sec) {
+        return (Math.abs(sec) / 3600) > 0 ?
+                        String.format("%d:%02d:%02d", sec / 3600, (sec % 3600) / 60, (sec % 60)) :
+                        String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60));
+    }
 }

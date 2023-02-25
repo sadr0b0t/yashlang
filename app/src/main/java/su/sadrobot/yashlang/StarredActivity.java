@@ -136,8 +136,7 @@ public class StarredActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_play_all: {
                 if (videoList.getAdapter().getItemCount() > 0) {
-                    VideoItemActions.actionPlayWithStarred(StarredActivity.this,
-                            ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(0));
+                    VideoItemActions.actionPlayStarred(StarredActivity.this);
                 } else {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
                 }
@@ -145,8 +144,7 @@ public class StarredActivity extends AppCompatActivity {
             }
             case R.id.action_play_all_shuffle: {
                 if (videoList.getAdapter().getItemCount() > 0) {
-                    VideoItemActions.actionPlayWithStarredShuffle(StarredActivity.this,
-                            ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(0));
+                    VideoItemActions.actionPlayStarredShuffle(StarredActivity.this);
                 } else {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
                 }
@@ -245,7 +243,7 @@ public class StarredActivity extends AppCompatActivity {
         adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
-        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(ConfigOptions.PAGED_LIST_PAGE_SIZE).build();
 
         final DataSource.Factory factory = VideoDatabase.getDbInstance(StarredActivity.this).
                 videoItemPubListsDao().getStarredDs();

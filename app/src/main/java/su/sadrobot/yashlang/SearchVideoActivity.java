@@ -154,9 +154,8 @@ public class SearchVideoActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_play_results:
                 if(videoList.getAdapter().getItemCount() > 0) {
-                    VideoItemActions.actionPlayWithSearchResults(
+                    VideoItemActions.actionPlaySearchResults(
                             SearchVideoActivity.this,
-                            ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(0),
                             searchVideoInput.getText().toString().trim());
                 } else {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
@@ -164,9 +163,8 @@ public class SearchVideoActivity extends AppCompatActivity {
                 break;
             case R.id.action_play_results_shuffle:
                 if(videoList.getAdapter().getItemCount() > 0) {
-                    VideoItemActions.actionPlayWithSearchResultsShuffle(
+                    VideoItemActions.actionPlaySearchResultsShuffle(
                             SearchVideoActivity.this,
-                            ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(0),
                             searchVideoInput.getText().toString().trim());
                 } else {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
@@ -248,7 +246,7 @@ public class SearchVideoActivity extends AppCompatActivity {
         }, null);
 
         // Initial page size to fetch can also be configured here too
-        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(ConfigOptions.PAGED_LIST_PAGE_SIZE).build();
         final DataSource.Factory factory;
         if (sstr != null && !sstr.isEmpty()) {
             factory = VideoDatabase.getDbInstance(this).videoItemPubListsDao().searchVideosDs(sstr);

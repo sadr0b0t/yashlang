@@ -66,7 +66,7 @@ public class ConfigOptions {
      * NONE - не кэшировать
      * ALL - кэшировать все
      * WITH_OFFLINE_STREAMS - кэшировать только для роликов, у которых
-     *   есть кэшированные оффлайн потоки
+     * есть кэшированные оффлайн потоки
      */
     public enum VideoThumbCacheStrategy {
         NONE, ALL, WITH_OFFLINE_STREAMS
@@ -84,11 +84,20 @@ public class ConfigOptions {
 
     public static final int UPDATE_PLAYLISTS_DELAY_MS = 500;
 
-    /** The default connection timeout, in milliseconds. */
+    public static final int PAGED_LIST_PAGE_SIZE = 20;
+
+    public static final int NOTIFICATION_ID_PLAYER = 1;
+    public static final int NOTIFICATION_ID_DOWNLOAD_STREAM = 2;
+
+    /**
+     * The default connection timeout, in milliseconds.
+     */
     public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS =
             com.google.android.exoplayer2.upstream.DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS;
 
-    /** The default read timeout, in milliseconds. */
+    /**
+     * The default read timeout, in milliseconds.
+     */
     public static final int DEFAULT_READ_TIMEOUT_MILLIS =
             com.google.android.exoplayer2.upstream.DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS;
 
@@ -159,145 +168,183 @@ public class ConfigOptions {
      */
     private static final String PREF_OFFLINE_MODE_ON = "PREF_OFFLINE_MODE_ON";
 
+    /**
+     * false - классический плеер, играет только когда открыт экран плеера; если экран плеера
+     *   скрыт, проигрывание прерывается, панель управления плеером в качестве уведомения не появляется
+     * true - плеер с автоматическим переходом в фоновый режим: если экран пллера скрыт,
+     *   аудио-дорожка продолжает играть в фоне, панель управления плеером появляются в области
+     *   уведомлений и на экране блокировки устройства
+     */
+    private static final String PREF_BACKGROUND_PLAYBACK_ON = "PREF_BACKGROUND_PLAYBACK_ON";
+
+    /**
+     * В режиме фонового плеера PREF_BACKGROUND_PLAYBACK_ON=true
+     * true - ставить на паузу при скрытии экрана плеера
+     * false - при скрытии экрана плеера продолждать играть без остановки
+     */
+    private static final String PREF_PAUSE_ON_HIDE = "PREF_PAUSE_ON_HIDE";
+
 
     public static SortBy getPlaylistsSortBy(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         // по умолчанию: TIME_ADDED (чтобы сохранить старое поведение)
         return SortBy.valueOf(sp.getString(PREF_PLAYLISTS_SORT_BY, SortBy.TIME_ADDED.name()));
     }
 
     public static void setPlaylistsSortBy(final Context context, final SortBy sortBy) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putString(PREF_PLAYLISTS_SORT_BY, sortBy.name());
         editor.commit();
     }
 
     public static boolean getPlaylistsSortDir(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         // по умолчанию: TIME_ADDED + asc (чтобы сохранить старое поведение)
         return sp.getBoolean(PREF_PLAYLISTS_SORT_DIR, true);
     }
 
     public static void setPlaylistsSortDir(final Context context, final boolean asc) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putBoolean(PREF_PLAYLISTS_SORT_DIR, asc);
         editor.commit();
     }
 
     public static SortBy getPlaylistSortBy(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         // по умолчанию: TIME_ADDED+desc (чтобы сохранить старое поведение)
         return SortBy.valueOf(sp.getString(PREF_PLAYLIST_SORT_BY, SortBy.TIME_ADDED.name()));
     }
 
     public static void setPlaylistSortBy(final Context context, final SortBy sortBy) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putString(PREF_PLAYLIST_SORT_BY, sortBy.name());
         editor.commit();
     }
 
     public static boolean getPlaylistSortDir(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         // по умолчанию: TIME_ADDED + desc (чтобы сохранить старое поведение)
         return sp.getBoolean(PREF_PLAYLIST_SORT_DIR, false);
     }
 
     public static void setPlaylistSortDir(final Context context, final boolean asc) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putBoolean(PREF_PLAYLIST_SORT_DIR, asc);
         editor.commit();
     }
 
     public static VideoStreamSelectStrategy getVideoStreamSelectStrategy(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         // по умолчанию: MAX_RES
         return VideoStreamSelectStrategy.valueOf(sp.getString(PREF_VIDEO_STREAM_SELECT_STRATEGY, VideoStreamSelectStrategy.MAX_RES.name()));
     }
 
     public static void setVideoStreamSelectStrategy(final Context context, final VideoStreamSelectStrategy strategy) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putString(PREF_VIDEO_STREAM_SELECT_STRATEGY, strategy.name());
         editor.commit();
     }
 
     public static String getVideoStreamCustomRes(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         // по умолчанию: среднее качество, доступно почти всегда
         return sp.getString(PREF_VIDEO_STREAM_CUSTOM_RES, DEFAULT_VIDEO_RESOLUTION);
     }
 
     public static void setVideoStreamCustomRes(final Context context, final String resolution) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putString(PREF_VIDEO_STREAM_CUSTOM_RES, resolution);
         editor.commit();
     }
 
     public static String getVideoStreamLastSelectedRes(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         // по умолчанию: среднее качество, доступно почти всегда
         return sp.getString(PREF_VIDEO_STREAM_LAST_SELECTED_RES, DEFAULT_VIDEO_RESOLUTION);
     }
 
     public static void setVideoStreamLastSelectedRes(final Context context, final String resolution) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putString(PREF_VIDEO_STREAM_LAST_SELECTED_RES, resolution);
         editor.commit();
     }
 
     public static VideoStreamSelectPreferRes getVideoStreamSelectCustomPreferRes(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         return VideoStreamSelectPreferRes.valueOf(sp.getString(PREF_VIDEO_STREAM_SELECT_CUSTOM_PREFER_RES, VideoStreamSelectPreferRes.HIGHER_RES.name()));
     }
 
     public static void setVideoStreamSelectCustomPreferRes(final Context context, final VideoStreamSelectPreferRes preferRes) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putString(PREF_VIDEO_STREAM_SELECT_CUSTOM_PREFER_RES, preferRes.name());
         editor.commit();
     }
 
     public static VideoStreamSelectPreferRes getVideoStreamSelectLastPreferRes(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         return VideoStreamSelectPreferRes.valueOf(sp.getString(PREF_VIDEO_STREAM_SELECT_LAST_PREFER_RES, VideoStreamSelectPreferRes.HIGHER_RES.name()));
     }
 
     public static void setVideoStreamSelectLastPreferRes(final Context context, final VideoStreamSelectPreferRes preferRes) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putString(PREF_VIDEO_STREAM_SELECT_LAST_PREFER_RES, preferRes.name());
         editor.commit();
     }
 
     public static boolean getVideoStreamSelectOffline(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         // по умолчанию: true
         return sp.getBoolean(PREF_VIDEO_STREAM_SELECT_OFFLINE, true);
     }
 
     public static void setVideoStreamSelectOffline(final Context context, final boolean selectOffline) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putBoolean(PREF_VIDEO_STREAM_SELECT_OFFLINE, selectOffline);
         editor.commit();
     }
 
     public static VideoThumbCacheStrategy getVideoThumbCacheStrategy(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         return VideoThumbCacheStrategy.valueOf(sp.getString(PREF_VIDEO_THUMB_CACHE_STRATEGY, VideoThumbCacheStrategy.ALL.name()));
     }
 
     public static void setVideoThumbCacheStrategy(final Context context, final VideoThumbCacheStrategy strategy) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putString(PREF_VIDEO_THUMB_CACHE_STRATEGY, strategy.name());
         editor.commit();
     }
 
     public static void setOfflineModeOn(final Context context, final boolean offlineModeOn) {
-        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0).edit();
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
         editor.putBoolean(PREF_OFFLINE_MODE_ON, offlineModeOn);
         editor.commit();
     }
 
     public static boolean getOfflineModeOn(final Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME,0);
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
         // по умолчанию: false
         return sp.getBoolean(PREF_OFFLINE_MODE_ON, false);
+    }
+
+    public static boolean getBackgroundPlaybackOn(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
+        return sp.getBoolean(PREF_BACKGROUND_PLAYBACK_ON, true);
+    }
+
+    public static void setBackgroundPlaybackOn(final Context context, final boolean backgroundPlaybackOn) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
+        editor.putBoolean(PREF_BACKGROUND_PLAYBACK_ON, backgroundPlaybackOn);
+        editor.commit();
+    }
+
+    public static boolean getPauseOnHide(final Context context) {
+        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
+        return sp.getBoolean(PREF_PAUSE_ON_HIDE, true);
+    }
+
+    public static void setPauseOnHide(final Context context, final boolean pauseOnHide) {
+        final SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0).edit();
+        editor.putBoolean(PREF_PAUSE_ON_HIDE, pauseOnHide);
+        editor.commit();
     }
 }

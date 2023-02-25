@@ -31,6 +31,7 @@
         <activity
             android:name=".WatchVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTask"
             android:label="@string/yashlang"
             android:theme="@style/WatchVideoTheme" />
         <activity
@@ -121,6 +122,8 @@
 
         <service
             android:name=".service.StreamCacheDownloadService" />
+        <service
+            android:name=".service.PlayerService" />
 
     </application>
 </manifest>

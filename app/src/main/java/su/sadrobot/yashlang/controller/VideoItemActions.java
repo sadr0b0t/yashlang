@@ -39,6 +39,7 @@ import su.sadrobot.yashlang.WatchVideoActivity;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.player.RecommendationsProviderFactory;
 import su.sadrobot.yashlang.service.StreamCacheDownloadService;
 import su.sadrobot.yashlang.view.StreamInfoArrayAdapter;
 
@@ -58,107 +59,128 @@ public class VideoItemActions {
 
     public static void actionPlay(final Context context, final VideoItem videoItem) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.RANDOM);
+        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_ID, videoItem.getId());
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.RANDOM);
         context.startActivity(intent);
     }
 
     public static void actionPlayWithoutRecommendations(final Context context, final VideoItem videoItem) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.OFF);
+        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_ID, videoItem.getId());
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.OFF);
         context.startActivity(intent);
     }
 
     public static void actionPlayInPlaylist(final Context context, final VideoItem videoItem) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
-        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
+        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_ID, videoItem.getId());
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.PLAYLIST_ID);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
         context.startActivity(intent);
     }
 
     public static void actionPlayInPlaylist(
-            final Context context, final VideoItem videoItem,
+            final Context context, final VideoItem videoItem, int position,
             final String searchStr, final ConfigOptions.SortBy sortBy, boolean sortDirAsc) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
-        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
-        intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, searchStr.trim());
-        intent.putExtra(WatchVideoActivity.PARAM_SORT_BY, sortBy.name());
-        intent.putExtra(WatchVideoActivity.PARAM_SORT_DIR_ASCENDING, sortDirAsc);
+        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_ID, videoItem.getId());
+        intent.putExtra(WatchVideoActivity.PARAM_SCROLL_TO_IN_RECOMMENDATIONS, position);
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.PLAYLIST_ID);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SEARCH_STR, searchStr.trim());
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SORT_BY, sortBy.name());
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SORT_DIR_ASCENDING, sortDirAsc);
         context.startActivity(intent);
     }
 
     public static void actionPlayInPlaylistShowAll(
-            final Context context, final VideoItem videoItem) {
+            final Context context, final VideoItem videoItem, int position) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
-        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
-        intent.putExtra(WatchVideoActivity.PARAM_SHOW_ALL, true);
+        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_ID, videoItem.getId());
+        intent.putExtra(WatchVideoActivity.PARAM_SCROLL_TO_IN_RECOMMENDATIONS, position);
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.PLAYLIST_ID);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SHOW_ALL, true);
         context.startActivity(intent);
     }
 
     public static void actionPlayNewInPlaylist(
-            final Context context, final VideoItem videoItem) {
+            final Context context, final VideoItem videoItem, final int position) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
         intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_URL, videoItem.getItemUrl());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_NEW);
-        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
+        intent.putExtra(WatchVideoActivity.PARAM_SCROLL_TO_IN_RECOMMENDATIONS, position);
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.PLAYLIST_NEW);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
         context.startActivity(intent);
     }
 
     public static void actionPlayInPlaylistShuffle(final Context context, final VideoItem videoItem) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
-        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
-        intent.putExtra(WatchVideoActivity.PARAM_SHUFFLE, true);
+        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_ID, videoItem.getId());
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.PLAYLIST_ID);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SHUFFLE, true);
         context.startActivity(intent);
     }
 
     public static void actionPlayInPlaylistShuffle(
             final Context context, final VideoItem videoItem, final String searchStr) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_ID);
-        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
-        intent.putExtra(WatchVideoActivity.PARAM_SHUFFLE, true);
-        intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, searchStr.trim());
+        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_ID, videoItem.getId());
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.PLAYLIST_ID);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_PLAYLIST_ID, videoItem.getPlaylistId());
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SHUFFLE, true);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SEARCH_STR, searchStr.trim());
         context.startActivity(intent);
     }
 
-    public static void actionPlayWithStarred(final Context context, final VideoItem videoItem) {
+    public static void actionPlayPlaylist(
+            final Context context, final long playlistId,
+            final String searchStr, final ConfigOptions.SortBy sortBy, boolean sortDirAsc) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.STARRED);
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.PLAYLIST_ID);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_PLAYLIST_ID, playlistId);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SEARCH_STR, searchStr.trim());
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SORT_BY, sortBy.name());
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SORT_DIR_ASCENDING, sortDirAsc);
         context.startActivity(intent);
     }
 
-    public static void actionPlayWithStarredShuffle(final Context context, final VideoItem videoItem) {
+    public static void actionPlayPlaylistShuffle(
+            final Context context, final long playlistId, final String searchStr) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.STARRED);
-        intent.putExtra(WatchVideoActivity.PARAM_SHUFFLE, true);
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.PLAYLIST_ID);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_PLAYLIST_ID, playlistId);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SHUFFLE, true);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SEARCH_STR, searchStr.trim());
         context.startActivity(intent);
     }
 
-    public static void actionPlayWithSearchResults(final Context context, final VideoItem videoItem, final String searchStr) {
+    public static void actionPlayStarred(final Context context) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.SEARCH_STR);
-        intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, searchStr.trim());
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.STARRED);
         context.startActivity(intent);
     }
 
-    public static void actionPlayWithSearchResultsShuffle(final Context context, final VideoItem videoItem, final String searchStr) {
+    public static void actionPlayStarredShuffle(final Context context) {
         final Intent intent = new Intent(context, WatchVideoActivity.class);
-        intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ID, videoItem.getId());
-        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.SEARCH_STR);
-        intent.putExtra(WatchVideoActivity.PARAM_SEARCH_STR, searchStr.trim());
-        intent.putExtra(WatchVideoActivity.PARAM_SHUFFLE, true);
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.STARRED);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SHUFFLE, true);
+        context.startActivity(intent);
+    }
+
+    public static void actionPlaySearchResults(final Context context, final String searchStr) {
+        final Intent intent = new Intent(context, WatchVideoActivity.class);
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.SEARCH_STR);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SEARCH_STR, searchStr.trim());
+        context.startActivity(intent);
+    }
+
+    public static void actionPlaySearchResultsShuffle(final Context context, final String searchStr) {
+        final Intent intent = new Intent(context, WatchVideoActivity.class);
+        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.SEARCH_STR);
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SEARCH_STR, searchStr.trim());
+        intent.putExtra(RecommendationsProviderFactory.PARAM_SHUFFLE, true);
         context.startActivity(intent);
     }
 

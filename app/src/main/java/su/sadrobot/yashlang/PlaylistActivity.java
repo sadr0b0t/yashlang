@@ -306,9 +306,8 @@ public class PlaylistActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_play_all:
                 if(videoList.getAdapter().getItemCount() > 0) {
-                    VideoItemActions.actionPlayInPlaylist(
-                            PlaylistActivity.this,
-                            ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(0),
+                    VideoItemActions.actionPlayPlaylist(
+                            PlaylistActivity.this, playlistId,
                             filterPlaylistInput.getText().toString().trim(),
                             ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
                             ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
@@ -318,9 +317,8 @@ public class PlaylistActivity extends AppCompatActivity {
                 break;
             case R.id.action_play_all_shuffle:
                 if(videoList.getAdapter().getItemCount() > 0) {
-                    VideoItemActions.actionPlayInPlaylistShuffle(
-                            PlaylistActivity.this,
-                            ((VideoItemPagedListAdapter) videoList.getAdapter()).getItem(0),
+                    VideoItemActions.actionPlayPlaylistShuffle(
+                            PlaylistActivity.this, playlistId,
                             filterPlaylistInput.getText().toString().trim());
                 } else {
                     Toast.makeText(this, R.string.nothing_to_play, Toast.LENGTH_SHORT).show();
@@ -439,6 +437,7 @@ public class PlaylistActivity extends AppCompatActivity {
                                             case R.id.action_play_in_playlist: {
                                                 VideoItemActions.actionPlayInPlaylist(
                                                         PlaylistActivity.this, videoItem,
+                                                        position,
                                                         filterPlaylistInput.getText().toString().trim(),
                                                         ConfigOptions.getPlaylistSortBy(PlaylistActivity.this),
                                                         ConfigOptions.getPlaylistSortDir(PlaylistActivity.this));
@@ -487,10 +486,10 @@ public class PlaylistActivity extends AppCompatActivity {
         adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
-        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(ConfigOptions.PAGED_LIST_PAGE_SIZE).build();
 
         final DataSource.Factory factory;
-        if(sortBy == ConfigOptions.SortBy.NAME) {
+        if (sortBy == ConfigOptions.SortBy.NAME) {
             if (sortDirAsc) {
                 factory = VideoDatabase.getDbInstance(
                         PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByNameAscDs(plId, sstr);
@@ -498,16 +497,16 @@ public class PlaylistActivity extends AppCompatActivity {
                 factory = VideoDatabase.getDbInstance(
                         PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByNameDescDs(plId, sstr);
             }
-        } else if(sortBy == ConfigOptions.SortBy.DURATION) {
-            if(sortDirAsc) {
+        } else if (sortBy == ConfigOptions.SortBy.DURATION) {
+            if (sortDirAsc) {
                 factory = VideoDatabase.getDbInstance(
                         PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByDurationAscDs(plId, sstr);
-            }else {
+            } else {
                 factory = VideoDatabase.getDbInstance(
                         PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByDurationDescDs(plId, sstr);
             }
         } else { // TIME_ADDED
-            if(sortDirAsc) {
+            if (sortDirAsc) {
                 factory = VideoDatabase.getDbInstance(
                         PlaylistActivity.this).videoItemPubListsDao().getByPlaylistSortByTimeAddedAscDs(plId, sstr);
             } else {

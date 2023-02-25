@@ -178,8 +178,8 @@
     <string name="delete_not_finished_title">Delete ALL not finished downloads?</string>
     <string name="no_playback_streams_for_video">No playback streams for video</string>
     <string name="offline">offline</string>
-    <string name="notification_channel_download_name">Video and audio stream cache</string>
-    <string name="notification_channel_download_description">Video and audio stream cache download progress for offline playback</string>
+    <string name="notification_channel_download_stream_name">Video and audio stream cache</string>
+    <string name="notification_channel_download_stream_description">Video and audio stream cache download progress for offline playback</string>
     <string name="video_stream">Video stream</string>
     <string name="audio_stream">Audio stream</string>
     <string name="download_video_item_streams">Download streams for video item</string>
@@ -210,4 +210,9 @@
     <string name="offline_mode">💾 Offline mode</string>
     <string name="tab_item_moar">Misc</string>
     <string name="offline_mode_hint">Only show videos with downloaded offline streams</string>
+    <string name="background_playback">Background playback</string>
+    <string name="pause_on_hide">Pause on hide</string>
+    <string name="notification_channel_player_name">Player control panel</string>
+    <string name="notification_channel_player_description">Control player in background mode</string>
+    <string name="duration_undefined">[dur undef]</string>
 </resources>

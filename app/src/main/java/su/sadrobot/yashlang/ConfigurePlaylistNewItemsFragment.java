@@ -434,7 +434,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
                     @Override
                     public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                         VideoItemActions.actionPlayNewInPlaylist(
-                                ConfigurePlaylistNewItemsFragment.this.getContext(), videoItem);
+                                ConfigurePlaylistNewItemsFragment.this.getContext(), videoItem, position);
                     }
 
                     @Override
@@ -475,7 +475,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
         adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
-        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(ConfigOptions.PAGED_LIST_PAGE_SIZE).build();
 
         final DataSource.Factory factory =
                 new VideoItemOnlyNewOnlineDataSourceFactory(this.getContext(), plId, false,

@@ -69,8 +69,7 @@ public class StreamCacheDownloadService extends Service {
     public static String PARAM_STREAM_CACHE_ITEM_ID = "PARAM_STREAM_CACHE_ITEM_ID";
     public static String PARAM_STREAM_CACHE_ITEM_IDS = "PARAM_STREAM_CACHE_ITEM_IDS";
 
-
-    private static final int NOTIFICATION_ID = 1;
+    private static int NOTIFICATION_UPDATE_PERIOD_MS = 1000;
 
     public class StreamCacheDownloadServiceBinder extends android.os.Binder {
         public StreamCacheDownloadService getService() {
@@ -103,16 +102,15 @@ public class StreamCacheDownloadService extends Service {
     public void onCreate() {
         if (ConfigOptions.DEVEL_MODE_ON) {
             Toast.makeText(this, "StreamCacheDownloadService ON_CREATE", Toast.LENGTH_LONG).show();
-
         }
 
         // https://developer.android.com/guide/components/foreground-services
         // https://github.com/TeamNewPipe/NewPipe/blob/43e91ae4ae9878cdfce3f9c560612de41564962d/app/src/main/java/us/shandian/giga/service/DownloadManagerService.java
         // https://github.com/TeamNewPipe/NewPipe/blob/0039312a64e7271fec2e0a295db1d6979e83cf3f/app/src/main/java/org/schabi/newpipe/player/NotificationUtil.java
         createNotificationChannels();
-        startForeground(NOTIFICATION_ID, buildNotificationWithProgress());
+        startForeground(ConfigOptions.NOTIFICATION_ID_DOWNLOAD_STREAM, buildNotificationWithProgress());
 
-        notificationUpdateTimer.scheduleAtFixedRate(notificationUpdateTask, 0, 1000);
+        notificationUpdateTimer.scheduleAtFixedRate(notificationUpdateTask, 0, NOTIFICATION_UPDATE_PERIOD_MS);
     }
 
     @Override
@@ -188,10 +186,9 @@ public class StreamCacheDownloadService extends Service {
 
         final List<NotificationChannelCompat> notificationChannelCompats = new ArrayList<>();
         notificationChannelCompats.add(new NotificationChannelCompat
-                .Builder(getString(R.string.notification_channel_id),
-                NotificationManagerCompat.IMPORTANCE_LOW)
-                .setName(getString(R.string.notification_channel_download_name))
-                .setDescription(getString(R.string.notification_channel_download_description))
+                .Builder(getString(R.string.notification_channel_download_stream_id), NotificationManagerCompat.IMPORTANCE_LOW)
+                .setName(getString(R.string.notification_channel_download_stream_name))
+                .setDescription(getString(R.string.notification_channel_download_stream_description))
                 .build());
 
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
@@ -200,7 +197,7 @@ public class StreamCacheDownloadService extends Service {
 
     private void updateNotification() {
         final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(NOTIFICATION_ID, buildNotificationWithProgress());
+        notificationManager.notify(ConfigOptions.NOTIFICATION_ID_DOWNLOAD_STREAM, buildNotificationWithProgress());
     }
 
     private Notification buildNotificationWithProgress() {
@@ -234,7 +231,7 @@ public class StreamCacheDownloadService extends Service {
                 gotoStreamCacheIntent, PendingIntent.FLAG_IMMUTABLE);
 
         // https://developer.android.com/training/notify-user/build-notification
-        return new NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
+        return new NotificationCompat.Builder(this, getString(R.string.notification_channel_download_stream_id))
                 .setContentTitle(StringFormatUtil.formatFileSize(this, cumProgress) + " / " +
                         StringFormatUtil.formatFileSize(this, cumProgressMax))
                 .setContentText(downloadsActive + " / " + downloadsTotal)

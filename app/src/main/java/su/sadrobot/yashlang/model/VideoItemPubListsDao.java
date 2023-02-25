@@ -45,6 +45,9 @@ public interface VideoItemPubListsDao {
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistDs(long playlistId);
 
+    @Query("SELECT * FROM video_item WHERE _id = :firstItemId OR (enabled AND NOT blacklisted AND playlist_id = :playlistId) ORDER BY CASE WHEN _id = :firstItemId THEN 0 ELSE 1 END, fake_timestamp DESC")
+    DataSource.Factory<Integer, VideoItem> getByPlaylistWithFirstItemDs(long playlistId, long firstItemId);
+
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistDs(long playlistId, String filterStr);
 
@@ -69,8 +72,14 @@ public interface VideoItemPubListsDao {
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> getByPlaylistShuffle(long playlistId, int lim);
 
+    @Query("SELECT * FROM video_item WHERE _id = :firstItemId OR (enabled AND NOT blacklisted) AND playlist_id = :playlistId ORDER BY CASE WHEN _id = :firstItemId THEN 0 ELSE 1 END, RANDOM() LIMIT :lim")
+    List<VideoItem> getByPlaylistShuffleWithFirstItem(long playlistId, int lim, long firstItemId);
+
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> getByPlaylistShuffle(long playlistId, String filterStr, int lim);
+
+    @Query("SELECT * FROM video_item WHERE _id = :firstItemId OR (enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%') ORDER BY CASE WHEN _id = :firstItemId THEN 0 ELSE 1 END, RANDOM() LIMIT :lim")
+    List<VideoItem> getByPlaylistShuffleWithFirstItem(long playlistId, String filterStr, int lim, long firstItemId);
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted AND name LIKE '%'||:sstr||'%' ORDER BY name")
     DataSource.Factory<Integer, VideoItem> searchVideosDs(String sstr);
@@ -92,6 +101,9 @@ public interface VideoItemPubListsDao {
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> recommendVideos(int lim);
+
+    @Query("SELECT * FROM video_item WHERE _id = :firstItemId OR (enabled AND NOT blacklisted) ORDER BY CASE WHEN _id = :firstItemId THEN 0 ELSE 1 END, RANDOM() LIMIT :lim")
+    List<VideoItem> recommendVideosWithFirstItem(int lim, long firstItemId);
 
     @Query("SELECT * FROM video_item WHERE enabled AND NOT blacklisted ORDER BY RANDOM()")
     DataSource.Factory<Integer, VideoItem> recommendVideosDs();

@@ -53,6 +53,7 @@ import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.player.RecommendationsProviderFactory;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.DataSourceListener;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
@@ -437,7 +438,8 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
                     public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                         final Intent intent = new Intent(ConfigurePlaylistsNewItemsFragment.this.getContext(), WatchVideoActivity.class);
                         intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_URL, videoItem.getItemUrl());
-                        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.ALL_NEW);
+                        intent.putExtra(WatchVideoActivity.PARAM_SCROLL_TO_IN_RECOMMENDATIONS, position);
+                        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.ALL_NEW);
                         startActivity(intent);
                     }
 
@@ -479,7 +481,7 @@ public class ConfigurePlaylistsNewItemsFragment extends Fragment {
         adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
-        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(ConfigOptions.PAGED_LIST_PAGE_SIZE).build();
 
         final DataSource.Factory factory =
                 new VideoItemMultPlaylistsOnlyNewOnlineDataSourceFactory(this.getContext(), plIds, false,

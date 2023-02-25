@@ -28,10 +28,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import su.sadrobot.yashlang.service.PlayerService;
+
 
 public class ConfigureMoarFragment extends Fragment {
 
     private Switch offlineModeSwitch;
+
+    private Switch backgroundPlaybackOnSwitch;
+    private Switch pauseOnHideSwitch;
 
     @Nullable
     @Override
@@ -44,6 +49,8 @@ public class ConfigureMoarFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         offlineModeSwitch = view.findViewById(R.id.offline_mode_switch);
+        backgroundPlaybackOnSwitch = view.findViewById(R.id.background_playback_on_switch);
+        pauseOnHideSwitch = view.findViewById(R.id.pause_on_hide_switch);
 
         offlineModeSwitch.setChecked(ConfigOptions.getOfflineModeOn(
                 ConfigureMoarFragment.this.getContext()));
@@ -53,5 +60,38 @@ public class ConfigureMoarFragment extends Fragment {
                 ConfigOptions.setOfflineModeOn(ConfigureMoarFragment.this.getContext(), isChecked);
             }
         });
+
+        backgroundPlaybackOnSwitch.setChecked(ConfigOptions.getBackgroundPlaybackOn(
+                ConfigureMoarFragment.this.getContext()));
+        backgroundPlaybackOnSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                ConfigOptions.setBackgroundPlaybackOn(ConfigureMoarFragment.this.getContext(), isChecked);
+                updateControlsStates();
+
+                if (!isChecked) {
+                    PlayerService.cmdStop(ConfigureMoarFragment.this.getContext());
+                }
+            }
+        });
+
+        pauseOnHideSwitch.setChecked(ConfigOptions.getPauseOnHide(
+                ConfigureMoarFragment.this.getContext()));
+        pauseOnHideSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                ConfigOptions.setPauseOnHide(ConfigureMoarFragment.this.getContext(), isChecked);
+            }
+        });
+
+        updateControlsStates();
+    }
+
+    private void updateControlsStates() {
+        if (backgroundPlaybackOnSwitch.isChecked()) {
+            pauseOnHideSwitch.setEnabled(true);
+        } else {
+            pauseOnHideSwitch.setEnabled(false);
+        }
     }
 }

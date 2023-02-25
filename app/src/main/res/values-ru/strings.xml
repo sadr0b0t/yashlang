@@ -178,8 +178,8 @@
     <string name="delete_not_finished_title">Удалить ВСЕ незавершенные закачки?</string>
     <string name="no_playback_streams_for_video">Для ролика не найдено потоков для проигрывания</string>
     <string name="offline">оффлайн</string>
-    <string name="notification_channel_download_name">Кэшированные потоки видео и аудио</string>
-    <string name="notification_channel_download_description">Прогресс закачки файлов потоков видео и аудио для проигрывания оффлайн</string>
+    <string name="notification_channel_download_stream_name">Кэшированные потоки видео и аудио</string>
+    <string name="notification_channel_download_stream_description">Прогресс закачки файлов потоков видео и аудио для проигрывания оффлайн</string>
     <string name="video_stream">Поток видео</string>
     <string name="audio_stream">Поток аудио</string>
     <string name="download_video_item_streams">Скачать потоки для ролика</string>
@@ -210,4 +210,9 @@
     <string name="offline_mode">💾 Режим оффлайн</string>
     <string name="tab_item_moar">Разное</string>
     <string name="offline_mode_hint">Показывать ролики только со скачанными оффлайн потоками</string>
+    <string name="background_playback">Играть в фоне</string>
+    <string name="pause_on_hide">Ставить на паузу при скрытии плеера</string>
+    <string name="notification_channel_player_name">Панель управления плеером</string>
+    <string name="notification_channel_player_description">Управление плеером в фоновом режиме</string>
+    <string name="duration_undefined">[не опр]</string>
 </resources>

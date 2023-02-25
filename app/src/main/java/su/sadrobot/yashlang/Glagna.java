@@ -265,7 +265,7 @@ public class Glagna extends AppCompatActivity {
         adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
-        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(ConfigOptions.PAGED_LIST_PAGE_SIZE).build();
 
         final DataSource.Factory factory = VideoDatabase.getDbInstance(this).
                 videoItemPubListsDao().recommendVideosDs();

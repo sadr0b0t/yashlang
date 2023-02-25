@@ -6,13 +6,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginBottom="40dp">
 
         <Switch
             android:id="@+id/offline_mode_switch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="25dp"
             android:checked="true"
@@ -21,12 +22,30 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="40dp"
             android:textColor="@android:color/darker_gray"
             android:text="@string/offline_mode_hint" />
 
+        <Switch
+            android:id="@+id/background_playback_on_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="25dp"
+            android:checked="true"
+            android:text="@string/background_playback" />
+
+        <Switch
+            android:id="@+id/pause_on_hide_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="10dp"
+            android:checked="true"
+            android:text="@string/pause_on_hide" />
     </LinearLayout>
 </ScrollView>

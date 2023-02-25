@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import su.sadrobot.yashlang.R;
 import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.util.StringFormatUtil;
 
 public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAdapter.VideoItemViewHolder> {
 
@@ -47,9 +48,9 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
     public static int ORIENTATION_VERTICAL = 0;
     public static int ORIENTATION_HORIZONTAL = 1;
 
-    private final Activity context;
+    private Activity context;
     private final List<VideoItem> videoItems;
-    private final OnListItemClickListener<VideoItem> onItemClickListener;
+    private OnListItemClickListener<VideoItem> onItemClickListener;
     private final ListItemSwitchController<VideoItem> itemSwitchController;
     private int orientation;
 
@@ -144,12 +145,7 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
         }
 
         if (holder.durationTxt != null) {
-            long sec = item.getDuration();
-            final String durStr = sec > 0 ?
-                    (sec / 3600) > 0 ?
-                            String.format("%d:%02d:%02d", sec / 3600, (sec % 3600) / 60, (sec % 60)) :
-                            String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60))
-                    : "[dur undef]";
+            final String durStr = StringFormatUtil.formatDuration(context, item.getDuration());
             holder.durationTxt.setText(durStr);
         }
 
@@ -263,5 +259,14 @@ public class VideoItemArrayAdapter extends RecyclerView.Adapter<VideoItemArrayAd
 
     public VideoItem getItem(int position) {
         return videoItems.get(position);
+    }
+
+
+    public void setContext(final Activity context) {
+        this.context = context;
+    }
+
+    public void setOnItemClickListener(final OnListItemClickListener<VideoItem> onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 }

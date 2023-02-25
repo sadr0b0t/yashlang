@@ -43,6 +43,7 @@ import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.util.StringFormatUtil;
 
 public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, VideoItemPagedListAdapter.VideoItemViewHolder> {
     // https://guides.codepath.com/android/Paging-Library-Guide
@@ -53,8 +54,8 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
     public static int ORIENTATION_VERTICAL = 0;
     public static int ORIENTATION_HORIZONTAL = 1;
 
-    private final Activity context;
-    private final OnListItemClickListener<VideoItem> onItemClickListener;
+    private Activity context;
+    private OnListItemClickListener<VideoItem> onItemClickListener;
     private final ListItemSwitchController<VideoItem> itemSwitchController;
     private int orientation = ORIENTATION_VERTICAL;
 
@@ -231,12 +232,7 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
         }
 
         if (holder.durationTxt != null) {
-            long sec = item.getDuration();
-            final String durStr = sec > 0 ?
-                    (sec / 3600) > 0 ?
-                        String.format("%d:%02d:%02d", sec / 3600, (sec % 3600) / 60, (sec % 60)) :
-                        String.format("%02d:%02d", (sec % 3600) / 60, (sec % 60))
-                    : "[dur undef]";
+            final String durStr = StringFormatUtil.formatDuration(context, item.getDuration());
             holder.durationTxt.setText(durStr);
         }
 
@@ -353,5 +349,13 @@ public class VideoItemPagedListAdapter extends PagedListAdapter<VideoItem, Video
     @Override
     public VideoItem getItem(int position) {
         return super.getItem(position);
+    }
+
+    public void setContext(final Activity context) {
+        this.context = context;
+    }
+
+    public void setOnItemClickListener(final OnListItemClickListener<VideoItem> onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 }

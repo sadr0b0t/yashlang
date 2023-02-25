@@ -53,6 +53,7 @@ import su.sadrobot.yashlang.controller.VideoItemActions;
 import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.player.RecommendationsProviderFactory;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.DataSourceListener;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
@@ -519,8 +520,9 @@ public class AddPlaylistActivity extends AppCompatActivity {
                     public void onItemClick(final View view, final int position, final VideoItem videoItem) {
                         final Intent intent = new Intent(AddPlaylistActivity.this, WatchVideoActivity.class);
                         intent.putExtra(WatchVideoActivity.PARAM_VIDEO_ITEM_URL, videoItem.getItemUrl());
-                        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, WatchVideoActivity.RecommendationsMode.PLAYLIST_URL);
-                        intent.putExtra(WatchVideoActivity.PARAM_PLAYLIST_URL, plUrl);
+                        intent.putExtra(WatchVideoActivity.PARAM_SCROLL_TO_IN_RECOMMENDATIONS, position);
+                        intent.putExtra(WatchVideoActivity.PARAM_RECOMMENDATIONS_MODE, RecommendationsProviderFactory.RecommendationsMode.PLAYLIST_URL);
+                        intent.putExtra(RecommendationsProviderFactory.PARAM_PLAYLIST_URL, plUrl);
                         startActivity(intent);
                     }
 
@@ -561,7 +563,7 @@ public class AddPlaylistActivity extends AppCompatActivity {
         adapter.registerAdapterDataObserver(emptyListObserver);
 
         // Initial page size to fetch can also be configured here too
-        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(20).build();
+        final PagedList.Config config = new PagedList.Config.Builder().setPageSize(ConfigOptions.PAGED_LIST_PAGE_SIZE).build();
         // Pass in dependency
         final DataSource.Factory factory =
                 new VideoItemOnlineDataSourceFactory(plUrl, new DataSourceListener() {
