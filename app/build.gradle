@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "su.sadrobot.yashlang"
@@ -132,10 +132,10 @@ dependencies {
     // https://developer.android.com/studio/write/java8-support#library-desugaring
     implementation "com.github.TeamNewPipe:NewPipeExtractor:7e793c11aec46358ccbfd8bcfcf521105f4f093a"
 
-    // google Exoplayer
+    // google ExoPlayer
     // https://github.com/google/ExoPlayer
     // https://exoplayer.dev/
-    implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
+    implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
 
 
     // Это для запуска DataIOTest без андроида на десктопе, чтобы избежать ошибки
