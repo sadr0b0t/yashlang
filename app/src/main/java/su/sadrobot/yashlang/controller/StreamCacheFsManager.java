@@ -125,18 +125,20 @@ public class StreamCacheFsManager {
         final List<File> unmanagedFiles = new ArrayList<>();
         final File cacheDir = getStreamCacheDir(context);
         final File[] allFiles = cacheDir.listFiles();
-        for (final File file: allFiles) {
-            final String fileName = file.getName();
-            if (VideoDatabase.getDbInstance(context).streamCacheDao().findStreamsForFile(fileName).isEmpty()) {
-                // записей в базе на этот файл нет
-                // проверим еще, может это временный файл
-                if (fileName.endsWith(PART_FILE_POSTFIX)) {
-                    if (VideoDatabase.getDbInstance(context).streamCacheDao().findStreamsForFile(
-                            fileName.substring(0, fileName.lastIndexOf(PART_FILE_POSTFIX))).isEmpty()) {
+        if (allFiles != null) {
+            for (final File file : allFiles) {
+                final String fileName = file.getName();
+                if (VideoDatabase.getDbInstance(context).streamCacheDao().findStreamsForFile(fileName).isEmpty()) {
+                    // записей в базе на этот файл нет
+                    // проверим еще, может это временный файл
+                    if (fileName.endsWith(PART_FILE_POSTFIX)) {
+                        if (VideoDatabase.getDbInstance(context).streamCacheDao().findStreamsForFile(
+                                fileName.substring(0, fileName.lastIndexOf(PART_FILE_POSTFIX))).isEmpty()) {
+                            unmanagedFiles.add(file);
+                        }
+                    } else {
                         unmanagedFiles.add(file);
                     }
-                } else {
-                    unmanagedFiles.add(file);
                 }
             }
         }
