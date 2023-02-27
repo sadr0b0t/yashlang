@@ -36,66 +36,103 @@ public interface VideoItemPubListsOfflineDao extends VideoItemPubListsDao {
     // т.к с Long генератор генерит некомпилируемый код.
     // Впрочем, с Factory<Integer, VideoItem> при типе ID Long
     // код тоже компилируется и работает, поэтому пока фиг с ним и так.
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted ORDER BY name")
     DataSource.Factory<Integer, VideoItem> getAllDs();
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY fake_timestamp DESC")
     List<VideoItem> getByPlaylist(long playlistId);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistDs(long playlistId);
 
+    @Override
+    @Query("SELECT * FROM video_item WHERE _id = :firstItemId OR (has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId) ORDER BY CASE WHEN _id = :firstItemId THEN 0 ELSE 1 END, fake_timestamp DESC")
+    DataSource.Factory<Integer, VideoItem> getByPlaylistWithFirstItemDs(long playlistId, long firstItemId);
+
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistDs(long playlistId, String filterStr);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY name ASC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistSortByNameAscDs(long playlistId, String filterStr);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY name DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistSortByNameDescDs(long playlistId, String filterStr);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY fake_timestamp ASC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistSortByTimeAddedAscDs(long playlistId, String filterStr);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY fake_timestamp DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistSortByTimeAddedDescDs(long playlistId, String filterStr);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY duration ASC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistSortByDurationAscDs(long playlistId, String filterStr);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY duration DESC")
     DataSource.Factory<Integer, VideoItem> getByPlaylistSortByDurationDescDs(long playlistId, String filterStr);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> getByPlaylistShuffle(long playlistId, int lim);
 
+    @Override
+    @Query("SELECT * FROM video_item WHERE _id = :firstItemId OR (has_offline AND enabled AND NOT blacklisted) AND playlist_id = :playlistId ORDER BY CASE WHEN _id = :firstItemId THEN 0 ELSE 1 END, RANDOM() LIMIT :lim")
+    List<VideoItem> getByPlaylistShuffleWithFirstItem(long playlistId, int lim, long firstItemId);
+
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%' ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> getByPlaylistShuffle(long playlistId, String filterStr, int lim);
 
+    @Override
+    @Query("SELECT * FROM video_item WHERE _id = :firstItemId OR (has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId AND name LIKE '%'||:filterStr||'%') ORDER BY CASE WHEN _id = :firstItemId THEN 0 ELSE 1 END, RANDOM() LIMIT :lim")
+    List<VideoItem> getByPlaylistShuffleWithFirstItem(long playlistId, String filterStr, int lim, long firstItemId);
+
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND name LIKE '%'||:sstr||'%' ORDER BY name")
     DataSource.Factory<Integer, VideoItem> searchVideosDs(String sstr);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND name LIKE '%'||:sstr||'%' ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> searchVideosShuffle(String sstr, int lim);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND view_count > 0 ORDER BY last_viewed_date DESC")
     DataSource.Factory<Integer, VideoItem> getHistoryOrderByLastViewedDs();
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND starred ORDER BY starred_date DESC")
     List<VideoItem> getStarred();
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND starred ORDER BY starred_date DESC")
     DataSource.Factory<Integer, VideoItem> getStarredDs();
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND starred ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> getStarredShuffle(int lim);
 
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted ORDER BY RANDOM() LIMIT :lim")
     List<VideoItem> recommendVideos(int lim);
 
+    @Override
+    @Query("SELECT * FROM video_item WHERE _id = :firstItemId OR (has_offline AND enabled AND NOT blacklisted) ORDER BY CASE WHEN _id = :firstItemId THEN 0 ELSE 1 END, RANDOM() LIMIT :lim")
+    List<VideoItem> recommendVideosWithFirstItem(int lim, long firstItemId);
+
+    @Override
     @Query("SELECT * FROM video_item WHERE has_offline AND enabled AND NOT blacklisted ORDER BY RANDOM()")
     DataSource.Factory<Integer, VideoItem> recommendVideosDs();
 
+    @Override
     @Query("SELECT COUNT (_id) FROM video_item WHERE has_offline AND enabled AND NOT blacklisted AND playlist_id = :playlistId")
     int countVideos(long playlistId);
 }
