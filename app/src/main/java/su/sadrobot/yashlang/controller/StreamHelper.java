@@ -202,8 +202,17 @@ public class StreamHelper {
         try {
             StreamHelper.StreamSources onlineStreamSources = ContentLoader.getInstance().extractStreams(videoItem.getItemUrl());
 
-            allVideoStreams.addAll(onlineStreamSources.getVideoStreams());
-            allAudioStreams.addAll(onlineStreamSources.getAudioStreams());
+            // не добавлять потоки с url null
+            for (final StreamInfo stream : onlineStreamSources.getVideoStreams()) {
+                if (stream.getUrl() != null) {
+                    allVideoStreams.add(stream);
+                }
+            }
+            for (final StreamInfo stream : onlineStreamSources.getAudioStreams()) {
+                if (stream.getUrl() != null) {
+                    allAudioStreams.add(stream);
+                }
+            }
         } catch (ExtractionException | IOException e) {
             problems.add(e);
         }
