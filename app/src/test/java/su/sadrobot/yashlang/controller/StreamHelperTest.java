@@ -62,9 +62,10 @@ public class StreamHelperTest {
     }
 
     private static String streamToString(StreamHelper.StreamInfo stream) {
-        return stream.getResolution() +
-                (stream.isOnline() ? "" : "[offline]") +
-                (stream.getStreamType() == StreamCache.StreamType.BOTH ? " [VIDEO+AUDIO]" : "");
+        return "[" + stream.getResolution() +
+                (stream.isOnline() ? "" : " offline") +
+                (stream.getStreamType() == StreamCache.StreamType.BOTH ? " VIDEO+AUDIO" : "") +
+                "]";
     }
 
     private static void printStreamList(final List<StreamHelper.StreamInfo> streamList) {
@@ -86,6 +87,7 @@ public class StreamHelperTest {
         testNextVideoPlaybackStreamMinRes();
         testNextVideoPlaybackStreamForRes();
         testSortVideoStreamsForRes();
+        testSortAndFilterStreamsForBackgroundPlayback();
     }
 
     public static void showSampleStreams() {
@@ -638,6 +640,74 @@ public class StreamHelperTest {
         expectedStreams.add(stream_r240p_vid_online);
         expectedStreams.add(stream_r144p_vid_offline);
         expectedStreams.add(stream_r144p_vid_online);
+        assertEqual(sortedStreams, expectedStreams);
+    }
+
+    public static void testSortAndFilterStreamsForBackgroundPlayback() {
+        System.out.println("***** TEST: testSortAndFilterStreamsForBackgroundPlayback *****");
+
+        final StreamHelper.StreamInfo stream_r1080p_vid_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.VIDEO, true, "1080p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r1080p_both_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.BOTH, true, "1080p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r360p_both_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.BOTH, true, "360p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r1080p_both_offline = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.BOTH, false, "1080p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_r360p_both_offline = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.BOTH, false, "360p",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_1000_audio_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.AUDIO, true, "1000",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_500_audio_online = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.AUDIO, true, "500",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_1000_audio_offline = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.AUDIO, false, "1000",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+        final StreamHelper.StreamInfo stream_500_audio_ofline = new StreamHelper.StreamInfo(
+                StreamCache.StreamType.AUDIO, false, "500",
+                "whatever_quality", "whatever_formatName", "whatever_formatMimeType",
+                "whatever_formatSuffix", "whatever_url");
+
+        final List<StreamHelper.StreamInfo> videoSources1 = new ArrayList<>();
+        videoSources1.add(stream_r1080p_vid_online);
+        videoSources1.add(stream_r1080p_both_online);
+        videoSources1.add(stream_r360p_both_online);
+        videoSources1.add(stream_r1080p_both_offline);
+        videoSources1.add(stream_r360p_both_offline);
+        videoSources1.add(stream_1000_audio_online);
+        videoSources1.add(stream_500_audio_online);
+        videoSources1.add(stream_1000_audio_offline);
+        videoSources1.add(stream_500_audio_ofline);
+
+        List<StreamHelper.StreamInfo> sortedStreams;
+        List<StreamHelper.StreamInfo> expectedStreams = new ArrayList<>();
+
+        sortedStreams = StreamHelper.sortAndFilterStreamsForBackgroundPlayback(videoSources1);
+
+        expectedStreams.add(stream_1000_audio_offline);
+        expectedStreams.add(stream_500_audio_ofline);
+        expectedStreams.add(stream_r360p_both_offline);
+        expectedStreams.add(stream_r1080p_both_offline);
+        expectedStreams.add(stream_1000_audio_online);
+        expectedStreams.add(stream_500_audio_online);
+        expectedStreams.add(stream_r360p_both_online);
+        expectedStreams.add(stream_r1080p_both_online);
+
         assertEqual(sortedStreams, expectedStreams);
     }
 }

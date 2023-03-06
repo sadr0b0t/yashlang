@@ -159,7 +159,17 @@ public class PlayerService extends Service {
         EMPTY, LOADING, ERROR, LOADED, NOTHING_TO_PLAY
     }
 
-    public enum PlayerMode {
+    /**
+     * Тип текущего плеера: плеер на главном экране, проигрывание в фоне
+     */
+    public enum PlayerType {
+        FOREGROUND_VIDEO, BACKGROUND
+    }
+
+    /**
+     * Текущий режим проигрывания - какой поток выбран
+     */
+    public enum PlayerStreamMode {
         VIDEO, AUDIO
     }
 
@@ -226,7 +236,8 @@ public class PlayerService extends Service {
     private com.google.android.exoplayer2.upstream.DataSource.Factory videoDataSourceFactory;
 
     private PlayerState playerState = PlayerState.EMPTY;
-    private PlayerMode playerMode = PlayerMode.VIDEO;
+    private PlayerType playerType = PlayerType.FOREGROUND_VIDEO;
+    private PlayerStreamMode playerStreamMode = PlayerStreamMode.VIDEO;
     private String videoLoadErrorMsg = "";
 
     // Флаг - ставить ли загружаемый в текущий момент ролик на паузу сразу после загрузки.
@@ -348,25 +359,57 @@ public class PlayerService extends Service {
                 setPlayerState(PlayerState.LOADING, null);
                 boolean tryAnotherStream = false;
                 try {
-                    final StreamHelper.StreamPair nextPlaybackStreams = StreamHelper.getNextPlaybackStreamPair(
-                            PlayerService.this,
-                            currentVideo.getStreamSources().getVideoStreams(),
-                            currentVideo.getStreamSources().getAudioStreams(),
-                            currentVideo.getPlaybackStreams().getVideoStream());
-                    if (currentVideo.getPlaybackStreams().getVideoStream() != null &&
-                            nextPlaybackStreams.getVideoStream() != null &&
-                            !nextPlaybackStreams.getVideoStream().getUrl().equals(currentVideo.getPlaybackStreams().getVideoStream().getUrl())) {
-                        currentVideo.setPlaybackStreams(nextPlaybackStreams);
-                        // перерисовать информацию о текущих потоках
-                        if (serviceListener != null) {
-                            serviceListener.onContentsStateChange();
+                    final StreamHelper.StreamPair nextPlaybackStreams;
+
+                    if (playerType == PlayerType.FOREGROUND_VIDEO) {
+                        // играем в экране плеера
+                        nextPlaybackStreams = StreamHelper.getNextPlaybackStreamPair(
+                                PlayerService.this,
+                                currentVideo.getStreamSources().getVideoStreams(),
+                                currentVideo.getStreamSources().getAudioStreams(),
+                                currentVideo.getPlaybackStreams().getVideoStream());
+
+                        if (currentVideo.getPlaybackStreams().getVideoStream() != null &&
+                                nextPlaybackStreams.getVideoStream() != null &&
+                                !nextPlaybackStreams.getVideoStream().getUrl().equals(currentVideo.getPlaybackStreams().getVideoStream().getUrl())) {
+                            currentVideo.setPlaybackStreams(nextPlaybackStreams);
+
+                            // перерисовать информацию о текущих потоках
+                            if (serviceListener != null) {
+                                serviceListener.onContentsStateChange();
+                            }
+                            tryAnotherStream = true;
+                            playVideoStream(
+                                    currentVideo.getPlaybackStreams().getVideoStream().getUrl(),
+                                    (currentVideo.getPlaybackStreams().getAudioStream() != null ? currentVideo.getPlaybackStreams().getAudioStream().getUrl() : null),
+                                    currentVideo.getPausedAt(),
+                                    ConfigOptions.SEEK_BACK_ON_RESUME_MS,
+                                    pauseOnLoad);
                         }
-                        tryAnotherStream = true;
-                        playVideoStream(
-                                currentVideo.getPlaybackStreams().getVideoStream().getUrl(),
-                                (currentVideo.getPlaybackStreams().getAudioStream() != null ? currentVideo.getPlaybackStreams().getAudioStream().getUrl() : null),
-                                currentVideo.getPausedAt(),
-                                pauseOnLoad);
+                    } else { // playerType == PlayerType.BACKGROUND
+                        // играем в фоне
+                        nextPlaybackStreams = StreamHelper.getNextBackgroundPlaybackStreamPair(
+                                currentVideo.getStreamSources().getVideoStreams(),
+                                currentVideo.getStreamSources().getAudioStreams(),
+                                currentVideo.getPlaybackStreams().getAudioStream());
+
+                        if (currentVideo.getPlaybackStreams().getAudioStream() != null &&
+                                nextPlaybackStreams.getAudioStream() != null &&
+                                !nextPlaybackStreams.getAudioStream().getUrl().equals(currentVideo.getPlaybackStreams().getAudioStream().getUrl())) {
+                            currentVideo.setPlaybackStreams(nextPlaybackStreams);
+
+                            // перерисовать информацию о текущих потоках
+                            if (serviceListener != null) {
+                                serviceListener.onContentsStateChange();
+                            }
+                            tryAnotherStream = true;
+                            playVideoStream(
+                                    null,
+                                    currentVideo.getPlaybackStreams().getAudioStream().getUrl(),
+                                    currentVideo.getPausedAt(),
+                                    ConfigOptions.SEEK_BACK_ON_RESUME_MS,
+                                    pauseOnLoad);
+                        }
                     }
                 } catch (Exception e) {
                 }
@@ -425,6 +468,7 @@ public class PlayerService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         isBound = true;
+        playerType = PlayerType.FOREGROUND_VIDEO;
 
         // экран плеера при выходе на передний план подлкючается к сервису
         onPlayerActivityVisibilityChange(false);
@@ -435,6 +479,20 @@ public class PlayerService extends Service {
             notificationUpdateTask = null;
         }
         stopForeground(true);
+
+        // Переходим в плеер на экране - играть видео.
+        // Если дорожка и так видео, то не переключаем - она и так ок
+        // (сейчас такое может быть, если мы переключились в фон с текущего ролика, у которого
+        // играла дорожка видео+аудио оффлайн, - в этом случае при переходе в фон потоки не переключали,
+        // а потом на текущем же ролике вернулись обратно на экран)
+        if (currentVideo != null &&
+                (currentVideo.getPlaybackStreams() == null ||
+                (currentVideo.getPlaybackStreams() != null && currentVideo.getPlaybackStreams().getVideoStream() == null)) ) {
+            saveVideoCurrPos();
+            // выберет другой поток для нового типа плеера
+            setPlayerState(PlayerState.LOADING, null);
+            playVideoItemStreams(currentVideo, ConfigOptions.SEEK_BACK_ON_RESUME_MS, !exoPlayer.getPlayWhenReady());
+        }
 
         if (serviceBinder == null) {
             serviceBinder = new PlayerServiceBinder();
@@ -445,6 +503,7 @@ public class PlayerService extends Service {
     @Override
     public void onRebind(Intent intent) {
         isBound = true;
+        playerType = PlayerType.FOREGROUND_VIDEO;
 
         // экран плеера при выходе на передний план подлкючается к сервису
         onPlayerActivityVisibilityChange(false);
@@ -455,11 +514,26 @@ public class PlayerService extends Service {
             notificationUpdateTask = null;
         }
         stopForeground(true);
+
+        // Переходим в плеер на экране - играть видео.
+        // Если дорожка и так видео, то не переключаем - она и так ок
+        // (сейчас такое может быть, если мы переключились в фон с текущего ролика, у которого
+        // играла дорожка видео+аудио оффлайн, - в этом случае при переходе в фон потоки не переключали,
+        // а потом на текущем же ролике вернулись обратно на экран)
+        if (currentVideo != null &&
+                (currentVideo.getPlaybackStreams() == null ||
+                (currentVideo.getPlaybackStreams() != null && currentVideo.getPlaybackStreams().getVideoStream() == null)) ) {
+            saveVideoCurrPos();
+            // выберет другой поток для нового типа плеера
+            setPlayerState(PlayerState.LOADING, null);
+            playVideoItemStreams(currentVideo, ConfigOptions.SEEK_BACK_ON_RESUME_MS, !exoPlayer.getPlayWhenReady());
+        }
     }
 
     @Override
     public boolean onUnbind(final Intent intent) {
         isBound = false;
+        playerType = PlayerType.BACKGROUND;
 
         // экран ушел на задний план
         if (!ConfigOptions.getBackgroundPlaybackOn(this) || ConfigOptions.getPauseOnHide(this)) {
@@ -487,6 +561,22 @@ public class PlayerService extends Service {
 
         // показать уведомление, когда экран плеера скрыт
         startForeground(ConfigOptions.NOTIFICATION_ID_PLAYER, buildNotification());
+
+        // Переходим в фон - по возможности (и по необходимости) переключить на дорожку аудио.
+        // Если дорожка и так аудио или оффлайн, то не переключаем - она в фоне тоже ок
+        // (то же самое: переключаем поток, если играет онлайн видео).
+        // Если пришлось переключить дорожку, то проигрывание начнется после загрузки дорожки -
+        // в этом случае повторим последние 5 секунд.
+        // Если дорожку переключать не пришлось, то проигрывание продолжится точно с места остановки.
+        if (currentVideo != null &&
+                (currentVideo.getPlaybackStreams() == null ||
+                (currentVideo.getPlaybackStreams() != null && currentVideo.getPlaybackStreams().getVideoStream() != null &&
+                        currentVideo.getPlaybackStreams().getVideoStream().isOnline())) ) {
+            saveVideoCurrPos();
+            // выберет другой поток для нового типа плеера
+            setPlayerState(PlayerState.LOADING, null);
+            playVideoItemStreams(currentVideo, ConfigOptions.SEEK_BACK_ON_RESUME_MS, !exoPlayer.getPlayWhenReady());
+        }
 
         // true, чтобы при повторном подключении был вызван onRebind
         return true;
@@ -708,8 +798,8 @@ public class PlayerService extends Service {
         return playerState;
     }
 
-    public PlayerMode getPlayerMode() {
-        return playerMode;
+    public PlayerStreamMode getPlayerStreamMode() {
+        return playerStreamMode;
     }
 
     public VideoItem getCurrentVideo() {
@@ -942,7 +1032,7 @@ public class PlayerService extends Service {
             saveVideoCurrPos();
         }
         // остановим старое видео, если оно играло
-        playVideoStream(null, null, 0, true);
+        playVideoStream(null, null, 0, 0, true);
 
         // загружаем новое видео
         setPlayerState(PlayerState.LOADING, null);
@@ -1009,7 +1099,7 @@ public class PlayerService extends Service {
     }
 
     /**
-     * Загрузка контента видео - выбранного ролика, здесь касается только области проигрывания, т.е. виджет плеера.
+     * Загрузка контента видео для выбранного ролика, здесь касается только области проигрывания, т.е. виджет плеера.
      * Время выполнения не определено, т.к. выполняет сетевые операции, поэтому запускать нужно в фоновом потоке.
      *
      * @param videoItem
@@ -1021,7 +1111,7 @@ public class PlayerService extends Service {
                 // для начала остановим проигрывание текущего видео,
                 // чтобы оно не играло в фоне во время загрузки
                 // (если его не остановили перед этим)
-                playVideoStream(null, null, 0, true);
+                playVideoStream(null, null, 0, 0, true);
 
                 // теперь покажем экран загрузки
                 setPlayerState(PlayerState.LOADING, null);
@@ -1032,15 +1122,33 @@ public class PlayerService extends Service {
         // "загружаем", т.е. создать новый фоновый поток внутри handler.post выше. Но, если handler.post
         // отправляет задачи в синхронную очередь для выполнения одна за одной, то задача в handler.post
         // ниже будет выполнена в любом случае после задачи handler.post выше, поэтому проблемы
+        // быть не должно
 
-        // загрузить поток видео
+        // загрузить список потоков видео
+        // обращается к базе данных и, если не в режим оффлайн, в сеть
+        // к кэшу videoItem.getStreamSources() не обращаемся, т.к. мог поменяться, к примеру, режим онлайн/оффлайн и т.п.
         final StreamHelper.StreamSources streamSources = StreamHelper.fetchStreams(this, videoItem);
-        if (streamSources.getVideoStreams().size() > 0 || streamSources.getAudioStreams().size() > 0) {
-            StreamHelper.sortVideoStreamsDefault(streamSources.getVideoStreams());
-            StreamHelper.sortAudioStreamsDefault(streamSources.getAudioStreams());
-            final StreamHelper.StreamPair playbackStreams = StreamHelper.getNextPlaybackStreamPair(
-                    this, streamSources.getVideoStreams(), streamSources.getAudioStreams(), null);
-            videoItem.setStreamSources(streamSources);
+        StreamHelper.sortVideoStreamsDefault(streamSources.getVideoStreams());
+        StreamHelper.sortAudioStreamsDefault(streamSources.getAudioStreams());
+        videoItem.setStreamSources(streamSources);
+
+        playVideoItemStreams(videoItem, ConfigOptions.SEEK_BACK_ON_RESUME_MS, pauseOnLoad);
+    }
+
+    private void playVideoItemStreams(final VideoItem videoItem, final long seekBack, final boolean paused) {
+        // в этом месте списки потоков для ролика уже должны быть загружены
+        // выбрать поток для проигрывания
+        if (videoItem.getStreamSources().getVideoStreams().size() > 0 || videoItem.getStreamSources().getAudioStreams().size() > 0) {
+            final StreamHelper.StreamPair playbackStreams;
+            if (playerType == PlayerType.FOREGROUND_VIDEO) {
+                // играем в экране плеера
+                playbackStreams = StreamHelper.getNextPlaybackStreamPair(
+                        this, videoItem.getStreamSources().getVideoStreams(), videoItem.getStreamSources().getAudioStreams(), null);
+            } else { // playerType == PlayerType.BACKGROUND
+                // играем в фоне
+                playbackStreams = StreamHelper.getNextBackgroundPlaybackStreamPair(
+                        videoItem.getStreamSources().getVideoStreams(), videoItem.getStreamSources().getAudioStreams(), null);
+            }
             videoItem.setPlaybackStreams(playbackStreams);
 
             handler.post(new Runnable() {
@@ -1073,11 +1181,13 @@ public class PlayerService extends Service {
                             setPlayerState(PlayerState.NOTHING_TO_PLAY, null);
                         } else {
                             try {
+                                // загрузить потоки плеера
                                 playVideoStream(
                                         (videoItem.getPlaybackStreams().getVideoStream() != null ? videoItem.getPlaybackStreams().getVideoStream().getUrl() : null),
                                         (videoItem.getPlaybackStreams().getAudioStream() != null ? videoItem.getPlaybackStreams().getAudioStream().getUrl() : null),
                                         videoItem.getPausedAt(),
-                                        pauseOnLoad);
+                                        seekBack,
+                                        paused);
                             } catch (Exception ex) {
                                 // в принципе, мы сюда не должны попасть никогда. Возможно, был повод
                                 // поймать RuntimeException в плеере и не упасть.
@@ -1095,7 +1205,8 @@ public class PlayerService extends Service {
                         setPlayerState(
                                 PlayerState.ERROR,
                                 PlayerService.this.getString(R.string.no_playback_streams_for_video) +
-                                        (streamSources.problems.size() > 0 ? "\n" + streamSources.problems.get(0).getMessage() : ""));
+                                        (videoItem.getStreamSources().problems.size() > 0 ?
+                                                "\n" + videoItem.getStreamSources().problems.get(0).getMessage() : ""));
                     }
                 });
             }
@@ -1150,6 +1261,7 @@ public class PlayerService extends Service {
                                         (videoStream != null ? videoStream.getUrl() : null),
                                         (audioStream != null ? audioStream.getUrl() : null),
                                         _currentVideo.getPausedAt(),
+                                        ConfigOptions.SEEK_BACK_ON_RESUME_MS,
                                         pauseOnLoad);
                             }
                         }
@@ -1162,16 +1274,20 @@ public class PlayerService extends Service {
     /**
      * Собственно, запустить на проигрывание видеопоток по известному адресу
      *
-     * @param streamUrl адрес потока видео (должен быть с форматом ExoPlayer),
+     * @param streamUrl адрес потока видео (должен быть совместим с форматом ExoPlayer),
      *                  может содержать или не содержать дорожку аудио
-     *                  если null, остановить проигрывание текущего ролика, если он уже был загружен
+     *                  Если  streamUrl null и audioStreamUrl null, остановить проигрывание текущего ролика, если он уже был загружен
      * @param audioStreamUrl адрес потока аудио. Нужен, если у потока видео нет дорожки аудио.
      *                  Отправить null, если у потока видео есть совмещенная дорожка аудио.
-     * @param seekTo    начать проигрывание с указанной позиции
+     * @param seekTo    начать проигрывание с указанной позиции (минус seekBack)
+     * @param seekBack  начать проигрывание на seekBack секунд раньше, чем указано seekTo
      * @param paused    false: начать проигрывание сразу после загрузки;
      *                  true: загрузить поток и поставить на паузу
      */
-    private void playVideoStream(final String streamUrl, final String audioStreamUrl, final long seekTo, final boolean paused) {
+    private void playVideoStream(final String streamUrl, final String audioStreamUrl, final long seekTo, final long seekBack, final boolean paused) {
+        if (ConfigOptions.DEVEL_MODE_ON) {
+            System.out.println("playVideoStream: video=" + streamUrl + " audio=" + audioStreamUrl + " seekTo=" + seekTo + " paused=" + paused);
+        }
         if (streamUrl == null && audioStreamUrl == null) {
             // остановить проигрывание текущего ролика, если был загружен
             exoPlayer.stop();
@@ -1191,34 +1307,34 @@ public class PlayerService extends Service {
             final MediaSource audioSource;
 
             if (streamUrl != null) {
-                final Uri mp4VideoUri = Uri.parse(streamUrl);
+                final Uri videoUri = Uri.parse(streamUrl);
                 videoSource = new ProgressiveMediaSource.Factory(videoDataSourceFactory)
-                        .createMediaSource(MediaItem.fromUri(mp4VideoUri));
+                        .createMediaSource(MediaItem.fromUri(videoUri));
             } else {
                 videoSource = null;
             }
             if (audioStreamUrl != null) {
-                final Uri mp3AudioUri = Uri.parse(audioStreamUrl);
+                final Uri audioUri = Uri.parse(audioStreamUrl);
                 audioSource = new ProgressiveMediaSource.Factory(videoDataSourceFactory)
-                        .createMediaSource(MediaItem.fromUri(mp3AudioUri));
+                        .createMediaSource(MediaItem.fromUri(audioUri));
             } else {
                 audioSource = null;
             }
 
             if (videoSource != null && audioSource == null) {
                 mediaSource = videoSource;
-                playerMode = PlayerMode.VIDEO;
+                playerStreamMode = PlayerStreamMode.VIDEO;
             } else if (videoSource == null && audioSource != null) {
                 mediaSource = audioSource;
-                playerMode = PlayerMode.AUDIO;
+                playerStreamMode = PlayerStreamMode.AUDIO;
             } else {
                 // videoSource != null && audioSource != null
-                // (оба null буть не могут, т.к. этот случай отсекли еще выше)
+                // (оба null быть не могут, т.к. этот случай отсекли еще выше)
                 // совместить дорожку аудио и видео
                 // https://stackoverflow.com/questions/58404056/exoplayer-play-an-audio-stream-and-a-video-stream-synchronously
 
                 mediaSource = new MergingMediaSource(videoSource, audioSource);
-                playerMode = PlayerMode.VIDEO;
+                playerStreamMode = PlayerStreamMode.VIDEO;
             }
 
             // Поставим на паузу старое видео, пока готовим новое
@@ -1245,8 +1361,8 @@ public class PlayerService extends Service {
             // в этом месте нормлаьный duration еще не доступен, поэтому его не проверяем
             //if(seekTo > 0 && seekTo < videoPlayerView.getPlayer().getDuration()) {
             if (seekTo > 0) {
-                // на 5 секунд раньше
-                exoPlayer.seekTo(seekTo - 5000 > 0 ? seekTo - 5000 : 0);
+                // на seekBack секунд (5 секунд) раньше
+                exoPlayer.seekTo(seekTo - seekBack > 0 ? seekTo - seekBack : 0);
             }
             exoPlayer.setPlayWhenReady(!paused);
 

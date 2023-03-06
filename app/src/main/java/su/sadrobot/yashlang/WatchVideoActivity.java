@@ -242,11 +242,9 @@ public class WatchVideoActivity extends AppCompatActivity {
         });
 
         videoPlayerView.requestFocus();
-        //videoPlayerView.setPlayer(exoPlayer);
 
         // контроллер отдельно, чтобы красиво добавить справа и слева от плеера кнопки назад и вперед
         videoPlayerView.setUseController(false);
-        //videoPlayerControlView.setPlayer(exoPlayer);
 
         // не прятать кнопки управления автоматом
         //videoPlayerView.setControllerShowTimeoutMs(0);
@@ -759,7 +757,7 @@ public class WatchVideoActivity extends AppCompatActivity {
                         // загружаем заново
                         loadRecommendations(videoId, recommendationsListener);
 
-                        // ициировали один раз - в следующий раз будем брать из сервиса
+                        // инициировали один раз - в следующий раз будем брать из сервиса
                         initedOnce = true;
                     }
 
@@ -944,10 +942,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                         break;
 
                     case LOADED:
-                        if (playerService.getPlayerMode() == PlayerService.PlayerMode.VIDEO) {
+                        if (playerService.getPlayerStreamMode() == PlayerService.PlayerStreamMode.VIDEO) {
                             videoPlayerView.setVisibility(View.VISIBLE);
                             audioPlayerView.setVisibility(View.GONE);
-                        } else { // PlayerMode.AUDIO
+                        } else { // PlayerStreamMode.AUDIO
                             videoPlayerView.setVisibility(View.GONE);
                             audioPlayerView.setVisibility(View.VISIBLE);
                         }
@@ -979,12 +977,12 @@ public class WatchVideoActivity extends AppCompatActivity {
                     // всех плейлистов. В этом случае может прозойти совсем не очевидная ситуация:
                     // если в 1-м плейлисте с новыми элементами окажется всего ровно 1 новый элемент,
                     // то движок адаптера вызовет у VideoItemMultPlaylistsOnlyNewOnlineDataSource
-                    // только loadIntitial (внутри которого и будет загружен этот 1-й элемент),
+                    // только loadInitial (внутри которого и будет загружен этот 1-й элемент),
                     // после чего, если мы бы спрятали список здесь, loadAfter для загрузки
                     // новых элементов никогда бы не был дальше вызван, т.к. он вызывается по требованию
                     // интерфейса при промотке списка, когда требуется отобразить недостающие элеметы,
                     // а скрытый список не требует ничего отображать. Поэтому мы так и останемся
-                    // с единственным элементом, загруженным в loadIntitial, и список рекомендаций
+                    // с единственным элементом, загруженным в loadInitial, и список рекомендаций
                     // так никогда не отобразится (чтобы отобразить список рекомендаций, нужно загрузить
                     // хотябы еще один элемент, а чтобы загрузить еще один элемент, нужно отобразить
                     // список рекомендаций). Поэтому список рекомендаций в режиме "всё новое" мы
@@ -1043,10 +1041,10 @@ public class WatchVideoActivity extends AppCompatActivity {
                         break;
 
                     case LOADED:
-                        if (playerService.getPlayerMode() == PlayerService.PlayerMode.VIDEO) {
+                        if (playerService.getPlayerStreamMode() == PlayerService.PlayerStreamMode.VIDEO) {
                             videoPlayerView.setVisibility(View.VISIBLE);
                             audioPlayerView.setVisibility(View.GONE);
-                        } else { // PlayerMode.AUDIO
+                        } else { // PlayerStreamMode.AUDIO
                             videoPlayerView.setVisibility(View.GONE);
                             audioPlayerView.setVisibility(View.VISIBLE);
                         }
