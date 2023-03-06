@@ -485,7 +485,11 @@ public class PlayerService extends Service {
         // (сейчас такое может быть, если мы переключились в фон с текущего ролика, у которого
         // играла дорожка видео+аудио оффлайн, - в этом случае при переходе в фон потоки не переключали,
         // а потом на текущем же ролике вернулись обратно на экран)
-        if (currentVideo != null &&
+        // Если список потоков не загружен (currentVideo.getStreamSources() == null), начинать
+        // проигрывание здесь тоже не имеет смысла. Возможно, он сейчас в процессе загрузки
+        // в loadVideoItem(final VideoItem videoItem) и в таком случае он дальше сам вызовет
+        // playVideoItemStreams
+        if (currentVideo != null && currentVideo.getStreamSources() != null &&
                 (currentVideo.getPlaybackStreams() == null ||
                 (currentVideo.getPlaybackStreams() != null && currentVideo.getPlaybackStreams().getVideoStream() == null)) ) {
             saveVideoCurrPos();
@@ -520,7 +524,11 @@ public class PlayerService extends Service {
         // (сейчас такое может быть, если мы переключились в фон с текущего ролика, у которого
         // играла дорожка видео+аудио оффлайн, - в этом случае при переходе в фон потоки не переключали,
         // а потом на текущем же ролике вернулись обратно на экран)
-        if (currentVideo != null &&
+        // Если список потоков не загружен (currentVideo.getStreamSources() == null), начинать
+        // проигрывание здесь тоже не имеет смысла. Возможно, он сейчас в процессе загрузки
+        // в loadVideoItem(final VideoItem videoItem) и в таком случае он дальше сам вызовет
+        // playVideoItemStreams
+        if (currentVideo != null && currentVideo.getStreamSources() != null &&
                 (currentVideo.getPlaybackStreams() == null ||
                 (currentVideo.getPlaybackStreams() != null && currentVideo.getPlaybackStreams().getVideoStream() == null)) ) {
             saveVideoCurrPos();
@@ -568,7 +576,11 @@ public class PlayerService extends Service {
         // Если пришлось переключить дорожку, то проигрывание начнется после загрузки дорожки -
         // в этом случае повторим последние 5 секунд.
         // Если дорожку переключать не пришлось, то проигрывание продолжится точно с места остановки.
-        if (currentVideo != null &&
+        // Если список потоков не загружен (currentVideo.getStreamSources() == null), начинать
+        // проигрывание здесь тоже не имеет смысла. Возможно, он сейчас в процессе загрузки
+        // в loadVideoItem(final VideoItem videoItem) и в таком случае он дальше сам вызовет
+        // playVideoItemStreams
+        if (currentVideo != null && currentVideo.getStreamSources() != null &&
                 (currentVideo.getPlaybackStreams() == null ||
                 (currentVideo.getPlaybackStreams() != null && currentVideo.getPlaybackStreams().getVideoStream() != null &&
                         currentVideo.getPlaybackStreams().getVideoStream().isOnline())) ) {
