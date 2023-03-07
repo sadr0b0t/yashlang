@@ -4,6 +4,8 @@ Online PeerTube and YouTube player for Android with local playlists and whitelis
 
 <a href="https://f-droid.org/packages/su.sadrobot.yashlang/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-en.svg" alt="Get it on F-Droid" height=80></a>
 
+news and announcements: https://t.me/yashlang
+
 - Add fave channels and playlists
 - Switch off videos inside added playlists if you don't like them
 - Watch videos you only want to
