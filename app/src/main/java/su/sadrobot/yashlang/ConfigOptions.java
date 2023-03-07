@@ -74,7 +74,7 @@ public class ConfigOptions {
 
     public static final boolean DEVEL_MODE_ON = false;
 
-    public static final int RECOMMENDED_RANDOM_LIM = 200;
+    public static final int RECOMMENDED_RANDOM_LIM = 500;
 
     public static final int LOAD_PAGE_RETRY_COUNT = 3;
 
