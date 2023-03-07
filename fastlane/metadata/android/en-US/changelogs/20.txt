@@ -1,0 +1,24 @@
+- Background playback: #7 (epic commit: 3d024dd)
+  -- Player and recommendations are now in service
+  -- Show player controls panel in notification area when close player activity. Sound may be paused or not depending on settings: Settings > more settings
+  -- Old mode without background playback may be enabled in settings
+  -- Choose audio stream if possible when play in background (to save traffic): #178
+
+Enhancements in recommendation list:
+- Show initially opened video as the 1st element in recommendation list #170
+- or scroll list to opened element in some cases #172
+- or play 1st element from recommendation list if no special video provided #116 #117
+- show 500 elements in random recommendations (was 200) b58f631
+
+other fixes
+- Don't show streams with null url as available streams #191 #184
+- Fix crash in "Downloaded streams > size on disk" on clean installation #185
+
+internals (refactor)
+- Move recommendation list generators from WatchVideoActivity to separate factory #120
+- other minor fixes
+
+Known problems:
+- Phantom player controls notification may appear in some cases on player exit (just swipe it away) #194
+- Player and stream download notification would "dance" on the notification area when both opened at the same time (each of them is updated once per second on timer) #177
+

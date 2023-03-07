@@ -109,6 +109,7 @@ Starred videos (faves) are starred (marked as fave) in the top right corner in t
 - Playlist profiles: combine playlists in groups and switch groups depending on watch context: Cartoons, Films, Edutainment, History, Analytics etc.
 - Download video and audio streams for offline playback
 - Offline mode: recommend only videos with offline streams
+- Play in background with player controls panel on notification area and lock screen
 - Various features not listed here by some reason
 
 ## Quick start — add recommended channels and playlists
@@ -184,7 +185,7 @@ This is fixed starting from 0.2.0 (you can safely downgrade to 0.2.0 in future, 
 
 - DONE: Download videos to watch offline (here https://github.com/sadr0b0t/yashlang/issues/8 and here https://github.com/sadr0b0t/yashlang/issues/142)
 - Export and import database for backup and device migration (partially implemented https://github.com/sadr0b0t/yashlang/releases/tag/v0.7.0)
-- Audio-player mode: play sound track in background when the screen is switched off or the app is not in foucus
+- DONE: Audio-player mode: play sound track in background when the screen is switched off or the app is not in foucus (https://github.com/sadr0b0t/yashlang/issues/7 , more to come: https://github.com/sadr0b0t/yashlang/issues/179)
 - Local playlists with manual video adding
 - Other streaming services
 
