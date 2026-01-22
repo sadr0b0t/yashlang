@@ -21,6 +21,7 @@ package su.sadrobot.yashlang;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -33,6 +34,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,6 +67,8 @@ import su.sadrobot.yashlang.view.PlaylistInfoArrayAdapter;
 public class ImportPlaylistsActivity extends AppCompatActivity {
 
     public static final String PARAM_PLAYLISTS_JSON = "PARAM_PLAYLISTS_JSON";
+
+    private Toolbar toolbar;
 
     private View recommendedPlaylistsView;
     private Button playlistsAddBtn;
@@ -109,6 +113,8 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_import_playlists);
 
+        toolbar = findViewById(R.id.toolbar);
+
         recommendedPlaylistsView = findViewById(R.id.recommended_playlists_view);
         playlistsAddBtn = findViewById(R.id.playlists_add_btn);
         playlistList = findViewById(R.id.playlist_list);
@@ -139,6 +145,9 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
             }
         });
 
+        // https://developer.android.com/training/appbar
+        // https://www.vogella.com/tutorials/AndroidActionBar/article.html#custom-views-in-the-action-bar
+        setSupportActionBar(toolbar);
         // кнопка "Назад" на акшенбаре
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -191,6 +200,47 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
         if (taskController != null) {
             taskController.cancel();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        // https://developer.android.com/training/appbar/action-views.html
+
+        toolbar.inflateMenu(R.menu.import_playlists_actions);
+
+        toolbar.setOnMenuItemClickListener(
+                new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        return onOptionsItemSelected(item);
+                    }
+                });
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_select_all:
+                for(final PlaylistInfo plInfo : recommendedPlaylists) {
+                    if(!playlistsInDb.contains(plInfo)) {
+                        plInfo.setEnabled(true);
+                    }
+                }
+                playlistList.getAdapter().notifyDataSetChanged();
+                break;
+            case R.id.action_select_none:
+                for(final PlaylistInfo plInfo : recommendedPlaylists) {
+                    if(!playlistsInDb.contains(plInfo)) {
+                        plInfo.setEnabled(false);
+                    }
+                }
+                playlistList.getAdapter().notifyDataSetChanged();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

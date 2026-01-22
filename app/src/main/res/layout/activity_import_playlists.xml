@@ -6,6 +6,13 @@
     android:orientation="vertical"
     tools:context=".AddRecommendedPlaylistsActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="?attr/actionBarTheme" />
+
     <LinearLayout
         android:id="@+id/recommended_playlists_view"
         android:layout_width="match_parent"
