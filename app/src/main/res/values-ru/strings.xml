@@ -215,4 +215,8 @@
     <string name="notification_channel_player_name">Панель управления плеером</string>
     <string name="notification_channel_player_description">Управление плеером в фоновом режиме</string>
     <string name="duration_undefined">[не опр]</string>
+    <string name="tab_item_playlist_in_profiles">В профилях</string>
+    <string name="no_profiles_defined">Нет добавленных профилей</string>
+    <string name="yashlang_edit_profiles">YaShlang: профили</string>
+    <string name="edit_profiles">Настроить профили</string>
 </resources>

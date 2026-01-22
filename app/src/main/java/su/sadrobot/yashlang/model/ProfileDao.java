@@ -53,8 +53,14 @@ public abstract class ProfileDao {
     @Query("SELECT * FROM playlist_info WHERE playlist_info._id IN (SELECT playlist_id FROM profile_playlists WHERE profile_id = :profileId)")
     public abstract List<PlaylistInfo> getProfilePlaylists(final long profileId);
 
+    @Query("SELECT profile_id FROM profile_playlists WHERE playlist_id = :playlistId")
+    public abstract List<Long> getProfileIdsForPlaylist(final long playlistId);
+
     @Query("INSERT INTO profile_playlists (profile_id, playlist_id) VALUES (:profileId, :playlistId)")
     public abstract void addPlaylistToProfile(final long profileId, final long playlistId);
+
+    @Query("DELETE FROM profile_playlists WHERE profile_id = :profileId AND playlist_id =:playlistId")
+    public abstract void removePlaylistFromProfile(final long profileId, final long playlistId);
 
     @Query("DELETE FROM profile_playlists WHERE profile_id = :profileId")
     public abstract void clearProfile(final long profileId);

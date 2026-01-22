@@ -18,10 +18,13 @@ package su.sadrobot.yashlang;
  */
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,6 +42,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import su.sadrobot.yashlang.model.Profile;
 import su.sadrobot.yashlang.model.VideoDatabase;
@@ -54,6 +59,42 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
     private RecyclerView profileList;
 
     private final Handler handler = new Handler();
+    // достаточно одного фонового потока
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
+
+    // Если true, показывать только функции редактирования списка профилей и самих профилей
+    // (добавить/удалить/редактировать) и не показывать функции применения профиля для установки
+    // текущих активных плейлистов
+    private boolean editOnly = false;
+
+    @Override
+    public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs, @Nullable Bundle savedInstanceState) {
+        super.onInflate(context, attrs, savedInstanceState);
+        // https://stackoverflow.com/questions/31483596/android-fragment-how-to-pass-values-in-xml
+        // https://developer.android.com/reference/android/support/v4/app/Fragment.html#onInflate(android.app.Activity,%20android.util.AttributeSet,%20android.os.Bundle)
+        // https://web.archive.org/web/20260122133951/https://codingtechroom.com/question/how-to-access-custom-attributes-in-android
+        // https://stackoverflow.com/questions/2127177/how-do-i-use-obtainstyledattributesint-with-internal-themes-of-android
+        // https://github.com/aosp-mirror/platform_development/blob/master/samples/ApiDemos/src/com/example/android/apis/view/LabelView.java
+        // https://github.com/aosp-mirror/platform_development/blob/master/samples/ApiDemos/res/values/attrs.xml#L24
+        // по ссылкам выше примерно написано, как опредилить атрибуты и считать их в файле java, но не написано,
+        // как их задавать в файле xml
+        // этот файл нашел сам на удачу, гуляя по проекту по ссылке выше:
+        // https://github.com/aosp-mirror/platform_development/blob/master/samples/ApiDemos/res/layout/custom_layout.xml
+        // здесь пример указания кастомного атрибута через неймспейс "app:custom_attr"
+        // но чтобы это заработало, в верхнем элементе лэйаута нужно добавить:
+        // xmlns:app="http://schemas.android.com/apk/res-auto"
+        // это значение предложила добавить среда разработки и это помогло (без этого неймспейс app не доступен)
+        // определить допустимые атрибуты - см в values/attrs.xml
+        // задать значение для вью в файле:
+        // app:edit_only="true"
+        final TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs, R.styleable.ConfigurePlaylistsProfilesFragment, 0, 0);
+        try {
+            editOnly = a.getBoolean(R.styleable.ConfigurePlaylistsProfilesFragment_edit_only, false);
+        } finally {
+            a.recycle();
+        }
+    }
 
     @Nullable
     @Override
@@ -67,7 +108,6 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         newProfileBtn = view.findViewById(R.id.new_profile_btn);
-
         profileList = view.findViewById(R.id.profile_list);
 
         // set a LinearLayoutManager with default vertical orientation
@@ -102,21 +142,22 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
 
 
     void setupProfileListArrayAdapter() {
-        new Thread(new Runnable() {
+        dbExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 final List<Profile> items = new ArrayList<>();
+                final List<Integer> listSeparators = new ArrayList<>();
 
-                // три ненастраиваемых профиля с жестким поведением не из базы данных
-                items.add(new Profile(Profile.ID_ENABLE_ALL, getString(R.string.enable_all).toUpperCase()));
-                items.add(new Profile(Profile.ID_DISABLE_ALL, getString(R.string.disable_all).toUpperCase()));
-                items.add(new Profile(Profile.ID_DISABLE_YT, getString(R.string.disble_all_yt).toUpperCase()));
+                if(!editOnly) {
+                    // три ненастраиваемых профиля с жестким поведением не из базы данных
+                    items.add(new Profile(Profile.ID_ENABLE_ALL, getString(R.string.enable_all).toUpperCase()));
+                    items.add(new Profile(Profile.ID_DISABLE_ALL, getString(R.string.disable_all).toUpperCase()));
+                    items.add(new Profile(Profile.ID_DISABLE_YT, getString(R.string.disble_all_yt).toUpperCase()));
 
+                    listSeparators.add(3);
+                }
                 // профили из базы данных
                 items.addAll(VideoDatabase.getDbInstance(getContext()).profileDao().getAll());
-
-                final List<Integer> listSeparators = new ArrayList<>();
-                listSeparators.add(3);
 
                 final ProfileArrayAdapter adapter = new ProfileArrayAdapter(items, listSeparators,
                         new OnListItemClickListener<Profile>() {
@@ -125,13 +166,17 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
                                 final PopupMenu popup = new PopupMenu(ConfigurePlaylistsProfilesFragment.this.getContext(),
                                         view);
                                 popup.getMenuInflater().inflate(R.menu.profile_actions, popup.getMenu());
-                                if (profile.getId() == Profile.ID_ENABLE_ALL ||
+                                if(editOnly) {
+                                    popup.getMenu().removeItem(R.id.action_apply);
+                                    popup.getMenu().removeItem(R.id.action_add_to_enabled);
+                                } else if (profile.getId() == Profile.ID_ENABLE_ALL ||
                                         profile.getId() == Profile.ID_DISABLE_ALL ||
                                         profile.getId() == Profile.ID_DISABLE_YT) {
                                     popup.getMenu().removeItem(R.id.action_add_to_enabled);
                                     popup.getMenu().removeItem(R.id.action_edit);
                                     popup.getMenu().removeItem(R.id.action_delete);
                                 }
+
                                 popup.setOnMenuItemClickListener(
                                         new PopupMenu.OnMenuItemClickListener() {
                                             @Override
@@ -295,6 +340,6 @@ public class ConfigurePlaylistsProfilesFragment extends Fragment {
                     }
                 });
             }
-        }).start();
+        });
     }
 }

@@ -56,6 +56,7 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
 
     private ConfigurePlaylistFragment viewPlaylistFrag;
     private ConfigurePlaylistNewItemsFragment viewPlaylistNewItemsFrag;
+    private ConfigurePlaylistProfilesFragment viewPlaylistProfilesFrag;
 
     private final Handler handler = new Handler();
 
@@ -80,11 +81,12 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
 
         viewPlaylistFrag = new ConfigurePlaylistFragment();
         viewPlaylistNewItemsFrag = new ConfigurePlaylistNewItemsFragment();
+        viewPlaylistProfilesFrag = new ConfigurePlaylistProfilesFragment();
 
         pager.setAdapter(new FragmentStateAdapter(getSupportFragmentManager(), getLifecycle()) {
             @Override
             public int getItemCount() {
-                return 2;
+                return 3;
             }
 
             @NonNull
@@ -92,8 +94,10 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
             public Fragment createFragment(int position) {
                 if (position == 0) {
                     return viewPlaylistFrag;
-                } else {
+                } else if(position == 1) {
                     return viewPlaylistNewItemsFrag;
+                } else {
+                    return viewPlaylistProfilesFrag;
                 }
             }
         });
@@ -104,8 +108,10 @@ public class ConfigurePlaylistActivity extends AppCompatActivity {
                     public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
                         if (position == 0) {
                             tab.setText(R.string.tab_item_playlist);
-                        } else {
+                        } else if(position == 1) {
                             tab.setText(R.string.tab_item_new);
+                        } else {
+                            tab.setText(R.string.tab_item_playlist_in_profiles);
                         }
                     }
                 }).attach();

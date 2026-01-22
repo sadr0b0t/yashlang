@@ -460,7 +460,6 @@ public class ConfigureProfileActivity extends AppCompatActivity {
                 new OnListItemClickListener<PlaylistInfo>() {
                     @Override
                     public void onItemClick(final View view, final int position, final PlaylistInfo item) {
-                        PlaylistInfoActions.actionConfigurePlaylist(ConfigureProfileActivity.this, item.getId());
                     }
 
                     @Override

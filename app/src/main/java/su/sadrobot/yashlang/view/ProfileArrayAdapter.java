@@ -20,7 +20,9 @@ package su.sadrobot.yashlang.view;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,26 +43,42 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
     private final List<Profile> profiles;
     private final List<Integer> separators = new ArrayList<>();
     private final OnListItemClickListener<Profile> onItemClickListener;
+    private final ListItemSwitchController<Profile> itemSwitchController;
 
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         final TextView nameTxt;
         final ImageButton menuBtn;
+        final Switch onoffSwitch;
         final View separatorView;
 
         public ProfileViewHolder(final View itemView) {
             super(itemView);
             nameTxt = itemView.findViewById(R.id.profile_name_txt);
             menuBtn = itemView.findViewById(R.id.profile_menu_btn);
+            onoffSwitch = itemView.findViewById(R.id.profile_onoff_switch);
             separatorView = itemView.findViewById(R.id.separator);
         }
     }
 
-    public ProfileArrayAdapter(final List<Profile> profiles, final List<Integer> separators, final OnListItemClickListener<Profile> onItemClickListener) {
+    public ProfileArrayAdapter(final List<Profile> profiles, final List<Integer> separators,
+                               final OnListItemClickListener<Profile> onItemClickListener,
+                               final ListItemSwitchController<Profile> itemSwitchController) {
         this.profiles = profiles;
-        this.onItemClickListener = onItemClickListener;
         if(separators != null) {
             this.separators.addAll(separators);
         }
+        this.onItemClickListener = onItemClickListener;
+        this.itemSwitchController = itemSwitchController;
+    }
+
+    public ProfileArrayAdapter(final List<Profile> profiles, final List<Integer> separators,
+                               final OnListItemClickListener<Profile> onItemClickListener) {
+        this(profiles, separators, onItemClickListener, null);
+    }
+
+    public ProfileArrayAdapter(final List<Profile> profiles,
+                               final ListItemSwitchController<Profile> itemSwitchController) {
+        this(profiles, null, null, itemSwitchController);
     }
 
     @NonNull
@@ -81,6 +99,33 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
         }
 
         holder.nameTxt.setText(item.getName());
+
+        if (itemSwitchController != null) {
+            // состояние "вкл/выкл" будем брать из itemSwitchController
+            holder.nameTxt.setEnabled(itemSwitchController.isItemChecked(item));
+        }
+
+        // обнулить слушателя событий выключателя:
+        // вот это важно здесь, иначе не оберешься трудноуловимых глюков в списках с прокруткой
+        holder.onoffSwitch.setOnCheckedChangeListener(null);
+        if (itemSwitchController == null || !itemSwitchController.showItemCheckbox(item)) {
+            // вот так - не передали слушателя вкл/выкл - прячем кнопку переключения, показываем кнопку меню
+            // не вполне красиво, но плодить фгаги тоже не хоечется
+            holder.menuBtn.setVisibility(View.VISIBLE);
+            holder.onoffSwitch.setVisibility(View.GONE);
+        } else {
+            holder.menuBtn.setVisibility(View.GONE);
+            holder.onoffSwitch.setVisibility(View.VISIBLE);
+
+            holder.onoffSwitch.setChecked(itemSwitchController.isItemChecked(item));
+            holder.onoffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    itemSwitchController.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
+                    notifyItemChanged(holder.getBindingAdapterPosition());
+                }
+            });
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
