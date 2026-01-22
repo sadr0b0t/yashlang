@@ -8,6 +8,9 @@
         android:id="@+id/action_select_none"
         android:title="@string/disable_all"/>
     <item
+        android:id="@+id/action_apply_current"
+        android:title="@string/apply_current"/>
+    <item
         android:id="@+id/action_cancel"
         android:title="@android:string/cancel"/>
     <item

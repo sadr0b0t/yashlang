@@ -219,4 +219,5 @@
     <string name="no_profiles_defined">Нет добавленных профилей</string>
     <string name="yashlang_edit_profiles">YaShlang: профили</string>
     <string name="edit_profiles">Настроить профили</string>
+    <string name="apply_current">Применить текущие включенные</string>
 </resources>

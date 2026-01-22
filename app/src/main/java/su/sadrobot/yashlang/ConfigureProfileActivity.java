@@ -50,6 +50,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import su.sadrobot.yashlang.controller.PlaylistInfoActions;
 import su.sadrobot.yashlang.model.PlaylistInfo;
@@ -84,6 +86,8 @@ public class ConfigureProfileActivity extends AppCompatActivity {
     private RecyclerView playlistList;
 
     private final Handler handler = new Handler();
+    // достаточно одного фонового потока
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
     private long profileId = Profile.ID_NONE;
     private Profile profile;
@@ -291,7 +295,7 @@ public class ConfigureProfileActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_select_all:
-                new Thread(new Runnable() {
+                dbExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         final List<Long> allPlaylists = VideoDatabase.getDbInstance(
@@ -307,12 +311,31 @@ public class ConfigureProfileActivity extends AppCompatActivity {
                             }
                         });
                     }
-                }).start();
+                });
 
                 break;
             case R.id.action_select_none:
                 checkedPlaylists.clear();
                 playlistList.getAdapter().notifyDataSetChanged();
+                break;
+            case R.id.action_apply_current:
+                dbExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        final List<Long> allPlaylists = VideoDatabase.getDbInstance(
+                                ConfigureProfileActivity.this).playlistInfoDao().getEnabledIds();
+
+                        checkedPlaylists.clear();
+                        checkedPlaylists.addAll(allPlaylists);
+
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                playlistList.getAdapter().notifyDataSetChanged();
+                            }
+                        });
+                    }
+                });
                 break;
             case R.id.action_cancel:
                 saveOnFinish = false;
@@ -328,7 +351,7 @@ public class ConfigureProfileActivity extends AppCompatActivity {
 
                                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                                    new Thread(new Runnable() {
+                                    dbExecutor.execute(new Runnable() {
                                         @Override
                                         public void run() {
                                             VideoDatabase.getDbInstance(ConfigureProfileActivity.this).profileDao().delete(profile);
@@ -336,22 +359,17 @@ public class ConfigureProfileActivity extends AppCompatActivity {
                                             handler.post(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    handler.post(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            Toast.makeText(
-                                                                    ConfigureProfileActivity.this,
-                                                                    getString(R.string.profile_is_deleted).replace("%s", profile.getName()),
-                                                                    Toast.LENGTH_LONG).show();
-                                                        }
-                                                    });
+                                                    Toast.makeText(
+                                                            ConfigureProfileActivity.this,
+                                                            getString(R.string.profile_is_deleted).replace("%s", profile.getName()),
+                                                            Toast.LENGTH_LONG).show();
 
                                                     saveOnFinish = false;
                                                     ConfigureProfileActivity.this.finish();
                                                 }
                                             });
                                         }
-                                    }).start();
+                                    });
 
                                 }
                             })
@@ -394,11 +412,11 @@ public class ConfigureProfileActivity extends AppCompatActivity {
     }
 
     private void saveProfile() {
-        new Thread(new Runnable() {
+        dbExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 profile.setName(profileNameTxt.getText().toString());
-                if(profileId == Profile.ID_NONE) {
+                if (profileId == Profile.ID_NONE) {
                     profileId = VideoDatabase.getDbInstance(ConfigureProfileActivity.this).profileDao().insert(profile, checkedPlaylists);
                 } else {
                     VideoDatabase.getDbInstance(ConfigureProfileActivity.this).profileDao().update(profile, checkedPlaylists);
@@ -414,12 +432,12 @@ public class ConfigureProfileActivity extends AppCompatActivity {
                     }
                 });
             }
-        }).start();
+        });
     }
 
     private void loadProfile() {
-        // загрузка в профиле в базе должна быть в фоне
-        new Thread(new Runnable() {
+        // загрузка профиля из базы должна быть в фоне
+        dbExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 if(profileId == Profile.ID_NONE) {
@@ -445,7 +463,7 @@ public class ConfigureProfileActivity extends AppCompatActivity {
                     }
                 });
             }
-        }).start();
+        });
     }
 
     private void setupPlaylistInfoPagedListAdapter(final String sstr, final ConfigOptions.SortBy sortBy, final boolean sortDirAsc) {
