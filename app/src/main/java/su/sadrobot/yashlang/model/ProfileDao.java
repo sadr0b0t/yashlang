@@ -47,6 +47,12 @@ public abstract class ProfileDao {
     @Query("SELECT * FROM profile")
     public abstract List<Profile> getAll();
 
+    @Query("SELECT * FROM profile")
+    public abstract DataSource.Factory<Integer, Profile> getAllDs();
+
+    @Query("SELECT * FROM profile_nfc_tags")
+    public abstract List<ProfileNfcTags> getAllNfcTags();
+
     @Query("SELECT playlist_id FROM profile_playlists WHERE profile_id = :profileId")
     public abstract List<Long> getProfilePlaylistsIds(final long profileId);
 
@@ -62,21 +68,49 @@ public abstract class ProfileDao {
     @Query("DELETE FROM profile_playlists WHERE profile_id = :profileId AND playlist_id =:playlistId")
     public abstract void removePlaylistFromProfile(final long profileId, final long playlistId);
 
+    @Query("SELECT profile_id FROM profile_nfc_tags WHERE nfc_tag_id = :nfcTagId")
+    public abstract long getByNfcTagId(final String nfcTagId);
+
+    @Query("SELECT * FROM profile_nfc_tags WHERE profile_id = :profileId")
+    public abstract List<ProfileNfcTags> getProfileNfcTags(final long profileId);
+
+    @Insert
+    public abstract List<Long> insertNfcTags(final List<ProfileNfcTags> nfcTags);
+
     @Query("DELETE FROM profile_playlists WHERE profile_id = :profileId")
     public abstract void clearProfile(final long profileId);
+
+    @Query("DELETE FROM profile_nfc_tags WHERE profile_id = :profileId")
+    public abstract void clearProfileNfcTags(final long profileId);
+
+    @Query("DELETE FROM profile_nfc_tags WHERE nfc_tag_id = :nfcTagId")
+    public abstract void removeNfcTagById(final String nfcTagId);
 
     @Transaction
     public void setPlaylists(final long profileId, final Set<Long> playlistIds) {
         clearProfile(profileId);
-        for(final long plId : playlistIds) {
+        for (final long plId : playlistIds) {
             addPlaylistToProfile(profileId, plId);
         }
     }
 
     @Transaction
+    public void setNfcTags(final long profileId, final List<ProfileNfcTags> nfcTags) {
+        clearProfileNfcTags(profileId);
+        // нужно специально дополнительно удалить все записи, связанные с каждой из меток,
+        // т.к. они могли быть привязаны к другому профилю
+        for (final ProfileNfcTags nfcTag : nfcTags) {
+            removeNfcTagById(nfcTag.getNfcTagId());
+        }
+        // по-хорошему, все id профилей в списке nfcTags, должны быть равны profileId,
+        // но проверять мы это здесь не будем
+        insertNfcTags(nfcTags);
+    }
+
+    @Transaction
     public long insert(final Profile profile, final Set<Long> playlistIds) {
         final long profileId = insert(profile);
-        for(final long plId : playlistIds) {
+        for (final long plId : playlistIds) {
             addPlaylistToProfile(profileId, plId);
         }
         return profileId;

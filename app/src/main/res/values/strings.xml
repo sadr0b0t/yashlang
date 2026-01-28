@@ -220,4 +220,16 @@
     <string name="yashlang_edit_profiles">YaShlang: profiles</string>
     <string name="edit_profiles">Edit profiles</string>
     <string name="apply_current">Apply current enabled</string>
+    <string name="tab_item_nfc_tags">⚡️ NFC tags</string>
+    <string name="profile_nfc_tag_list_is_empty">No NFC tags bound to profile</string>
+    <string name="nfc_status_enabled">NFC is enabled</string>
+    <string name="nfc_status_disabled">NFC is disabled</string>
+    <string name="nfc_status_not_supported">NFC is not supported on this device</string>
+    <string name="add_profile_nfc_tag_instruction">Hold the NFC tag up to the device to bind it to profile</string>
+    <string name="edit_nfc_tag_label">Edit tag label</string>
+    <string name="unbind_nfc_tag">Unbind</string>
+    <string name="unbind_nfc_tag_title">Unbind NFC tag: \'%s\'?</string>
+    <string name="goto_nfc_system_settings">Open NFC system settings</string>
+    <string name="edit_nfc_tag_label_title">Edit label for NFC tag: \'%\'</string>
+    <string name="nfc_tag_label">NFC tag label</string>
 </resources>

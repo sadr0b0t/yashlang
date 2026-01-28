@@ -17,6 +17,8 @@ package su.sadrobot.yashlang.model;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.graphics.Bitmap;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -49,6 +51,10 @@ public class Profile {
     @ColumnInfo(name = "name")
     private String name;
 
+    // не храним флаг в базе, а задаём руками там, где необходимо
+    @Ignore
+    private boolean hasBoundNfcTags = false;
+
     public Profile(final String name) {
         this.name = name;
     }
@@ -73,6 +79,14 @@ public class Profile {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean hasBoundNfcTags() {
+        return hasBoundNfcTags;
+    }
+
+    public void setHasBoundNfcTags(final boolean hasBoundNfcTags) {
+        this.hasBoundNfcTags = hasBoundNfcTags;
     }
 
     public String toString() {

@@ -6,4 +6,5 @@
     <string name="icon_online" translatable="false">☁️</string>
     <string name="icon_no_sound" translatable="false">🔇</string>
     <string name="icon_only_sound" translatable="false">🎵</string>
+    <string name="icon_nfc" translatable="false">⚡️</string>
 </resources>

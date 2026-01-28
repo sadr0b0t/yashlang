@@ -28,7 +28,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import su.sadrobot.yashlang.ConfigOptions;
 
 
-@Database(entities = {VideoItem.class, PlaylistInfo.class, StreamCache.class, Profile.class, ProfilePlaylists.class}, version = 5)
+@Database(entities = {VideoItem.class, PlaylistInfo.class, StreamCache.class,
+        Profile.class, ProfilePlaylists.class, ProfileNfcTags.class}, version = 6)
 public abstract class VideoDatabase extends RoomDatabase {
     private static volatile VideoDatabase INSTANCE;
 
@@ -71,6 +72,7 @@ public abstract class VideoDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_2_3)
                             .addMigrations(MIGRATION_3_4)
                             .addMigrations(MIGRATION_4_5)
+                            .addMigrations(MIGRATION_5_6)
                             //.fallbackToDestructiveMigration()
                             //.allowMainThreadQueries()
                             .build();
@@ -193,6 +195,24 @@ public abstract class VideoDatabase extends RoomDatabase {
             database.execSQL("CREATE INDEX IF NOT EXISTS `index_stream_cache_video_id` ON stream_cache (`video_id`)");
 
             database.execSQL("ALTER TABLE video_item ADD COLUMN has_offline INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    private static Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(final SupportSQLiteDatabase database) {
+            // SQL берем из schemas/su.sadrobot.yashlang.model.VideoDatabase.6.json
+            // "createSql": "CREATE TABLE IF NOT EXISTS `profile_nfc_tags` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `profile_id` INTEGER NOT NULL, `nfc_tag_id` TEXT, `nfc_tag_label` TEXT, FOREIGN KEY(`profile_id`) REFERENCES `profile`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+            // "createSql": "CREATE INDEX IF NOT EXISTS `index_profile_nfc_tags_profile_id` ON `profile_nfc_tags` (`profile_id`)"
+            // "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_profile_nfc_tags_nfc_tag_id` ON `profile_nfc_tags` (`nfc_tag_id`)"
+            database.execSQL("CREATE TABLE IF NOT EXISTS `profile_nfc_tags` (" +
+                    "`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`profile_id` INTEGER NOT NULL, " +
+                    "`nfc_tag_id` TEXT, " +
+                    "`nfc_tag_label` TEXT, " +
+                    "FOREIGN KEY(`profile_id`) REFERENCES `profile`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_profile_nfc_tags_profile_id` ON `profile_nfc_tags` (`profile_id`)");
+            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_profile_nfc_tags_nfc_tag_id` ON `profile_nfc_tags` (`nfc_tag_id`)");
         }
     };
 }

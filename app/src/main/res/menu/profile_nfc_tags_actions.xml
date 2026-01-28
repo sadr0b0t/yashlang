@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_edit_label"
+        android:title="@string/edit_nfc_tag_label"/>
+    <item
+        android:id="@+id/action_unbind"
+        android:title="@string/unbind_nfc_tag"/>
+</menu>

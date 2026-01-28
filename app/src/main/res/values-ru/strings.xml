@@ -220,4 +220,16 @@
     <string name="yashlang_edit_profiles">YaShlang: профили</string>
     <string name="edit_profiles">Настроить профили</string>
     <string name="apply_current">Применить текущие включенные</string>
+    <string name="tab_item_nfc_tags">⚡️ Метки NFC</string>
+    <string name="profile_nfc_tag_list_is_empty">Нет меток NFC, привязанных к профилю</string>
+    <string name="nfc_status_enabled">Функция NFC включена</string>
+    <string name="nfc_status_disabled">Функция NFC выключена</string>
+    <string name="nfc_status_not_supported">Функция NFC не поддерживается на этом устройстве</string>
+    <string name="add_profile_nfc_tag_instruction">Поднесите метку NFC к устройству, чтобы привязать ее к профилю</string>
+    <string name="edit_nfc_tag_label">Изменить комментарий к метке</string>
+    <string name="unbind_nfc_tag">Отвязать</string>
+    <string name="unbind_nfc_tag_title">Отвязать метку NFC: \'%s\'?</string>
+    <string name="goto_nfc_system_settings">Открыть системные настройки NFC</string>
+    <string name="edit_nfc_tag_label_title">Изменить комментарий к метке NFC: \'%s\'</string>
+    <string name="nfc_tag_label">комментарий к метке NFC</string>
 </resources>

@@ -46,6 +46,7 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
     private final ListItemSwitchController<Profile> itemSwitchController;
 
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
+        final View hasNfcView;
         final TextView nameTxt;
         final ImageButton menuBtn;
         final Switch onoffSwitch;
@@ -53,6 +54,7 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
 
         public ProfileViewHolder(final View itemView) {
             super(itemView);
+            hasNfcView = itemView.findViewById(R.id.profile_has_nfc_view);
             nameTxt = itemView.findViewById(R.id.profile_name_txt);
             menuBtn = itemView.findViewById(R.id.profile_menu_btn);
             onoffSwitch = itemView.findViewById(R.id.profile_onoff_switch);
@@ -64,7 +66,7 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
                                final OnListItemClickListener<Profile> onItemClickListener,
                                final ListItemSwitchController<Profile> itemSwitchController) {
         this.profiles = profiles;
-        if(separators != null) {
+        if (separators != null) {
             this.separators.addAll(separators);
         }
         this.onItemClickListener = onItemClickListener;
@@ -92,7 +94,7 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
     public void onBindViewHolder(@NonNull final ProfileViewHolder holder, final int position) {
         final Profile item = profiles.get(position);
 
-        if(separators.contains(position)) {
+        if (separators.contains(position)) {
             holder.separatorView.setVisibility(View.VISIBLE);
         } else {
             holder.separatorView.setVisibility(View.GONE);
@@ -125,6 +127,12 @@ public class ProfileArrayAdapter extends RecyclerView.Adapter<ProfileArrayAdapte
                     notifyItemChanged(holder.getBindingAdapterPosition());
                 }
             });
+        }
+
+        if (item.hasBoundNfcTags()) {
+            holder.hasNfcView.setVisibility(View.VISIBLE);
+        } else {
+            holder.hasNfcView.setVisibility(View.INVISIBLE);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

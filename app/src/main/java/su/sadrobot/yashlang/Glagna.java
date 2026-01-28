@@ -17,7 +17,11 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
@@ -25,6 +29,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,15 +43,19 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import su.sadrobot.yashlang.controller.VideoItemActions;
+import su.sadrobot.yashlang.model.Profile;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.util.NfcUtil;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
 import su.sadrobot.yashlang.view.VideoItemPagedListAdapter;
 
-
 public class Glagna extends AppCompatActivity {
-
 
     private ImageButton starredBtn;
     private ImageButton historyBtn;
@@ -63,11 +72,24 @@ public class Glagna extends AppCompatActivity {
     private RecyclerView videoList;
 
     //
+    private View statusNfcView;
     private View statusOfflineModeView;
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
 
     private final Handler handler = new Handler();
+    // достаточно одного фонового потока
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
+
+    // NFC
+    // https://developer.android.com/develop/connectivity/nfc/nfc#java
+    // https://www.geeksforgeeks.org/android/nfc-reader-and-writer-kotlin-android-application/
+    // https://github.com/marc136/tonuino-nfc-tools/tree/main
+    // https://github.com/marc136/tonuino-nfc-tools/blob/main/app/src/main/java/de/mw136/tonuino/nfc/NfcIntentActivity.kt
+    // https://github.com/marc136/tonuino-nfc-tools/blob/main/app/src/main/java/de/mw136/tonuino/nfc/TagHelper.kt
+    private NfcAdapter nfcAdapter;
+    private PendingIntent pendingIntent;
+    private IntentFilter intentFiltersArray[];
 
     private final RecyclerView.AdapterDataObserver emptyListObserver = new RecyclerView.AdapterDataObserver() {
         // https://stackoverflow.com/questions/47417645/empty-view-on-a-recyclerview
@@ -113,6 +135,7 @@ public class Glagna extends AppCompatActivity {
 
         videoList = findViewById(R.id.video_recommend_list);
 
+        statusNfcView = findViewById(R.id.status_nfc_view);
         statusOfflineModeView = findViewById(R.id.status_offline_mode_view);
 
         // Рекомендации
@@ -175,9 +198,15 @@ public class Glagna extends AppCompatActivity {
             }
         });
 
-
+        // NFC
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (nfcAdapter != null) {
+            // nfcAdapter здесь не нужен, но без nfcAdapter это делать незачем
+            final Intent intent = new Intent(this, Glagna.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
+            intentFiltersArray = NfcUtil.createIntentFilterArray();
+        }
     }
-
 
     @Override
     protected void onResume() {
@@ -189,7 +218,85 @@ public class Glagna extends AppCompatActivity {
             statusOfflineModeView.setVisibility(View.GONE);
         }
 
+        if (nfcAdapter != null) {
+            nfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, NfcUtil.NFC_TECH_LISTS_ARRAY);
+        }
+
+        if (nfcAdapter != null && nfcAdapter.isEnabled()) {
+            // проверить, есть ли в базе профили с привязанными метками nfc,
+            // и только в этом случае показывать иконку
+            dbExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (VideoDatabase.getDbInstance(Glagna.this).profileDao().getAllNfcTags().size() > 0) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                statusNfcView.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    } else {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                statusNfcView.setVisibility(View.GONE);
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            statusNfcView.setVisibility(View.GONE);
+        }
+
         setupVideoListAdapter();
+    }
+
+    @Override
+    protected void onPause() {
+        if (nfcAdapter != null) {
+            nfcAdapter.disableForegroundDispatch(this);
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onNewIntent(final Intent intent) {
+        super.onNewIntent(intent);
+        // ожидаем здесь NFC Intent
+        if (intent.getAction() == NfcAdapter.ACTION_NDEF_DISCOVERED || intent.getAction() == NfcAdapter.ACTION_TECH_DISCOVERED) {
+            final Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            final String tagIdStr = NfcUtil.nfcTagIdToString(tag.getId());
+
+            dbExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    final VideoDatabase videodb = VideoDatabase.getDbInstance(Glagna.this);
+                    final long profileId = videodb.profileDao().getByNfcTagId(tagIdStr);
+
+                    if (profileId > 0) {
+                        // плейлисты для профиля
+                        final List<Long> plIds = videodb.profileDao().getProfilePlaylistsIds(profileId);
+                        videodb.playlistInfoDao().enableOnlyPlaylists(plIds);
+
+                        // список рекомендаций обновится сам, т.к. интент вызывает onResume,
+                        // а в onResume здесь обновляет список рекомендаций, даже если профиль
+                        // не поменялся
+
+                        final Profile profile = videodb.profileDao().getById(profileId);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(
+                                        Glagna.this,
+                                        getString(R.string.applied_profile).replace("%s", profile.getName()),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }
+            });
+        }
     }
 
     private void setupVideoListAdapter() {

@@ -15,6 +15,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+        <TextView
+            android:id="@+id/profile_has_nfc_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:textSize="22sp"
+            android:text="@string/icon_nfc"
+            android:visibility="invisible" />
 
         <TextView
             android:id="@+id/profile_name_txt"
@@ -22,8 +30,8 @@
             android:layout_height="60sp"
             android:layout_weight="1"
             android:ellipsize="end"
-            android:gravity="center"
             android:maxLines="2"
+            android:gravity="center"
             android:textSize="22sp" />
 
         <Switch
@@ -38,7 +46,6 @@
             style="?android:attr/actionOverflowButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
-
     </LinearLayout>
 
 </LinearLayout>
