@@ -43,6 +43,7 @@ import javax.annotation.Nullable;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import su.sadrobot.yashlang.ConfigOptions;
 
 public final class DownloaderTestImpl extends Downloader {
     public static final String USER_AGENT
@@ -51,7 +52,10 @@ public final class DownloaderTestImpl extends Downloader {
     private final OkHttpClient client;
 
     private DownloaderTestImpl(final OkHttpClient.Builder builder) {
-        this.client = builder.readTimeout(30, TimeUnit.SECONDS).build();
+        this.client = builder
+                .connectTimeout(ConfigOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+                .readTimeout(ConfigOptions.DEFAULT_READ_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+                .build();
     }
 
     /**
