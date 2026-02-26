@@ -85,7 +85,7 @@ public class ConfigOptions {
     /**
      * Начинать играть ролик на 5 секунд раньше сохраненной позиции при возобновлении проигрывания.
      */
-    public static final int SEEK_BACK_ON_RESUME_MS = 5000;
+    public static final int SEEK_BACK_ON_RESUME_MILLIS = 5000;
 
     public static final int PAGED_LIST_PAGE_SIZE = 20;
 

@@ -383,7 +383,7 @@ public class PlayerService extends Service {
                                     currentVideo.getPlaybackStreams().getVideoStream().getUrl(),
                                     (currentVideo.getPlaybackStreams().getAudioStream() != null ? currentVideo.getPlaybackStreams().getAudioStream().getUrl() : null),
                                     currentVideo.getPausedAt(),
-                                    ConfigOptions.SEEK_BACK_ON_RESUME_MS,
+                                    ConfigOptions.SEEK_BACK_ON_RESUME_MILLIS,
                                     pauseOnLoad);
                         }
                     } else { // playerType == PlayerType.BACKGROUND
@@ -407,7 +407,7 @@ public class PlayerService extends Service {
                                     null,
                                     currentVideo.getPlaybackStreams().getAudioStream().getUrl(),
                                     currentVideo.getPausedAt(),
-                                    ConfigOptions.SEEK_BACK_ON_RESUME_MS,
+                                    ConfigOptions.SEEK_BACK_ON_RESUME_MILLIS,
                                     pauseOnLoad);
                         }
                     }
@@ -429,6 +429,7 @@ public class PlayerService extends Service {
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
         if (ConfigOptions.DEVEL_MODE_ON) {
+            System.out.println("PlayerService:onStartCommand: PARAM_CMD=" + intent.getStringExtra(PARAM_CMD));
             Toast.makeText(this, "PlayerService onStart: PARAM_CMD=" + intent.getStringExtra(PARAM_CMD), Toast.LENGTH_LONG).show();
         }
 
@@ -470,6 +471,10 @@ public class PlayerService extends Service {
         isBound = true;
         playerType = PlayerType.FOREGROUND_VIDEO;
 
+        if (ConfigOptions.DEVEL_MODE_ON) {
+            System.out.println("PlayerService:onBind: onBind=" + isBound);
+        }
+
         // экран плеера при выходе на передний план подлкючается к сервису
         onPlayerActivityVisibilityChange(false);
 
@@ -495,7 +500,7 @@ public class PlayerService extends Service {
             saveVideoCurrPos();
             // выберет другой поток для нового типа плеера
             setPlayerState(PlayerState.LOADING, null);
-            playVideoItemStreams(currentVideo, ConfigOptions.SEEK_BACK_ON_RESUME_MS, !exoPlayer.getPlayWhenReady());
+            playVideoItemStreams(currentVideo, ConfigOptions.SEEK_BACK_ON_RESUME_MILLIS, !exoPlayer.getPlayWhenReady());
         }
 
         if (serviceBinder == null) {
@@ -509,6 +514,10 @@ public class PlayerService extends Service {
         isBound = true;
         playerType = PlayerType.FOREGROUND_VIDEO;
 
+        if (ConfigOptions.DEVEL_MODE_ON) {
+            System.out.println("PlayerService:onRebind: onRebind=" + isBound);
+        }
+
         // экран плеера при выходе на передний план подлкючается к сервису
         onPlayerActivityVisibilityChange(false);
 
@@ -534,7 +543,7 @@ public class PlayerService extends Service {
             saveVideoCurrPos();
             // выберет другой поток для нового типа плеера
             setPlayerState(PlayerState.LOADING, null);
-            playVideoItemStreams(currentVideo, ConfigOptions.SEEK_BACK_ON_RESUME_MS, !exoPlayer.getPlayWhenReady());
+            playVideoItemStreams(currentVideo, ConfigOptions.SEEK_BACK_ON_RESUME_MILLIS, !exoPlayer.getPlayWhenReady());
         }
     }
 
@@ -542,6 +551,10 @@ public class PlayerService extends Service {
     public boolean onUnbind(final Intent intent) {
         isBound = false;
         playerType = PlayerType.BACKGROUND;
+
+        if (ConfigOptions.DEVEL_MODE_ON) {
+            System.out.println("onUnbind: isBound=" + isBound);
+        }
 
         // экран ушел на задний план
         if (!ConfigOptions.getBackgroundPlaybackOn(this) || ConfigOptions.getPauseOnHide(this)) {
@@ -587,7 +600,7 @@ public class PlayerService extends Service {
             saveVideoCurrPos();
             // выберет другой поток для нового типа плеера
             setPlayerState(PlayerState.LOADING, null);
-            playVideoItemStreams(currentVideo, ConfigOptions.SEEK_BACK_ON_RESUME_MS, !exoPlayer.getPlayWhenReady());
+            playVideoItemStreams(currentVideo, ConfigOptions.SEEK_BACK_ON_RESUME_MILLIS, !exoPlayer.getPlayWhenReady());
         }
 
         // true, чтобы при повторном подключении был вызван onRebind
@@ -596,9 +609,9 @@ public class PlayerService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         _isRunning = false;
         if (ConfigOptions.DEVEL_MODE_ON) {
+            System.out.println("PlayerService:onDestroy: _isRunning=" + _isRunning);
             Toast.makeText(this, "PlayerService onDestroy", Toast.LENGTH_LONG).show();
         }
 
@@ -608,7 +621,15 @@ public class PlayerService extends Service {
             notificationUpdateTask.cancel();
             notificationUpdateTask = null;
         }
+
+//        if (ConfigOptions.DEVEL_MODE_ON) {
+//            System.out.println("PlayerService:onDestroy:stopForeground...");
+//        }
         stopForeground(true);
+//        if (ConfigOptions.DEVEL_MODE_ON) {
+//            System.out.println("PlayerService:onDestroy:stopForeground...DONE");
+//        }
+        super.onDestroy();
     }
 
     private void createNotificationChannels() {
@@ -621,7 +642,8 @@ public class PlayerService extends Service {
 
         final List<NotificationChannelCompat> notificationChannelCompats = new ArrayList<>();
         notificationChannelCompats.add(new NotificationChannelCompat
-                .Builder(getString(R.string.notification_channel_player_id), NotificationManagerCompat.IMPORTANCE_LOW)
+                .Builder(getString(R.string.notification_channel_player_id),
+                NotificationManagerCompat.IMPORTANCE_LOW)
                 .setName(getString(R.string.notification_channel_player_name))
                 .setDescription(getString(R.string.notification_channel_player_description))
                 .build());
@@ -753,7 +775,13 @@ public class PlayerService extends Service {
     }
 
     private void updateNotification() {
+        if (ConfigOptions.DEVEL_MODE_ON) {
+            System.out.println("PlayerService:updateNotification: isBound=" + isBound + " _isRunning=" + _isRunning + ", do update=" + (!isBound && _isRunning));
+        }
         if (!isBound && _isRunning) {
+            if (ConfigOptions.DEVEL_MODE_ON) {
+                System.out.println("PlayerService:updateNotification -> notificationManager.notify");
+            }
             // проверяем _isRunning тоже, т.к. может произойти ситуация, когда пльзователь
             // оставновил сервис командой stoSelf, но команда добавить обновление уже отправлена
             // и уведомление добавляется после того, как сервис остановлен
@@ -1144,7 +1172,7 @@ public class PlayerService extends Service {
         StreamHelper.sortAudioStreamsDefault(streamSources.getAudioStreams());
         videoItem.setStreamSources(streamSources);
 
-        playVideoItemStreams(videoItem, ConfigOptions.SEEK_BACK_ON_RESUME_MS, pauseOnLoad);
+        playVideoItemStreams(videoItem, ConfigOptions.SEEK_BACK_ON_RESUME_MILLIS, pauseOnLoad);
     }
 
     private void playVideoItemStreams(final VideoItem videoItem, final long seekBack, final boolean paused) {
@@ -1273,7 +1301,7 @@ public class PlayerService extends Service {
                                         (videoStream != null ? videoStream.getUrl() : null),
                                         (audioStream != null ? audioStream.getUrl() : null),
                                         _currentVideo.getPausedAt(),
-                                        ConfigOptions.SEEK_BACK_ON_RESUME_MS,
+                                        ConfigOptions.SEEK_BACK_ON_RESUME_MILLIS,
                                         pauseOnLoad);
                             }
                         }
@@ -1298,7 +1326,7 @@ public class PlayerService extends Service {
      */
     private void playVideoStream(final String streamUrl, final String audioStreamUrl, final long seekTo, final long seekBack, final boolean paused) {
         if (ConfigOptions.DEVEL_MODE_ON) {
-            System.out.println("playVideoStream: video=" + streamUrl + " audio=" + audioStreamUrl + " seekTo=" + seekTo + " paused=" + paused);
+            System.out.println("PlayerService:playVideoStream: video=" + streamUrl + " audio=" + audioStreamUrl + " seekTo=" + seekTo + " paused=" + paused);
         }
         if (streamUrl == null && audioStreamUrl == null) {
             // остановить проигрывание текущего ролика, если был загружен
