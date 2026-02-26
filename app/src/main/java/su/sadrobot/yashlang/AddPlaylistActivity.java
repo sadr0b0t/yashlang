@@ -55,6 +55,7 @@ import java.util.concurrent.Executors;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.PlaylistImportTask;
+import su.sadrobot.yashlang.controller.PlaylistInfoActions;
 import su.sadrobot.yashlang.controller.TaskController;
 import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.controller.VideoItemActions;
@@ -526,9 +527,11 @@ public class AddPlaylistActivity extends AppCompatActivity {
                                 //addPlaylistTaskId = PlaylistImportTask.ID_NONE;
                                 //updateStateFromTaskController();
 
-                                // закрываем текущий экран, т.к. скрытие задачи здесь говорит о том,
-                                // что пользователь запустил задачу, видет ход ее выполнения и
-                                // в финале нажал "скрыть"
+                                // закрываем текущий экран и открываем активити с добавленным плейлистом,
+                                // т.к. скрытие задачи здесь говорит о том, что пользователь запустил задачу,
+                                // видел ход ее выполнения и в финале нажал "скрыть"
+                                PlaylistInfoActions.actionConfigurePlaylist(
+                                        AddPlaylistActivity.this, importTask.getPlaylistInfo().getId());
                                 AddPlaylistActivity.this.finish();
                             }
                         }
