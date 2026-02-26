@@ -78,6 +78,8 @@ public class ConfigOptions {
 
     public static final int LOAD_PAGE_RETRY_COUNT = 3;
 
+    public static final int LOAD_PAGE_RETRY_TIMEOUT_MILLIS = 5000;
+
     public static final int FAKE_TIMESTAMP_BLOCK_SIZE = 10000;
 
     /**

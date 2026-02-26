@@ -358,6 +358,19 @@ public class ContentLoader {
                                         .replace("%c", String.valueOf(ConfigOptions.LOAD_PAGE_RETRY_COUNT - retryCount + 1)));
                                 retryEx = e;
                                 retryCount--;
+
+                                // сделаем паузу перед следующей попыткой
+                                // (но сначала еще раз проверим, не было ли отмены)
+                                if (taskController.isCanceled()) {
+                                    final RuntimeException e1 = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                                    taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
+                                    throw e1;
+                                }
+                                try {
+                                    Thread.sleep(ConfigOptions.LOAD_PAGE_RETRY_TIMEOUT_MILLIS);
+                                } catch (InterruptedException e1) {
+                                    e1.printStackTrace();
+                                }
                             }
                         }
 
@@ -566,6 +579,19 @@ public class ContentLoader {
 
                                 retryEx = e;
                                 retryCount--;
+
+                                // сделаем паузу перед следующей попыткой
+                                // (но сначала еще раз проверим, не было ли отмены)
+                                if (taskController.isCanceled()) {
+                                    final RuntimeException e1 = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                                    taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
+                                    throw e1;
+                                }
+                                try {
+                                    Thread.sleep(ConfigOptions.LOAD_PAGE_RETRY_TIMEOUT_MILLIS);
+                                } catch (InterruptedException e1) {
+                                    e1.printStackTrace();
+                                }
                             }
                         }
 
