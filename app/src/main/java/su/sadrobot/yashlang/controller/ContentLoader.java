@@ -321,6 +321,9 @@ public class ContentLoader {
                     // загружать по порядку остальные страницы до тех пор, пока не закончатся
                     int page_n = 1;
                     while (nextPage.hasNextPage()) {
+                        // дадим возможность другим потокам время от времени тоже обращаться к базе
+                        videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
+
                         if (taskController.isCanceled()) {
                             final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
@@ -440,10 +443,15 @@ public class ContentLoader {
 
 
         final VideoDatabase videodb = VideoDatabase.getDbInstance(context);
+        // здесь false
+        // System.out.println("BEFORE TRANSACTION: isDbLockedByCurrentThread=" + videodb.getOpenHelper().getWritableDatabase().isDbLockedByCurrentThread());
         try {
             videodb.runInTransaction(new Runnable() {
                 @Override
                 public void run() {
+                    // здесь true
+                    //System.out.println("INSIDE TRANSACTION: isDbLockedByCurrentThread=" + videodb.getOpenHelper().getWritableDatabase().isDbLockedByCurrentThread());
+
                     final PlaylistInfo playlistInfo = videodb.playlistInfoDao().getById(playlistId);
 
                     final List<VideoItem> videoItems = new ArrayList<VideoItem>();
@@ -502,6 +510,8 @@ public class ContentLoader {
 
                     boolean foundOld = false;
                     for (final StreamInfoItem item : pageItems) {
+                        // дадим возможность другим потокам время от времени тоже обращаться к базе
+                        videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
                         if (videodb.videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
                             videoItems.add(extractVideoItem(item, playlistId, plEnabled, fakeTimestamp));
                             fakeTimestamp--;
@@ -606,6 +616,9 @@ public class ContentLoader {
             // нам все-таки нужно поймать здесь RuntimeException,
             // статус taskController уже выставлен внутри
         }
+
+        // здесь false
+        //System.out.println("AFTER TRANSACTION: isDbLockedByCurrentThread=" + videodb.getOpenHelper().getWritableDatabase().isDbLockedByCurrentThread());
 
         taskController.setRunning(false);
         return videoItemCount[0];
