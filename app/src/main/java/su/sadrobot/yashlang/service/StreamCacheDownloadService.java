@@ -116,7 +116,7 @@ public class StreamCacheDownloadService extends Service {
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
         if (ConfigOptions.DEVEL_MODE_ON) {
-            Toast.makeText(this, "StreamCacheDownloadService ON_START", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "StreamCacheDownloadService ON_START_COMMAND", Toast.LENGTH_LONG).show();
         }
 
         final StreamCacheDownloadServiceCmd cmd = StreamCacheDownloadServiceCmd.valueOf(intent.getStringExtra(PARAM_CMD));
@@ -167,18 +167,18 @@ public class StreamCacheDownloadService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         if (ConfigOptions.DEVEL_MODE_ON) {
             Toast.makeText(this, "StreamCacheDownloadService ON_DESTROY", Toast.LENGTH_LONG).show();
         }
         pauseAll();
         notificationUpdateTask.cancel();
         stopForeground(true);
+        super.onDestroy();
     }
 
     private void createNotificationChannels() {
         // NotificationChannel - нужно добавить до того, как показывать уведомления
-        // вот так не работает (требует высокий api)
+        // вот так не работает (требует высокий api):
         // https://developer.android.com/guide/topics/ui/notifiers/notifications#ManageChannels
         // так, как здесь, норм:
         // https://developer.android.com/training/notify-user/channels
@@ -186,7 +186,8 @@ public class StreamCacheDownloadService extends Service {
 
         final List<NotificationChannelCompat> notificationChannelCompats = new ArrayList<>();
         notificationChannelCompats.add(new NotificationChannelCompat
-                .Builder(getString(R.string.notification_channel_download_stream_id), NotificationManagerCompat.IMPORTANCE_LOW)
+                .Builder(getString(R.string.notification_channel_download_stream_id),
+                NotificationManagerCompat.IMPORTANCE_LOW)
                 .setName(getString(R.string.notification_channel_download_stream_name))
                 .setDescription(getString(R.string.notification_channel_download_stream_description))
                 .build());
@@ -329,6 +330,7 @@ public class StreamCacheDownloadService extends Service {
                     if (taskController.getState() == TaskController.TaskState.ENQUEUED) {
                         taskController.setState(TaskController.TaskState.ACTIVE);
                         VideoStreamDownloader.downloadStream(StreamCacheDownloadService.this, streamCacheItem, taskController);
+                        taskController.setState(TaskController.TaskState.WAIT);
                     }
 
                     if (streamCacheItem.isDownloaded()) {
@@ -351,7 +353,7 @@ public class StreamCacheDownloadService extends Service {
     public static void startDownload(final Context context, final long streamCacheItemId) {
         // здесь запускаем закачку не через прямое обращение, а через интент, чтобы
         // сервис считался запущенным через onStartCommand и не завершался автоматически
-        // сразу после выхода из активи и unbind
+        // сразу после выхода из активити и unbind
         final Intent intent = new Intent(context, StreamCacheDownloadService.class);
         intent.putExtra(StreamCacheDownloadService.PARAM_CMD, StreamCacheDownloadServiceCmd.START_ITEM.name());
         intent.putExtra(StreamCacheDownloadService.PARAM_STREAM_CACHE_ITEM_ID, streamCacheItemId);
@@ -370,7 +372,7 @@ public class StreamCacheDownloadService extends Service {
     public static void startDownloads(final Context context) {
         // здесь запускаем закачку не через прямое обращение, а через интент, чтобы
         // сервис считался запущенным через onStartCommand и не завершался автоматически
-        // сразу после выхода из активи и unbind
+        // сразу после выхода из активити и unbind
         final Intent intent = new Intent(context, StreamCacheDownloadService.class);
         intent.putExtra(StreamCacheDownloadService.PARAM_CMD, StreamCacheDownloadServiceCmd.START_ALL.name());
         context.startService(intent);

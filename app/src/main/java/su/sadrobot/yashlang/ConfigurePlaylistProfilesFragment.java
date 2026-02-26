@@ -71,8 +71,8 @@ public class ConfigurePlaylistProfilesFragment extends Fragment {
     private final Handler handler = new Handler();
     // достаточно одного фонового потока
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
-    // потоки для сетевых операций (могут включать обращения к базе данных) - при плохой
-    // сетевая операция может затупить и не заметно задерживать время выполнения других фоновых
+    // потоки для сетевых операций (могут включать обращения к базе данных) - при плохой связи
+    // сетевая операция может затупить и незаметно задерживать время выполнения других фоновых
     // операций, которые не связаны с сетью
     private final ExecutorService dbAndNetworkExecutor = Executors.newSingleThreadExecutor();
 

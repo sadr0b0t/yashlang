@@ -789,8 +789,6 @@ public class WatchVideoActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        super.onPause();
-
         // так делать не рекомендуется, но мы не просто перекидываем плеер с одного вью на другое,
         // мы его здесь прячем на неопределенное время
         videoPlayerView.setPlayer(null);
@@ -800,6 +798,7 @@ public class WatchVideoActivity extends AppCompatActivity {
             unbindService(playerServiceConnection);
             playerServiceIsBound = false;
         }
+        super.onPause();
     }
 
     @Override

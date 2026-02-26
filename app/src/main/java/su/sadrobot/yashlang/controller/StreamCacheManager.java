@@ -44,7 +44,7 @@ public class StreamCacheManager {
     private StreamCacheManager() {
     }
 
-    public static interface StreamCacheManagerListener {
+    public interface StreamCacheManagerListener {
         void onStreamCacheAddedToQueue(final List<Long> insertedIds);
     }
 
