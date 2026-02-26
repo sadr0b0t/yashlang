@@ -18,19 +18,19 @@ package su.sadrobot.yashlang;
  */
 
 
-import android.graphics.Bitmap;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,15 +47,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import su.sadrobot.yashlang.controller.ContentLoader;
 import su.sadrobot.yashlang.controller.DataIO;
+import su.sadrobot.yashlang.controller.PlaylistImportTask;
 import su.sadrobot.yashlang.controller.PlaylistInfoActions;
-import su.sadrobot.yashlang.controller.TaskController;
-import su.sadrobot.yashlang.controller.ThumbManager;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
-import su.sadrobot.yashlang.util.PlaylistUrlUtil;
+import su.sadrobot.yashlang.service.PlaylistsImportService;
 import su.sadrobot.yashlang.view.ListItemCheckedProvider;
 import su.sadrobot.yashlang.view.ListItemSwitchController;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
@@ -74,36 +75,25 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
     private Button playlistsAddBtn;
     private RecyclerView playlistList;
 
-    private View playlistsAddProgressView;
-    private ImageView playlistAddPlThumbImg;
-    private TextView playlistAddPlNameTxt;
-    private TextView playlistAddPlUrlTxt;
-    private TextView playlistAddStatusTxt;
-    private ProgressBar playlistAddProgress;
-
-    private View playlistAddErrorView;
-    private TextView playlistAddErrorTxt;
-    private Button playlistAddRetryBtn;
-    private Button playlistAddSkipBtn;
-    private Button playlistAddCancelBtn;
-
     private final Handler handler = new Handler();
+    // достаточно одного фонового потока
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
 
     private enum State {
-        LOAD_INITIAL_RECOMMENDED, INITIAL_RECOMMENDED,
-        PLAYLIST_ADD_PROGRESS, PLAYLIST_ADD_ERROR, PLAYLIST_ADD_OK
+        LOAD_INITIAL_RECOMMENDED, INITIAL_RECOMMENDED
     }
 
     private State state = State.INITIAL_RECOMMENDED;
 
-    private TaskController taskController;
-    private int plToAddStartIndex = 0;
-
+    private PlaylistsImportService playlistsImportService;
+    private ServiceConnection playlistImportServiceConnection;
 
     private List<PlaylistInfo> recommendedPlaylists = new ArrayList<>();
     // плейлисты из списка рекомендованных, которые уже есть в локальной базе данных
     private final Set<PlaylistInfo> playlistsInDb = new HashSet<>();
+    // или в процессе добавления в сервисе PlaylistImportService
+    private final Set<PlaylistInfo> playlistsInImportService = new HashSet<>();
     private final List<PlaylistInfo> playlistsToAdd = new ArrayList<>();
 
 
@@ -118,20 +108,6 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
         recommendedPlaylistsView = findViewById(R.id.recommended_playlists_view);
         playlistsAddBtn = findViewById(R.id.playlists_add_btn);
         playlistList = findViewById(R.id.playlist_list);
-
-        playlistsAddProgressView = findViewById(R.id.playlists_add_progress_view);
-        playlistAddPlThumbImg = findViewById(R.id.playlist_add_pl_thumb_img);
-        playlistAddPlNameTxt = findViewById(R.id.playlist_add_pl_name_txt);
-        playlistAddPlUrlTxt = findViewById(R.id.playlist_add_pl_url_txt);
-        playlistAddStatusTxt = findViewById(R.id.playlist_add_status_txt);
-        playlistAddProgress = findViewById(R.id.playlist_add_progress);
-
-        playlistAddErrorView = findViewById(R.id.playlist_add_error_view);
-        playlistAddErrorTxt = findViewById(R.id.playlist_add_error_txt);
-        playlistAddRetryBtn = findViewById(R.id.playlist_add_retry_btn);
-        playlistAddSkipBtn = findViewById(R.id.playlist_add_skip_btn);
-        playlistAddCancelBtn = findViewById(R.id.playlist_add_cancel_btn);
-
 
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -155,8 +131,8 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 playlistsToAdd.clear();
-                for(final PlaylistInfo plInfo : recommendedPlaylists) {
-                    if(plInfo.isEnabled()) {
+                for (final PlaylistInfo plInfo : recommendedPlaylists) {
+                    if (plInfo.isEnabled()) {
                         playlistsToAdd.add(plInfo);
                     }
                 }
@@ -164,42 +140,57 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
             }
         });
 
-        playlistAddRetryBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // добавление продолжится с текущего недобавленного плейлиста
-                // (см индекс plToAddStartIndex)
-                addPlaylistsBg();
-            }
-        });
-
-        playlistAddSkipBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // пропустить неудачный плейлист
-                plToAddStartIndex++;
-                addPlaylistsBg();
-
-            }
-        });
-
-        playlistAddCancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImportPlaylistsActivity.this.finish();
-            }
-        });
-
-        loadPlaylistsBg();
+        // загрузим после подключения к PlaylistsImportService
+        //loadPlaylistsBg();
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    protected void onResume() {
+        super.onResume();
 
-        if (taskController != null) {
-            taskController.cancel();
+        playlistImportServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(final ComponentName name, final IBinder service) {
+                playlistsImportService = ((PlaylistsImportService.PlaylistsImportServiceBinder) service).getService();
+                loadPlaylistsBg();
+
+                // здесь будем смотреть, есть ли плейлисты из списка рекомендованных
+                // среди задачх импорта, если есть, то пока не разрешем их добавлять
+                // и помечаем их не галкой, а песочными часами
+                playlistsImportService.setServiceListener(new PlaylistsImportService.PlaylistsImportServiceListener() {
+                    @Override
+                    public void onImportPlaylistTaskAdded(final PlaylistImportTask importTask) {
+                        loadPlaylistsBg();
+                    }
+
+                    @Override
+                    public void onImportPlaylistTaskRemoved(final PlaylistImportTask importTask) {
+                        loadPlaylistsBg();
+                    }
+                });
+            }
+
+            @Override
+            public void onServiceDisconnected(final ComponentName name) {
+                playlistsImportService.removeServiceListener();
+                playlistsImportService = null;
+            }
+        };
+
+        this.bindService(
+                new Intent(this, PlaylistsImportService.class),
+                playlistImportServiceConnection,
+                Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onPause() {
+        if (playlistsImportService != null) {
+            playlistsImportService.stopIfFinished();
         }
+        this.unbindService(playlistImportServiceConnection);
+
+        super.onPause();
     }
 
     @Override
@@ -223,16 +214,16 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_select_all:
-                for(final PlaylistInfo plInfo : recommendedPlaylists) {
-                    if(!playlistsInDb.contains(plInfo)) {
+                for (final PlaylistInfo plInfo : recommendedPlaylists) {
+                    if (!playlistsInDb.contains(plInfo)) {
                         plInfo.setEnabled(true);
                     }
                 }
                 playlistList.getAdapter().notifyDataSetChanged();
                 break;
             case R.id.action_select_none:
-                for(final PlaylistInfo plInfo : recommendedPlaylists) {
-                    if(!playlistsInDb.contains(plInfo)) {
+                for (final PlaylistInfo plInfo : recommendedPlaylists) {
+                    if (!playlistsInDb.contains(plInfo)) {
                         plInfo.setEnabled(false);
                     }
                 }
@@ -253,40 +244,13 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
         switch (state) {
             case LOAD_INITIAL_RECOMMENDED:
                 recommendedPlaylistsView.setVisibility(View.INVISIBLE);
-                playlistsAddProgressView.setVisibility(View.GONE);
-
                 break;
             case INITIAL_RECOMMENDED:
                 recommendedPlaylistsView.setVisibility(View.VISIBLE);
-                playlistsAddProgressView.setVisibility(View.GONE);
-
-                break;
-            case PLAYLIST_ADD_PROGRESS:
-                recommendedPlaylistsView.setVisibility(View.GONE);
-                playlistsAddProgressView.setVisibility(View.VISIBLE);
-
-                playlistAddProgress.setVisibility(View.VISIBLE);
-                playlistAddErrorView.setVisibility(View.GONE);
-
-                break;
-            case PLAYLIST_ADD_ERROR:
-                recommendedPlaylistsView.setVisibility(View.GONE);
-                playlistsAddProgressView.setVisibility(View.VISIBLE);
-
-                playlistAddProgress.setVisibility(View.GONE);
-                playlistAddErrorView.setVisibility(View.VISIBLE);
-
-                break;
-            case PLAYLIST_ADD_OK:
-                recommendedPlaylistsView.setVisibility(View.GONE);
-                playlistsAddProgressView.setVisibility(View.VISIBLE);
-
-                playlistAddProgress.setVisibility(View.GONE);
-                playlistAddErrorView.setVisibility(View.GONE);
-
                 break;
         }
     }
+
     private void loadPlaylistsBg() {
         this.state = State.LOAD_INITIAL_RECOMMENDED;
         updateControlsVisibility();
@@ -294,7 +258,9 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
         // здесь нужно в фоне обратиться к базе данных, чтобы определить, добавлен плейлист
         // в локальную базу или нет (чтобы для добавленных рисовать галочку вместо переключателя
         // и не добавлять их еще раз)
-        new Thread(new Runnable() {
+        // дополнительно к базе данных, будем смотреть в сервисе PlaylistImportService, есть
+        // ли плейлист в
+        dbExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 // здесь можно было принять объект List<PlaylistInfo>, но в таком случае пришлось бы
@@ -316,15 +282,28 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
                 // фоновый поток нужен здесь, т.к. обращаемя к базе данных
                 // пробежим по всем плейлистам и соберем те, которые уже есть в локальное базе данных
                 playlistsInDb.clear();
-                for(PlaylistInfo plInfo : recommendedPlaylists) {
-                    final PlaylistInfo existingPlInfo = VideoDatabase.getDbInstance(ImportPlaylistsActivity.this).
+                playlistsInImportService.clear();
+                for (PlaylistInfo plInfo : recommendedPlaylists) {
+                    final PlaylistInfo plInfoExistingInDb = VideoDatabase.getDbInstance(ImportPlaylistsActivity.this).
                             playlistInfoDao().findByUrl(plInfo.getUrl());
-                    if(existingPlInfo != null) {
+
+                    if (plInfoExistingInDb != null) {
                         // добавлять второй раз не надо
-                        // включить обратно не получится, т.к. переключалка для этих плейлистов
-                        // будет скрыта
+                        // включить обратно не получится, т.к. переключалка для этих плейлистов будет скрыта
                         plInfo.setEnabled(false);
                         playlistsInDb.add(plInfo);
+                    } else if (playlistsImportService != null) {
+                        // проверить в сервисе импорта плейлистов и если есть, тоже не добавлять.
+                        // Рисовать этот плейлист буедм не гаолочкой, а песочными часами.
+                        // От сервиса будем еще ловить события добавления/удаления задач, и если после
+                        // удаления задачи плейлист окажется в базе, то его уже будем рисовать галочкой
+                        // (будет достаточно перестроить этот список)
+                        if (playlistsImportService.getImportTaskIdForPlaylistUrl(plInfo.getUrl()) != PlaylistImportTask.ID_NONE) {
+                            // добавлять еще раз, пока не завершилась текущая попытка, не надо
+                            // включить обратно не получится, т.к. переключалка для этих плейлистов будет скрыта
+                            plInfo.setEnabled(false);
+                            playlistsInImportService.add(plInfo);
+                        }
                     }
                 }
 
@@ -387,13 +366,19 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
 
                                     @Override
                                     public boolean showItemCheckbox(final PlaylistInfo item) {
-                                        return !playlistsInDb.contains(item);
+                                        return !playlistsInDb.contains(item) && !playlistsInImportService.contains(item);
                                     }
                                 },
                                 new ListItemCheckedProvider<PlaylistInfo>() {
                                     @Override
                                     public boolean isItemChecked(final PlaylistInfo item) {
                                         return playlistsInDb.contains(item);
+                                    }
+                                },
+                                new ListItemCheckedProvider<PlaylistInfo>() {
+                                    @Override
+                                    public boolean isItemChecked(final PlaylistInfo item) {
+                                        return playlistsInImportService.contains(item);
                                     }
                                 });
 
@@ -404,141 +389,14 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
                     }
                 });
             }
-        }).start();
-    }
-    private void addPlaylistsBg() {
-        this.state = State.PLAYLIST_ADD_PROGRESS;
-        updateControlsVisibility();
-
-        // канал или плейлист
-        taskController = new TaskController();
-        taskController.setTaskListener(new TaskController.TaskAdapter() {
-            @Override
-            public void onStart() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        playlistAddStatusTxt.setText(taskController.getStatusMsg());
-                        state = State.PLAYLIST_ADD_PROGRESS;
-                        updateControlsVisibility();
-                    }
-                });
-            }
-
-            @Override
-            public void onFinish() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        playlistAddStatusTxt.setText(taskController.getStatusMsg());
-                        if (taskController.getException() == null) {
-                            state = State.PLAYLIST_ADD_OK;
-                        } else {
-                            state = State.PLAYLIST_ADD_ERROR;
-                        }
-                        updateControlsVisibility();
-                    }
-                });
-            }
-
-            @Override
-            public void onStatusMsgChange(final String status, final Exception e) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        playlistAddStatusTxt.setText(status);
-                        if (e != null) {
-                            playlistAddErrorTxt.setText(e.getMessage()
-                                    + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
-                            state = State.PLAYLIST_ADD_ERROR;
-                            updateControlsVisibility();
-                        }
-                    }
-                });
-            }
         });
+    }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                boolean allOk = true;
-
-                // начинаем с индекса plToAddStartIndex (например, если продолжаем после ошибки)
-                for (; plToAddStartIndex < playlistsToAdd.size(); plToAddStartIndex++) {
-                    if (taskController.isCanceled()) {
-                        allOk = false;
-                        break;
-                    }
-
-                    final PlaylistInfo plInfo = playlistsToAdd.get(plToAddStartIndex);
-                    // подгрузим иконку плейлиста (хотя скорее всего она уже в кеше)
-                    try {
-                        // иконка канала
-                        if (plInfo.getThumbBitmap() == null) {
-                            final Bitmap _plThumb = ThumbManager.getInstance().loadPlaylistThumb(
-                                    ImportPlaylistsActivity.this, plInfo);
-                            plInfo.setThumbBitmap(_plThumb);
-                        }
-                    } catch (final Exception e) {
-                        // если не загрузилась - плохой признак скорее, но здесь ничего страшного,
-                        // игнорируем
-                    }
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            playlistAddPlThumbImg.setImageBitmap(plInfo.getThumbBitmap());
-                            playlistAddPlNameTxt.setText(plInfo.getName());
-                            playlistAddPlUrlTxt.setText(PlaylistUrlUtil.cleanupUrl(plInfo.getUrl()));
-                        }
-                    });
-
-                    // проверим, что список еще не добавлен в базу
-                    final PlaylistInfo existingPlInfo = VideoDatabase.getDbInstance(ImportPlaylistsActivity.this).
-                            playlistInfoDao().findByUrl(plInfo.getUrl());
-                    if (existingPlInfo != null) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                playlistAddStatusTxt.setText(getString(R.string.playlist_add_status_already_added));
-                            }
-                        });
-                    } else {
-                        // добавляем
-                        final long plId = ContentLoader.getInstance().addPlaylist(
-                                ImportPlaylistsActivity.this, plInfo.getUrl(), taskController);
-                        if (plId == PlaylistInfo.ID_NONE) {
-                            // Плейлист не добавлен - завершаему эту попытку, экран не закрываем
-                            // (в колбэк таск-контроллера еще раньше должно прийти событие с ошибкой,
-                            // он покажет экран ошибки с сообщением и предложениями попробовать еще,
-                            // пропустить или завершить добавление)
-                            allOk = false;
-                            break;
-                        }
-                    }
-                    try {
-                        // сделаем небольшую паузу между двумя плейлистами, чтобы успеть разглядеть
-                        // сообщение о том, что плейлист добавлен, например.
-                        // (пользователь не будет часто добавлять плейлисты в этом диалоге, поэтому
-                        // здесь это ок)
-                        Thread.sleep(ConfigOptions.ADD_RECOMMENDED_PLAYLISTS_DELAY_MS);
-                    } catch (final InterruptedException e) {
-                    }
-                }
-                if (allOk) {
-                    // все добавили, выходим
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(ImportPlaylistsActivity.this, R.string.done_importing, Toast.LENGTH_SHORT).show();
-                            ImportPlaylistsActivity.this.finish();
-                        }
-                    });
-                }
-            }
-        }).start();
+    private void addPlaylistsBg() {
+        for (final PlaylistInfo plInfo : playlistsToAdd) {
+            PlaylistsImportService.addPlaylist(this, plInfo.getUrl(), plInfo);
+        }
+        startActivity(new Intent(this, ImportPlaylistsProgressActivity.class));
     }
 
     /**
@@ -549,7 +407,7 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                for (final PlaylistInfo plInfo : playlistsToAdd) {
+                for (final PlaylistInfo plInfo : new ArrayList<>(playlistsToAdd)) {
                     try {
                         final PlaylistInfo plInfo_ = ContentLoader.getInstance().getPlaylistInfo(plInfo.getUrl());
                         System.out.println(plInfo_.getName());
@@ -564,4 +422,3 @@ public class ImportPlaylistsActivity extends AppCompatActivity {
         }).start();
     }
 }
-

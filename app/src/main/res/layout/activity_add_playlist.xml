@@ -6,6 +6,20 @@
     android:orientation="vertical"
     tools:context=".AddPlaylistActivity">
 
+    <Button
+        android:id="@+id/devel_mode_fake_add_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start fake add task"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/devel_mode_fake_add_with_error_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start fake add task (ends with error)"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/playlist_view"
         android:layout_width="match_parent"
@@ -52,8 +66,7 @@
             <Space
                 android:layout_width="1dp"
                 android:layout_height="0dp"
-                android:layout_weight="1" >
-            </Space>
+                android:layout_weight="1" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -71,8 +84,7 @@
             <Space
                 android:layout_width="1dp"
                 android:layout_height="0dp"
-                android:layout_weight="1" >
-            </Space>
+                android:layout_weight="1" />
         </LinearLayout>
 
         <ProgressBar
@@ -100,8 +112,7 @@
             <Space
                 android:layout_width="1dp"
                 android:layout_height="0dp"
-                android:layout_weight="1" >
-            </Space>
+                android:layout_weight="1" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -120,8 +131,7 @@
             <Space
                 android:layout_width="1dp"
                 android:layout_height="0dp"
-                android:layout_weight="1" >
-            </Space>
+                android:layout_weight="1" />
 
             <Button
                 android:id="@+id/playlist_reload_btn"
@@ -198,7 +208,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/playlist_add_progress_view"
+        android:id="@+id/playlist_add_task_progress_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -210,7 +220,7 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/playlist_add_pl_thumb_img"
+                android:id="@+id/playlist_add_task_pl_thumb_img"
                 android:layout_width="80dp"
                 android:layout_height="80sp"
                 android:layout_margin="2dp"
@@ -227,7 +237,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/playlist_add_pl_name_txt"
+                    android:id="@+id/playlist_add_task_pl_name_txt"
                     android:layout_width="match_parent"
                     android:layout_height="0dip"
                     android:layout_weight="1"
@@ -237,7 +247,7 @@
                     android:textSize="22sp" />
 
                 <TextView
-                    android:id="@+id/playlist_add_pl_url_txt"
+                    android:id="@+id/playlist_add_task_pl_url_txt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
@@ -260,59 +270,68 @@
                 android:text="@string/adding_playlist" />
 
             <TextView
-                android:id="@+id/playlist_add_status_txt"
+                android:id="@+id/playlist_add_task_enqueued_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/playlist_import_task_queued" />
+
+            <TextView
+                android:id="@+id/playlist_add_task_status_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <ProgressBar
-                android:id="@+id/playlist_add_progress"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                style="?android:attr/progressBarStyle"
-                android:visibility="gone" />
-
             <LinearLayout
-                android:id="@+id/playlist_add_error_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_horizontal|fill_vertical"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:layout_height="0dip"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical" >
 
-                <Space
-                    android:layout_width="1dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" >
-                </Space>
+                <ProgressBar
+                    android:id="@+id/playlist_add_task_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="?android:attr/progressBarStyle"
+                    android:visibility="gone" />
 
                 <TextView
-                    android:id="@+id/playlist_add_error_txt"
+                    android:id="@+id/playlist_add_task_canceled_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/playlist_import_task_canceled" />
+
+                <TextView
+                    android:id="@+id/playlist_add_task_error_txt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:textColor="@android:color/holo_red_dark" />
-
-                <Space
-                    android:layout_width="1dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" >
-                </Space>
-
-                <Button
-                    android:id="@+id/playlist_add_retry_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="@string/retry" />
-
-                <Button
-                    android:id="@+id/playlist_add_cancel_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:text="@android:string/cancel" />
+                    android:textColor="@android:color/holo_red_dark"
+                    android:visibility="gone" />
             </LinearLayout>
+
+            <Button
+                android:id="@+id/playlist_add_task_cancel_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@android:string/cancel" />
+
+            <Button
+                android:id="@+id/playlist_add_task_retry_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/retry" />
+
+            <Button
+                android:id="@+id/playlist_add_task_dismiss_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dismiss" />
+
+            <Button
+                android:id="@+id/playlist_add_task_add_another_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/playlist_add_another" />
         </LinearLayout>
 
     </LinearLayout>

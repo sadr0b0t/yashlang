@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import su.sadrobot.yashlang.ConfigOptions;
+import su.sadrobot.yashlang.R;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
@@ -66,6 +67,8 @@ public class ContentLoader {
 
     private ContentLoader() {
     }
+
+    public static final String TASK_CONTROLLER_ATTR_PLAYLIST_ID = "TASK_CONTROLLER_ATTR_PLAYLIST_ID";
 
     /**
      * Ищем каналы и плейлисты по имени. В выдачу сначала добавляем каналы, потом плейлисты.
@@ -110,7 +113,7 @@ public class ContentLoader {
                 final PlaylistInfo.PlaylistType plType;
                 if (infoItem.getInfoType() == InfoItem.InfoType.CHANNEL) {
                     plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
-                } else {// if(infoItem.getInfoType() == InfoItem.InfoType.PLAYLIST) {
+                } else {// if (infoItem.getInfoType() == InfoItem.InfoType.PLAYLIST) {
                     plType = PlaylistInfo.PlaylistType.YT_PLAYLIST;
                 }
 
@@ -184,6 +187,11 @@ public class ContentLoader {
         // пользователь
         // https://peer.tube/accounts/animation@vidcommons.org/video-channels
 
+        if (taskController.isCanceled()) {
+            // отменили задачу до того, как начали
+            return PlaylistInfo.ID_NONE;
+        }
+
         taskController.setRunning(true);
 
         final AtomicLong plId = new AtomicLong(PlaylistInfo.ID_NONE);
@@ -215,28 +223,38 @@ public class ContentLoader {
 
                     final PlaylistInfo.PlaylistType plType;
                     final ListExtractor<StreamInfoItem> extractor;
+                    taskController.setStatusMsg(context.getString(R.string.task_status_msg_init_playlist_loader));
                     try {
                         plType = getPlaylistType(plUrl);
                         extractor = getListExtractor(plUrl);
                     } catch (ExtractionException e) {
-                        taskController.setStatusMsg("Error loading playlist", e);
+                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
                         throw new RuntimeException(e);
                     }
 
-                    taskController.setStatusMsg("Loading page-1...");
+                    taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n)
+                            .replace("%s", "1"));
                     // загрузить первую страницу - вот здесь может быть долго
                     try {
                         extractor.fetchPage();
                     } catch (IOException | ExtractionException e) {
-                        taskController.setStatusMsg("Error loading playlist", e);
-                        throw new RuntimeException(e);
+                        // если в процессе выкачивания пользователь нажал отменить задание,
+                        // статус отмены задания приоритетнее произошедшей ошибки
+                        if (taskController.isCanceled()) {
+                            final RuntimeException e1 = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
+                            throw e1;
+                        } else {
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
+                            throw new RuntimeException(e);
+                        }
                     }
 
                     // выкачивали страницу некоторое время, в течение которого могли успеть
                     // отменить задачу (кнопкой или закрыв экран)
-                    if(taskController.isCanceled()) {
-                        final RuntimeException e = new RuntimeException("Task canceled");
-                        taskController.setStatusMsg("Task canceled", e);
+                    if (taskController.isCanceled()) {
+                        final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
                         throw e;
                     }
 
@@ -255,7 +273,7 @@ public class ContentLoader {
                             plThumbUrl = "";
                         }
                     } catch (ParsingException e) {
-                        taskController.setStatusMsg("Error loading playlist", e);
+                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
                         throw new RuntimeException(e);
                     }
 
@@ -269,7 +287,7 @@ public class ContentLoader {
                     try {
                         nextPage = extractor.getInitialPage();
                     } catch (IOException | ExtractionException e) {
-                        taskController.setStatusMsg("Error loading playlist", e);
+                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
                         throw new RuntimeException(e);
                     }
 
@@ -280,7 +298,7 @@ public class ContentLoader {
                     pageItems.addAll(nextPage.getItems());
                     final List<VideoItem> videoItems = new ArrayList<VideoItem>();
 
-                    // теперь загружаем все ролики - здесь 1я страница
+                    // теперь загружаем все ролики - здесь 1-я страница
                     // Пропустить несколько первых роликов - для ConfigOptions.DEVEL_MODE_ON
                     int skipItems = 25;
                     for (StreamInfoItem item : pageItems) {
@@ -296,15 +314,16 @@ public class ContentLoader {
                     }
                     // сохраняем страницу в базу
                     videodb.videoItemDao().insertAll(videoItems.toArray(new VideoItem[videoItems.size()]));
-                    taskController.setStatusMsg("Loading page-1...ok");
+                    taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_ok)
+                            .replace("%s", "1"));
 
                     //System.out.println(nextPage.hasNextPage() + ": " + nextPage.getNextPageUrl());
                     // загружать по порядку остальные страницы до тех пор, пока не закончатся
                     int page_n = 1;
                     while (nextPage.hasNextPage()) {
-                        if(taskController.isCanceled()) {
-                            final RuntimeException e = new RuntimeException("Task canceled");
-                            taskController.setStatusMsg("Task canceled", e);
+                        if (taskController.isCanceled()) {
+                            final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
                             throw e;
                         }
 
@@ -312,7 +331,8 @@ public class ContentLoader {
                         videoItems.clear();
 
                         page_n++;
-                        taskController.setStatusMsg("Loading page-" + page_n + "...");
+                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n)
+                                .replace("%s", String.valueOf(page_n)));
 
                         boolean done = false;
                         // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
@@ -320,9 +340,9 @@ public class ContentLoader {
                         int retryCount = ConfigOptions.LOAD_PAGE_RETRY_COUNT;
                         Exception retryEx = null;
                         while (!done && retryCount > 0) {
-                            if(taskController.isCanceled()) {
-                                final RuntimeException e = new RuntimeException("Task canceled");
-                                taskController.setStatusMsg("Task canceled", e);
+                            if (taskController.isCanceled()) {
+                                final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                                taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
                                 throw e;
                             }
                             try {
@@ -330,16 +350,17 @@ public class ContentLoader {
                                 nextPage = extractor.getPage(nextPage.getNextPage());
                                 done = true;
                             } catch (Exception e) {
-                                taskController.setStatusMsg("Loading page-" + page_n + "..." +
-                                        "[retry: " + (ConfigOptions.LOAD_PAGE_RETRY_COUNT - retryCount + 1) + "]");
+                                taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_retry_c)
+                                        .replace("%s", String.valueOf(page_n))
+                                        .replace("%c", String.valueOf(ConfigOptions.LOAD_PAGE_RETRY_COUNT - retryCount + 1)));
                                 retryEx = e;
                                 retryCount--;
                             }
                         }
 
-                        if(taskController.isCanceled()) {
-                            final RuntimeException e = new RuntimeException("Task canceled");
-                            taskController.setStatusMsg("Task canceled", e);
+                        if (taskController.isCanceled()) {
+                            final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
                             throw e;
                         }
 
@@ -347,34 +368,38 @@ public class ContentLoader {
                             // загрузили страницу
                             pageItems.addAll(nextPage.getItems());
 
-                            for (StreamInfoItem item : pageItems) {
+                            for (final StreamInfoItem item : pageItems) {
                                 videoItems.add(extractVideoItem(item, _plId, true, fakeTimestamp));
                                 fakeTimestamp--;
                                 videoItemCount++;
                             }
                             // сохраняем страницу в базу
                             videodb.videoItemDao().insertAll(videoItems.toArray(new VideoItem[videoItems.size()]));
-                            taskController.setStatusMsg("Loading page-" + page_n + "...ok");
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_ok)
+                                    .replace("%s", String.valueOf(page_n)));
                         } else {
                             // страница так и не загрузилась, обрываем транзакцию с ошибкой
-                            final Exception e = new IOException("Error loading page, retry count exceeded", retryEx);
-                            taskController.setStatusMsg("Loading page-" + page_n + "...ERROR", e);
-                            throw new RuntimeException("Error loading page, retry count exceeded", e);
+                            final Exception e = new IOException(context.getString(R.string.task_status_msg_error_loading_playlist_page_retry_count_exceeded), retryEx);
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_error)
+                                            .replace("%s", String.valueOf(page_n)), e);
+                            throw new RuntimeException(context.getString(R.string.task_status_msg_error_loading_playlist_page_retry_count_exceeded), e);
                         }
                     }
 
                     // ставим pId здесь, т.к. здесь уже точно все в порядке
                     plId.set(_plId);
-                    taskController.setStatusMsg("Added " + videoItemCount + " items");
+                    taskController.setStatusMsg(context.getString(R.string.task_status_msg_playlist_added_n_items)
+                            .replace("%s", String.valueOf(videoItemCount)));
                 }
             });
         } catch (SQLException e) {
-            taskController.setStatusMsg("UNEXPECTED DB problem", e);
+            taskController.setStatusMsg(context.getString(R.string.task_status_msg_unexpected_db_problem), e);
             e.printStackTrace();
         } catch (Exception e) {
             // нам все-таки нужно поймать здесь RuntimeException,
             // статус taskController уже выставлен внутри
         }
+        taskController.setAttr(TASK_CONTROLLER_ATTR_PLAYLIST_ID, plId.get());
         taskController.setRunning(false);
         return plId.get();
     }
@@ -382,15 +407,14 @@ public class ContentLoader {
     /**
      *
      * @param context
-     * @param plId
-     * @param plUrl
+     * @param playlistId
      * @param taskController
      * @return количество добавленных элементов,
      *         0 - если нет новых элементов,
      *        -1 - если ошибка во время проверки или добавления
      */
-    public int addPlaylistNewItems(final Context context, final long plId,
-                                      final String plUrl, final TaskController taskController) {
+    public int addPlaylistNewItems(final Context context, final long playlistId,
+                                      final TaskController taskController) {
         // Загрузить новые видео в плейлисте - видео, добавленные после того,
         // как плейлист был сохранен локально или последний раз обновлялся
         // Алгоритм такой:
@@ -402,6 +426,11 @@ public class ContentLoader {
         // вместо даты загрузки приходит бесполезная поебень вида "1 год назад", "4 месяца назад" и т.п.;
         // на странице видео есть дата получше (например: "12 авг. 2008 г."),
         // но ее парсить тоже не очень удобно с учетом локализации и сокращений.
+
+        if (taskController.isCanceled()) {
+            // отменили задачу до того, как начали
+            return -1;
+        }
 
         taskController.setRunning(true);
 
@@ -415,35 +444,45 @@ public class ContentLoader {
             videodb.runInTransaction(new Runnable() {
                 @Override
                 public void run() {
+                    final PlaylistInfo playlistInfo = videodb.playlistInfoDao().getById(playlistId);
 
                     final List<VideoItem> videoItems = new ArrayList<VideoItem>();
 
                     NewPipe.init(DownloaderTestImpl.getInstance());
                     final ListExtractor<StreamInfoItem> extractor;
                     try {
-                        extractor = getListExtractor(plUrl);
+                        extractor = getListExtractor(playlistInfo.getUrl());
                     } catch (ExtractionException e) {
-                        taskController.setStatusMsg("Error loading playlist", e);
+                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
                         throw new RuntimeException(e);
                     }
 
                     // список видео страница за страницей
 
                     // начинаем с первой страницы
-                    taskController.setStatusMsg("Loading page-1...");
+                    taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n)
+                            .replace("%s", "1"));
                     // загрузить первую страницу - вот здесь может быть долго
                     try {
                         extractor.fetchPage();
                     } catch (IOException | ExtractionException e) {
-                        taskController.setStatusMsg("Error loading playlist", e);
-                        throw new RuntimeException(e);
+                        // если в процессе выкачивания пользователь нажал отменить задание,
+                        // статус отмены задания приоритетнее произошедшей ошибки
+                        if (taskController.isCanceled()) {
+                            final RuntimeException e1 = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
+                            throw e1;
+                        } else {
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
+                            throw new RuntimeException(e);
+                        }
                     }
 
                     // выкачивали страницу некоторое время, в течение которого могли успеть
                     // отменить задачу (кнопкой или закрыв экран)
-                    if(taskController.isCanceled()) {
-                        final RuntimeException e = new RuntimeException("Task canceled");
-                        taskController.setStatusMsg("Task canceled", e);
+                    if (taskController.isCanceled()) {
+                        final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
                         throw e;
                     }
 
@@ -451,21 +490,20 @@ public class ContentLoader {
                     try {
                         nextPage = extractor.getInitialPage();
                     } catch (IOException | ExtractionException e) {
-                        taskController.setStatusMsg("Error", e);
+                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
                         throw new RuntimeException(e);
                     }
 
-                    long fakeTimestamp = videodb.videoItemDao().getMaxFakeTimestamp(plId) + ConfigOptions.FAKE_TIMESTAMP_BLOCK_SIZE;
-                    final boolean plEnabled = videodb.playlistInfoDao().isEnabled(plId);
+                    long fakeTimestamp = videodb.videoItemDao().getMaxFakeTimestamp(playlistId) + ConfigOptions.FAKE_TIMESTAMP_BLOCK_SIZE;
+                    final boolean plEnabled = videodb.playlistInfoDao().isEnabled(playlistId);
 
                     final List<StreamInfoItem> pageItems = new ArrayList<StreamInfoItem>();
                     pageItems.addAll(nextPage.getItems());
 
-
                     boolean foundOld = false;
-                    for (StreamInfoItem item : pageItems) {
-                        if (videodb.videoItemDao().getByItemUrl(plId, item.getUrl()) == null) {
-                            videoItems.add(extractVideoItem(item, plId, plEnabled, fakeTimestamp));
+                    for (final StreamInfoItem item : pageItems) {
+                        if (videodb.videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
+                            videoItems.add(extractVideoItem(item, playlistId, plEnabled, fakeTimestamp));
                             fakeTimestamp--;
                             videoItemCount[0]++;
                         } else {
@@ -476,16 +514,17 @@ public class ContentLoader {
 
                     // сохраняем страницу в базу
                     videodb.videoItemDao().insertAll(videoItems.toArray(new VideoItem[videoItems.size()]));
-                    taskController.setStatusMsg("Loading page-1...ok");
+                    taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_ok)
+                            .replace("%s", "1"));
 
                     // если на первой странице все ролики оказались новыми, продолжаем с остальными страницами
                     // загружать по порядку остальные страницы до тех пор, пока не закончатся страницы
                     // или не встретим ролик, который уже был добавлен в базу
                     int page_n = 1;
                     while (!foundOld && nextPage.hasNextPage()) {
-                        if(taskController.isCanceled()) {
-                            final RuntimeException e = new RuntimeException("Task canceled");
-                            taskController.setStatusMsg("Task canceled", e);
+                        if (taskController.isCanceled()) {
+                            final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
                             throw e;
                         }
 
@@ -493,38 +532,45 @@ public class ContentLoader {
                         videoItems.clear();
 
                         page_n++;
-                        taskController.setStatusMsg("Loading page-" + page_n + "...");
+                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n)
+                                .replace("%s", String.valueOf(page_n)));
 
                         boolean done = false;
                         // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
                         // ошибку вместо страницы
                         int retryCount = ConfigOptions.LOAD_PAGE_RETRY_COUNT;
+                        Exception retryEx = null;
                         while (!done && retryCount > 0) {
-                            if(taskController.isCanceled()) {
-                                final RuntimeException e = new RuntimeException("Task canceled");
-                                taskController.setStatusMsg("Task canceled", e);
+                            if (taskController.isCanceled()) {
+                                final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                                taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
                                 throw e;
                             }
                             try {
                                 nextPage = extractor.getPage(nextPage.getNextPage());
                                 done = true;
                             } catch (IOException | ExtractionException e) {
+                                taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_retry_c)
+                                        .replace("%s", String.valueOf(page_n))
+                                        .replace("%c", String.valueOf(ConfigOptions.LOAD_PAGE_RETRY_COUNT - retryCount + 1)));
+
+                                retryEx = e;
                                 retryCount--;
                             }
                         }
 
-                        if(taskController.isCanceled()) {
-                            final RuntimeException e = new RuntimeException("Task canceled");
-                            taskController.setStatusMsg("Task canceled", e);
+                        if (taskController.isCanceled()) {
+                            final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
                             throw e;
                         }
 
                         if (done) {
                             // загрузили страницу - проверяем ролики
                             pageItems.addAll(nextPage.getItems());
-                            for (StreamInfoItem item : pageItems) {
-                                if (videodb.videoItemDao().getByItemUrl(plId, item.getUrl()) == null) {
-                                    videoItems.add(extractVideoItem(item, plId, plEnabled, fakeTimestamp));
+                            for (final StreamInfoItem item : pageItems) {
+                                if (videodb.videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
+                                    videoItems.add(extractVideoItem(item, playlistId, plEnabled, fakeTimestamp));
                                     fakeTimestamp--;
                                     videoItemCount[0]++;
                                 } else {
@@ -535,22 +581,25 @@ public class ContentLoader {
                             // сохраняем страницу в базу
                             videodb.videoItemDao().insertAll(videoItems.toArray(new VideoItem[videoItems.size()]));
 
-                            taskController.setStatusMsg("Loading page-" + page_n + "...ok");
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_ok)
+                                    .replace("%s", String.valueOf(page_n)));
                         } else {
                             // страница так и не загрузилась,
                             // обрываем транзакцию с ошибкой
-                            final Exception e = new IOException("Error loading page, retry count exceeded");
-                            taskController.setStatusMsg("Loading page-" + page_n + "...ERROR", e);
-                            throw new RuntimeException("Error loading page, retry count exceeded");
+                            final Exception e = new IOException(context.getString(R.string.task_status_msg_error_loading_playlist_page_retry_count_exceeded), retryEx);
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_error)
+                                    .replace("%s", String.valueOf(page_n)), e);
+                            throw new RuntimeException(context.getString(R.string.task_status_msg_error_loading_playlist_page_retry_count_exceeded));
                         }
                     }
 
-                    taskController.setStatusMsg("Added " + videoItemCount[0] + " items");
+                    taskController.setStatusMsg(context.getString(R.string.task_status_msg_playlist_added_n_items)
+                            .replace("%s", String.valueOf(videoItemCount[0])));
                 }
             });
         } catch (SQLException e) {
             videoItemCount[0] = -1;
-            taskController.setStatusMsg("UNEXPECTED DB problem", e);
+            taskController.setStatusMsg(context.getString(R.string.task_status_msg_unexpected_db_problem), e);
             e.printStackTrace();
         } catch (Exception e) {
             videoItemCount[0] = -1;
@@ -745,5 +794,47 @@ public class ContentLoader {
             videos.add(videoItem);
         }
         return videos;
+    }
+
+    /**
+     * Для отладки.
+     * Для продолжительная задача, которая ничего не делает. Управляется через taskController.
+     * @param taskDurationMls продолжительность задачи в миллисекундах,
+     *                        -1 - бесконечная задача
+     * @param finishWithError завершить выполнение с ошибкой (если задача не бесконечная)
+     * @param taskController
+     */
+    public void develModeFakeTask(final long taskDurationMls, final boolean finishWithError, final TaskController taskController) {
+        taskController.setRunning(true);
+        // выполняем пробежками по, пусть будет, 1000 млс.
+        final long taskPartDurMls = 1000;
+
+        // заодно в это же время будем менять статус,
+        // как будто грузим разные страницы
+        int fakeCurrentPage = 0;
+
+        long timeLeftMls = taskDurationMls;
+        while (timeLeftMls > 0 && !taskController.isCanceled()) {
+            timeLeftMls -= taskPartDurMls;
+
+            taskController.setStatusMsg("loading page-" + fakeCurrentPage);
+            fakeCurrentPage++;
+
+            try {
+                Thread.sleep(taskPartDurMls);
+            } catch (InterruptedException e) {
+            }
+        }
+
+        if (!taskController.isCanceled()) {
+            if (finishWithError) {
+                taskController.setStatusMsg("Fake task finished with fake problem",
+                        new RuntimeException("Fake task finished with fake problem"));
+            } else {
+                taskController.setStatusMsg("Loaded " + fakeCurrentPage + " fake pages");
+            }
+        }
+        taskController.setAttr(TASK_CONTROLLER_ATTR_PLAYLIST_ID, PlaylistInfo.ID_NONE);
+        taskController.setRunning(false);
     }
 }

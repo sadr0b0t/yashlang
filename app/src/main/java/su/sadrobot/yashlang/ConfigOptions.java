@@ -80,10 +80,6 @@ public class ConfigOptions {
 
     public static final int FAKE_TIMESTAMP_BLOCK_SIZE = 10000;
 
-    public static final int ADD_RECOMMENDED_PLAYLISTS_DELAY_MS = 800;
-
-    public static final int UPDATE_PLAYLISTS_DELAY_MS = 500;
-
     /**
      * Начинать играть ролик на 5 секунд раньше сохраненной позиции при возобновлении проигрывания.
      */
@@ -93,6 +89,7 @@ public class ConfigOptions {
 
     public static final int NOTIFICATION_ID_PLAYER = 1;
     public static final int NOTIFICATION_ID_DOWNLOAD_STREAM = 2;
+    public static final int NOTIFICATION_ID_IMPORT_PLAYLIST = 3;
 
     /**
      * The default connection timeout, in milliseconds.

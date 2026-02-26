@@ -48,7 +48,7 @@ import su.sadrobot.yashlang.model.StreamCache;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.service.StreamCacheDownloadService;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
-import su.sadrobot.yashlang.view.OnListItemProgressControlListener;
+import su.sadrobot.yashlang.view.OnStreamCacheListItemControlListener;
 import su.sadrobot.yashlang.view.StreamCacheDownloadPagedListAdapter;
 
 
@@ -152,20 +152,20 @@ public class StreamCacheDownloadFragment extends Fragment {
             }
         };
 
-        StreamCacheDownloadFragment.this.getContext().bindService(
-                new Intent(StreamCacheDownloadFragment.this.getContext(), StreamCacheDownloadService.class),
+        this.getContext().bindService(
+                new Intent(this.getContext(), StreamCacheDownloadService.class),
                 streamCacheDownloadServiceConnection,
                 Context.BIND_AUTO_CREATE);
     }
 
     @Override
     public void onStop() {
-        super.onStop();
-
         if (streamCacheDownloadService != null) {
             streamCacheDownloadService.stopIfFinished();
         }
-        StreamCacheDownloadFragment.this.getContext().unbindService(streamCacheDownloadServiceConnection);
+        this.getContext().unbindService(streamCacheDownloadServiceConnection);
+
+        super.onStop();
     }
 
     private void setupStreamListAdapter() {
@@ -189,7 +189,7 @@ public class StreamCacheDownloadFragment extends Fragment {
                         return true;
                     }
                 },
-                new OnListItemProgressControlListener<StreamCache>() {
+                new OnStreamCacheListItemControlListener() {
                     @Override
                     public void onItemProgressStartClick(View view, int position, StreamCache item) {
                         StreamCacheDownloadService.startDownload(StreamCacheDownloadFragment.this.getContext(), item.getId());

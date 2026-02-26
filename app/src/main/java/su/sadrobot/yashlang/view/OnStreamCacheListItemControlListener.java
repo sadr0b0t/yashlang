@@ -19,14 +19,14 @@ package su.sadrobot.yashlang.view;
 
 import android.view.View;
 
+import su.sadrobot.yashlang.model.StreamCache;
+
 /**
  * Позволяет повесить слушателя на кнопки "старт", "пауза", "удалить", "скачать заново" для элемента списка.
- *
- * @param <ItemType>
  */
-public interface OnListItemProgressControlListener<ItemType> {
-    void onItemProgressStartClick(final View view, final int position, final ItemType item);
-    void onItemProgressPauseClick(final View view, final int position, final ItemType item);
-    void onItemRedownloadClick(final View view, final int position, final ItemType item);
-    void onItemDeleteClick(final View view, final int position, final ItemType item);
+public interface OnStreamCacheListItemControlListener {
+    void onItemProgressStartClick(final View view, final int position, final StreamCache item);
+    void onItemProgressPauseClick(final View view, final int position, final StreamCache item);
+    void onItemRedownloadClick(final View view, final int position, final StreamCache item);
+    void onItemDeleteClick(final View view, final int position, final StreamCache item);
 }

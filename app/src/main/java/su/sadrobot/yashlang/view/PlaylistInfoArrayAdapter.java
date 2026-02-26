@@ -47,6 +47,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
     private final OnListItemClickListener<PlaylistInfo> onItemClickListener;
     private final ListItemSwitchController<PlaylistInfo> itemSwitchController;
     private ListItemCheckedProvider<PlaylistInfo> itemCheckedProvider;
+    private ListItemCheckedProvider<PlaylistInfo> itemWaitingProvider;
 
     //private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
 
@@ -70,6 +71,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
         final ImageView thumbImg;
         final Switch onoffSwitch;
         final View checkedView;
+        final View waitingView;
 
 
         public PlaylistInfoViewHolder(final View itemView) {
@@ -79,6 +81,7 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
             thumbImg = itemView.findViewById(R.id.playlist_thumb_img);
             onoffSwitch = itemView.findViewById(R.id.playlist_onoff_switch);
             checkedView = itemView.findViewById(R.id.playlist_checked_view);
+            waitingView = itemView.findViewById(R.id.playlist_waiting_view);
         }
     }
 
@@ -100,6 +103,19 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
         this.onItemClickListener = onItemClickListener;
         this.itemSwitchController = itemSwitchController;
         this.itemCheckedProvider = itemCheckedProvider;
+    }
+
+    public PlaylistInfoArrayAdapter(final Activity context, final List<PlaylistInfo> playlistInfos,
+                                    final OnListItemClickListener<PlaylistInfo> onItemClickListener,
+                                    final ListItemSwitchController<PlaylistInfo> itemSwitchController,
+                                    final ListItemCheckedProvider<PlaylistInfo> itemCheckedProvider,
+                                    final ListItemCheckedProvider<PlaylistInfo> itemWaitingProvider) {
+        this.context = context;
+        this.playlistInfos = playlistInfos;
+        this.onItemClickListener = onItemClickListener;
+        this.itemSwitchController = itemSwitchController;
+        this.itemCheckedProvider = itemCheckedProvider;
+        this.itemWaitingProvider = itemWaitingProvider;
     }
 
     @NonNull
@@ -175,6 +191,12 @@ public class PlaylistInfoArrayAdapter extends RecyclerView.Adapter<PlaylistInfoA
             holder.checkedView.setVisibility(View.VISIBLE);
         } else {
             holder.checkedView.setVisibility(View.GONE);
+        }
+
+        if (itemWaitingProvider != null && itemWaitingProvider.isItemChecked(item)) {
+            holder.waitingView.setVisibility(View.VISIBLE);
+        } else {
+            holder.waitingView.setVisibility(View.GONE);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

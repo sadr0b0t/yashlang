@@ -40,7 +40,7 @@ import su.sadrobot.yashlang.controller.StreamCacheManager;
 import su.sadrobot.yashlang.model.StreamCache;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
-import su.sadrobot.yashlang.view.OnListItemProgressControlListener;
+import su.sadrobot.yashlang.view.OnStreamCacheListItemControlListener;
 import su.sadrobot.yashlang.view.StreamCachePagedListAdapter;
 
 
@@ -125,7 +125,7 @@ public class StreamCacheFragment extends Fragment {
                         return true;
                     }
                 },
-                new OnListItemProgressControlListener<StreamCache>() {
+                new OnStreamCacheListItemControlListener() {
                     @Override
                     public void onItemProgressStartClick(View view, int position, StreamCache item) {
 

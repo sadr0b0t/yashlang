@@ -66,7 +66,7 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
     private final Activity context;
     private final StreamCacheDownloadService streamCacheDownloadService;
     private final OnListItemClickListener<StreamCache> onItemClickListener;
-    private final OnListItemProgressControlListener<StreamCache> onItemProgressControlListener;
+    private final OnStreamCacheListItemControlListener onStreamCacheItemControlListener;
 
     // Извлекать задания на выполнение не в режиме очереди, а в режиме стека: последнее добавленное
     // задание отправляется на выполнение первым: этот режим лучше подходит при прокрутке списка, т.к.
@@ -160,12 +160,12 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
             final Activity context,
             final StreamCacheDownloadService streamCacheDownloadService,
             final OnListItemClickListener<StreamCache> onItemClickListener,
-            final OnListItemProgressControlListener<StreamCache> onItemProgressControlListener) {
+            final OnStreamCacheListItemControlListener onStreamCacheItemControlListener) {
         super(DIFF_CALLBACK);
         this.context = context;
         this.streamCacheDownloadService = streamCacheDownloadService;
         this.onItemClickListener = onItemClickListener;
-        this.onItemProgressControlListener = onItemProgressControlListener;
+        this.onStreamCacheItemControlListener = onStreamCacheItemControlListener;
     }
 
     @Override
@@ -343,7 +343,7 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
         final TaskController taskController = streamCacheDownloadService.getTaskController(item.getId());
         taskController.setTaskListener(new TaskController.TaskAdapter() {
             @Override
-            public void onStart() {
+            public void onStart(final TaskController taskController) {
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -354,7 +354,7 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
             }
 
             @Override
-            public void onFinish() {
+            public void onFinish(final TaskController taskController) {
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -364,7 +364,7 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
                 });
             }
 
-            public void onCancel() {
+            public void onCancel(final TaskController taskController) {
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -374,7 +374,7 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
                 });
             }
 
-            public void onStateChange(final TaskController.TaskState state) {
+            public void onStateChange(final TaskController taskController, final TaskController.TaskState state) {
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -385,7 +385,7 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
             }
 
             @Override
-            public void onStatusMsgChange(final String status, final Exception e) {
+            public void onStatusMsgChange(final TaskController taskController, final String status, final Exception e) {
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -397,7 +397,7 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
 
             private boolean progressChanged = false;
             @Override
-            public void onProgressChange(final long progress, final long progressMax) {
+            public void onProgressChange(final TaskController taskController, final long progress, final long progressMax) {
 
                 // Если реагировать на каждое изменение прогресса, вся система встанет раком
                 // Поэтому будем обновлять прогресс следующим образом:
@@ -521,8 +521,8 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
         holder.downloadStartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (onItemProgressControlListener != null) {
-                    onItemProgressControlListener.onItemProgressStartClick(view, holder.getBindingAdapterPosition(), item);
+                if (onStreamCacheItemControlListener != null) {
+                    onStreamCacheItemControlListener.onItemProgressStartClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -530,8 +530,8 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
         holder.downloadPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (onItemProgressControlListener != null) {
-                    onItemProgressControlListener.onItemProgressPauseClick(view, holder.getBindingAdapterPosition(), item);
+                if (onStreamCacheItemControlListener != null) {
+                    onStreamCacheItemControlListener.onItemProgressPauseClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -539,8 +539,8 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
         holder.redownloadStreamBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (onItemProgressControlListener != null) {
-                    onItemProgressControlListener.onItemRedownloadClick(view, holder.getBindingAdapterPosition(), item);
+                if (onStreamCacheItemControlListener != null) {
+                    onStreamCacheItemControlListener.onItemRedownloadClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -548,8 +548,8 @@ public class StreamCacheDownloadPagedListAdapter extends PagedListAdapter<Stream
         holder.deleteStreamBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (onItemProgressControlListener != null) {
-                    onItemProgressControlListener.onItemDeleteClick(view, holder.getBindingAdapterPosition(), item);
+                if (onStreamCacheItemControlListener != null) {
+                    onStreamCacheItemControlListener.onItemDeleteClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });

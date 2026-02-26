@@ -55,7 +55,7 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
 
     private final Activity context;
     private final OnListItemClickListener<StreamCache> onItemClickListener;
-    private final OnListItemProgressControlListener<StreamCache> onItemProgressControlListener;
+    private final OnStreamCacheListItemControlListener onStreamCacheItemControlListener;
 
     //private ExecutorService dbQueryExecutor = Executors.newFixedThreadPool(10);
     //private ExecutorService thumbLoaderExecutor = Executors.newFixedThreadPool(10);
@@ -149,11 +149,11 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
     public StreamCachePagedListAdapter(
             final Activity context,
             final OnListItemClickListener<StreamCache> onItemClickListener,
-            final OnListItemProgressControlListener<StreamCache> onItemProgressControlListener) {
+            final OnStreamCacheListItemControlListener onStreamCacheItemControlListener) {
         super(DIFF_CALLBACK);
         this.context = context;
         this.onItemClickListener = onItemClickListener;
-        this.onItemProgressControlListener = onItemProgressControlListener;
+        this.onStreamCacheItemControlListener = onStreamCacheItemControlListener;
     }
 
     @NonNull
@@ -297,8 +297,8 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
         holder.downloadStartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (onItemProgressControlListener != null) {
-                    onItemProgressControlListener.onItemProgressStartClick(view, holder.getBindingAdapterPosition(), item);
+                if (onStreamCacheItemControlListener != null) {
+                    onStreamCacheItemControlListener.onItemProgressStartClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -306,8 +306,8 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
         holder.downloadPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (onItemProgressControlListener != null) {
-                    onItemProgressControlListener.onItemProgressPauseClick(view, holder.getBindingAdapterPosition(), item);
+                if (onStreamCacheItemControlListener != null) {
+                    onStreamCacheItemControlListener.onItemProgressPauseClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -315,8 +315,8 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
         holder.redownloadStreamBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (onItemProgressControlListener != null) {
-                    onItemProgressControlListener.onItemRedownloadClick(view, holder.getBindingAdapterPosition(), item);
+                if (onStreamCacheItemControlListener != null) {
+                    onStreamCacheItemControlListener.onItemRedownloadClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });
@@ -324,8 +324,8 @@ public class StreamCachePagedListAdapter extends PagedListAdapter<StreamCache, S
         holder.deleteStreamBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (onItemProgressControlListener != null) {
-                    onItemProgressControlListener.onItemDeleteClick(view, holder.getBindingAdapterPosition(), item);
+                if (onStreamCacheItemControlListener != null) {
+                    onStreamCacheItemControlListener.onItemDeleteClick(view, holder.getBindingAdapterPosition(), item);
                 }
             }
         });

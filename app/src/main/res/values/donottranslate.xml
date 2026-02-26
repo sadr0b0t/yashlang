@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="notification_channel_download_stream_id" translatable="false">yashlang download stream</string>
+    <string name="notification_channel_import_playlists_id" translatable="false">yashlang import playlists</string>
     <string name="notification_channel_player_id" translatable="false">yashlang player</string>
     <string name="icon_offline" translatable="false">💾</string>
     <string name="icon_online" translatable="false">☁️</string>

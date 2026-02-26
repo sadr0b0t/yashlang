@@ -17,9 +17,14 @@ package su.sadrobot.yashlang;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,13 +47,17 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import su.sadrobot.yashlang.controller.ContentLoader;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import su.sadrobot.yashlang.controller.PlaylistImportTask;
 import su.sadrobot.yashlang.controller.TaskController;
-import su.sadrobot.yashlang.controller.VideoItemActions;
 import su.sadrobot.yashlang.controller.ThumbManager;
+import su.sadrobot.yashlang.controller.VideoItemActions;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 import su.sadrobot.yashlang.model.VideoDatabase;
 import su.sadrobot.yashlang.model.VideoItem;
+import su.sadrobot.yashlang.service.PlaylistsImportService;
 import su.sadrobot.yashlang.util.PlaylistUrlUtil;
 import su.sadrobot.yashlang.view.DataSourceListener;
 import su.sadrobot.yashlang.view.OnListItemClickListener;
@@ -66,7 +75,6 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
         void onPlaylistUpdated();
     }
 
-
     public static final String PARAM_PLAYLIST_ID = "PARAM_PLAYLIST_ID";
 
     private ImageView playlistThumbImg;
@@ -83,39 +91,52 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     private TextView checkErrorTxt;
     private Button checkNewItemsBtn;
 
-
     private View newItemsView;
     private Button addNewItemsBtn;
     private RecyclerView videoList;
 
     // Добавление элементов
-    private View newItemsAddProgressView;
-    private TextView newItemsAddStatusTxt;
-    private ProgressBar newItemsAddProgress;
+    private View playlistNewItemsAddTaskProgressView;
 
-    private View newItemsAddErrorView;
-    private TextView newItemsAddErrorTxt;
-    private Button newItemsAddRetryBtn;
-    private Button newItemsAddCancelBtn;
+    private TextView playlistNewItemsAddTaskEnqueuedTxt;
+    private TextView playlistNewItemsAddTaskStatusTxt;
+    private ProgressBar playlistNewItemsAddTaskProgress;
+    private TextView playlistNewItemsAddTaskCanceledTxt;
+    private TextView playlistNewItemsAddTaskErrorTxt;
 
-    private View newItemsAddDoneView;
-    private TextView newItemsAddDoneStatusTxt;
-    private Button newItemsAddDoneBtn;
+    private Button playlistNewItemsAddTaskRetryBtn;
+    private Button playlistNewItemsAddTaskCancelBtn;
+    private Button playlistNewItemsAddTaskDismissBtn;
 
-    private final Handler handler = new Handler();
+
+    // режим разработки
+    private Button develModeStartFakeAddNewItemsTaskBtn;
+    private Button develModeStartFakeAddNewItemsTaskWithErrorBtn;
 
     private LiveData<PagedList<VideoItem>> videoItemsLiveData;
 
     private PlaylistUpdateListener playlistUpdateListener;
 
-
     private long playlistId = PlaylistInfo.ID_NONE;
-    private PlaylistInfo plInfo;
+    private PlaylistInfo playlistInfo;
+
+    private long addPlaylistNewItemsTaskId = PlaylistImportTask.ID_NONE;
     private TaskController taskController;
+
+    private PlaylistsImportService playlistsImportService;
+    private ServiceConnection playlistImportServiceConnection;
+
+    private final Handler handler = new Handler();
+
+    // потоки для сетевых операций (могут включать обращения к базе данных) - при плохой связи
+    // сетевая операция может затупить и незаметно задерживать время выполнения других фоновых
+    // операций, которые не связаны с сетью
+    private final ExecutorService dbAndNetworkExecutor = Executors.newSingleThreadExecutor();
 
     private enum State {
         NEW_ITEMS_LIST_EMPTY, NEW_ITEMS_LIST_LOAD_PROGRESS, NEW_ITEMS_LIST_LOAD_ERROR, NEW_ITEMS_LIST_LOADED,
-        PLAYLIST_UPDATE_PROGRESS, PLAYLIST_UPDATE_ERROR, PLAYLIST_UPDATE_OK
+        PLAYLIST_UPDATE_TASK_ENQUEUED, PLAYLIST_UPDATE_TASK_PROGRESS,
+        PLAYLIST_UPDATE_TASK_CANCELED, PLAYLIST_UPDATE_TASK_ERROR, PLAYLIST_UPDATE_TASK_OK
     }
 
     private State state = State.NEW_ITEMS_LIST_EMPTY;
@@ -129,8 +150,11 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
             // пришли какие-то данные (или сообщение, что их нет) - в любом случае прячем прогресс
             // плюс, сюда же попадаем в случае ошибки
 
-            if(state != State.PLAYLIST_UPDATE_PROGRESS && state != State.PLAYLIST_UPDATE_ERROR &&
-                    state != State.PLAYLIST_UPDATE_OK) {
+            if (state != State.PLAYLIST_UPDATE_TASK_ENQUEUED &&
+                    state != State.PLAYLIST_UPDATE_TASK_PROGRESS &&
+                    state != State.PLAYLIST_UPDATE_TASK_CANCELED &&
+                    state != State.PLAYLIST_UPDATE_TASK_ERROR &&
+                    state != State.PLAYLIST_UPDATE_TASK_OK) {
                 // Будем менять состояние здесь только в том случае, если у нас сейчас активна панель
                 // со списком новых видео. Если мы в процессе добавления новых видео в базу, то
                 // состояние здесь менять не будем, чтобы оно не скрыло панели статуса добавления.
@@ -168,15 +192,75 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
         }
     };
 
+    private final TaskController.TaskListener addNewItemsTaskListener = new TaskController.TaskAdapter() {
+        @Override
+        public void onStart(final TaskController taskController) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateStateFromTaskController();
+                }
+            });
+        }
+
+        @Override
+        public void onFinish(final TaskController taskController) {
+            playlistUpdateListener.onPlaylistUpdated();
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateStateFromTaskController();
+                }
+            });
+        }
+
+        @Override
+        public void onStatusMsgChange(final TaskController taskController, final String status, final Exception e) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateStateFromTaskController();
+                }
+            });
+        }
+
+        @Override
+        public void onCancel(final TaskController taskController) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateStateFromTaskController();
+                }
+            });
+        }
+
+        @Override
+        public void onReset(final TaskController taskController) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateStateFromTaskController();
+                }
+            });
+        }
+
+        @Override
+        public void onStateChange(final TaskController taskController, TaskController.TaskState state) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateStateFromTaskController();
+                }
+            });
+        }
+    };
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         playlistId = super.getActivity().getIntent().getLongExtra(PARAM_PLAYLIST_ID, PlaylistInfo.ID_NONE);
     }
-
 
     @Nullable
     @Override
@@ -208,18 +292,20 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
         videoList = view.findViewById(R.id.video_list);
 
         // Операции и прогресс добавления
-        newItemsAddProgressView = view.findViewById(R.id.playlist_new_items_add_progress_view);
-        newItemsAddStatusTxt = view.findViewById(R.id.playlist_new_items_add_status_txt);
-        newItemsAddProgress = view.findViewById(R.id.playlist_new_items_add_progress);
+        playlistNewItemsAddTaskProgressView = view.findViewById(R.id.playlist_new_items_add_task_progress_view);
 
-        newItemsAddErrorView = view.findViewById(R.id.playlist_new_items_add_error_view);
-        newItemsAddErrorTxt = view.findViewById(R.id.playlist_new_items_add_error_txt);
-        newItemsAddRetryBtn = view.findViewById(R.id.playlist_new_items_add_retry_btn);
-        newItemsAddCancelBtn = view.findViewById(R.id.playlist_new_items_add_cancel_btn);
+        playlistNewItemsAddTaskEnqueuedTxt = view.findViewById(R.id.playlist_new_items_add_task_enqueued_txt);
+        playlistNewItemsAddTaskStatusTxt = view.findViewById(R.id.playlist_new_items_add_task_status_txt);
+        playlistNewItemsAddTaskProgress = view.findViewById(R.id.playlist_new_items_add_task_progress);
+        playlistNewItemsAddTaskCanceledTxt = view.findViewById(R.id.playlist_new_items_add_task_canceled_txt);
+        playlistNewItemsAddTaskErrorTxt = view.findViewById(R.id.playlist_new_items_add_task_error_txt);
 
-        newItemsAddDoneView = view.findViewById(R.id.playlist_new_items_add_done_view);
-        newItemsAddDoneStatusTxt = view.findViewById(R.id.playlist_new_items_add_done_status_txt);
-        newItemsAddDoneBtn = view.findViewById(R.id.playlist_new_items_add_done_btn);
+        playlistNewItemsAddTaskRetryBtn = view.findViewById(R.id.playlist_new_items_add_task_retry_btn);
+        playlistNewItemsAddTaskCancelBtn = view.findViewById(R.id.playlist_new_items_add_task_cancel_btn);
+        playlistNewItemsAddTaskDismissBtn = view.findViewById(R.id.playlist_new_items_add_task_dismiss_btn);
+
+        develModeStartFakeAddNewItemsTaskBtn = view.findViewById(R.id.devel_mode_fake_add_new_items_btn);
+        develModeStartFakeAddNewItemsTaskWithErrorBtn = view.findViewById(R.id.devel_mode_fake_add_new_items_with_error_btn);
 
         // set a LinearLayoutManager with default vertical orientation
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
@@ -232,7 +318,6 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
                 return true;
             }
         });
-
 
         checkNewItemsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -248,30 +333,57 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
             }
         });
 
-        newItemsAddRetryBtn.setOnClickListener(new View.OnClickListener() {
+
+        playlistNewItemsAddTaskRetryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addNewItemsBg();
+                PlaylistsImportService.retryPlaylistImportTask(ConfigurePlaylistNewItemsFragment.this.getContext(),
+                        addPlaylistNewItemsTaskId);
             }
         });
 
-        newItemsAddCancelBtn.setOnClickListener(new View.OnClickListener() {
+        playlistNewItemsAddTaskCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                state = State.NEW_ITEMS_LIST_EMPTY;
-                updateControlsVisibility();
-                //updateVideoListBg(playlistId);
+                PlaylistsImportService.cancelPlaylistImportTask(ConfigurePlaylistNewItemsFragment.this.getContext(),
+                        addPlaylistNewItemsTaskId);
             }
         });
 
-        newItemsAddDoneBtn.setOnClickListener(new View.OnClickListener() {
+        playlistNewItemsAddTaskDismissBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                state = State.NEW_ITEMS_LIST_EMPTY;
-                updateControlsVisibility();
-                //updateVideoListBg(playlistId);
+                PlaylistsImportService.dismissPlaylistImportTask(ConfigurePlaylistNewItemsFragment.this.getContext(),
+                        addPlaylistNewItemsTaskId);
             }
         });
+
+        if (ConfigOptions.DEVEL_MODE_ON) {
+            develModeStartFakeAddNewItemsTaskBtn.setVisibility(View.VISIBLE);
+            develModeStartFakeAddNewItemsTaskBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    addPlaylistNewItemsTaskId = PlaylistsImportService.develModeStartFakeTask(
+                            ConfigurePlaylistNewItemsFragment.this.getContext(),
+                            PlaylistImportTask.PlaylistImportTaskType.ADD_NEW_ITEMS_TO_PLAYLIST,
+                            playlistId,
+                            20000, false);
+                }
+            });
+
+            develModeStartFakeAddNewItemsTaskWithErrorBtn.setVisibility(View.VISIBLE);
+            develModeStartFakeAddNewItemsTaskWithErrorBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    updateControlsVisibility();
+                    addPlaylistNewItemsTaskId = PlaylistsImportService.develModeStartFakeTask(
+                            ConfigurePlaylistNewItemsFragment.this.getContext(),
+                            PlaylistImportTask.PlaylistImportTaskType.ADD_NEW_ITEMS_TO_PLAYLIST,
+                            playlistId,
+                            20000, true);
+                }
+            });
+        }
 
         // и здесь же загрузим список видео (если делать это в onResume,
         // то список будет каждый раз сбрасываться при потере фокуса активити)
@@ -279,24 +391,127 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onResume() {
+        super.onResume();
 
-        if(taskController != null) {
-            taskController.cancel();
+        playlistImportServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(final ComponentName name, final IBinder service) {
+                playlistsImportService = ((PlaylistsImportService.PlaylistsImportServiceBinder) service).getService();
+
+                // посмотреть, нет ли запущенных задач обновления, связанных с этим плейлистом
+                // если есть, то загрузим информацию о них
+                final PlaylistImportTask importTask = playlistsImportService.getImportTaskForPlaylist(playlistId);
+                if (importTask != null && importTask.getTaskType() == PlaylistImportTask.PlaylistImportTaskType.ADD_NEW_ITEMS_TO_PLAYLIST) {
+                    addPlaylistNewItemsTaskId = importTask.getId();
+                    taskController = importTask.getTaskController();
+                    taskController.setTaskListener(addNewItemsTaskListener);
+                }
+                updateStateFromTaskController();
+
+                playlistsImportService.setServiceListener(new PlaylistsImportService.PlaylistsImportServiceListener() {
+                    @Override
+                    public void onImportPlaylistTaskAdded(final PlaylistImportTask importTask) {
+                        if (importTask.getPlaylistInfo().getId() == playlistId &&
+                                importTask.getTaskType() == PlaylistImportTask.PlaylistImportTaskType.ADD_NEW_ITEMS_TO_PLAYLIST) {
+                            addPlaylistNewItemsTaskId = importTask.getId();
+                            taskController = importTask.getTaskController();
+                            taskController.setTaskListener(addNewItemsTaskListener);
+                            updateStateFromTaskController();
+                        }
+                    }
+
+                    @Override
+                    public void onImportPlaylistTaskRemoved(final PlaylistImportTask importTask) {
+                        if (importTask.getPlaylistInfo().getId() == playlistId &&
+                                importTask.getTaskType() == PlaylistImportTask.PlaylistImportTaskType.ADD_NEW_ITEMS_TO_PLAYLIST) {
+                            taskController.removeTaskListener(addNewItemsTaskListener);
+                            taskController = null;
+                            addPlaylistNewItemsTaskId = PlaylistImportTask.ID_NONE;
+                            updateStateFromTaskController();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onServiceDisconnected(final ComponentName name) {
+                playlistsImportService.removeServiceListener();
+                playlistsImportService = null;
+                if (taskController != null) {
+                    taskController.removeTaskListener(addNewItemsTaskListener);
+                    taskController = null;
+                }
+            }
+        };
+
+        this.getContext().bindService(
+                new Intent(this.getContext(), PlaylistsImportService.class),
+                playlistImportServiceConnection,
+                Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onPause() {
+        if (playlistsImportService != null) {
+            playlistsImportService.stopIfFinished();
         }
+        this.getContext().unbindService(playlistImportServiceConnection);
+
+        super.onPause();
     }
 
     public void setPlaylistUpdateListener(PlaylistUpdateListener playlistUpdateListener) {
         this.playlistUpdateListener = playlistUpdateListener;
     }
 
+    private void updateStateFromTaskController() {
+        // текущее состояние в зависимости от состояния таск-контроллера
+        if (taskController != null) {
+
+            playlistNewItemsAddTaskStatusTxt.setText(taskController.getStatusMsg());
+            if (taskController.getException() != null) {
+                final Exception e = taskController.getException();
+                playlistNewItemsAddTaskErrorTxt.setText(e.getMessage()
+                        + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
+            }
+
+            switch (taskController.getState()) {
+                case WAIT:
+                    // ожидаение действия пользователя:
+                    // если canceled: dismiss или retry
+                    // если не сanceled и ошибка, то cancel или retry
+                    // если не сanceled и ошибки нет (завершено успешно): dismiss
+                    if (taskController.isCanceled()) {
+                        // canceled
+                        state = State.PLAYLIST_UPDATE_TASK_CANCELED;
+                    } else if (taskController.getException() != null) {
+                        state = State.PLAYLIST_UPDATE_TASK_ERROR;
+                    } else {
+                        // не canceled и нет ошибки, значит задача выполнена
+                        state = State.PLAYLIST_UPDATE_TASK_OK;
+                    }
+                    break;
+                case ENQUEUED:
+                    // в очереди на выполнение
+                    state = State.PLAYLIST_UPDATE_TASK_ENQUEUED;
+                    break;
+                case ACTIVE:
+                    // выполняется
+                    state = State.PLAYLIST_UPDATE_TASK_PROGRESS;
+                    break;
+            }
+        } else {
+            state = State.NEW_ITEMS_LIST_EMPTY;
+        }
+        updateControlsVisibility();
+    }
+
     private void updateControlsVisibility() {
         switch (state){
             case NEW_ITEMS_LIST_EMPTY:
                 playlistItemsView.setVisibility(View.VISIBLE);
-                newItemsAddProgressView.setVisibility(View.GONE);
-                newItemsAddDoneView.setVisibility(View.GONE);
+                playlistNewItemsAddTaskProgressView.setVisibility(View.GONE);
 
                 emptyView.setVisibility(View.VISIBLE);
                 newItemsView.setVisibility(View.GONE);
@@ -310,8 +525,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
                 break;
             case NEW_ITEMS_LIST_LOAD_PROGRESS:
                 playlistItemsView.setVisibility(View.VISIBLE);
-                newItemsAddProgressView.setVisibility(View.GONE);
-                newItemsAddDoneView.setVisibility(View.GONE);
+                playlistNewItemsAddTaskProgressView.setVisibility(View.GONE);
 
                 emptyView.setVisibility(View.VISIBLE);
                 newItemsView.setVisibility(View.GONE);
@@ -325,8 +539,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
                 break;
             case NEW_ITEMS_LIST_LOAD_ERROR:
                 playlistItemsView.setVisibility(View.VISIBLE);
-                newItemsAddProgressView.setVisibility(View.GONE);
-                newItemsAddDoneView.setVisibility(View.GONE);
+                playlistNewItemsAddTaskProgressView.setVisibility(View.GONE);
 
                 emptyView.setVisibility(View.VISIBLE);
                 newItemsView.setVisibility(View.GONE);
@@ -340,35 +553,86 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
                 break;
             case NEW_ITEMS_LIST_LOADED:
                 playlistItemsView.setVisibility(View.VISIBLE);
-                newItemsAddProgressView.setVisibility(View.GONE);
-                newItemsAddDoneView.setVisibility(View.GONE);
+                playlistNewItemsAddTaskProgressView.setVisibility(View.GONE);
 
                 emptyView.setVisibility(View.GONE);
                 newItemsView.setVisibility(View.VISIBLE);
 
                 break;
-            case PLAYLIST_UPDATE_PROGRESS:
-                playlistItemsView.setVisibility(View.GONE);
-                newItemsAddProgressView.setVisibility(View.VISIBLE);
-                newItemsAddDoneView.setVisibility(View.GONE);
 
-                newItemsAddProgress.setVisibility(View.VISIBLE);
-                newItemsAddErrorView.setVisibility(View.GONE);
+            case PLAYLIST_UPDATE_TASK_ENQUEUED:
+                playlistItemsView.setVisibility(View.GONE);
+                playlistNewItemsAddTaskProgressView.setVisibility(View.VISIBLE);
+
+                playlistNewItemsAddTaskEnqueuedTxt.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskStatusTxt.setVisibility(View.GONE);
+                playlistNewItemsAddTaskProgress.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskCanceledTxt.setVisibility(View.GONE);
+                playlistNewItemsAddTaskErrorTxt.setVisibility(View.GONE);
+
+                playlistNewItemsAddTaskRetryBtn.setVisibility(View.GONE);
+                playlistNewItemsAddTaskCancelBtn.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskDismissBtn.setVisibility(View.GONE);
 
                 break;
-            case PLAYLIST_UPDATE_ERROR:
+            case PLAYLIST_UPDATE_TASK_PROGRESS:
                 playlistItemsView.setVisibility(View.GONE);
-                newItemsAddProgressView.setVisibility(View.VISIBLE);
-                newItemsAddDoneView.setVisibility(View.GONE);
+                playlistNewItemsAddTaskProgressView.setVisibility(View.VISIBLE);
 
-                newItemsAddProgress.setVisibility(View.GONE);
-                newItemsAddErrorView.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskEnqueuedTxt.setVisibility(View.GONE);
+                playlistNewItemsAddTaskStatusTxt.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskProgress.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskCanceledTxt.setVisibility(View.GONE);
+                playlistNewItemsAddTaskErrorTxt.setVisibility(View.GONE);
+
+                playlistNewItemsAddTaskRetryBtn.setVisibility(View.GONE);
+                playlistNewItemsAddTaskCancelBtn.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskDismissBtn.setVisibility(View.GONE);
 
                 break;
-            case PLAYLIST_UPDATE_OK:
+            case PLAYLIST_UPDATE_TASK_CANCELED:
                 playlistItemsView.setVisibility(View.GONE);
-                newItemsAddProgressView.setVisibility(View.GONE);
-                newItemsAddDoneView.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskProgressView.setVisibility(View.VISIBLE);
+
+                playlistNewItemsAddTaskEnqueuedTxt.setVisibility(View.GONE);
+                playlistNewItemsAddTaskStatusTxt.setVisibility(View.GONE);
+                playlistNewItemsAddTaskProgress.setVisibility(View.GONE);
+                playlistNewItemsAddTaskCanceledTxt.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskErrorTxt.setVisibility(View.GONE);
+
+                playlistNewItemsAddTaskRetryBtn.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskCancelBtn.setVisibility(View.GONE);
+                playlistNewItemsAddTaskDismissBtn.setVisibility(View.VISIBLE);
+
+                break;
+            case PLAYLIST_UPDATE_TASK_ERROR:
+                playlistItemsView.setVisibility(View.GONE);
+                playlistNewItemsAddTaskProgressView.setVisibility(View.VISIBLE);
+
+                playlistNewItemsAddTaskEnqueuedTxt.setVisibility(View.GONE);
+                playlistNewItemsAddTaskStatusTxt.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskProgress.setVisibility(View.GONE);
+                playlistNewItemsAddTaskCanceledTxt.setVisibility(View.GONE);
+                playlistNewItemsAddTaskErrorTxt.setVisibility(View.VISIBLE);
+
+                playlistNewItemsAddTaskRetryBtn.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskCancelBtn.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskDismissBtn.setVisibility(View.GONE);
+
+                break;
+            case PLAYLIST_UPDATE_TASK_OK:
+                playlistItemsView.setVisibility(View.GONE);
+                playlistNewItemsAddTaskProgressView.setVisibility(View.VISIBLE);
+
+                playlistNewItemsAddTaskEnqueuedTxt.setVisibility(View.GONE);
+                playlistNewItemsAddTaskStatusTxt.setVisibility(View.VISIBLE);
+                playlistNewItemsAddTaskProgress.setVisibility(View.GONE);
+                playlistNewItemsAddTaskCanceledTxt.setVisibility(View.GONE);
+                playlistNewItemsAddTaskErrorTxt.setVisibility(View.GONE);
+
+                playlistNewItemsAddTaskRetryBtn.setVisibility(View.GONE);
+                playlistNewItemsAddTaskCancelBtn.setVisibility(View.GONE);
+                playlistNewItemsAddTaskDismissBtn.setVisibility(View.VISIBLE);
 
                 break;
         }
@@ -377,51 +641,51 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     /**
      * Update video list in background
      *
-     * @param plId
+     * @param playlistId
      */
-    private void updateVideoListBg(final long plId) {
-        // прогресс будет видно до тех пор, пока в адаптер не придут какие-то данные или не
-        // произойдет ошибка
+    private void updateVideoListBg(final long playlistId) {
+        // прогресс будет видно до тех пор, пока в адаптер не придут какие-то данные
+        // или не произойдет ошибка
         checkError = false;
         checkErrorTxt.setText("");
         state = State.NEW_ITEMS_LIST_LOAD_PROGRESS;
         updateControlsVisibility();
 
-        new Thread(new Runnable() {
+        dbAndNetworkExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 // информация из базы данных - загрузится быстро и без интернета
-                plInfo = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getById(plId);
+                playlistInfo = VideoDatabase.getDbInstance(getContext()).playlistInfoDao().getById(playlistId);
 
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        playlistNameTxt.setText(plInfo.getName());
-                        playlistUrlTxt.setText(PlaylistUrlUtil.cleanupUrl(plInfo.getUrl()));
+                        playlistNameTxt.setText(playlistInfo.getName());
+                        playlistUrlTxt.setText(PlaylistUrlUtil.cleanupUrl(playlistInfo.getUrl()));
 
-                        setupVideoListAdapter(plId);
+                        setupVideoListAdapter(playlistId);
                     }
                 });
 
                 // иконка плейлиста - может грузиться подольше, без интернета вообще не загрузится
                 try {
                     final Bitmap plThumb = ThumbManager.getInstance().loadPlaylistThumb(
-                            ConfigurePlaylistNewItemsFragment.this.getContext(), plInfo);
-                    plInfo.setThumbBitmap(plThumb);
+                            ConfigurePlaylistNewItemsFragment.this.getContext(), playlistInfo);
+                    playlistInfo.setThumbBitmap(plThumb);
 
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            playlistThumbImg.setImageBitmap(plInfo.getThumbBitmap());
+                            playlistThumbImg.setImageBitmap(playlistInfo.getThumbBitmap());
                         }
                     });
                 } catch (final Exception e) {
                 }
             }
-        }).start();
+        });
     }
 
-    private void setupVideoListAdapter(final long plId) {
+    private void setupVideoListAdapter(final long playlistId) {
         if (videoItemsLiveData != null) {
             videoItemsLiveData.removeObservers(this);
         }
@@ -478,7 +742,7 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
         final PagedList.Config config = new PagedList.Config.Builder().setPageSize(ConfigOptions.PAGED_LIST_PAGE_SIZE).build();
 
         final DataSource.Factory factory =
-                new VideoItemOnlyNewOnlineDataSourceFactory(this.getContext(), plId, false,
+                new VideoItemOnlyNewOnlineDataSourceFactory(this.getContext(), playlistId, false,
                         new DataSourceListener() {
                             @Override
                             public void onLoadInitialError(final Exception e) {
@@ -521,65 +785,6 @@ public class ConfigurePlaylistNewItemsFragment extends Fragment {
     }
 
     private void addNewItemsBg() {
-        final String playlistUrl = plInfo.getUrl();
-        // канал или плейлист
-        taskController = new TaskController();
-        taskController.setTaskListener(new TaskController.TaskAdapter() {
-            @Override
-            public void onStart() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        newItemsAddStatusTxt.setText(taskController.getStatusMsg());
-                        state = State.PLAYLIST_UPDATE_PROGRESS;
-                        updateControlsVisibility();
-                    }
-                });
-            }
-
-            @Override
-            public void onFinish() {
-                playlistUpdateListener.onPlaylistUpdated();
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(taskController.getException() == null) {
-                            newItemsAddDoneStatusTxt.setText(taskController.getStatusMsg());
-                            state = State.PLAYLIST_UPDATE_OK;
-                        } else {
-                            newItemsAddStatusTxt.setText(taskController.getStatusMsg());
-                            state = State.PLAYLIST_UPDATE_ERROR;
-                        }
-                        updateControlsVisibility();
-                    }
-                });
-            }
-
-            @Override
-            public void onStatusMsgChange(final String status, final Exception e) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        newItemsAddStatusTxt.setText(status);
-                        if (e != null) {
-                            newItemsAddErrorTxt.setText(e.getMessage()
-                                    + (e.getCause() != null ? "\n(" + e.getCause().getMessage() + ")" : ""));
-                            state = State.PLAYLIST_UPDATE_ERROR;
-                            updateControlsVisibility();
-                        }
-                    }
-                });
-            }
-        });
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ContentLoader.getInstance().addPlaylistNewItems(
-                        ConfigurePlaylistNewItemsFragment.this.getContext(),
-                        playlistId, playlistUrl, taskController);
-            }
-        }).start();
+        addPlaylistNewItemsTaskId = PlaylistsImportService.addPlaylistNewItems(this.getContext(), playlistId);
     }
 }

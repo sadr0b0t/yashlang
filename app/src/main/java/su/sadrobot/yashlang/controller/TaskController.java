@@ -17,6 +17,9 @@ package su.sadrobot.yashlang.controller;
  * along with YaShlang.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class TaskController {
 
     public enum TaskState {
@@ -38,31 +41,35 @@ public class TaskController {
     }
 
     public interface TaskListener {
-        void onStart();
+        void onStart(final TaskController taskController);
 
-        void onFinish();
+        void onFinish(final TaskController taskController);
 
-        void onCancel();
+        void onCancel(final TaskController taskController);
 
-        void onStateChange(final TaskState state);
+        void onReset(final TaskController taskController);
 
-        void onProgressChange(final long progress, final long rogressMax);
+        void onStateChange(final TaskController taskController, final TaskState state);
 
-        void onStatusMsgChange(final String statusMsg, final Exception e);
+        void onProgressChange(final TaskController taskController, final long progress, final long rogressMax);
+
+        void onStatusMsgChange(final TaskController taskController, final String statusMsg, final Exception e);
     }
 
     public static class TaskAdapter implements TaskListener {
-        public void onStart() {}
+        public void onStart(final TaskController taskController) {}
 
-        public void onFinish() {}
+        public void onFinish(final TaskController taskController) {}
 
-        public void onCancel() {}
+        public void onCancel(final TaskController taskController) {}
 
-        public void onStateChange(final TaskState state) {}
+        public void onReset(final TaskController taskController) {}
 
-        public void onProgressChange(final long progress, final long progressMax) {}
+        public void onStateChange(final TaskController taskController, final TaskState state) {}
 
-        public void onStatusMsgChange(final String statusMsg, final Exception e) {}
+        public void onProgressChange(final TaskController taskController, final long progress, final long progressMax) {}
+
+        public void onStatusMsgChange(final TaskController taskController, final String statusMsg, final Exception e) {}
     }
 
     public static int PROGRESS_UNDEFINED = -1;
@@ -75,11 +82,22 @@ public class TaskController {
     private long progressMax = PROGRESS_INFINITE;
     private String statusMsg = "";
     private Exception exception;
+    /**
+     * прочие разные атрибуты контроллера, например,
+     * финальный результат выполнения задачи/
+     */
+    private Map<String, Object> attrs = new HashMap<>();
 
     private TaskListener taskListener;
 
     public void setTaskListener(final TaskListener taskListener) {
         this.taskListener = taskListener;
+    }
+
+    public void removeTaskListener(final TaskListener taskListener) {
+        if (this.taskListener == taskListener) {
+            this.taskListener = null;
+        }
     }
 
     public boolean isRunning() {
@@ -89,19 +107,16 @@ public class TaskController {
     public void setRunning(final boolean running) {
         boolean changed = this.running != running;
         this.running = running;
-        // сбросить флаг canceled при запуске (возможно, повторном)
+        // сбросить флаг canceled, статус и ошибку при запуске (возможно, повторном)
         if (running) {
             this.canceled = false;
             this.setStatusMsg("", null);
-            this.setState(TaskState.ACTIVE);
-        } else {
-            this.setState(TaskState.WAIT);
         }
         if (this.taskListener != null && changed) {
             if (running) {
-                this.taskListener.onStart();
+                this.taskListener.onStart(this);
             } else {
-                this.taskListener.onFinish();
+                this.taskListener.onFinish(this);
             }
         }
     }
@@ -111,9 +126,23 @@ public class TaskController {
     }
 
     public void cancel() {
+        cancel("");
+    }
+
+    public void cancel(final String msg) {
         canceled = true;
+        this.setStatusMsg(msg, null);
         if (this.taskListener != null) {
-            taskListener.onCancel();
+            taskListener.onCancel(this);
+        }
+    }
+
+    public void reset() {
+        this.canceled = false;
+        this.running = false;
+        this.setStatusMsg("", null);
+        if (this.taskListener != null) {
+            taskListener.onReset(this);
         }
     }
 
@@ -121,7 +150,7 @@ public class TaskController {
         if (this.state != state) {
             this.state = state;
             if (this.taskListener != null) {
-                taskListener.onStateChange(state);
+                taskListener.onStateChange(this, state);
             }
         }
     }
@@ -138,7 +167,7 @@ public class TaskController {
         this.progress = progress;
 
         if (this.taskListener != null) {
-            taskListener.onProgressChange(progress, progressMax);
+            taskListener.onProgressChange(this, progress, progressMax);
         }
     }
 
@@ -150,7 +179,7 @@ public class TaskController {
         this.progressMax = progressMax;
 
         if (this.taskListener != null) {
-            taskListener.onProgressChange(progress, progressMax);
+            taskListener.onProgressChange(this, progress, progressMax);
         }
     }
 
@@ -163,7 +192,7 @@ public class TaskController {
         this.exception = e;
 
         if (this.taskListener != null) {
-            taskListener.onStatusMsgChange(msg, e);
+            taskListener.onStatusMsgChange(this, msg, e);
         }
     }
 
@@ -173,5 +202,13 @@ public class TaskController {
 
     public Exception getException() {
         return exception;
+    }
+
+    public void setAttr(final String name, final Object attr) {
+        this.attrs.put(name, attr);
+    }
+
+    public Object getAttr(final String name) {
+        return this.attrs.get(name);
     }
 }
