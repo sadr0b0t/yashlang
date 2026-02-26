@@ -622,13 +622,7 @@ public class PlayerService extends Service {
             notificationUpdateTask = null;
         }
 
-//        if (ConfigOptions.DEVEL_MODE_ON) {
-//            System.out.println("PlayerService:onDestroy:stopForeground...");
-//        }
         stopForeground(true);
-//        if (ConfigOptions.DEVEL_MODE_ON) {
-//            System.out.println("PlayerService:onDestroy:stopForeground...DONE");
-//        }
         super.onDestroy();
     }
 
