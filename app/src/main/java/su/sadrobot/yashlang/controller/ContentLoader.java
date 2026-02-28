@@ -232,6 +232,9 @@ public class ContentLoader {
                         throw new RuntimeException(e);
                     }
 
+                    // дадим возможность другим потокам время от времени тоже обращаться к базе
+                    videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
+
                     taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n)
                             .replace("%s", "1"));
                     // загрузить первую страницу - вот здесь может быть долго
@@ -478,8 +481,10 @@ public class ContentLoader {
                         throw new RuntimeException(e);
                     }
 
-                    // список видео страница за страницей
+                    // дадим возможность другим потокам время от времени тоже обращаться к базе
+                    videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
 
+                    // список видео страница за страницей
                     // начинаем с первой страницы
                     taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n)
                             .replace("%s", "1"));
