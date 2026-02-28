@@ -199,6 +199,7 @@ public class PlaylistImportTaskArrayAdapter extends RecyclerView.Adapter<Playlis
                     holder.dismissTaskBtn.setVisibility(View.VISIBLE);
                     holder.cancelTaskBtn.setVisibility(View.GONE);
                 }
+                holder.cancelTaskBtn.setEnabled(true);
                 break;
             case ENQUEUED:
                 // в очереди на выполнение
@@ -212,6 +213,7 @@ public class PlaylistImportTaskArrayAdapter extends RecyclerView.Adapter<Playlis
                 holder.retryTaskBtn.setVisibility(View.GONE);
                 holder.dismissTaskBtn.setVisibility(View.GONE);
                 holder.cancelTaskBtn.setVisibility(View.VISIBLE);
+                holder.cancelTaskBtn.setEnabled(true);
                 break;
             case ACTIVE:
                 // выполняется
@@ -225,6 +227,14 @@ public class PlaylistImportTaskArrayAdapter extends RecyclerView.Adapter<Playlis
                 holder.retryTaskBtn.setVisibility(View.GONE);
                 holder.dismissTaskBtn.setVisibility(View.GONE);
                 holder.cancelTaskBtn.setVisibility(View.VISIBLE);
+
+                if (item.getTaskController().isCanceled()) {
+                    // задача уже отменена, но всё еще выполрняется, т.е. находится в процессе отмены -
+                    // пользовтаель уже нажал кнопку отмена, кликать её повторно нет смысла
+                    holder.cancelTaskBtn.setEnabled(false);
+                } else {
+                    holder.cancelTaskBtn.setEnabled(true);
+                }
                 break;
         }
 
