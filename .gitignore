@@ -35,22 +35,22 @@ captures/
 
 # IntelliJ
 *.iml
-.idea/
-#.idea/workspace.xml
-#.idea/tasks.xml
-#.idea/gradle.xml
-#.idea/assetWizardSettings.xml
-#.idea/dictionaries
-#.idea/libraries
-#.idea/caches
-#.idea/compiler.xml
-#.idea/deploymentTargetSelector.xml
-#.idea/misc.xml
-#.idea/migrations.xml
-#.idea/other.xml
-#.idea/AndroidProjectSystem.xml
-#.idea/deviceManager.xml
-#.idea/runConfigurations.xml
+# вообще, пожалуй, эти вещи в репозитории по большей части не нужны,
+# но некоторые лучше сохранить
+#.idea/
+.idea/compiler.xml
+.idea/deploymentTargetSelector.xml
+# здесь установлена кодировка UTF-8 для файлов .properties,
+# иначе там нельзя оставлять комментарии на русском
+#.idea/encodings.xml
+.idea/gradle.xml
+.idea/migrations.xml
+.idea/misc.xml
+.idea/other.xml
+.idea/vcs.xml
+.idea/workspace.xml
+
+
 
 # Keystore files
 # Uncomment the following line if you do not want to check your keystore files in.
