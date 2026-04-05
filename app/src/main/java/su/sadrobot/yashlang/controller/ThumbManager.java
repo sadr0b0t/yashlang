@@ -115,7 +115,7 @@ public class ThumbManager {
             }
             file.createNewFile();
         }
-        return bm.compress(Bitmap.CompressFormat.JPEG, 90, new FileOutputStream(file));
+        return bm.compress(Bitmap.CompressFormat.PNG, 90, new FileOutputStream(file));
     }
 
     /**

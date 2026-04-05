@@ -32,11 +32,11 @@ public class ThumbCacheFsManager {
 
 
     public static String getFileNameForVideoItem(final VideoItem videoItem) {
-        return "vid-" + videoItem.getId() + ".jpg";
+        return "vid-" + videoItem.getId() + ".png";
     }
 
     public static String getFileNameForPlaylistInfo(final PlaylistInfo plInfo) {
-        return "pl-" + plInfo.getId() + ".jpg";
+        return "pl-" + plInfo.getId() + ".png";
     }
 
     public static File getThumbCacheFileForVideoItem(final Context context, final VideoItem videoItem) {
