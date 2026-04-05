@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace "su.sadrobot.yashlang"
+
     compileSdkVersion 31
 
     defaultConfig {
@@ -28,9 +30,9 @@ android {
     compileOptions {
         // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
-        // Sets Java compatibility to Java 8
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        // Sets Java compatibility to Java 11
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     buildTypes {
@@ -59,7 +61,11 @@ dependencies {
     // > Note: To use NewPipe Extractor in projects with a minSdkVersion below 26, API desugaring is required.
     // https://developer.android.com/studio/write/java8-support#library-desugaring
     // https://developer.android.com/studio/releases/gradle-plugin#updating-plugin
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+
+    // Для нового NewPipeExtractor нужна библиотека desugar_jdk_libs_nio,
+    // а не desugar_jdk_libs, при этом их вместе нельзя использовать -
+    // будет странная ошибка компиляции
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_nio:2.1.5'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.3.1'
@@ -119,6 +125,7 @@ dependencies {
 
     // NewPipe: youtube parser
     // https://github.com/TeamNewPipe/NewPipeExtractor
+    // https://jitpack.io/#TeamNewPipe/NewPipeExtractor/
     // в 0.20.3 появился класс Instant, который появился в API level 26
     // https://developer.android.com/reference/java/time/Instant.html
     // У меня на планшете Самсунг Android 7.1.1 - это API level 25
@@ -130,7 +137,7 @@ dependencies {
     // таки ютюб поломали, апгрейдимся
     // (и дропать старые андроиды не обязательно - для этого есть coreLibraryDesugaringEnabled true)
     // https://developer.android.com/studio/write/java8-support#library-desugaring
-    implementation "com.github.TeamNewPipe:NewPipeExtractor:7e793c11aec46358ccbfd8bcfcf521105f4f093a"
+    implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.26.0"
 
     // google ExoPlayer
     // https://github.com/google/ExoPlayer
@@ -156,7 +163,7 @@ dependencies {
     // (NewPipeExtractor за пределами андроида), зависимости берем отсюда:
     // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/build.gradle
 
-    // nanojson, похоже, патченый - если брать ванильный, то будет вылетат экстрактер потоков на десктопе
+    // nanojson, похоже, патченый - если брать ванильный, то будет вылетать экстрактер потоков на десктопе
     // https://github.com/mmastrac/nanojson
     //testImplementation group: 'com.grack', name: 'nanojson', version: '1.7'
     testImplementation "com.github.TeamNewPipe:nanojson"
@@ -166,6 +173,7 @@ dependencies {
     // нашел их где-то на мйевене и догадался вставить значения разрабочк:библиотека оттуда
     // https://mvnrepository.com/artifact/org.mozilla/rhino
     // плюс есть в зависимостях NewPipeExtractor
+    // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/gradle/libs.versions.toml
     testImplementation 'org.mozilla:rhino:1.7.13'
 
     // https://github.com/robinst/autolink-java

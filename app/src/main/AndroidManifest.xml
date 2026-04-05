@@ -22,7 +22,8 @@
             android:name=".Glagna"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/yashlang"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

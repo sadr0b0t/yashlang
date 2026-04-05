@@ -261,4 +261,5 @@
     <string name="task_status_msg_error_loading_playlist_page_retry_count_exceeded">Error loading page, retry count exceeded</string>
     <string name="task_status_msg_playlist_added_n_items">Added %s items</string>
     <string name="task_status_msg_unexpected_db_problem">UNEXPECTED DB problem</string>
+    <string name="task_status_msg_unexpected_import_playlist_problem">UNEXPECTED import playlist problem</string>
 </resources>

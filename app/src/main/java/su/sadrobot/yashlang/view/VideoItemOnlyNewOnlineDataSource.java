@@ -77,14 +77,14 @@ public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDat
             // Выкачать список видео с 1-й страницы канала
             NewPipe.init(DownloaderTestImpl.getInstance());
 
-            extractor = ContentLoader.getInstance().getListExtractor(playlistUrl);
+            extractor = ContentLoader.getInstance().getListExtractor(playlistUrl).getStreamInfoItemListExtractor();
 
             // загрузить первую страницу
             extractor.fetchPage();
             loadedPage = extractor.getInitialPage();
 
             // загрузили страницу, проверим, есть ли на ней новые элементы
-            final List<StreamInfoItem> pageNewItems = new ArrayList<StreamInfoItem>();
+            final List<StreamInfoItem> pageNewItems = new ArrayList<>();
 
             for (final StreamInfoItem item : loadedPage.getItems()) {
                 if (VideoDatabase.getDbInstance(context).videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
@@ -96,7 +96,7 @@ public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDat
             }
 
             // можно обновлять список
-            if(pageNewItems.size() > 0) {
+            if (pageNewItems.size() > 0) {
                 final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(pageNewItems, playlistId);
                 if (loadThumbs) {
                     ThumbManager.getInstance().loadVideoThumbs(context, videoItems);
@@ -104,12 +104,12 @@ public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDat
                 callback.onResult(videoItems);
             }
         } catch (final ExtractionException | IOException e) {
-            if(dataSourceListener != null) {
+            if (dataSourceListener != null) {
                 dataSourceListener.onLoadInitialError(e);
             }
         } catch (final Exception e) {
             // было дело - словили непредвиденный NullPointer
-            if(dataSourceListener != null) {
+            if (dataSourceListener != null) {
                 dataSourceListener.onLoadInitialError(e);
             }
         }
@@ -117,7 +117,7 @@ public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDat
 
     @Override
     public void loadAfter(@NonNull LoadParams<String> params, @NonNull LoadCallback<VideoItem> callback) {
-        if(!foundOld && loadedPage.hasNextPage() ) {
+        if (!foundOld && loadedPage.hasNextPage() ) {
             boolean done = false;
             // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
             // ошибку вместо страницы
@@ -135,7 +135,7 @@ public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDat
 
             if (done) {
                 // загрузили страницу, проверим, есть ли на ней новые элементы
-                final List<StreamInfoItem> pageNewItems = new ArrayList<StreamInfoItem>();
+                final List<StreamInfoItem> pageNewItems = new ArrayList<>();
 
                 for (final StreamInfoItem item : loadedPage.getItems()) {
                     if (VideoDatabase.getDbInstance(context).videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
@@ -146,7 +146,7 @@ public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDat
                     }
                 }
 
-                if(pageNewItems.size() > 0) {
+                if (pageNewItems.size() > 0) {
                     final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(pageNewItems, playlistId);
                     if (loadThumbs) {
                         ThumbManager.getInstance().loadVideoThumbs(context, videoItems);
@@ -156,7 +156,7 @@ public class VideoItemOnlyNewOnlineDataSource extends AbstractVideoItemOnlineDat
             } else {
                 // страница так и не загрузилась
                 //throw new RuntimeException("Error loading page, retry count exceeded");
-                if(dataSourceListener != null) {
+                if (dataSourceListener != null) {
                     dataSourceListener.onLoadAfterError(new IOException("Error loading page, retry count exceeded", retryEx));
                 }
             }

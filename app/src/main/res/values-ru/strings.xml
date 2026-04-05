@@ -261,4 +261,5 @@
     <string name="task_status_msg_error_loading_playlist_page_retry_count_exceeded">Ошибка загрузки страницы, превышено количество повторных попыток</string>
     <string name="task_status_msg_playlist_added_n_items">Добавили %s элементов</string>
     <string name="task_status_msg_unexpected_db_problem">НЕОЖИДАННАЯ проблема БД</string>
+    <string name="task_status_msg_unexpected_import_playlist_problem">НЕОЖИДАННАЯ проблема при импортировании плейлиста</string>
 </resources>

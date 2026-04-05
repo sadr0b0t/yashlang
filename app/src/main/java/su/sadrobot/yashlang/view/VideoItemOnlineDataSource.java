@@ -59,7 +59,7 @@ public class VideoItemOnlineDataSource extends AbstractVideoItemOnlineDataSource
             // Выкачать список видео с 1-й страницы канала
             NewPipe.init(DownloaderTestImpl.getInstance());
 
-            extractor = ContentLoader.getInstance().getListExtractor(playlistUrl);
+            extractor = ContentLoader.getInstance().getListExtractor(playlistUrl).getStreamInfoItemListExtractor();
 
             // загрузить первую страницу
             extractor.fetchPage();
@@ -67,12 +67,12 @@ public class VideoItemOnlineDataSource extends AbstractVideoItemOnlineDataSource
 
             // загрузили, можно обновлять список
             final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(loadedPage.getItems());
-            if(loadThumbs) {
+            if (loadThumbs) {
                 ThumbManager.getInstance().loadVideoThumbs(context, videoItems);
             }
             callback.onResult(videoItems);
         } catch (ExtractionException | IOException e) {
-            if(dataSourceListener != null) {
+            if (dataSourceListener != null) {
                 dataSourceListener.onLoadInitialError(e);
             }
         }
@@ -80,7 +80,7 @@ public class VideoItemOnlineDataSource extends AbstractVideoItemOnlineDataSource
 
     @Override
     public void loadAfter(@NonNull LoadParams<String> params, @NonNull LoadCallback<VideoItem> callback) {
-        if(loadedPage.hasNextPage() ) {
+        if (loadedPage.hasNextPage() ) {
             boolean done = false;
             // количество повторных попыток, т.к. гугл может (и будет) время от времени возвращать
             // ошибку вместо страницы
@@ -99,7 +99,7 @@ public class VideoItemOnlineDataSource extends AbstractVideoItemOnlineDataSource
             if (done) {
                 // загрузили страницу, можно обновлять список
                 final List<VideoItem> videoItems = ContentLoader.getInstance().extractVideoItems(loadedPage.getItems());
-                if(loadThumbs) {
+                if (loadThumbs) {
                     ThumbManager.getInstance().loadVideoThumbs(context, videoItems);
                 }
                 callback.onResult(videoItems);
@@ -107,7 +107,7 @@ public class VideoItemOnlineDataSource extends AbstractVideoItemOnlineDataSource
             } else {
                 // страница так и не загрузилась
                 //throw new RuntimeException("Error loading page, retry count exceeded");
-                if(dataSourceListener != null) {
+                if (dataSourceListener != null) {
                     dataSourceListener.onLoadAfterError(new IOException("Error loading page, retry count exceeded", retryEx));
                 }
             }

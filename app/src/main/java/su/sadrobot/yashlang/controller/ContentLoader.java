@@ -22,14 +22,18 @@ import android.content.Context;
 import android.database.SQLException;
 
 import org.schabi.newpipe.DownloaderTestImpl;
+import org.schabi.newpipe.extractor.Image;
 import org.schabi.newpipe.extractor.InfoItem;
 import org.schabi.newpipe.extractor.ListExtractor;
 import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.channel.ChannelExtractor;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
+import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler;
 import org.schabi.newpipe.extractor.playlist.PlaylistExtractor;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
+import org.schabi.newpipe.extractor.services.peertube.linkHandler.PeertubeChannelLinkHandlerFactory;
+import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeChannelLinkHandlerFactory;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
@@ -55,7 +59,7 @@ import static org.schabi.newpipe.extractor.ServiceList.YouTube;
 
 public class ContentLoader {
 
-    private static ContentLoader _instance;
+    private static final ContentLoader _instance;
 
     static {
         _instance = new ContentLoader();
@@ -69,6 +73,75 @@ public class ContentLoader {
     }
 
     public static final String TASK_CONTROLLER_ATTR_PLAYLIST_ID = "TASK_CONTROLLER_ATTR_PLAYLIST_ID";
+
+    public class InterruptTransactionException extends RuntimeException {
+        public InterruptTransactionException(final String message, final Exception cause) {
+            super(message, cause);
+        }
+
+        public InterruptTransactionException(final String message) {
+            super(message);
+        }
+
+        public InterruptTransactionException(final Exception cause) {
+            super(cause);
+        }
+    }
+
+    public class PlaylistExtractorBundle {
+        private ChannelExtractor channelExtractor;
+        private PlaylistExtractor playlistExtractor;
+        private ListExtractor<StreamInfoItem> streamInfoItemListExtractor;
+
+        PlaylistExtractorBundle(ChannelExtractor channelExtractor,
+                            ListExtractor<StreamInfoItem> streamInfoItemListExtractor) {
+            this.channelExtractor = channelExtractor;
+            this.streamInfoItemListExtractor = streamInfoItemListExtractor;
+        }
+
+        PlaylistExtractorBundle(PlaylistExtractor playlistExtractor) {
+            this.playlistExtractor = playlistExtractor;
+            this.streamInfoItemListExtractor = playlistExtractor;
+        }
+
+        public ChannelExtractor getChannelExtractor() {
+            return channelExtractor;
+        }
+
+        public PlaylistExtractor getPlaylistExtractor() {
+            return playlistExtractor;
+        }
+        public ListExtractor<StreamInfoItem> getStreamInfoItemListExtractor() {
+            return streamInfoItemListExtractor;
+        }
+    }
+
+    /**
+     * Выбрать иконку с максимальным размером (будем ориентироваться на ширину)
+     * @param thumbs
+     * @return
+     */
+    private Image findBestThumb(final List<Image> thumbs) {
+        Image plThumb = null;
+        for (final Image thumb : thumbs) {
+            if (plThumb == null) {
+                plThumb = thumb;
+            } else if (plThumb.getWidth() < thumb.getWidth()) {
+                plThumb = thumb;
+            }
+        }
+        return plThumb;
+    }
+
+    /**
+     * Выбрать иконку с максимальным размером (будем ориентироваться на ширину)
+     * @param thumbs
+     * @return
+     */
+    private String findBestThumbUrl(final List<Image> thumbs) {
+        final Image plThumb = findBestThumb(thumbs);
+        return plThumb != null ? plThumb.getUrl() : "";
+    }
 
     /**
      * Ищем каналы и плейлисты по имени. В выдачу сначала добавляем каналы, потом плейлисты.
@@ -84,13 +157,13 @@ public class ContentLoader {
         // https://github.com/TeamNewPipe/NewPipeExtractor/blob/dev/extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubePlaylistExtractorTest.java
 
 
-        final List<PlaylistInfo> playlists = new ArrayList<PlaylistInfo>();
-        final List<InfoItem> pageItems = new ArrayList<InfoItem>();
+        final List<PlaylistInfo> playlists = new ArrayList<>();
+        final List<InfoItem> pageItems = new ArrayList<>();
 
         NewPipe.init(DownloaderTestImpl.getInstance());
 
         // с YouTube работает только 1й элемент (см YoutubeSearchQueryHandlerFactory.getUrl)
-        final List<String> contentFilters = new ArrayList<String>();
+        final List<String> contentFilters = new ArrayList<>();
         contentFilters.add(YoutubeSearchQueryHandlerFactory.CHANNELS);
         SearchExtractor extractor = YouTube.getSearchExtractor(sstr, contentFilters, "");
         extractor.fetchPage();
@@ -109,7 +182,7 @@ public class ContentLoader {
                     infoItem.getInfoType() == InfoItem.InfoType.PLAYLIST) {
                 final String plName = infoItem.getName();
                 final String plUrl = infoItem.getUrl();
-                final String plThumbUrl = infoItem.getThumbnailUrl();
+                final String plThumbUrl = findBestThumb(infoItem.getThumbnails()).getUrl();
                 final PlaylistInfo.PlaylistType plType;
                 if (infoItem.getInfoType() == InfoItem.InfoType.CHANNEL) {
                     plType = PlaylistInfo.PlaylistType.YT_CHANNEL;
@@ -134,25 +207,32 @@ public class ContentLoader {
         NewPipe.init(DownloaderTestImpl.getInstance());
 
         final PlaylistInfo.PlaylistType plType = getPlaylistType(plUrl);
-        final ListExtractor<StreamInfoItem> extractor = getListExtractor(plUrl);
-
-        // грузим реально страницу здесь
-        extractor.fetchPage();
+        final PlaylistExtractorBundle extractorBundle = getListExtractor(plUrl);
 
         // заберем со страницы то, что нам нужно
-        final String plName = extractor.getName();
+        final String plName;
         final String plThumbUrl;
+        final List<Image> plThumbs;
 
-        if (extractor instanceof ChannelExtractor) {
-            // Хак: выбрать разрмер побольше для иконки YouTube
-            // Для PeerTube это просто ничего не сделает
-            plThumbUrl = PlaylistUrlUtil.fixYtChannelAvatarSize(((ChannelExtractor) extractor).getAvatarUrl());
-        } else if (extractor instanceof PlaylistExtractor) {
-            plThumbUrl = ((PlaylistExtractor) extractor).getThumbnailUrl();
+        if (extractorBundle.getChannelExtractor() != null) {
+            // грузим реально страницу здесь
+            extractorBundle.getChannelExtractor().fetchPage();
+
+            plName = extractorBundle.getChannelExtractor().getName();
+            plThumbs = extractorBundle.getChannelExtractor().getAvatars();
+        } else if (extractorBundle.getPlaylistExtractor() != null) {
+            // грузим реально страницу здесь
+            extractorBundle.getPlaylistExtractor().fetchPage();
+
+            plName = extractorBundle.getPlaylistExtractor().getName();
+            plThumbs = extractorBundle.getPlaylistExtractor().getThumbnails();
         } else {
             // мы сюда никогда не попадем, но ладно
             throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
         }
+
+        // Выбрать иконку с максимальным размером (будем ориентироваться на ширину)
+        plThumbUrl = findBestThumbUrl(plThumbs);
 
         return new PlaylistInfo(plName, plUrl, plThumbUrl, plType);
     }
@@ -222,14 +302,14 @@ public class ContentLoader {
                     NewPipe.init(DownloaderTestImpl.getInstance());
 
                     final PlaylistInfo.PlaylistType plType;
-                    final ListExtractor<StreamInfoItem> extractor;
+                    final PlaylistExtractorBundle extractorBundle;
                     taskController.setStatusMsg(context.getString(R.string.task_status_msg_init_playlist_loader));
                     try {
                         plType = getPlaylistType(plUrl);
-                        extractor = getListExtractor(plUrl);
+                        extractorBundle = getListExtractor(plUrl);
                     } catch (ExtractionException e) {
                         taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
-                        throw new RuntimeException(e);
+                        throw new InterruptTransactionException(e);
                     }
 
                     // дадим возможность другим потокам время от времени тоже обращаться к базе
@@ -237,79 +317,116 @@ public class ContentLoader {
 
                     taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n)
                             .replace("%s", "1"));
-                    // загрузить первую страницу - вот здесь может быть долго
+
+                    // Сначала нужно загрузить главную страницу канала,
+                    // чтобы получить из нее имя канала и иконку
+                    // Это может занять некоторое время
+                    final String plName;
+                    final String plThumbUrl;
+                    final List<Image> plThumbs;
                     try {
-                        extractor.fetchPage();
+                        if (extractorBundle.getChannelExtractor() != null) {
+                            // грузим реально страницу канала здесь - здесь может быть долго
+                            extractorBundle.getChannelExtractor().fetchPage();
+
+                            plName = extractorBundle.getChannelExtractor().getName();
+                            plThumbs = extractorBundle.getChannelExtractor().getAvatars();
+                        } else if (extractorBundle.getPlaylistExtractor() != null) {
+                            // грузим реально страницу канала здесь - здесь может быть долго
+                            extractorBundle.getPlaylistExtractor().fetchPage();
+
+                            plName = extractorBundle.getPlaylistExtractor().getName();
+                            plThumbs = extractorBundle.getPlaylistExtractor().getThumbnails();
+                        } else {
+                            // мы сюда никогда не попадем, но ладно
+                            throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
+                        }
                     } catch (IOException | ExtractionException e) {
                         // если в процессе выкачивания пользователь нажал отменить задание,
                         // статус отмены задания приоритетнее произошедшей ошибки
                         if (taskController.isCanceled()) {
-                            final RuntimeException e1 = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                            throw e1;
+                            throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                         } else {
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
-                            throw new RuntimeException(e);
+                            throw new InterruptTransactionException(e);
                         }
                     }
 
-                    // выкачивали страницу некоторое время, в течение которого могли успеть
-                    // отменить задачу (кнопкой или закрыв экран)
-                    if (taskController.isCanceled()) {
-                        final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
-                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                        throw e;
-                    }
-
-                    // имя канала
-                    final String plName;
-                    final String plThumbUrl;
-                    try {
-                        plName = extractor.getName();
-                        if (extractor instanceof ChannelExtractor) {
-                            // Хак: выбрать разрмер побольше для иконки YouTube
-                            // Для PeerTube это просто ничего не сделает
-                            plThumbUrl = PlaylistUrlUtil.fixYtChannelAvatarSize(((ChannelExtractor) extractor).getAvatarUrl());
-                        } else if (extractor instanceof PlaylistExtractor) {
-                            plThumbUrl = ((PlaylistExtractor) extractor).getThumbnailUrl();
-                        } else {
-                            plThumbUrl = "";
-                        }
-                    } catch (ParsingException e) {
-                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
-                        throw new RuntimeException(e);
-                    }
+                    // Выбрать иконку с максимальным размером (будем ориентироваться на ширину)
+                    plThumbUrl = findBestThumbUrl(plThumbs);
 
                     // создадим запись в таблице плейлистов, чтобы был id
                     final long _plId = videodb.playlistInfoDao().insert(
                             new PlaylistInfo(plName, plUrl, plThumbUrl, plType));
 
-                    // качаем список видео страница за страницей
-                    // начинаем с первой страницы
-                    ListExtractor.InfoItemsPage<StreamInfoItem> nextPage;
+                    // выкачивали страницу некоторое время, в течение которого
+                    // могли успеть отменить задачу
+                    if (taskController.isCanceled()) {
+                        taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
+                        throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
+                    }
+
+                    // дадим возможность другим потокам время от времени тоже обращаться к базе
+                    videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
+
+                    // Теперь загрузим первую страницу со списком роликов - вот здесь может быть долго
+                    // Для каналов список страница с информацией о канале и страница со списком роликов - разные страницы,
+                    // поэтому страницу со списком роликов нужно загрузить
+                    // Для плейлистов страница с информацией о плейлисте и страница со списком роликов - одна и та же страница,
+                    // поэтому для плейлиста первую страницу со списком роликов еще раз не грузим
+                    if (extractorBundle.getChannelExtractor() != null) {
+                        try {
+                            extractorBundle.getStreamInfoItemListExtractor().fetchPage();
+                        } catch (IOException | ExtractionException e) {
+                            // если в процессе выкачивания пользователь нажал отменить задание,
+                            // статус отмены задания приоритетнее произошедшей ошибки
+                            if (taskController.isCanceled()) {
+                                taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
+                                throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
+                            } else {
+                                taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
+                                throw new InterruptTransactionException(e);
+                            }
+                        }
+
+                        // выкачивали страницу некоторое время, в течение которого
+                        // могли успеть отменить задачу
+                        if (taskController.isCanceled()) {
+                            taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
+                            throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
+                        }
+
+                        // дадим возможность другим потокам время от времени тоже обращаться к базе
+                        videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
+                    }
+
+                    // Теперь качаем список видео и добавляем в базу страница за страницей
+                    // начинаем с первой страницы (она уже выкачана выше)
+                    ListExtractor.InfoItemsPage<? extends InfoItem> nextPage;
                     try {
-                        nextPage = extractor.getInitialPage();
+                        nextPage = extractorBundle.getStreamInfoItemListExtractor().getInitialPage();
                     } catch (IOException | ExtractionException e) {
                         taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
-                        throw new RuntimeException(e);
+                        throw new InterruptTransactionException(e);
                     }
 
                     int videoItemCount = 0;
                     int fakeTimestamp = ConfigOptions.FAKE_TIMESTAMP_BLOCK_SIZE;
 
-                    final List<StreamInfoItem> pageItems = new ArrayList<StreamInfoItem>();
+                    final List<InfoItem> pageItems = new ArrayList<>();
                     pageItems.addAll(nextPage.getItems());
-                    final List<VideoItem> videoItems = new ArrayList<VideoItem>();
+                    final List<VideoItem> videoItems = new ArrayList<>();
 
                     // теперь загружаем все ролики - здесь 1-я страница
                     // Пропустить несколько первых роликов - для ConfigOptions.DEVEL_MODE_ON
                     int skipItems = 25;
-                    for (StreamInfoItem item : pageItems) {
+                    for (final InfoItem item : pageItems) {
                         if (ConfigOptions.DEVEL_MODE_ON && skipItems > 0) {
                             // пропустим несколько первых, чтобы потестить loadNewPlaylistItems
                             skipItems--;
                         } else {
-                            videoItems.add(extractVideoItem(item, _plId, true, fakeTimestamp));
+                            videoItems.add(extractVideoItem((StreamInfoItem) item, _plId, true, fakeTimestamp));
                             fakeTimestamp--;
 
                             videoItemCount++;
@@ -328,9 +445,8 @@ public class ContentLoader {
                         videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
 
                         if (taskController.isCanceled()) {
-                            final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                            throw e;
+                            throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                         }
 
                         pageItems.clear();
@@ -347,13 +463,16 @@ public class ContentLoader {
                         Exception retryEx = null;
                         while (!done && retryCount > 0) {
                             if (taskController.isCanceled()) {
-                                final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                                 taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                                throw e;
+                                throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                             }
+
+                            // дадим возможность другим потокам время от времени тоже обращаться к базе
+                            videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
+
                             try {
                                 // здесь тоже долго
-                                nextPage = extractor.getPage(nextPage.getNextPage());
+                                nextPage = extractorBundle.getStreamInfoItemListExtractor().getPage(nextPage.getNextPage());
                                 done = true;
                             } catch (Exception e) {
                                 taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_retry_c)
@@ -365,9 +484,8 @@ public class ContentLoader {
                                 // сделаем паузу перед следующей попыткой
                                 // (но сначала еще раз проверим, не было ли отмены)
                                 if (taskController.isCanceled()) {
-                                    final RuntimeException e1 = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                                     taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                                    throw e1;
+                                    throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                                 }
                                 try {
                                     Thread.sleep(ConfigOptions.LOAD_PAGE_RETRY_TIMEOUT_MILLIS);
@@ -378,17 +496,16 @@ public class ContentLoader {
                         }
 
                         if (taskController.isCanceled()) {
-                            final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                            throw e;
+                            throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                         }
 
                         if (done) {
                             // загрузили страницу
                             pageItems.addAll(nextPage.getItems());
 
-                            for (final StreamInfoItem item : pageItems) {
-                                videoItems.add(extractVideoItem(item, _plId, true, fakeTimestamp));
+                            for (final InfoItem item : pageItems) {
+                                videoItems.add(extractVideoItem((StreamInfoItem)item, _plId, true, fakeTimestamp));
                                 fakeTimestamp--;
                                 videoItemCount++;
                             }
@@ -401,22 +518,28 @@ public class ContentLoader {
                             final Exception e = new IOException(context.getString(R.string.task_status_msg_error_loading_playlist_page_retry_count_exceeded), retryEx);
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_error)
                                             .replace("%s", String.valueOf(page_n)), e);
-                            throw new RuntimeException(context.getString(R.string.task_status_msg_error_loading_playlist_page_retry_count_exceeded), e);
+                            throw new InterruptTransactionException(context.getString(R.string.task_status_msg_error_loading_playlist_page_retry_count_exceeded), e);
                         }
                     }
 
-                    // ставим pId здесь, т.к. здесь уже точно все в порядке
+                    // ставим plId здесь, т.к. здесь уже точно все в порядке
                     plId.set(_plId);
                     taskController.setStatusMsg(context.getString(R.string.task_status_msg_playlist_added_n_items)
                             .replace("%s", String.valueOf(videoItemCount)));
                 }
             });
-        } catch (SQLException e) {
+        } catch (final InterruptTransactionException e) {
+            // штатное прерывание транзакции из-за ошибки в процессе выполнения или отмены
+            // (если была ошибка, то она уже поймана внутри)
+            // статус taskController уже выставлен внутри
+        } catch (final SQLException e) {
+            // нештатная ошибка обращения к базе данных внутри транзакции
             taskController.setStatusMsg(context.getString(R.string.task_status_msg_unexpected_db_problem), e);
             e.printStackTrace();
-        } catch (Exception e) {
-            // нам все-таки нужно поймать здесь RuntimeException,
-            // статус taskController уже выставлен внутри
+        }  catch (final Exception e) {
+            // нештатная ошибка внутри транзакции
+            taskController.setStatusMsg(context.getString(R.string.task_status_msg_unexpected_import_playlist_problem), e);
+            e.printStackTrace();
         }
         taskController.setAttr(TASK_CONTROLLER_ATTR_PLAYLIST_ID, plId.get());
         taskController.setRunning(false);
@@ -470,15 +593,15 @@ public class ContentLoader {
 
                     final PlaylistInfo playlistInfo = videodb.playlistInfoDao().getById(playlistId);
 
-                    final List<VideoItem> videoItems = new ArrayList<VideoItem>();
+                    final List<VideoItem> videoItems = new ArrayList<>();
 
                     NewPipe.init(DownloaderTestImpl.getInstance());
-                    final ListExtractor<StreamInfoItem> extractor;
+                    final PlaylistExtractorBundle extractorBundle;
                     try {
-                        extractor = getListExtractor(playlistInfo.getUrl());
+                        extractorBundle = getListExtractor(playlistInfo.getUrl());
                     } catch (ExtractionException e) {
                         taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
-                        throw new RuntimeException(e);
+                        throw new InterruptTransactionException(e);
                     }
 
                     // дадим возможность другим потокам время от времени тоже обращаться к базе
@@ -490,40 +613,41 @@ public class ContentLoader {
                             .replace("%s", "1"));
                     // загрузить первую страницу - вот здесь может быть долго
                     try {
-                        extractor.fetchPage();
+                        extractorBundle.getStreamInfoItemListExtractor().fetchPage();
                     } catch (IOException | ExtractionException e) {
                         // если в процессе выкачивания пользователь нажал отменить задание,
                         // статус отмены задания приоритетнее произошедшей ошибки
                         if (taskController.isCanceled()) {
-                            final RuntimeException e1 = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                            throw e1;
+                            throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                         } else {
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
-                            throw new RuntimeException(e);
+                            throw new InterruptTransactionException(e);
                         }
                     }
 
-                    // выкачивали страницу некоторое время, в течение которого могли успеть
-                    // отменить задачу (кнопкой или закрыв экран)
+                    // выкачивали страницу некоторое время, в течение которого
+                    // могли успеть отменить задачу
                     if (taskController.isCanceled()) {
-                        final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                         taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                        throw e;
+                        throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                     }
+
+                    // дадим возможность другим потокам время от времени тоже обращаться к базе
+                    videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
 
                     ListExtractor.InfoItemsPage<StreamInfoItem> nextPage;
                     try {
-                        nextPage = extractor.getInitialPage();
+                        nextPage = extractorBundle.getStreamInfoItemListExtractor().getInitialPage();
                     } catch (IOException | ExtractionException e) {
                         taskController.setStatusMsg(context.getString(R.string.task_status_msg_error_loading_playlist), e);
-                        throw new RuntimeException(e);
+                        throw new InterruptTransactionException(e);
                     }
 
                     long fakeTimestamp = videodb.videoItemDao().getMaxFakeTimestamp(playlistId) + ConfigOptions.FAKE_TIMESTAMP_BLOCK_SIZE;
                     final boolean plEnabled = videodb.playlistInfoDao().isEnabled(playlistId);
 
-                    final List<StreamInfoItem> pageItems = new ArrayList<StreamInfoItem>();
+                    final List<StreamInfoItem> pageItems = new ArrayList<>();
                     pageItems.addAll(nextPage.getItems());
 
                     boolean foundOld = false;
@@ -551,10 +675,12 @@ public class ContentLoader {
                     int page_n = 1;
                     while (!foundOld && nextPage.hasNextPage()) {
                         if (taskController.isCanceled()) {
-                            final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                            throw e;
+                            throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                         }
+
+                        // дадим возможность другим потокам время от времени тоже обращаться к базе
+                        videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
 
                         pageItems.clear();
                         videoItems.clear();
@@ -570,12 +696,18 @@ public class ContentLoader {
                         Exception retryEx = null;
                         while (!done && retryCount > 0) {
                             if (taskController.isCanceled()) {
-                                final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                                 taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                                throw e;
+                                throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                             }
+
+                            // дадим возможность другим потокам время от времени тоже обращаться к базе
+                            videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
+
+                            // дадим возможность другим потокам время от времени тоже обращаться к базе
+                            videodb.getOpenHelper().getWritableDatabase().yieldIfContendedSafely();
+
                             try {
-                                nextPage = extractor.getPage(nextPage.getNextPage());
+                                nextPage = extractorBundle.getStreamInfoItemListExtractor().getPage(nextPage.getNextPage());
                                 done = true;
                             } catch (IOException | ExtractionException e) {
                                 taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_retry_c)
@@ -588,9 +720,8 @@ public class ContentLoader {
                                 // сделаем паузу перед следующей попыткой
                                 // (но сначала еще раз проверим, не было ли отмены)
                                 if (taskController.isCanceled()) {
-                                    final RuntimeException e1 = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                                     taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                                    throw e1;
+                                    throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                                 }
                                 try {
                                     Thread.sleep(ConfigOptions.LOAD_PAGE_RETRY_TIMEOUT_MILLIS);
@@ -601,9 +732,8 @@ public class ContentLoader {
                         }
 
                         if (taskController.isCanceled()) {
-                            final RuntimeException e = new RuntimeException(context.getString(R.string.task_status_msg_task_canceled));
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_task_canceled));
-                            throw e;
+                            throw new InterruptTransactionException(context.getString(R.string.task_status_msg_task_canceled));
                         }
 
                         if (done) {
@@ -630,7 +760,7 @@ public class ContentLoader {
                             final Exception e = new IOException(context.getString(R.string.task_status_msg_error_loading_playlist_page_retry_count_exceeded), retryEx);
                             taskController.setStatusMsg(context.getString(R.string.task_status_msg_loading_playlist_page_n_error)
                                     .replace("%s", String.valueOf(page_n)), e);
-                            throw new RuntimeException(context.getString(R.string.task_status_msg_error_loading_playlist_page_retry_count_exceeded));
+                            throw new InterruptTransactionException(context.getString(R.string.task_status_msg_error_loading_playlist_page_retry_count_exceeded));
                         }
                     }
 
@@ -638,14 +768,21 @@ public class ContentLoader {
                             .replace("%s", String.valueOf(videoItemCount[0])));
                 }
             });
-        } catch (SQLException e) {
+        } catch (final InterruptTransactionException e) {
             videoItemCount[0] = -1;
+            // штатное прерывание транзакции из-за ошибки в процессе выполнения или отмены
+            // (если была ошибка, то она уже поймана внутри)
+            // статус taskController уже выставлен внутри
+        } catch (final SQLException e) {
+            videoItemCount[0] = -1;
+            // нештатная ошибка обращения к базе данных внутри транзакции
             taskController.setStatusMsg(context.getString(R.string.task_status_msg_unexpected_db_problem), e);
             e.printStackTrace();
-        } catch (Exception e) {
+        }  catch (final Exception e) {
             videoItemCount[0] = -1;
-            // нам все-таки нужно поймать здесь RuntimeException,
-            // статус taskController уже выставлен внутри
+            // нештатная ошибка внутри транзакции
+            taskController.setStatusMsg(context.getString(R.string.task_status_msg_unexpected_import_playlist_problem), e);
+            e.printStackTrace();
         }
 
         // здесь false
@@ -702,22 +839,48 @@ public class ContentLoader {
                 StreamHelper.toStreamInfoListFromAudioList(extractor.getAudioStreams()));
     }
 
-    public ListExtractor<StreamInfoItem> getListExtractor(final String plUrl) throws ExtractionException {
-        final ListExtractor<StreamInfoItem> extractor;
+    public PlaylistExtractorBundle getListExtractor(final String plUrl) throws ExtractionException {
+        // В NewPipeExtractor v0.23.0 ролики в канале нужно получать не через
+        // ChannelExtractor, а через ChannedTabExtractor, который возвращает не
+        // ListExtractor<StreamInfoItem>, а ListExtractor<InfoItem>
+        // https://github.com/TeamNewPipe/NewPipeExtractor/releases/tag/v0.23.0
+        // https://github.com/TeamNewPipe/NewPipeExtractor/pull/1082
+        final PlaylistExtractorBundle extratorBundle;
 
         if (PlaylistUrlUtil.isYtUser(plUrl) || PlaylistUrlUtil.isYtChannel(plUrl)) {
-            extractor = YouTube.getChannelExtractor(plUrl);
+            final ListLinkHandler channelListLinkHandler = YoutubeChannelLinkHandlerFactory.getInstance().fromUrl(plUrl);
+            final ChannelExtractor channelExtractor = YouTube.getChannelExtractor(channelListLinkHandler.getUrl());
+
+            // это выглядит логично, но не работает:
+            //final ListLinkHandler channelTabListLinkHandler = YoutubeChannelTabLinkHandlerFactory.getInstance().fromUrl(plUrl);
+            //final ListExtractor<? extends InfoItem> listExtractor = YouTube.getChannelTabExtractor(channelTabListLinkHandler);
+            // вот так работает:
+            final ListExtractor<? extends InfoItem> listExtractor = YouTube.getChannelTabExtractorFromId(channelListLinkHandler.getId(), "videos");
+
+            extratorBundle = new PlaylistExtractorBundle(
+                    channelExtractor, (ListExtractor<StreamInfoItem>) listExtractor);
         } else if (PlaylistUrlUtil.isYtPlaylist(plUrl)) {
-            extractor = YouTube.getPlaylistExtractor(plUrl);
+            extratorBundle = new PlaylistExtractorBundle(YouTube.getPlaylistExtractor(plUrl));
         } else if (PlaylistUrlUtil.isPtUser(plUrl) || PlaylistUrlUtil.isPtChannel(plUrl)) {
-            extractor = PeerTube.getChannelExtractor(plUrl);
+            final ListLinkHandler channelListLinkHandler = PeertubeChannelLinkHandlerFactory.getInstance().fromUrl(plUrl);
+            final ChannelExtractor channelExtractor = PeerTube.getChannelExtractor(channelListLinkHandler.getUrl());
+
+            // это выглядит логично, но не работает:
+            //final ListLinkHandler channelTabListLinkHandler = PeertubeChannelTabLinkHandlerFactory.getInstance().fromUrl(plUrl);
+            //final ListExtractor<? extends InfoItem> listExtractor = PeerTube.getChannelTabExtractor(channelTabListLinkHandler);
+            // вот так работает:
+            final ListExtractor<? extends InfoItem> listExtractor = PeerTube.getChannelTabExtractorFromIdAndBaseUrl(
+                    channelListLinkHandler.getId(), "videos", channelListLinkHandler.getBaseUrl());
+
+            extratorBundle = new PlaylistExtractorBundle(
+                    channelExtractor, (ListExtractor<StreamInfoItem>) listExtractor);
         } else if (PlaylistUrlUtil.isPtPlaylist(plUrl)) {
-            extractor = PeerTube.getPlaylistExtractor(plUrl);
+            extratorBundle = new PlaylistExtractorBundle(PeerTube.getPlaylistExtractor(plUrl));
         } else {
             throw new ExtractionException("Unrecognized playlist URL: " + plUrl);
         }
 
-        return extractor;
+        return extratorBundle;
     }
 
     public PlaylistInfo.PlaylistType getPlaylistType(final String plUrl) throws ExtractionException {
@@ -771,7 +934,7 @@ public class ContentLoader {
         // org.schabi.newpipe.extractor.exceptions.ParsingException: Could not get video length
         //final long duration = item.getLength();
         final long duration = 0;
-        final String thumbUrl = item.getThumbnailUrl();
+        final String thumbUrl = findBestThumbUrl(item.getThumbnails());
 
         return new VideoItem(PlaylistInfo.ID_NONE, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl);
     }
@@ -793,7 +956,7 @@ public class ContentLoader {
         final long viewCount = 0;
         final long viewCountExt = item.getViewCount();
         final long duration = item.getDuration();
-        final String thumbUrl = item.getThumbnailUrl();
+        final String thumbUrl = findBestThumbUrl(item.getThumbnails());
         //final long _fakeTimestamp = fakeTimestamp;
 
         return new VideoItem(playlistId, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl, enabled, fakeTimestamp);
@@ -813,7 +976,7 @@ public class ContentLoader {
         final long viewCount = 0;
         final long viewCountExt = item.getViewCount();
         final long duration = item.getDuration();
-        final String thumbUrl = item.getThumbnailUrl();
+        final String thumbUrl = findBestThumbUrl(item.getThumbnails());
 
         return new VideoItem(playlistId, itemUrl, name, uploader, viewCount, viewCountExt, duration, thumbUrl);
     }

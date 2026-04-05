@@ -73,7 +73,7 @@ public class VideoItemMultPlaylistsOnlyNewOnlineDataSource extends AbstractVideo
 
     @Override
     public void loadInitial(@NonNull LoadInitialParams<String> params, @NonNull LoadInitialCallback<VideoItem> callback) {
-        if(playlistIds.size() == 0) {
+        if (playlistIds.size() == 0) {
             return;
         }
 
@@ -88,14 +88,14 @@ public class VideoItemMultPlaylistsOnlyNewOnlineDataSource extends AbstractVideo
 
                 final String playlistUrl = VideoDatabase.getDbInstance(context).playlistInfoDao().getById(playlistId).getUrl();
 
-                extractor = ContentLoader.getInstance().getListExtractor(playlistUrl);
+                extractor = ContentLoader.getInstance().getListExtractor(playlistUrl).getStreamInfoItemListExtractor();
 
                 // загрузить первую страницу
                 extractor.fetchPage();
                 loadedPage = extractor.getInitialPage();
 
                 // загрузили страницу, проверим, есть ли на ней новые элементы
-                final List<StreamInfoItem> pageNewItems = new ArrayList<StreamInfoItem>();
+                final List<StreamInfoItem> pageNewItems = new ArrayList<>();
 
                 for (final StreamInfoItem item : loadedPage.getItems()) {
                     if (VideoDatabase.getDbInstance(context).videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
@@ -169,7 +169,7 @@ public class VideoItemMultPlaylistsOnlyNewOnlineDataSource extends AbstractVideo
                     final String playlistUrl = VideoDatabase.getDbInstance(context).playlistInfoDao().getById(playlistId).getUrl();
 
                     try {
-                        extractor = ContentLoader.getInstance().getListExtractor(playlistUrl);
+                        extractor = ContentLoader.getInstance().getListExtractor(playlistUrl).getStreamInfoItemListExtractor();
                         // загрузить первую страницу
                         extractor.fetchPage();
                         loadedPage = extractor.getInitialPage();
@@ -199,7 +199,7 @@ public class VideoItemMultPlaylistsOnlyNewOnlineDataSource extends AbstractVideo
 
             if (loadedNewPage) {
                 // загрузили страницу, проверим, есть ли на ней новые элементы
-                final List<StreamInfoItem> pageNewItems = new ArrayList<StreamInfoItem>();
+                final List<StreamInfoItem> pageNewItems = new ArrayList<>();
 
                 for (final StreamInfoItem item : loadedPage.getItems()) {
                     if (VideoDatabase.getDbInstance(context).videoItemDao().getByItemUrl(playlistId, item.getUrl()) == null) {
