@@ -4,6 +4,12 @@
       "_ignore": "true",
       "_comment": "// PeerTube"
     },
+    {
+      "name": "Main Blender channel",
+      "url": "https://video.blender.org/c/blender_channel/videos",
+      "thumb_url": "https://video.blender.org/lazy-static/avatars/f955c809-9ff8-4152-9a9e-da60cfda75b2.png",
+      "type": "PT_CHANNEL"
+    },
 
     {
       "_ignore": "true",
