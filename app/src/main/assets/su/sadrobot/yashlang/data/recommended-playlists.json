@@ -16,16 +16,6 @@
       ]
     },
     {
-      "_comment": [
-        "// Классические и современные мультфильмы и детские фильмы",
-        "// Проект телеканала «Россия», ВГТРК Официальный сайт  https://russia.tv"
-      ],
-      "name": "СМОТРИМ. Русские мультфильмы",
-      "url": "https://www.youtube.com/@SMOTRIM_KIDS",
-      "thumb_url": "https://yt3.googleusercontent.com/GLq3SAcJp5rw_OEhPfrXJ15umgmf9rnvYoHeB6heIoBUjKXyZ9SrZCIZ-sn5uj6bDBXNPsLHJg=s240-c-k-c0x00ffffff-no-rj",
-      "type": "YT_USER"
-    },
-    {
       "name": "Киножурнал Ералаш",
       "url": "https://www.youtube.com/c/eralash",
       "thumb_url": "https://yt3.googleusercontent.com/a/AATXAJyrcud4u0wZRamlOQyHYV0pREVXNpPFfgs9dYec0g=s240-c-k-c0x00ffffff-no-rj",
@@ -91,12 +81,6 @@
       "type": "YT_USER"
     },
     {
-      "name": "Белка и Стрелка",
-      "url": "https://www.youtube.com/user/BelkaiStrelkaTV",
-      "thumb_url": "https://yt3.googleusercontent.com/a/AATXAJzwki_bJdaDKYCRB7sxAhv2JfU2EtEMI7AyT7Ak=s240-c-k-c0x00ffffff-no-rj",
-      "type": "YT_USER"
-    },
-    {
       "name": "Три Кота",
       "url": "https://www.youtube.com/channel/UCBZNnwQOBirwpeWncqTj_KQ",
       "thumb_url": "https://yt3.googleusercontent.com/a/AATXAJxCV4vup0-vMjQKxNnW08VyTaTFWaANTKgwByzh=s240-c-k-c0x00ffffff-no-rj",
@@ -150,13 +134,6 @@
       "url": "https://www.youtube.com/channel/UCGc6IG2eIhFa5vu2QtRz69g",
       "thumb_url": "https://yt3.googleusercontent.com/a/AATXAJwlsJTeu094JtXx9zrTk9HHumtskBSKJVaTlPHo=s240-c-k-c0x00ffffff-no-rj",
       "type": "YT_CHANNEL"
-    },
-
-    {
-      "name": "Поросенок - сериал студии \"Пилот\"",
-      "url": "https://www.youtube.com/user/pigletseries",
-      "thumb_url": "https://yt3.googleusercontent.com/a/AGF-l7-ST5Lc17u7l2CMR3NL12FB5Qs4HBK-bipBEw=s240-c-k-c0xffffffff-no-rj-mo",
-      "type": "YT_USER"
     },
     {
       "name": "Студия Пилот - Фильмы для взрослых",
@@ -335,22 +312,10 @@
       "type": "YT_PLAYLIST"
     },
     {
-      "name": "Гора Фрегглов все серии все сезоны",
-      "url": "https://www.youtube.com/playlist?list=PL1jvL2p3QDqtoZJM5KD3Hs9lv-jsmKqCI",
-      "thumb_url": "https://i.ytimg.com/vi/0p5R1ofXMx4/hqdefault.jpg",
-      "type": "YT_PLAYLIST"
-    },
-    {
       "name": "The Classic Muppet Show Clips and Episodes",
       "url": "https://www.youtube.com/channel/UCEpXcjiiCFDi6-8rB8DHFQA",
       "thumb_url": "https://yt3.googleusercontent.com/ytc/AKedOLSLAfB-wTEo-0yBRveVzr3Fj58usL5P9tUMyqko=s240-c-k-c0x00ffffff-no-rj",
       "type": "YT_CHANNEL"
-    },
-    {
-      "name": "Muzzy in Gondoland",
-      "url": "https://www.youtube.com/playlist?list=PLyQQKag6VcB5C6ZliX4j9Kcd91e0siUQE",
-      "thumb_url": "https://i.ytimg.com/vi/HrWHEXeElNY/hqdefault.jpg",
-      "type": "YT_PLAYLIST"
     },
 
     {
@@ -361,12 +326,6 @@
         "// Например, Укращение огня, 1972:",
         "// https://www.youtube.com/watch?v=vwBKEKqLOLY&feature=emb_title"
       ]
-    },
-    {
-      "name": "Золотая коллекция русского кино",
-      "url": "https://www.youtube.com/channel/UCOVlL3Oo72Sr6jLXA-Dvzag",
-      "thumb_url": "https://yt3.googleusercontent.com/ytc/AAUvwniyFZxBH0NUsmMALvmpCp2LTB56W5tpwtlCcKEs=s240-c-k-c0x00ffffff-no-rj",
-      "type": "YT_CHANNEL"
     },
     {
       "name": "Киноконцерн \"Мосфильм\"",
@@ -397,18 +356,6 @@
       "url": "https://www.youtube.com/user/belarusfilmRV",
       "thumb_url": "https://yt3.googleusercontent.com/a/AGF-l78CYlekYxhAcGRkYtO8AQSVFlrhI7uLNwKBiw=s240-c-k-c0xffffffff-no-rj-mo",
       "type": "YT_USER"
-    },
-    {
-      "name": "Рижская киностудия - советские фильмы",
-      "url": "https://www.youtube.com/playlist?list=PLE6LTBN-twJ5df3IT8aasND_S70OksfmF",
-      "thumb_url": "https://i.ytimg.com/vi/wdkE-RdbJ7I/hqdefault.jpg",
-      "type": "YT_PLAYLIST"
-    },
-    {
-      "name": "\"Таллинфильм\"",
-      "url": "https://www.youtube.com/playlist?list=PLE6LTBN-twJ6lRe0O_vcFzHgZ_Mh9Akw0",
-      "thumb_url": "https://i.ytimg.com/vi/vLshtccUaD8/hqdefault.jpg",
-      "type": "YT_PLAYLIST"
     },
 
     {
@@ -479,12 +426,6 @@
       "url": "https://www.youtube.com/c/Alekcey66",
       "thumb_url": "https://yt3.googleusercontent.com/ytc/AAUvwnivPkrSv7xfvee-08DA2xgFRoC80ZbDWKPxLLMpRg=s240-c-k-c0x00ffffff-no-rj",
       "type": "YT_USER"
-    },
-    {
-      "name": "Польские любимые фильмы на русском",
-      "url": "https://www.youtube.com/playlist?list=PLopE4IpWmXB-Xk5pasMlVRxckty18sYFu",
-      "thumb_url": "https://i.ytimg.com/vi/atRTfOxolj0/hqdefault.jpg",
-      "type": "YT_PLAYLIST"
     },
     {
       "name": "ИСТОРИЧЕСКИЕ НОВЕЛЛЫ",
@@ -600,12 +541,6 @@
       "name": "Gorodok TV",
       "url": "https://www.youtube.com/c/GorodokTV",
       "thumb_url": "https://yt3.googleusercontent.com/a/AATXAJwWC-ZdpF4vMOUTXD_-PYrrWYHi0qPdjO4H6UEdUg=s240-c-k-c0x00ffffff-no-rj",
-      "type": "YT_USER"
-    },
-    {
-      "name": "Тележурнал Каламбур",
-      "url": "https://www.youtube.com/user/kalamburVideo",
-      "thumb_url": "https://yt3.googleusercontent.com/a/AATXAJyXXNq_bud5ECjqkAVXtzqD932wp-4eMzp6_6li=s240-c-k-c0x00ffffff-no-rj",
       "type": "YT_USER"
     },
     {
@@ -730,12 +665,6 @@
     {
       "_ignore": "true",
       "_comment": "// Телевидение - образование, научпоп, дети"
-    },
-    {
-      "name": "Телеканал Карусель",
-      "url": "https://www.youtube.com/c/tvkarusel",
-      "thumb_url": "https://yt3.googleusercontent.com/a/AATXAJxCk3tckKhWYSQmbQoWX0Vejzi4cdngoA0bR8ps=s240-c-k-c0x00ffffff-no-rj",
-      "type": "YT_USER"
     },
     {
       "name": "BDHchoir",
