@@ -1,5 +1,7 @@
 package su.sadrobot.yashlang.controller;
 
+import org.junit.Test;
+
 import org.json.JSONException;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 
@@ -9,31 +11,15 @@ import java.util.List;
 import su.sadrobot.yashlang.model.PlaylistInfo;
 
 public class DataIOTest {
-    public static void main(String args[]) {
+
+    @Test
+    public void runAll() {
         loadPlaylistsFromJSON();
         checkPlaylistsAlive();
     }
 
     public static void loadPlaylistsFromJSON() {
         System.out.println("***** TEST: loadPlaylistsFromJSON *****");
-
-        // !!!!!!!!!!!!!!!!!!!!!! ЧТОБЫ ЗАПУСТИТЬ СДЕЛАТЬ ВРУЧНУЮ ПРЕДВАРИТЕЛЬНО !!!!!!!!!!!!!!!!!!!!!
-        // в build.gradle добавлена запись testImplementation 'org.json:json:20171018'
-        // для запуска DataIOTest без андроида на десктопе, чтобы избежать ошибки
-        // java.lang.RuntimeException: Stub!
-        // at org.json.JSONObject.<init>(JSONObject.java:124)
-        // т.к. там используем org.json.JSONObject из android-xx.jar, который за пределами андроида - заглушка
-        // https://stackoverflow.com/questions/8982631/error-java-lang-runtimeexception-stub-in-android-with-fitnesse-testing
-        // Но просто так всё равно запустить не получится, т.к. android-xx.jar в класпасе
-        // будет всегда выше, чем любая библиотека отсюда (в build.gradle)
-        // Чтобы запустить и не получить ошибку, нужно внутри файла .idea/modules/app/yashlang.app.iml переместить запись
-        // <orderEntry type="jdk" jdkName="Android API 29 Platform" jdkType="Android SDK" />
-        // ниже аналогичных записей, относящихся к тестам (конкретно, "org.json:json") вручную
-        // и делать это каждый раз при перезапуске среды или при изменении build.gradle здесь
-        // https://stackoverflow.com/questions/22863845/how-to-configure-the-order-of-libraries-in-the-classpath-for-android-studio
-        // там же по ссылке предлгаюат написать код, который будет это делать автоматом (пока нах)
-        // и еще здесь другое решение через какой-то App Engine, которого у меня, скорее всего, нет и нах он нужен
-        // https://stackoverflow.com/questions/31698510/can-i-force-the-order-of-dependencies-in-my-classpath-with-gradle/
 
         // src/main/res/raw vs src/main/assets
         // https://medium.com/mobile-app-development-publication/assets-or-resource-raw-folder-of-android-5bdc042570e0

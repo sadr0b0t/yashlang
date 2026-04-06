@@ -1,5 +1,7 @@
 package su.sadrobot.yashlang.controller;
 
+import org.junit.Test;
+
 import org.schabi.newpipe.DownloaderTestImpl;
 import org.schabi.newpipe.extractor.MediaFormat;
 import org.schabi.newpipe.extractor.NewPipe;
@@ -74,7 +76,8 @@ public class StreamHelperTest {
         }
     }
 
-    public static void main(String args[]) {
+    @Test
+    public void runAll() {
         // https://ru.wikipedia.org/wiki/480p
         // разрешение может быть указано как 480p или 480p60 (60 - количество кадров в секунду)
         System.out.println("480p60".replaceAll("p.*", "") );
