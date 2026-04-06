@@ -172,13 +172,8 @@
       "type": "YT_USER"
     },
     {
-      "_comment": [
-        "NewPipeExtractor не принимает юникодные адреса, адреса без юникода у канала нет",
-        "https://github.com/TeamNewPipe/NewPipeExtractor/issues/435"
-      ],
-      "_ignore": "true",
       "name": "МастерФильм",
-      "_url": "https://www.youtube.com/c/МастерФильм",
+      "url": "https://www.youtube.com/c/МастерФильм",
       "thumb_url": "https://yt3.googleusercontent.com/ytc/AKedOLT3nMp80xYtFQWRSdZ-4xhKkd_y4d2IYOiwtalWkA=s240-c-k-c0x00ffffff-no-rj",
       "type": "YT_USER"
     },
@@ -221,14 +216,8 @@
     },
 
     {
-      "_comment": [
-        "// NewPipeExtractor (как минимум в версии 0.20.1) не работает с названиями каналов в UTF",
-        "// https://github.com/TeamNewPipe/NewPipeExtractor/issues/435",
-        "//\"url\": \"https://www.youtube.com/c/СтудияДиафильм\""
-      ],
       "name": "Студия Диафильм",
-      "_url": "https://www.youtube.com/c/СтудияДиафильм",
-      "url": "https://www.youtube.com/channel/UCmFS6kwGK_ewWGLM6Kedjrw",
+      "url": "https://www.youtube.com/c/СтудияДиафильм",
       "thumb_url": "https://yt3.googleusercontent.com/a/AATXAJx5kRDv3zUNvBD0SxZXq0C1NVMAr-AAMX1OX0VAkg=s240-c-k-c0x00ffffff-no-rj",
       "type": "YT_USER"
     },
