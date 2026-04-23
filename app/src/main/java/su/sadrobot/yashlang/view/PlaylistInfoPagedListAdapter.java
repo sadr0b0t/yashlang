@@ -196,6 +196,7 @@ public class PlaylistInfoPagedListAdapter extends PagedListAdapter<PlaylistInfo,
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     itemSwitchController.onItemCheckedChanged(buttonView, holder.getBindingAdapterPosition(), item, isChecked);
+                    notifyItemChanged(holder.getBindingAdapterPosition());
                 }
             });
         }
