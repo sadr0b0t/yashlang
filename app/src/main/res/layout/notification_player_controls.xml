@@ -44,7 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/exo_controls_previous" />
+                    android:src="@android:drawable/ic_media_previous" />
 
                 <LinearLayout
                     android:layout_width="0dip"
@@ -58,13 +58,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:src="@drawable/exo_controls_play" />
+                        android:src="@android:drawable/ic_media_play" />
 
                     <ImageButton
                         android:id="@+id/pause_btn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/exo_controls_pause" />
+                        android:src="@android:drawable/ic_media_pause" />
 
                     <ProgressBar
                         android:id="@+id/video_load_progress"
@@ -90,7 +90,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/exo_controls_next" />
+                    android:src="@android:drawable/ic_media_next" />
 
                 <ImageButton
                     android:id="@+id/stop_btn"

@@ -33,17 +33,16 @@ import android.widget.Toast;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MergingMediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.common.util.Util;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultDataSourceFactory;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.MergingMediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 
@@ -232,8 +231,8 @@ public class PlayerService extends Service {
                         }
                     });
 
-    private SimpleExoPlayer exoPlayer;
-    private com.google.android.exoplayer2.upstream.DataSource.Factory videoDataSourceFactory;
+    private ExoPlayer exoPlayer;
+    private DataSource.Factory videoDataSourceFactory;
 
     private PlayerState playerState = PlayerState.EMPTY;
     private PlayerType playerType = PlayerType.FOREGROUND_VIDEO;
@@ -284,7 +283,7 @@ public class PlayerService extends Service {
         }
 
         // Плеер
-        exoPlayer = new SimpleExoPlayer.Builder(this).build();
+        exoPlayer = new ExoPlayer.Builder(this).build();
         videoDataSourceFactory = new DefaultDataSourceFactory(this,
                 Util.getUserAgent(this, "yashlang"));
 
@@ -1382,7 +1381,7 @@ public class PlayerService extends Service {
             }
 
             // Prepare the player with the source
-            ((SimpleExoPlayer) exoPlayer).setMediaSource(mediaSource);
+            exoPlayer.setMediaSource(mediaSource);
             exoPlayer.prepare();
 
             // Укажем текущую позицию сразу при загрузке видео

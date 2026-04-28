@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     namespace "su.sadrobot.yashlang"
 
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "su.sadrobot.yashlang"
@@ -135,11 +135,12 @@ dependencies {
     // https://developer.android.com/studio/write/java8-support#library-desugaring
     implementation "com.github.TeamNewPipe:NewPipeExtractor:v0.26.0"
 
-    // google ExoPlayer
-    // https://github.com/google/ExoPlayer
-    // https://exoplayer.dev/
-    implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
-
+    // API androidx.media3 ExoPlayer (бывший просто Google ExoPlayer)
+    // https://developer.android.com/media/media3/exoplayer/hello-world
+    // https://github.com/androidx/media
+    implementation("androidx.media3:media3-exoplayer:1.1.0")
+    implementation("androidx.media3:media3-exoplayer-dash:1.1.0")
+    implementation("androidx.media3:media3-ui:1.1.0")
 
     // Для запуска тестов на десктопе за пределами устройства или эмулятора
     testImplementation 'junit:junit:4.12'
