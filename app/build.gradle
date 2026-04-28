@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     namespace "su.sadrobot.yashlang"
 
-    compileSdkVersion 33
+    compileSdkVersion 34
 
     defaultConfig {
         applicationId "su.sadrobot.yashlang"
@@ -138,9 +138,9 @@ dependencies {
     // API androidx.media3 ExoPlayer (бывший просто Google ExoPlayer)
     // https://developer.android.com/media/media3/exoplayer/hello-world
     // https://github.com/androidx/media
-    implementation("androidx.media3:media3-exoplayer:1.1.0")
-    implementation("androidx.media3:media3-exoplayer-dash:1.1.0")
-    implementation("androidx.media3:media3-ui:1.1.0")
+    implementation("androidx.media3:media3-exoplayer:1.2.0")
+    implementation("androidx.media3:media3-exoplayer-dash:1.2.0")
+    implementation("androidx.media3:media3-ui:1.2.0")
 
     // Для запуска тестов на десктопе за пределами устройства или эмулятора
     testImplementation 'junit:junit:4.12'
